@@ -14,7 +14,15 @@ nav a[aria-current=true]{background:var(--paper);color:var(--red)}
 aside{grid-area:side;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-right:1px solid var(--line)}
 aside header{padding:12px}
 input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16}
-.fl{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.fl select{padding:6px;font-size:14px}
+.fl{margin-top:8px;font:14px 'PT Sans',sans-serif}
+#fpanel>summary{cursor:pointer;font-weight:700;padding:4px 0;user-select:none}
+.gn{display:inline-block;min-width:18px;padding:0 6px;border-radius:9px;background:var(--bar);color:#fff;font-size:12px;text-align:center}.gn:empty{display:none}
+.fb{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+#reset{position:sticky;top:0;z-index:1;width:100%;padding:6px;border:0;border-bottom:1px solid var(--line);background:var(--panel);color:inherit;font:13px 'PT Sans',sans-serif;text-align:left;cursor:pointer}#reset:hover{color:var(--bar);text-decoration:underline}
+.g{border-bottom:1px solid var(--line)}.g>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;cursor:pointer}.g.on>summary>span:first-child{font-weight:700}
+.go{max-height:200px;overflow:auto;padding:0 8px 6px}
+.o,.md{display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer}.md{font-size:12px;color:var(--muted);border-bottom:1px dashed var(--line);margin-bottom:3px;padding-bottom:4px}
+.o input,.md input{width:auto;margin:0;padding:0;flex:none}.o span{flex:1}.o em{font-style:normal;font-size:12px;opacity:.6}.o.z{opacity:.4}
 #count{font:13px 'PT Sans',sans-serif;color:var(--muted);padding:0 12px 6px}
 #list{flex:1;overflow:auto;margin:0;padding:0;list-style:none}
 #list a{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;color:inherit;text-decoration:none;border-top:1px solid var(--line);font-family:'PT Sans',sans-serif}
@@ -63,40 +71,174 @@ const at=(k,m)=>`<table><tr><th></th><th></th><th>мод</th><th>спас</th></
 const ent=e=>`<p class="it${e.indent||e.n?' ind':''}">${e.n?`<b>${e.n}.</b> `:''}${e.name?`<span class="nm">${esc(e.name)}.</span> `:''}${fmt(e.text)}${(e.rows||[]).map(r=>`<br><i>${esc(r.label)}:</i> `+r.spells.map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener"><i>${esc(s.name)}</i></a>`).join(', ')).join('')}</p>`;
 const lore=l=>l?`<details><summary>${esc(l.title||'Описание')}</summary>${Array.isArray(l)?B(l):l.blocks.map(b=>b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='table'?T(b.rows,true):`<p>${fmt(b.text)}</p>`).join('')}</details>`:'';
 const S={
-bestiary:{t:'Бестиарий',sub:m=>'БО '+m.cr,F:[['Опасность',m=>[m.cr],(a,b)=>CR.indexOf(a)-CR.indexOf(b)],['Тип',m=>[m.type]],['Размер',m=>m.sizes],['Источник',m=>m.sources]],
+bestiary:{t:'Бестиарий',sub:m=>'БО '+m.cr,
  card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type}`)+(m.tags.length?` (${m.tags.join(', ')})`:'')+`, ${m.alignment_text}`+(m.named_npc?', именной НИП':'');
  return `<article class="stat">${head(m,sl)}<p class="pr"><b>Класс Защиты</b> ${m.ac} &nbsp; <b>Инициатива</b> ${sg(m.initiative.mod)} (${m.initiative.score})</p><p class="pr"><b>Хиты</b> ${m.hp.avg}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>${pr('Скорость',m.speed_text)}<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div><div class="rule"></div>`
  +pr('Навыки',(m.skills||[]).map(s=>`${s.name} ${sg(s.bonus)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитеты',m.immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)+`<p class="pr"><b>Опасность</b> ${esc(m.cr)} (${esc(m.xp_text)})</p>`
  +m.sections.map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',sg(m.pb))+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+foot(m)+lore(m.lore)}},
-spells:{t:'Заклинания',sub:m=>m.level?m.level+' ур.':'загов.',F:[['Уровень',m=>[lvl(m)],(a,b)=>num(a=='Заговор'?0:a,b=='Заговор'?0:b)],['Школа',m=>[m.school]],['Класс',m=>(m.classes||[]).map(c=>c.name)]],
+spells:{t:'Заклинания',sub:m=>m.level?m.level+' ур.':'загов.',
  card:m=>`<article class="stat">${head(m,m.line)}${pr('Время сотворения',m.cast_time)}${pr('Дистанция',m.range)}${pr('Компоненты',m.components)}${pr('Длительность',m.duration)}${pr('Классы',(m.classes||[]).map(c=>c.name).join(', '))}${pr('Подклассы',m.subclasses)}<div class="rule"></div>${B(m.blocks)}${m.higher?`<p>${fmt(m.higher)}</p>`:''}${m.circle?`<p>${fmt(m.circle)}</p>`:''}${foot(m)}`},
-items:{t:'Предметы',sub:rar,F:[['Редкость',m=>[rar(m)]],['Тип',m=>[(m.type||'').split(' (')[0]]]],
+items:{t:'Предметы',sub:rar,
  card:m=>`<article class="stat">${head(m,m.line)}${pr('Рекомендованная стоимость',m.price)}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
-equipment:{t:'Снаряжение',sub:m=>m.cost||'',F:[['Вид',m=>[m.line]]],
+equipment:{t:'Снаряжение',sub:m=>m.cost||'',
  card:m=>`<article class="stat">${head(m,m.line)}${props(m)}${m.blocks?.length?`<div class="rule"></div>${B(m.blocks)}`:''}${foot(m)}`},
-feats:{t:'Черты',sub:m=>(m.category||'').replace(' черта','').replace('Черта ',''),F:[['Категория',m=>[m.category]]],
+feats:{t:'Черты',sub:m=>(m.category||'').replace(' черта','').replace('Черта ',''),
  card:m=>`<article class="stat">${head(m,m.line)}${B(m.blocks)}${foot(m)}`},
-backgrounds:{t:'Предыстории',sub:()=>'',F:[['Характеристика',m=>m.abilities||[]],['Навык',m=>m.skills||[]]],
+backgrounds:{t:'Предыстории',sub:()=>'',
  card:m=>{const f=m.feat,fs=f&&f.url?f.url.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):null;
  return `<article class="stat">${head(m,'')}${pr('Характеристики',(m.abilities||[]).join(', '))}${f?`<p class="pr"><b>Черта</b> ${fs?`<a href="#feats/${esc(fs)}">${esc(f.name)}</a>`:esc(f.name)}</p>`:''}${pr('Навыки',(m.skills||[]).join(', '))}${pr('Инструменты',m.tools)}${pr('Снаряжение',m.equipment)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`}},
-species:{t:'Виды',sub:()=>'',F:[],card:m=>`<article class="stat">${head(m,'')}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
-class:{t:'Классы',sub:()=>'',F:[],card:m=>{const tb=m.table;
+species:{t:'Виды',sub:()=>'',card:m=>`<article class="stat">${head(m,'')}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
+class:{t:'Классы',sub:()=>'',card:m=>{const tb=m.table;
  return `<article class="stat">${head(m,'')}${(m.core_traits||[]).map(c=>pr(esc(c.label),c.value)).join('')}${tb?`<div class="sc"><table class="tb"><tr>${tb.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${tb.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:''}`
  +(m.becoming?m.becoming.parts.map(p=>`<details><summary>${esc(p.title)}</summary>${B(p.blocks)}</details>`).join(''):'')
  +(m.features||[]).map(f=>`<h3>Уровень ${f.level}: ${esc(f.name)}</h3>${B(f.blocks)}`).join('')+`<h3>Подклассы</h3>`
  +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${s.features.map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join('')+foot(m)+lore(m.lore)}},
-glossary:{t:'Глоссарий',sub:()=>'',F:[['Группа',m=>[m.group||'—']]],card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`}
+glossary:{t:'Глоссарий',sub:()=>'',card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`}
 };
+/* ---- фильтры ---- */
+/* ===== фильтры: [название, значения(m)=>[...], сортировка?, multi?] ===== */
+const ru=(a,b)=>String(a).localeCompare(b,'ru'),
+ ord=l=>(a,b)=>{const x=l.indexOf(a),y=l.indexOf(b);return(x<0?999:x)-(y<0?999:y)||ru(a,b)},
+ yn=v=>[v?'Да':'Нет'],
+ tx=m=>(m.blocks||[]).map(b=>b.text||(b.items||[]).join(' ')||(b.rows||[]).flat().join(' ')).join(' '),
+ rx=(m,list)=>{const t=tx(m);return list.filter(([,r])=>r.test(t)).map(([n])=>n)},
+ SRC=m=>[...new Set((m.sources||[]).map(s=>/^Также/.test(s)?'SRD 5.2.1':s))],
+ bucket=(n,b)=>{if(n==null||isNaN(n))return null;for(const[l,max]of b)if(n<=max)return l;return b.at(-1)[0]},
+ GP=[['до 1 зм',1],['1–10 зм',10],['10–100 зм',100],['более 100 зм',1/0]],
+ GPL=GP.map(x=>x[0]),
+ PRICE=n=>n==null?'Без цены':bucket(n,[['до 100 зм',100],['100–1 000 зм',1000],['1 000–10 000 зм',1e4],['более 10 000 зм',1/0]]),
+ PRICEL=['до 100 зм','100–1 000 зм','1 000–10 000 зм','более 10 000 зм','Без цены'],
+ SIZES=['Крошечный','Маленький','Средний','Большой','Огромный','Громадный'],
+ DMGT=['Дробящий','Колющий','Рубящий','Кислота','Огонь','Холод','Электричество','Звук','Яд','Излучение','Некротический','Психический','Силовое поле'],
+ CONDS=['Бессознательный','Истощение','Испуганный','Окаменевший','Опрокинутый','Опутанный','Оглохший','Ослеплённый','Отравленный','Очарованный','Парализованный','Схваченный','Недееспособный','Ошеломлённый'],
+ items_=s=>(s||'').split(/[;,]/).map(t=>t.replace(/\(.*?\)/g,'').trim().replace(/^Силовой$/,'Силовое поле')).filter(Boolean),
+ dmg=s=>items_(s).filter(t=>DMGT.includes(t)),cnd=s=>items_(s).filter(t=>CONDS.includes(t)),
+ ALIGN={LG:'Принципиальный добрый',NG:'Нейтральный добрый',CG:'Хаотичный добрый',LN:'Принципиальный нейтральный',N:'Нейтральный',CN:'Хаотичный нейтральный',LE:'Принципиальный злой',NE:'Нейтральный злой',CE:'Хаотичный злой',U:'Без мировоззрения'},
+ ABIL_RU=['Сила','Ловкость','Телосложение','Интеллект','Мудрость','Харизма'],
+ abil=s=>ABIL_RU.filter(a=>new RegExp(a.slice(0,-1)).test(s||'')),
+ /* заклинания */
+ castT=m=>{const b=(m.cast_time||'').split(/,| или /)[0].replace(/\s*\(.*\)/,'').trim();return /^Бонус/i.test(b)?'Бонусное действие':/^Реакц/i.test(b)?'Реакция':b},
+ SEC={'раунд':6,'мин':60,'час':3600,'ч':3600,'дн':86400,'день':86400},
+ durT=m=>{const s=m.duration||'';if(/мгнов/i.test(s))return'Мгновенная';if(/пока не рассеяно/i.test(s))return'Пока не рассеяно';
+  const r=s.match(/(\d+)\s*(раунд|минут|час|дн|день)/i);if(!r)return'Особая';const u={раунд:'раунд.',минут:'мин',час:'ч',дн:'дн',день:'дн'}[r[2].toLowerCase()];return r[1]+' '+u},
+ durSec=l=>{const r=l.match(/^(\d+) (раунд\.|мин|ч|дн)/);return r?r[1]*{'раунд.':6,'мин':60,'ч':3600,'дн':86400}[r[2]]:l=='Мгновенная'?0:1e12},
+ rangeT=m=>{const s=(m.range||'').split(' (')[0].trim(),r=s.match(/^(\d+)\s*(фут|миль)/i);return r?(/миль/i.test(r[2])?r[1]+' '+(r[1]==1?'миля':'миль'):r[1]+' фт'):s},
+ rangeSec=l=>{const r=l.match(/^(\d+) (фт|миля|миль)/);return l=='На себя'?-2:l=='Касание'?-1:r?r[1]*(r[2]=='фт'?1:5280):1e9},
+ SDMG=[['Излучение',/урон[а-яё]*\s+Излучением|Излучения\s+урон/i],['Огонь',/урон[а-яё]*\s+Огнём/i],['Звук',/урон[а-яё]*\s+Звуком/i],['Холод',/урон[а-яё]*\s+Холодом/i],['Электричество',/урон[а-яё]*\s+Электричеством/i],['Кислота',/урон[а-яё]*\s+Кислотой/i],['Яд',/урон[а-яё]*\s+Ядом/i],
+  ['Некротический',/Некротическ[а-яё]*\s+урон|урон[а-яё]*\s+Некротическ/i],['Психический',/Психическ[а-яё]*\s+урон|урон[а-яё]*\s+Психическ/i],['Силовое поле',/Силов[а-яё]*\s+урон|урон[а-яё]*\s+Силов/i],['Дробящий',/Дробящ[а-яё]*\s+урон/i],['Колющий',/Колющ[а-яё]*\s+урон/i],['Рубящий',/Рубящ[а-яё]*\s+урон/i]],
+ SSAVE=ABIL_RU.map(a=>[a,new RegExp('спасбросок\\s+'+({Сила:'Силы',Ловкость:'Ловкости',Телосложение:'Телосложения',Интеллект:'Интеллекта',Мудрость:'Мудрости',Харизма:'Харизмы'}[a]),'i')]),
+ /* предметы */
+ RAR=['Обычный','Необычный','Редкий','Очень редкий','Легендарный','Артефакт','Редкость варьируется'],
+ rarT=m=>{const r=(m.rarity||'').toLowerCase();return !r?'—':/очень редк/.test(r)?'Очень редкий':/необычн/.test(r)?'Необычный':/обычн/.test(r)?'Обычный':/редкость/.test(r)?'Редкость варьируется':/редк/.test(r)?'Редкий':/легенд/.test(r)?'Легендарный':/артефакт/.test(r)?'Артефакт':r},
+ /* снаряжение */
+ pv=(m,l)=>((m.props||[]).find(p=>p.label==l)||{}).value||'',
+ eqCat=m=>{const l=m.line||'';return !l?'Прочее':/оружие/.test(l)?'Оружие':/доспех|Щит/.test(l)?'Доспех и щиты':/фокусировка/.test(l)?'Заклинательная фокусировка':/Ремесленный/.test(l)?'Ремесленный инструмент':/Инструмент/.test(l)?'Инструмент':/Набор/.test(l)?'Набор снаряжения':/Боеприпас/.test(l)?'Боеприпасы':'Предмет снаряжения'},
+ /* черты */
+ fprereq=m=>{const p=m.prerequisite||'';return p?rx({blocks:[{text:p}]},[['Эберрон',/Эберрон/],['Равенлофт',/Равенлофт/],['Заклинатель',/Сотворение заклинаний|Магия договора|Посвящённый в магию|Искра/],['Боевой стиль',/Боевой стиль/],['Другая черта',/черт[аы]\s/],['Доспехи / оружие',/тренированность|владение/i]]):['Нет требований']},
+ /* виды */
+ spText=m=>tx(m);
+
+const FILTERS={
+bestiary:[
+ ['Опасность',m=>[m.cr],(a,b)=>CR.indexOf(a)-CR.indexOf(b)],
+ ['Тип',m=>[m.type].filter(Boolean).flatMap(t=>t.split(' или '))],
+ ['Теги',m=>m.tags||[],null,1],
+ ['Размер',m=>m.sizes,ord(SIZES),1],
+ ['Мировоззрение',m=>[ALIGN[m.alignment]||m.alignment_text],ord(Object.values(ALIGN))],
+ ['Среда обитания',m=>m.habitat?m.habitat.split(/,\s*/):[],null,1],
+ ['Скорость',m=>Object.keys(m.speed||{}).map(k=>({fly:'Полёт',swim:'Плавание',climb:'Лазание',burrow:'Копание'})[k]).filter(Boolean),null,1],
+ ['Чувства',m=>rx({blocks:[{text:m.senses||''}]},[['Тёмное зрение',/Тёмное зрение/],['Слепое зрение',/Слепое зрение/],['Истинное зрение',/Истинное зрение/],['Чувство вибрации',/Чувство вибрации/]]),null,1],
+ ['Телепатия',m=>/Телепат/i.test(m.languages||'')?['Есть']:['Нет']],
+ ['Класс Защиты',m=>[bucket(m.ac,[['до 11',11],['12–14',14],['15–17',17],['18 и выше',1/0]])],ord(['до 11','12–14','15–17','18 и выше'])],
+ ['Хиты',m=>[bucket(m.hp.avg,[['до 20',20],['21–50',50],['51–100',100],['101–200',200],['более 200',1/0]])],ord(['до 20','21–50','51–100','101–200','более 200'])],
+ ['Иммунитет к урону',m=>dmg(m.immunities),ord(DMGT),1],
+ ['Сопротивление урону',m=>dmg(m.resistances),ord(DMGT),1],
+ ['Уязвимость к урону',m=>dmg(m.vulnerabilities),ord(DMGT),1],
+ ['Иммунитет к состояниям',m=>cnd(m.immunities),null,1],
+ ['Особенности',m=>[...(m.sections||[]).map(s=>({legendary_actions:'Легендарные действия',reactions:'Реакции',bonus_actions:'Бонусные действия'})[s.key]).filter(Boolean),...(m.swarm?['Рой']:[]),...(m.named_npc?['Именной НИП']:[])],null,1],
+ ['Источник',SRC,null,1]],
+spells:[
+ ['Уровень',m=>[lvl(m)],(a,b)=>num(a=='Заговор'?0:a,b=='Заговор'?0:b)],
+ ['Школа',m=>[m.school]],
+ ['Класс',m=>(m.classes||[]).map(c=>c.name),null,1],
+ ['Время сотворения',m=>[castT(m)],ord(['Действие','Бонусное действие','Реакция','1 минута','10 минут','1 час'])],
+ ['Ритуал',m=>yn(m.ritual)],
+ ['Концентрация',m=>yn(m.concentration)],
+ ['Длительность',m=>[durT(m)],(a,b)=>durSec(a)-durSec(b)],
+ ['Дистанция',m=>[rangeT(m)],(a,b)=>rangeSec(a)-rangeSec(b)],
+ ['Компоненты',m=>m.comp||[],null,1],
+ ['Материал',m=>m.material?[...(/\d+\s*зм/i.test(m.material)?['Указана стоимость']:[]),...(/поглощ|расходу|уничтож/i.test(m.material)?['Расходуется']:[])]:[],null,1],
+ ['Тип урона',m=>rx(m,SDMG),ord(DMGT),1],
+ ['Спасбросок',m=>rx(m,SSAVE),ord(ABIL_RU),1],
+ ['Атака заклинанием',m=>/(рукопашн|дальнобойн)[а-яё]*\s+атак[а-яё]*\s+заклинанием|бросок атаки заклинанием/i.test(tx(m))?['Да']:['Нет']],
+ ['Источник',SRC,null,1]],
+items:[
+ ['Редкость',m=>[rarT(m)],ord(RAR)],
+ ['Тип',m=>[(m.type||'—').split(' (')[0]]],
+ ['Настройка',m=>[m.attunement?'Требуется':'Не требуется']],
+ ['Цена',m=>[PRICE(m.price_gp)],ord(PRICEL)],
+ ['Источник',SRC,null,1]],
+equipment:[
+ ['Категория',m=>[eqCat(m)]],
+ ['Класс',m=>[(m.line||'').match(/^(Простое|Воинское|Лёгкий|Средний|Тяжёлый)/)?.[1]].filter(Boolean),ord(['Простое','Воинское','Лёгкий','Средний','Тяжёлый'])],
+ ['Дистанция оружия',m=>[(m.line||'').match(/(Рукопашное|Дальнобойное)/)?.[1]].filter(Boolean)],
+ ['Тип урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ').pop()]:[],ord(DMGT)],
+ ['Кость урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ')[0]]:[]],
+ ['Фокусировка для',m=>/фокусировка/.test(m.line||'')?((m.line.match(/\((.*)\)/)||[])[1]||'').split(/,\s*/).filter(Boolean):[],null,1],
+ ['Стоимость',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,GP)],ord([...GPL,'Без цены'])],
+ ['Источник',SRC,null,1]],
+feats:[
+ ['Категория',m=>[m.category]],
+ ['Требования',fprereq,null,1],
+ ['Мин. уровень',m=>[(m.prerequisite||'').match(/(\d+)\s*уровень/)?.[1]].filter(Boolean).map(x=>x+' уровень'),(a,b)=>num(a,b)],
+ ['Мин. характеристика',m=>abil(((m.prerequisite||'').match(/[^,]*13\+/g)||[]).join(' ')),ord(ABIL_RU),1],
+ ['Источник',SRC,null,1]],
+backgrounds:[
+ ['Характеристика',m=>m.abilities||[],null,1],
+ ['Навык',m=>m.skills||[],null,1],
+ ['Черта',m=>m.feat?[m.feat.name]:[]],
+ ['Инструмент',m=>m.tools?m.tools.split(/,\s*/).map(t=>t.replace(/^Выберите один (вид|тип) Ремесленных инструментов$/,'Ремесленные инструменты')):[],null,1],
+ ['Источник',SRC,null,1]],
+species:[
+ ['Тип существа',m=>[pv(m,'Тип существа')].filter(Boolean)],
+ ['Размер',m=>SIZES.filter(s=>pv(m,'Размер').includes(s)),ord(SIZES),1],
+ ['Скорость',m=>[(pv(m,'Скорость').match(/\d+/)||[])[0]].filter(Boolean).map(x=>x+' футов'),(a,b)=>num(a,b)],
+ ['Особенности',m=>rx(m,[['Тёмное зрение',/Тёмное зрение/i],['Полёт',/полёт|летать/i],['Сопротивление урону',/Сопротивление/],['Заклинания',/заклинани|заговор/i],['Плавание',/плавани/i],['Лазание',/лазани/i]]),null,1],
+ ['Источник',SRC,null,1]],
+class:[
+ ['Основная характеристика',m=>abil(cv(m,'Основная характеристика')),ord(ABIL_RU),1],
+ ['Кость хитов',m=>[(cv(m,'Кость хитов').match(/к(\d+)/i)||[])[1]].filter(Boolean).map(x=>'К'+x),ord(['К6','К8','К10','К12'])],
+ ['Заклинательство',m=>[(m.table?.columns||[]).some(c=>/Заговор|Подготовленные заклинания|Ячейки/.test(c))?'Заклинатель':'Не заклинатель']],
+ ['Спасброски',m=>abil(cv(m,'Владение спасбросками')),ord(ABIL_RU),1],
+ ['Доспехи',m=>[['Лёгкие',/Лёгк/],['Средние',/Средн/],['Тяжёлые',/Тяжёл/],['Щиты',/Щит/]].filter(([,r])=>r.test(cv(m,'Тренированность с доспехами'))).map(x=>x[0]),null,1],
+ ['Оружие',m=>[['Простое',/Простое/],['Воинское',/Воинское/]].filter(([,r])=>r.test(cv(m,'Владение оружием'))).map(x=>x[0]),null,1],
+ ['Источник',SRC,null,1]],
+glossary:[['Группа',m=>[m.group||'—']]]
+};
+const cv=(m,l)=>((m.core_traits||[]).find(c=>c.label==l)||{}).value||'';
+
+for(const k in S)S[k].F=FILTERS[k]||[];
 const ORDER=['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],cache={};
-let sec,data=[],view=[],flt=[];
+let sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],fpOpen=innerWidth>780;
 const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е');
 $('#nav').innerHTML=ORDER.map(k=>`<a href="#${k}" data-s="${k}">${S[k].t}</a>`).join('');
 async function load(k){if(!cache[k]){$('#count').textContent='Загрузка…';try{cache[k]=(await(await fetch(`data/${k}.json`)).json()).sort((a,b)=>a.slug=='intro'?-1:b.slug=='intro'?1:a.name_ru.localeCompare(b.name_ru,'ru'))}catch(e){$('#count').textContent='Не удалось загрузить data/'+k+'.json (открывайте через сервер, не файлом)';return[]}}return cache[k]}
-function filters(){const c=S[sec];$('#fl').innerHTML=c.F.map(([n,f,so],i)=>{const v=[...new Set(data.flatMap(f).filter(Boolean))].sort(so||((a,b)=>String(a).localeCompare(b,'ru')));return`<select data-i="${i}" aria-label="${n}"><option value="">${n}: все</option>${v.map(x=>`<option>${esc(x)}</option>`).join('')}</select>`}).join('');flt=c.F.map(()=>'')}
-function render(){const c=S[sec],q=norm($('#q').value.trim());
- view=data.filter(m=>(!q||norm(m.name_ru+' '+(m.name_en||'')).includes(q))&&c.F.every(([,f],i)=>!flt[i]||f(m).includes(flt[i])));
+const ok=(k,skip)=>flt.every((o,i)=>i===skip||!o.s.size||(o.all?[...o.s].every(v=>V[k][i].includes(v)):[...o.s].some(v=>V[k][i].includes(v))));
+function filters(){const F=S[sec].F;
+ V=data.map(m=>F.map(([,f])=>{try{return f(m)||[]}catch(e){return[]}}));
+ NM=data.map(m=>norm(m.name_ru+' '+(m.name_en||'')));
+ opts=F.map(([,,so],i)=>[...new Set(V.flatMap(v=>v[i]))].filter(Boolean).sort(so||ru));
+ flt=F.map(()=>({s:new Set(),all:false}));
+ $('#fl').innerHTML=F.length?`<details id="fpanel"${fpOpen?' open':''}><summary>Фильтры <span class="gn" id="fn"></span></summary><div class="fb"><button id="reset" type="button">Сбросить фильтры</button>${F.map(([n,,,mu],i)=>`<details class="g" data-g="${i}"><summary><span>${esc(n)}</span><span class="gn"></span></summary><div class="go">${mu?`<label class="md"><input type="checkbox" data-all="${i}"> должны подходить все (И)</label>`:''}${opts[i].map((v,j)=>`<label class="o"><input type="checkbox" data-i="${i}" data-j="${j}"><span>${esc(v)}</span><em></em></label>`).join('')}</div></details>`).join('')}</div></details>`:'';
+ cells=F.map((_,i)=>[...document.querySelectorAll(`.o input[data-i="${i}"]`)].map(x=>x.parentNode))}
+function render(){const c=S[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].includes(q);
+ view=data.filter((m,k)=>hit(k)&&ok(k));
  $('#count').textContent=`Найдено: ${view.length} из ${data.length}`;
- $('#list').innerHTML=view.map(m=>`<li><a href="#${sec}/${m.slug}" data-slug="${m.slug}"><span>${esc(m.name_ru)}</span><small>${esc(c.sub(m))}</small></a></li>`).join('')}
+ $('#list').innerHTML=view.map(m=>`<li><a href="#${sec}/${m.slug}" data-slug="${m.slug}"><span>${esc(m.name_ru)}</span><small>${esc(c.sub(m))}</small></a></li>`).join('');
+ c.F.forEach((_,i)=>{const cnt={};data.forEach((m,k)=>{if(hit(k)&&ok(k,i))new Set(V[k][i]).forEach(v=>cnt[v]=(cnt[v]||0)+1)});
+  cells[i].forEach((lab,j)=>{const n=cnt[opts[i][j]]||0;lab.lastChild.textContent=n;lab.classList.toggle('z',!n)});
+  const g=document.querySelector(`.g[data-g="${i}"]`),n=flt[i].s.size;if(g){g.querySelector('.gn').textContent=n||'';g.classList.toggle('on',!!n)}});
+ const fn=$('#fn');if(fn)fn.textContent=flt.filter(o=>o.s.size).length||''}
 async function route(){const[k,slug]=location.hash.slice(1).split('/');const s=S[k]?k:'bestiary';
  if(s!==sec){sec=s;$('#q').value='';data=await load(s);filters();render();document.querySelectorAll('nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
  const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
@@ -104,7 +246,10 @@ async function route(){const[k,slug]=location.hash.slice(1).split('/');const s=S
  if(!m){$('#card').innerHTML='<p class="empty">Выберите запись в списке</p>';document.body.classList.remove('open');return}
  $('#card').innerHTML=S[sec].card(m);document.title=m.name_ru+' — D&D 2024';document.body.classList.add('open');$('main').scrollTop=0;
  const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'})}
-$('#q').addEventListener('input',render);$('#fl').addEventListener('change',e=>{flt[e.target.dataset.i]=e.target.value;render()});
+$('#q').addEventListener('input',render);
+$('#fl').addEventListener('change',e=>{const t=e.target,d=t.dataset;if(d.all!==undefined)flt[d.all].all=t.checked;else if(d.j!==undefined){const i=+d.i,v=opts[i][+d.j];t.checked?flt[i].s.add(v):flt[i].s.delete(v)}else return;render()});
+$('#fl').addEventListener('click',e=>{if(e.target.id=='reset'){flt.forEach(o=>{o.s.clear();o.all=false});$('#fl').querySelectorAll('input').forEach(x=>x.checked=false);render()}});
+$('#fl').addEventListener('toggle',e=>{if(e.target.id=='fpanel')fpOpen=e.target.open},true);
 addEventListener('hashchange',route);route();
 $('#back').addEventListener('click',()=>{document.body.classList.remove('open');history.replaceState(null,'','#'+sec)});
 </script></body></html>
