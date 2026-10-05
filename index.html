@@ -54,7 +54,7 @@ const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b
 const T=(rows,h)=>`<div class="sc"><table class="tb">${rows.map((r,i)=>`<tr${h&&!i?' class="h"':''}>${r.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
 const B=bl=>(bl||[]).map(b=>b.type=='heading'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:`<p>${fmt(b.text)}</p>`).join('');
 const head=(m,sub)=>`<h2>${esc(m.name_ru)}</h2>${m.name_en?`<p class="en">${esc(m.name_en)}</p>`:''}${sub?`<p class="sub">${esc(sub)}</p>`:''}<div class="rule"></div>`;
-const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener">Оригинал на dnd.su</a></p>`;
+const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener"></a></p>`;
 const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
 const num=(a,b)=>parseFloat(a)-parseFloat(b),CR=['0','1/8','1/4','1/2',...Array.from({length:30},(_,i)=>''+(i+1))];
 const lvl=m=>m.level?m.level+' уровень':'Заговор',rar=m=>(m.rarity||'—');
