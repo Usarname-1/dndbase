@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>D&amp;D 2024 — русская база</title>
+<title>D&amp;D 5e — русская база</title>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
 :root{--cf:240px;--cl:340px;--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
@@ -11,6 +11,10 @@ body{font:16px/1.45 'PT Serif',Georgia,serif;background:var(--bg);color:var(--in
 nav{grid-area:nav;display:flex;gap:2px;overflow-x:auto;background:var(--bar);padding:0 8px}
 nav a{color:#f6e3c8;text-decoration:none;padding:10px 12px;font:700 15px 'PT Sans',sans-serif;white-space:nowrap}
 nav a[aria-current=true]{background:var(--paper);color:var(--red)}
+.ed{display:flex;align-items:center;margin-left:auto;gap:4px;padding:6px 8px}
+.ed button{font:700 13px 'PT Sans',sans-serif;border:1px solid #c9a882;background:transparent;color:#f6e3c8;border-radius:4px;padding:4px 10px;cursor:pointer}
+.ed button[aria-current=true]{background:var(--paper);color:var(--red);border-color:var(--paper)}
+.ed span{color:#c9a882;font:12px 'PT Sans',sans-serif;padding:0 4px}
 .col{display:flex;flex-direction:column;min-height:0;background:var(--panel);border-right:1px solid var(--line)}main{min-width:0}
 .col header{padding:12px 12px 6px}.qr{display:flex;gap:6px}
 input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16}
@@ -81,10 +85,11 @@ const ent=e=>`<p class="it${e.indent||e.n?' ind':''}">${e.n?`<b>${e.n}.</b> `:''
 const lore=l=>l?`<details><summary>${esc(l.title||'Описание')}</summary>${Array.isArray(l)?B(l):l.blocks.map(b=>b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='table'?T(b.rows,true):`<p>${fmt(b.text)}</p>`).join('')}</details>`:'';
 const S={
 bestiary:{t:'Бестиарий',sub:m=>'БО '+m.cr,
- card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type}`)+(m.tags.length?` (${m.tags.join(', ')})`:'')+`, ${m.alignment_text}`+(m.named_npc?', именной НИП':'');
- return `<article class="stat">${head(m,sl)}<p class="pr"><b>Класс Защиты</b> ${m.ac} &nbsp; <b>Инициатива</b> ${sg(m.initiative.mod)} (${m.initiative.score})</p><p class="pr"><b>Хиты</b> ${m.hp.avg}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>${pr('Скорость',m.speed_text)}<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div><div class="rule"></div>`
- +pr('Навыки',(m.skills||[]).map(s=>`${s.name} ${sg(s.bonus)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитеты',m.immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)+`<p class="pr"><b>Опасность</b> ${esc(m.cr)} (${esc(m.xp_text)})</p>`
- +m.sections.map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',sg(m.pb))+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+foot(m)+lore(m.lore)}},
+ card:m=>{const tags=m.tags||[],sl=(m.swarm?`${m.size_text} рой ${m.swarm_of||''}`:`${m.size_text||''} ${m.type||''}`)+(tags.length?` (${tags.join(', ')})`:'')+`, ${m.alignment_text||''}`+(m.named_npc?', именной НИП':'');
+ const init=m.initiative||(m.abilities&&m.abilities.dex?{mod:m.abilities.dex.mod,score:m.abilities.dex.score}:null);
+ return `<article class="stat">${head(m,sl)}<p class="pr"><b>Класс Защиты</b> ${m.ac}${m.ac_note?' ('+esc(m.ac_note)+')':''}${init?` &nbsp; <b>Инициатива</b> ${sg(init.mod)} (${init.score})`:''}</p><p class="pr"><b>Хиты</b> ${m.hp?.avg??'—'}${m.hp?.formula?` (${esc(m.hp.formula)})`:''}</p>${pr('Скорость',m.speed_text)}<div class="rule"></div><div class="abil">${m.abilities?at(ABIL.slice(0,3),m)+at(ABIL.slice(3),m):''}</div><div class="rule"></div>`
+ +pr('Навыки',(m.skills||[]).map(s=>`${s.name} ${sg(s.bonus)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитеты',m.immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)+`<p class="pr"><b>Опасность</b> ${esc(m.cr)} (${esc(m.xp_text||'')})</p>`
+ +(m.sections||[]).map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${(s.items||[]).map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',m.pb!=null?sg(m.pb):'')+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+foot(m)+lore(m.lore)}},
 spells:{t:'Заклинания',sub:m=>m.level?m.level+' ур.':'загов.',
  card:m=>`<article class="stat">${head(m,m.line)}${pr('Время сотворения',m.cast_time)}${pr('Дистанция',m.range)}${pr('Компоненты',m.components)}${pr('Длительность',m.duration)}${pr('Классы',(m.classes||[]).map(c=>c.name).join(', '))}${pr('Подклассы',m.subclasses)}<div class="rule"></div>${B(m.blocks)}${m.higher?`<p>${fmt(m.higher)}</p>`:''}${m.circle?`<p>${fmt(m.circle)}</p>`:''}${foot(m)}`},
 items:{t:'Предметы',sub:rar,
@@ -98,10 +103,12 @@ backgrounds:{t:'Предыстории',sub:()=>'',
  return `<article class="stat">${head(m,'')}${pr('Характеристики',(m.abilities||[]).join(', '))}${f?`<p class="pr"><b>Черта</b> ${fs?`<a href="#feats/${esc(fs)}">${esc(f.name)}</a>`:esc(f.name)}</p>`:''}${pr('Навыки',(m.skills||[]).join(', '))}${pr('Инструменты',m.tools)}${pr('Снаряжение',m.equipment)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`}},
 species:{t:'Виды',sub:()=>'',card:m=>`<article class="stat">${head(m,'')}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
 class:{t:'Классы',sub:()=>'',card:m=>{const tb=m.table;
+ const structured=(m.core_traits||[]).length||tb||(m.features||[]).length||(m.subclasses||[]).length;
  return `<article class="stat">${head(m,'')}${(m.core_traits||[]).map(c=>pr(esc(c.label),c.value)).join('')}${tb?`<div class="sc"><table class="tb"><tr>${tb.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${tb.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:''}`
  +(m.becoming?m.becoming.parts.map(p=>`<details><summary>${esc(p.title)}</summary>${B(p.blocks)}</details>`).join(''):'')
- +(m.features||[]).map(f=>`<h3>Уровень ${f.level}: ${esc(f.name)}</h3>${B(f.blocks)}`).join('')+`<h3>Подклассы</h3>`
- +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${s.features.map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join('')+foot(m)+lore(m.lore)}},
+ +(m.features||[]).map(f=>`<h3>Уровень ${f.level}: ${esc(f.name)}</h3>${B(f.blocks)}`).join('')
+ +(m.subclasses||[]).length?`<h3>Подклассы</h3>`+(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${(s.features||[]).map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join(''):''
+ +(!structured&&m.blocks?`<div class="rule"></div>${B(m.blocks)}`:'')+foot(m)+lore(m.lore)}},
 glossary:{t:'Глоссарий',sub:()=>'',card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`}
 };
 /* ---- фильтры ---- */
@@ -255,8 +262,15 @@ for(const k in S)S[k].SORT=SORT[k]||[A];
 const ORDER=['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],cache={};
 let sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false;
 const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е');
-$('#nav').innerHTML=ORDER.map(k=>`<a href="#${k}" data-s="${k}">${S[k].t}</a>`).join('');
-async function load(k){if(!cache[k]){$('#count').textContent='Загрузка…';try{cache[k]=(await(await fetch(`data/${k}.json`)).json()).sort((a,b)=>a.slug=='intro'?-1:b.slug=='intro'?1:a.name_ru.localeCompare(b.name_ru,'ru'))}catch(e){$('#count').textContent='Не удалось загрузить data/'+k+'.json (открывайте через сервер, не файлом)';return[]}}return cache[k]}
+let edition='14';
+const cache14={},cache24={};
+const getCache=()=>edition==='14'?cache14:cache24;
+function buildNav(){
+  $('#nav').innerHTML=ORDER.map(k=>`<a href="#${k}" data-s="${k}">${S[k].t}</a>`).join('')+
+    `<div class="ed" id="ed"><button type="button" data-ed="14"${edition==='14'?' aria-current="true"':''}>2014</button><span>|</span><button type="button" data-ed="24"${edition==='24'?' aria-current="true"':''}>2024</button></div>`;
+}
+buildNav();
+async function load(k){const cache=getCache();if(!cache[k]){$('#count').textContent='Загрузка…';try{cache[k]=(await(await fetch(`data/${edition}/${k}.json`)).json()).sort((a,b)=>a.slug=='intro'?-1:b.slug=='intro'?1:a.name_ru.localeCompare(b.name_ru,'ru'))}catch(e){$('#count').textContent='Не удалось загрузить data/'+edition+'/'+k+'.json (нужен локальный сервер; для 2024 положите JSON в data/24/)';return[]}}return cache[k]}
 const ok=(k,skip)=>flt.every((o,i)=>i===skip||!o.s.size||(o.all?[...o.s].every(v=>V[k][i].includes(v)):[...o.s].some(v=>V[k][i].includes(v))));
 function filters(){const F=S[sec].F;
  V=data.map(m=>F.map(([,f])=>{try{return f(m)||[]}catch(e){return[]}}));
@@ -279,12 +293,14 @@ function render(){const c=S[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].i
   const g=document.querySelector(`.g[data-g="${i}"]`),n=flt[i].s.size;if(g)g.querySelector('.gn').textContent=n||''});
  const n=flt.filter(o=>o.s.size).length;$('#fn').textContent=n||'';$('#ftoggle').textContent='Фильтры'+(n?` (${n})`:'')}
 async function route(){const[k,slug]=location.hash.slice(1).split('/');const s=S[k]?k:'bestiary';
- if(s!==sec){sec=s;$('#q').value='';data=await load(s);filters();render();document.querySelectorAll('nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
+ if(s!==sec){sec=s;$('#q').value='';data=await load(s);filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
  const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
  document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
  if(!m){$('#card').innerHTML='<p class="empty">Выберите запись в списке</p>';document.body.classList.remove('open');return}
- $('#card').innerHTML=S[sec].card(m);document.title=m.name_ru+' — D&D 2024';document.body.classList.add('open');$('main').scrollTop=0;
+ $('#card').innerHTML=S[sec].card(m);document.title=m.name_ru+' — D&D 5e ('+edition+')';document.body.classList.add('open');$('main').scrollTop=0;
  const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'})}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');if(!b||b.dataset.ed===edition)return;
+ edition=b.dataset.ed;sec=null;buildNav();location.hash=location.hash.split('/')[0]||'#bestiary';route();});
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 ['nof','nol'].forEach(c=>ls.get(c)=='1'&&document.body.classList.add(c));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-col]');if(!b)return;const c='no'+b.dataset.col,on=document.body.classList.toggle(c);ls.set(c,on?'1':'0')});
