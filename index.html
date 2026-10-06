@@ -3,7 +3,7 @@
 <title>D&amp;D 2024 — русская база</title>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
+:root{--cf:240px;--cl:340px;--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
 @media(prefers-color-scheme:dark){:root{--bg:#1b1713;--panel:#2a241d;--line:#4a3f31;--muted:#b8a98f}}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
 body{font:16px/1.45 'PT Serif',Georgia,serif;background:var(--bg);color:var(--ink);display:grid;grid-template-columns:var(--cf,240px) var(--cl,340px) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"nav nav nav" "fcol lcol main"}
@@ -20,7 +20,8 @@ input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1
 .cb{font:700 15px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:2px 9px;cursor:pointer}.cb:hover{border-color:var(--bar);color:var(--bar)}
 .strip{display:none;flex:1;border:0;background:transparent;color:inherit;font:700 14px 'PT Sans',sans-serif;cursor:pointer;writing-mode:vertical-rl;padding:14px 0;text-align:left;white-space:nowrap}.strip:hover{color:var(--bar)}
 @media(min-width:781px){body.nof{--cf:38px}body.nol{--cl:38px}
-body.nof #fcol>:not(.strip),body.nol #lcol>:not(.strip){display:none}body.nof #fcol .strip,body.nol #lcol .strip{display:block}}
+body.nof #fcol>:not(.strip),body.nol #lcol>:not(.strip){display:none}body.nof #fcol .strip,body.nol #lcol .strip{display:block}
+.wrap{max-width:none;width:min(780px,100%);margin:0 0 0 max(0px,calc((100% - min(780px,100%))/2 - (var(--cf) + var(--cl))/2))}}
 .sr{margin-top:6px}.sr select{flex:1;min-width:0}#dir{width:40px;flex:none;font:700 16px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;cursor:pointer}#dir:hover{border-color:var(--bar);color:var(--bar)}
 #fl{flex:1;overflow:auto;padding-bottom:20px;font:14px 'PT Sans',sans-serif}
 .g{padding:8px 12px;border-bottom:1px solid var(--line)}
