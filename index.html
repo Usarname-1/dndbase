@@ -17,6 +17,7 @@ input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1
 .fh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font:700 15px 'PT Sans',sans-serif}
 .fh button,#ftoggle,#fdone{font:13px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:4px 9px;cursor:pointer;white-space:nowrap}.fh button:hover{border-color:var(--bar);color:var(--bar)}
 #ftoggle,#fdone{display:none}
+.sr{margin-top:6px}.sr select{flex:1;min-width:0}#dir{width:40px;flex:none;font:700 16px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;cursor:pointer}#dir:hover{border-color:var(--bar);color:var(--bar)}
 #fl{flex:1;overflow:auto;padding-bottom:20px;font:14px 'PT Sans',sans-serif}
 .g{padding:8px 12px;border-bottom:1px solid var(--line)}
 .gh{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
@@ -55,7 +56,7 @@ body.open .col{display:none}body.open main{display:block}#ftoggle,#fdone{display
 <body>
 <nav id="nav"></nav>
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button></span></div><div id="fl"></div></aside>
-<section class="col" id="lcol"><header><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button></div></header><div id="count"></div><ul id="list"></ul></section>
+<section class="col" id="lcol"><header><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><p class="empty">Выберите запись в списке</p></div></div></main>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -233,8 +234,20 @@ species:m=>[[pv(m,'Тип существа'),SIZES.filter(s=>pv(m,'Размер'
 class:m=>[[L('Осн.:',cv(m,'Основная характеристика')),'Хиты '+(FILTERS.class[1][1](m)[0]||'—'),FILTERS.class[2][1](m)[0]],[L('Спасброски:',cv(m,'Владение спасбросками'))]],
 glossary:m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]]};
 for(const k in S)S[k].sum=SUM[k];
+const A=['По алфавиту'],mi=(l,v)=>{const i=l.indexOf(v);return i<0?null:i};
+const SORT={
+bestiary:[A,['Опасность',m=>mi(CR,m.cr)],['Класс Защиты',m=>m.ac],['Хиты',m=>m.hp.avg],['Размер',m=>mi(SIZES,(m.sizes||[])[0])],['Тип',m=>m.type]],
+spells:[A,['Уровень',m=>m.level||0],['Школа',m=>m.school],['Время сотворения',m=>mi(['Действие','Бонусное действие','Реакция','1 минута','10 минут','1 час'],castT(m))??99],['Дистанция',m=>rangeSec(rangeT(m))],['Длительность',m=>durSec(durT(m))]],
+items:[A,['Редкость',m=>mi(RAR,rarT(m))],['Цена',m=>m.price_gp],['Тип',m=>(m.type||'').split(' (')[0]]],
+equipment:[A,['Стоимость',m=>m.cost_gp],['Вес',m=>m.weight_lb],['Категория',m=>eqCat(m)]],
+feats:[A,['Категория',m=>m.category]],
+backgrounds:[A],
+species:[A,['Тип существа',m=>pv(m,'Тип существа')]],
+class:[A,['Кость хитов',m=>parseInt((FILTERS.class[1][1](m)[0]||'').slice(1))||null]],
+glossary:[A,['Группа',m=>m.group]]};
+for(const k in S)S[k].SORT=SORT[k]||[A];
 const ORDER=['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],cache={};
-let sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[];
+let sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false;
 const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е');
 $('#nav').innerHTML=ORDER.map(k=>`<a href="#${k}" data-s="${k}">${S[k].t}</a>`).join('');
 async function load(k){if(!cache[k]){$('#count').textContent='Загрузка…';try{cache[k]=(await(await fetch(`data/${k}.json`)).json()).sort((a,b)=>a.slug=='intro'?-1:b.slug=='intro'?1:a.name_ru.localeCompare(b.name_ru,'ru'))}catch(e){$('#count').textContent='Не удалось загрузить data/'+k+'.json (открывайте через сервер, не файлом)';return[]}}return cache[k]}
@@ -244,11 +257,15 @@ function filters(){const F=S[sec].F;
  NM=data.map(m=>norm(m.name_ru+' '+(m.name_en||'')));
  opts=F.map(([,,so],i)=>[...new Set(V.flatMap(v=>v[i]))].filter(Boolean).sort(so||ru));
  flt=F.map(()=>({s:new Set(),all:false}));
+ sortI=0;desc=false;$('#dir').textContent='↑';$('#sort').innerHTML=S[sec].SORT.map((s,i)=>`<option value="${i}">${i?'Сортировка: ':''}${esc(s[0])}</option>`).join('');
  $('#fl').innerHTML=F.map(([n,,,mu],i)=>`<section class="g" data-g="${i}"><div class="gh"><span>${esc(n)}</span><span class="gn"></span></div><div class="go">${mu?`<label class="md"><input type="checkbox" data-all="${i}"> должны подходить все (И)</label>`:''}${opts[i].map((v,j)=>`<label class="o"><input type="checkbox" data-i="${i}" data-j="${j}"><span>${esc(v)}</span><em></em></label>`).join('')}</div></section>`).join('');
  cells=F.map((_,i)=>[...document.querySelectorAll(`.o input[data-i="${i}"]`)].map(x=>x.parentNode))}
 const lines=(c,m)=>c.sum?c.sum(m).map(l=>l.filter(Boolean).join(' · ')).filter(Boolean).map(t=>`<span class="s">${esc(t)}</span>`).join(''):'';
 function render(){const c=S[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].includes(q);
- view=data.filter((m,k)=>hit(k)&&ok(k));
+ const idx=[];data.forEach((m,k)=>{if(hit(k)&&ok(k))idx.push(k)});
+ const kf=(c.SORT[sortI]||[])[1],K=data.map((m,k)=>kf?kf(m):k),pin=k=>data[k].slug=='intro';
+ idx.sort((a,b)=>{if(pin(a)!=pin(b))return pin(a)?-1:1;const x=K[a],y=K[b];if(x==null||y==null)return x==null&&y==null?a-b:x==null?1:-1;const r=(typeof x=='number'&&typeof y=='number'?x-y:String(x).localeCompare(String(y),'ru'))*(desc?-1:1);return r||a-b});
+ view=idx.map(k=>data[k]);
  $('#count').textContent=`Найдено: ${view.length} из ${data.length}`;
  $('#list').innerHTML=view.map(m=>`<li><a href="#${sec}/${m.slug}" data-slug="${m.slug}"><span class="t"><b>${esc(m.name_ru)}</b><small>${esc(c.sub(m))}</small></span>${lines(c,m)}</a></li>`).join('');
  c.F.forEach((_,i)=>{const cnt={};data.forEach((m,k)=>{if(hit(k)&&ok(k,i))new Set(V[k][i]).forEach(v=>cnt[v]=(cnt[v]||0)+1)});
@@ -263,6 +280,8 @@ async function route(){const[k,slug]=location.hash.slice(1).split('/');const s=S
  $('#card').innerHTML=S[sec].card(m);document.title=m.name_ru+' — D&D 2024';document.body.classList.add('open');$('main').scrollTop=0;
  const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'})}
 $('#q').addEventListener('input',render);
+$('#sort').addEventListener('change',e=>{sortI=+e.target.value;$('#list').scrollTop=0;render()});
+$('#dir').addEventListener('click',()=>{desc=!desc;$('#dir').textContent=desc?'↓':'↑';$('#list').scrollTop=0;render()});
 $('#fl').addEventListener('change',e=>{const t=e.target,d=t.dataset;if(d.all!==undefined)flt[d.all].all=t.checked;else if(d.j!==undefined){const i=+d.i,v=opts[i][+d.j];t.checked?flt[i].s.add(v):flt[i].s.delete(v)}else return;render()});
 $('#reset').addEventListener('click',()=>{flt.forEach(o=>{o.s.clear();o.all=false});$('#fl').querySelectorAll('input').forEach(x=>x.checked=false);render()});
 $('#ftoggle').addEventListener('click',()=>document.body.classList.add('fshow'));$('#fdone').addEventListener('click',()=>document.body.classList.remove('fshow'));
