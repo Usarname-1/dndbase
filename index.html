@@ -75,7 +75,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
 const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b> ${fmt(v)}</p>`:'';
 const T=(rows,h)=>`<div class="sc"><table class="tb">${rows.map((r,i)=>`<tr${h&&!i?' class="h"':''}>${r.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:`<p>${fmt(b.text)}</p>`).join('');
+const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:b.type=='embed'?(b.name?`<p class="en">См. также: ${esc(b.name)}</p>`:''):`<p>${fmt(b.text)}</p>`).join('');
 const head=(m,sub)=>`<h2>${esc(m.name_ru)}</h2>${m.name_en?`<p class="en">${esc(m.name_en)}</p>`:''}${sub?`<p class="sub">${esc(sub)}</p>`:''}<div class="rule"></div>`;
 const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener"></a><span id="xref"></span></p>`;
 const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
@@ -387,9 +387,18 @@ spells:[A,['Уровень',m=>m.level||0],['Школа',m=>m.school],['Врем
 items:[A,['Редкость',m=>mi(RAR14,rarT14(m))],['Цена',m=>m.price_min_gp],['Тип',m=>(m.type||'').split(' (')[0]]],
 feats:[A],backgrounds:[A],race:[A],
 class:[A,['Кость хитов',m=>parseInt((FILTERS14.class[1][1](m)[0]||'').slice(1))||null]]};
+const ABBR={"Player's Handbook 2014":'PHB',"Dungeon Master's Guide 2014":'DMG',"Monster Manual 2014":'MM',"Mordenkainen's Tome of Foes":'MToF',"Volo's guide to monsters":'VGtM',"Mordenkainen Presents: Monsters of the Multiverse":'MPMM',"Xanathar's Guide to Everything":'XGtE',"Tasha's Cauldron of Everything":'TCoE'},
+ abbr=s=>ABBR[s]||(s||'').split(/[\s:]+/).filter(w=>/^[A-Z]/.test(w)&&!['The','Of'].includes(w)).map(w=>w[0]).join('')||s;
+S14.articles={t:'Правила и статьи',sub:m=>m.category_ru,card:m=>`<article class="stat">${head(m,m.category_ru)}${B(m.blocks)}${foot(m)}`};
+FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Источник',SRC,null,1]];
+SUM14.articles=m=>[[m.category_ru,(m.sources||[]).map(abbr).join(', ')]];
+SORT14.articles=[A];
+FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
+SUM14.bestiary=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.bestiary);
+SUM14.race=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.race);
 for(const k in S14){S14[k].F=FILTERS14[k]||[];S14[k].sum=SUM14[k];S14[k].SORT=SORT14[k]||[A]}
-const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items']},
- SXS={24:S,14:S14},cache={},SWAP={species:'race',race:'species'};
+const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','articles']},
+ SXS={24:S,14:S14},cache={},SWAP={species:'race',race:'species',articles:'glossary',glossary:'articles'};
 let ed=24,SX=S;
 const hh=(e,k,slug)=>'#'+(e==14?'14/':'')+k+(slug?'/'+slug:''),
  EDK=e=>({24:'2024',14:'2014'})[e];
