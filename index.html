@@ -75,7 +75,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
 const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b> ${fmt(v)}</p>`:'';
 const T=(rows,h)=>`<div class="sc"><table class="tb">${rows.map((r,i)=>`<tr${h&&!i?' class="h"':''}>${r.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-const B=bl=>(bl||[]).map(b=>b.type=='heading'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:`<p>${fmt(b.text)}</p>`).join('');
+const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:`<p>${fmt(b.text)}</p>`).join('');
 const head=(m,sub)=>`<h2>${esc(m.name_ru)}</h2>${m.name_en?`<p class="en">${esc(m.name_en)}</p>`:''}${sub?`<p class="sub">${esc(sub)}</p>`:''}<div class="rule"></div>`;
 const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener"></a><span id="xref"></span></p>`;
 const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
@@ -84,13 +84,15 @@ const lvl=m=>m.level?m.level+' уровень':'Заговор',rar=m=>(m.rarity
 const ABIL=[['str','СИЛ'],['dex','ЛОВ'],['con','ТЕЛ'],['int','ИНТ'],['wis','МДР'],['cha','ХАР']];
 const at=(k,m)=>`<table><tr><th></th><th></th><th>мод</th><th>спас</th></tr>${k.map(([a,r])=>{const x=m.abilities[a];return`<tr><td>${r}</td><td>${x.score}</td><td>${sg(x.mod)}</td><td>${sg(x.save)}</td></tr>`}).join('')}</table>`;
 const ent=e=>`<p class="it${e.indent||e.n?' ind':''}">${e.n?`<b>${e.n}.</b> `:''}${e.name?`<span class="nm">${esc(e.name)}.</span> `:''}${fmt(e.text)}${(e.rows||[]).map(r=>`<br><i>${esc(r.label)}:</i> `+r.spells.map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener"><i>${esc(s.name)}</i></a>`).join(', ')).join('')}</p>`;
-const lore=l=>l?`<details><summary>${esc(l.title||'Описание')}</summary>${Array.isArray(l)?B(l):l.blocks.map(b=>b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='table'?T(b.rows,true):`<p>${fmt(b.text)}</p>`).join('')}</details>`:'';
+const loreBl=l=>(Array.isArray(l)?l:(l&&l.blocks)||[]).map(b=>b.type=='table'&&b.header===undefined?{...b,header:true}:b),
+ lore=l=>l&&loreBl(l).length?`<details open><summary>${esc((!Array.isArray(l)&&l.title)||'Описание')}</summary>${!Array.isArray(l)&&l.subtitle?`<p class="sub">${esc(l.subtitle)}</p>`:''}${B(loreBl(l))}</details>`:'',
+ loreView=l=>l&&loreBl(l).length?`<div class="rule"></div><div class="lore"><h3>${esc((!Array.isArray(l)&&l.title)||'Описание')}</h3>${!Array.isArray(l)&&l.subtitle?`<p class="sub">${esc(l.subtitle)}</p>`:''}${B(loreBl(l))}</div>`:'';
 const S={
 bestiary:{t:'Бестиарий',sub:m=>'БО '+m.cr,
  card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type}`)+(m.tags.length?` (${m.tags.join(', ')})`:'')+`, ${m.alignment_text}`+(m.named_npc?', именной НИП':'');
  return `<article class="stat">${head(m,sl)}<p class="pr"><b>Класс Защиты</b> ${m.ac} &nbsp; <b>Инициатива</b> ${sg(m.initiative.mod)} (${m.initiative.score})</p><p class="pr"><b>Хиты</b> ${m.hp.avg}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>${pr('Скорость',m.speed_text)}<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div><div class="rule"></div>`
  +pr('Навыки',(m.skills||[]).map(s=>`${s.name} ${sg(s.bonus)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитеты',m.immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)+`<p class="pr"><b>Опасность</b> ${esc(m.cr)} (${esc(m.xp_text)})</p>`
- +m.sections.map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',sg(m.pb))+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+foot(m)+lore(m.lore)}},
+ +m.sections.map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',sg(m.pb))+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+loreView(m.lore)+foot(m)}},
 spells:{t:'Заклинания',sub:m=>m.level?m.level+' ур.':'загов.',
  card:m=>`<article class="stat">${head(m,m.line)}${pr('Время сотворения',m.cast_time)}${pr('Дистанция',m.range)}${pr('Компоненты',m.components)}${pr('Длительность',m.duration)}${pr('Классы',(m.classes||[]).map(c=>c.name).join(', '))}${pr('Подклассы',m.subclasses)}<div class="rule"></div>${B(m.blocks)}${m.higher?`<p>${fmt(m.higher)}</p>`:''}${m.circle?`<p>${fmt(m.circle)}</p>`:''}${foot(m)}`},
 items:{t:'Предметы',sub:rar,
@@ -107,7 +109,7 @@ class:{t:'Классы',sub:()=>'',card:m=>{const tb=m.table;
  return `<article class="stat">${head(m,'')}${(m.core_traits||[]).map(c=>pr(esc(c.label),c.value)).join('')}${tb?`<div class="sc"><table class="tb"><tr>${tb.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${tb.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:''}`
  +(m.becoming?m.becoming.parts.map(p=>`<details><summary>${esc(p.title)}</summary>${B(p.blocks)}</details>`).join(''):'')
  +(m.features||[]).map(f=>`<h3>Уровень ${f.level}: ${esc(f.name)}</h3>${B(f.blocks)}`).join('')+`<h3>Подклассы</h3>`
- +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${s.features.map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join('')+foot(m)+lore(m.lore)}},
+ +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${s.features.map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join('')+loreView(m.lore)+foot(m)}},
 glossary:{t:'Глоссарий',sub:()=>'',card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`}
 };
 /* ---- фильтры ---- */
@@ -283,12 +285,12 @@ const S14={
 bestiary:{t:'Бестиарий',sub:m=>m.cr?'БО '+m.cr:'',
  card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type||''}`)+(m.tags&&m.tags.length?` (${m.tags.join(', ')})`:'')+(m.alignment_text?`, ${m.alignment_text}`:'')+(m.named_npc?', именной НИП':'');
  const ab=m.abilities&&m.abilities.str;
- return `<article class="stat">${head(m,sl)}${pr('Класс Доспеха',m.ac_text||m.ac)}${m.hp?`<p class="pr"><b>Хиты</b> ${m.hp.avg??''}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>`:''}${pr('Скорость',m.speed_text)}`
+ return `<article class="stat">${head(m,sl)}${pr('Класс Доспеха',m.ac_text||m.ac)}${m.hp_text?pr('Хиты',m.hp_text):m.hp?`<p class="pr"><b>Хиты</b> ${m.hp.avg??''}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>`:''}${pr('Скорость',m.speed_text)}`
  +(ab?`<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div>`:'')+`<div class="rule"></div>`
  +pr('Навыки',Object.entries(m.skills||{}).map(([k,v])=>`${k} ${sg(v)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитет к урону',m.immunities)+pr('Иммунитет к состояниям',m.condition_immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)
  +`<p class="pr"><b>Опасность</b> ${m.cr?esc(m.cr)+(m.xp!=null?` (${m.xp} опыта)`:''):'—'}</p>`+(m.pb!=null?pr('Бонус мастерства',sg(m.pb)):'')+pr('Среда обитания',m.habitat?m.habitat.split(/,\s*/).map(capf).join(', '):'')
  +(m.sections||[]).map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent14).join('')}`).join('')
- +foot(m)+(m.lore&&m.lore.blocks&&m.lore.blocks.length?`<details><summary>Описание</summary>${B(m.lore.blocks)}</details>`:'')}},
+ +loreView(m.lore)+foot(m)}},
 spells:{t:'Заклинания',sub:S.spells.sub,card:S.spells.card},
 items:{t:'Предметы',sub:m=>m.rarity?rarT(m):'',card:S.items.card},
 feats:{t:'Черты',sub:m=>m.prerequisite?'треб.':'',card:S.feats.card},
