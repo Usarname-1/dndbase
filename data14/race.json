@@ -19610,7 +19610,7 @@
  {
   "section": "race",
   "id": 278,
-  "slug": "aarakocra",
+  "slug": "aarakocra-278",
   "url": "https://dnd.su/race/278-aarakocra/",
   "name_ru": "Ааракокра",
   "name_en": "Aarakocra",
@@ -19700,7 +19700,7 @@
  {
   "section": "race",
   "id": 280,
-  "slug": "aasimar",
+  "slug": "aasimar-280",
   "url": "https://dnd.su/race/280-aasimar/",
   "name_ru": "Аасимар",
   "name_en": "Aasimar",
@@ -19849,7 +19849,7 @@
  {
   "section": "race",
   "id": 281,
-  "slug": "bugbear",
+  "slug": "bugbear-281",
   "url": "https://dnd.su/race/281-bugbear/",
   "name_ru": "Багбир",
   "name_en": "Bugbear",
@@ -19950,7 +19950,7 @@
  {
   "section": "race",
   "id": 282,
-  "slug": "centaur",
+  "slug": "centaur-282",
   "url": "https://dnd.su/race/282-centaur/",
   "name_ru": "Кентавр",
   "name_en": "Centaur",
@@ -20041,7 +20041,7 @@
  {
   "section": "race",
   "id": 283,
-  "slug": "changeling",
+  "slug": "changeling-283",
   "url": "https://dnd.su/race/283-changeling/",
   "name_ru": "Чейнджлинг",
   "name_en": "Changeling",
@@ -20617,7 +20617,7 @@
  {
   "section": "race",
   "id": 289,
-  "slug": "fairy",
+  "slug": "fairy-289",
   "url": "https://dnd.su/race/289-fairy/",
   "name_ru": "Фэйри",
   "name_en": "Fairy",
@@ -20749,7 +20749,7 @@
  {
   "section": "race",
   "id": 290,
-  "slug": "firbolg",
+  "slug": "firbolg-290",
   "url": "https://dnd.su/race/290-firbolg/",
   "name_ru": "Фирболг",
   "name_en": "Firbolg",
@@ -20849,7 +20849,7 @@
  {
   "section": "race",
   "id": 291,
-  "slug": "genasi",
+  "slug": "genasi-291",
   "url": "https://dnd.su/race/291-genasi/",
   "name_ru": "Дженази",
   "name_en": "Genasi",
@@ -21269,7 +21269,7 @@
  {
   "section": "race",
   "id": 294,
-  "slug": "goblin",
+  "slug": "goblin-294",
   "url": "https://dnd.su/race/294-goblin/",
   "name_ru": "Гоблин",
   "name_en": "Goblin",
@@ -21356,7 +21356,7 @@
  {
   "section": "race",
   "id": 295,
-  "slug": "goliath",
+  "slug": "goliath-295",
   "url": "https://dnd.su/race/295-goliath/",
   "name_ru": "Голиаф",
   "name_en": "Goliath",
@@ -21442,7 +21442,7 @@
  {
   "section": "race",
   "id": 296,
-  "slug": "harengon",
+  "slug": "harengon-296",
   "url": "https://dnd.su/race/296-harengon/",
   "name_ru": "Зайцегон",
   "name_en": "Harengon",
@@ -21552,7 +21552,7 @@
  {
   "section": "race",
   "id": 297,
-  "slug": "hobgoblin",
+  "slug": "hobgoblin-297",
   "url": "https://dnd.su/race/297-hobgoblin/",
   "name_ru": "Хобгоблин",
   "name_en": "Hobgoblin",
@@ -21661,7 +21661,7 @@
  {
   "section": "race",
   "id": 298,
-  "slug": "kenku",
+  "slug": "kenku-298",
   "url": "https://dnd.su/race/298-kenku/",
   "name_ru": "Кенку",
   "name_en": "Kenku",
@@ -21751,7 +21751,7 @@
  {
   "section": "race",
   "id": 299,
-  "slug": "kobold",
+  "slug": "kobold-299",
   "url": "https://dnd.su/race/299-kobold/",
   "name_ru": "Кобольд",
   "name_en": "Kobold",
@@ -21846,7 +21846,7 @@
  {
   "section": "race",
   "id": 300,
-  "slug": "lizardfolk",
+  "slug": "lizardfolk-300",
   "url": "https://dnd.su/race/300-lizardfolk/",
   "name_ru": "Людоящер",
   "name_en": "Lizardfolk",
@@ -21942,7 +21942,7 @@
  {
   "section": "race",
   "id": 301,
-  "slug": "minotaur",
+  "slug": "minotaur-301",
   "url": "https://dnd.su/race/301-minotaur/",
   "name_ru": "Минотавр",
   "name_en": "Minotaur",
@@ -22037,7 +22037,7 @@
  {
   "section": "race",
   "id": 302,
-  "slug": "orc",
+  "slug": "orc-302",
   "url": "https://dnd.su/race/302-orc/",
   "name_ru": "Орк",
   "name_en": "Orc",
@@ -22132,7 +22132,7 @@
  {
   "section": "race",
   "id": 303,
-  "slug": "satyr",
+  "slug": "satyr-303",
   "url": "https://dnd.su/race/303-satyr/",
   "name_ru": "Сатир",
   "name_en": "Satyr",
@@ -22443,7 +22443,7 @@
  {
   "section": "race",
   "id": 306,
-  "slug": "shifter",
+  "slug": "shifter-306",
   "url": "https://dnd.su/race/306-shifter/",
   "name_ru": "Шифтер",
   "name_en": "Shifter",
@@ -22594,7 +22594,7 @@
  {
   "section": "race",
   "id": 307,
-  "slug": "tabaxi",
+  "slug": "tabaxi-307",
   "url": "https://dnd.su/race/307-tabaxi/",
   "name_ru": "Табакси",
   "name_en": "Tabaxi",
@@ -22685,7 +22685,7 @@
  {
   "section": "race",
   "id": 309,
-  "slug": "tortle",
+  "slug": "tortle-309",
   "url": "https://dnd.su/race/309-tortle/",
   "name_ru": "Тортл",
   "name_en": "Tortle",
@@ -22781,7 +22781,7 @@
  {
   "section": "race",
   "id": 310,
-  "slug": "triton",
+  "slug": "triton-310",
   "url": "https://dnd.su/race/310-triton/",
   "name_ru": "Тритон",
   "name_en": "Triton",
