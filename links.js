@@ -8,17 +8,17 @@
    • заклинания и черты без скобок — только с заглавной буквы;
    • однословные заклинания и черты — только в точной форме
      (и не перед строчным словом: «Сотворение заклинаний» — это не заклинание «Сотворение»);
-   • однословные термины правил (глоссарий) и названия классов: с Заглавной буквы в середине предложения, в любой форме
+   • однословные термины правил (глоссарий), названия классов и снаряжения (2024): с Заглавной буквы в середине предложения, в любой форме
      («с Помехой», «Долгий отдых»); состояния и чувства — ещё и в точной форме где угодно;
    • в 2014 однословные заклинания и черты без скобок не ищутся вообще;
    • состояния 2014 (однословные, строчные) — только после слова «состояние». */
 (function (root) {
-  const KIND_RU = { s: 'Заклинание', c: 'Класс', g: 'Правило', m: 'Монстр', i: 'Предмет', f: 'Черта', a: 'Правила' };
-  const SINGLE_OK = new Set(['s', 'g', 'f', 'c']);          // однословные: только эти виды
-  const PRIO = { g: 0, a: 0, c: 1, s: 1, f: 2, i: 3, m: 4 }; // при совпадении ключей побеждает меньший
+  const KIND_RU = { s: 'Заклинание', c: 'Класс', e: 'Снаряжение', g: 'Правило', m: 'Монстр', i: 'Предмет', f: 'Черта', a: 'Правила' };
+  const SINGLE_OK = new Set(['s', 'g', 'f', 'c', 'e']);          // однословные: только эти виды
+  const PRIO = { g: 0, a: 0, c: 1, s: 1, e: 2, f: 2, i: 3, m: 4 }; // при совпадении ключей побеждает меньший
   const MAXN = 7;
   // слишком общие названия: чаще встречаются как обычные слова или заголовки умений, а не как ссылка
-  const STOP = new Set(['увеличение характеристик', 'в день', 'изготовление', 'регенерация', 'запрет',
+  const STOP = new Set(['увеличение характеристик', 'в день', 'карта', 'книга', 'кости', 'сфера', 'боеприпасы', 'костюм', 'кислота', 'духи', 'изготовление', 'регенерация', 'запрет',
     'отражения', 'наблюдение', 'оборона', 'знак', 'шквал', 'умиротворение']);
 
   // начало предложения (или текстового узла): после . ! ? : ; … или в самом начале строки
@@ -28,6 +28,8 @@
     const p = t.slice(0, s).replace(/[\s\u00a0«"“(—–\-•*]+$/, '');
     return !p ? startsSentence !== false : /[.!?:;…]$/.test(p);
   };
+
+  const SPELLCTX = /сотвор|заклинани|заговор|ячейк|концентраци/i;
 
   const WORD = /[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g;
   const normL = s => String(s || '').toLowerCase().replace(/ё/g, 'е');
@@ -46,7 +48,7 @@
   // opts.bracketOnlySingle — однословные заклинания/черты находить только по скобкам [en]
   function buildIndex(rows, opts) {
     opts = opts || {};
-    const map = new Map(), en = new Map(), first = new Set();
+    const map = new Map(), en = new Map(), first = new Set(), ambig = new Map();
     let maxN = 1;
     for (const r of rows) {
       const e = { ru: r[0], en: r[1], k: r[2], slug: r[3], head: r[4], body: r[5], cond: r[6] === 1, term: r[6] === 2 };
@@ -60,10 +62,16 @@
       if (STOP.has(normL(e.ru).replace(/\s+/g, ' ')) && !e.cond) continue;
       if (e.nw === 1) {
         if (!e.cond && !SINGLE_OK.has(e.k)) continue;
-        if (ws[0].length < 4) continue;
+        if (ws[0].length < (e.k === 'e' || e.k === 's' ? 3 : 4)) continue;   // «Цеп», «Щит»
         if (opts.bracketOnlySingle && (e.k === 's' || e.k === 'f')) continue;
       }
       const key = ws.map(stem).join(' '), o = map.get(key);
+      // одна основа у разных записей: «Цеп» и «Цепь» (разные предметы), «Щит» (заклинание и предмет).
+      // Запоминаем всех, выбираем при поиске: по точной форме, а заклинание и предмет — по контексту
+      if (o && o.nw === 1 && e.nw === 1 && (o.k === e.k ? o.ru !== e.ru : (o.k + e.k === 'se' || o.k + e.k === 'es'))) {
+        if (!ambig.has(key)) ambig.set(key, [o]);
+        ambig.get(key).push(e);
+      }
       if (o && PRIO[o.k] <= PRIO[e.k]) continue;
       map.set(key, e);
       if (e.nw === 1 && /[йь]$/i.test(ws[0])) {          // «Чародей» ↔ «Чародея»: основы у них разные
@@ -73,7 +81,7 @@
       first.add(stem(ws[0]));
       if (e.nw > maxN) maxN = e.nw;
     }
-    return { map, en, first, maxN };
+    return { map, en, first, maxN, ambig };
   }
 
   /* ---------- поиск совпадений в строке ---------- */
@@ -102,7 +110,13 @@
       let run = 1;
       while (i + run < toks.length && run < ix.maxN && gapOK(toks[i + run - 1], toks[i + run])) run++;
       for (let n = run; n >= 1; n--) {
-        const key = toks.slice(i, i + n).map(t => stem(t.w)).join(' '), ent = ix.map.get(key);
+        const key = toks.slice(i, i + n).map(t => stem(t.w)).join(' ');
+        let ent = ix.map.get(key);
+        if (n === 1 && ix.ambig.has(key)) {
+          const c = ix.ambig.get(key).filter(x => x.ru === toks[i].w);
+          // заклинание или предмет: рядом «сотворяет», «заклинание», «ячейка» — значит заклинание
+          ent = c.length > 1 ? c.find(x => x.k === (SPELLCTX.test(text) ? 's' : 'e')) : c[0];
+        }
         if (!ent || skip(ent)) continue;
         const s = toks[i].s, e = toks[i + n - 1].e;
         if (used(s, e)) continue;
@@ -111,9 +125,11 @@
         if (n === 1 && ent.nw === 1) {
           if (ent.cond) {                                       // состояние 2014 — после слова «состояние»
             if (!/состояни[а-яё]*\s*[«"“]?$/i.test(text.slice(Math.max(0, s - 24), s))) continue;
-          } else if (ent.k === 'g' || ent.k === 'c') {
+          } else if (ent.k === 'g' || ent.k === 'c' || ent.k === 'e') {
             // термин правил: либо точная форма (состояния, чувства), либо Заглавная буква в середине
             // предложения в любой форме — так 2024 пишет «Долгий отдых», «с Помехой», «Сферой радиусом»
+            // «Шесть» — не форма слова «Шест»: окончание -ь/-й бывает только у слов, которые так и заканчиваются
+            if (/[ьй]$/i.test(toks[i].w) && !/[ьй]$/i.test(ent.ru)) continue;
             const cap = /^[А-ЯЁ]/.test(toks[i].w), exact = toks[i].w === ent.ru;
             if (!((exact && !ent.term) || (cap && !sentenceStart(text, s, startsSentence)))) continue;
             // внутри «ёлочек» — названия таблиц и умений («Урон ярости»), а не термины

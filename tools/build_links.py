@@ -6,7 +6,7 @@
 Перезапускайте после любого изменения файлов в data/ и data14/.
 
 Формат записи: [name_ru, name_en, kind, slug, head, body, flag]
-kind: s=заклинания, c=классы (только 2024), g=глоссарий, m=бестиарий, i=предметы, f=черты, a=статьи
+kind: s=заклинания, c=классы и e=снаряжение (только 2024), g=глоссарий, m=бестиарий, i=предметы, f=черты, a=статьи
 flag: 1 = состояние 2014 (ссылка ставится только после слова «состояние»)
       2 = общий термин правил из глоссария (однословные — только с Заглавной в середине предложения)
 """
@@ -120,6 +120,13 @@ def build(edition):
             return 'Класс', cut(ct, 200)
         for m in load(f'{d}/class.json'):
             add(m, 'c', klass, 2)
+
+        def gear(m):
+            want = ('Стоимость', 'Урон', 'Класс защиты', 'Свойства', 'Вес')
+            ps = [f"{clean(p['label'])} {clean(p['value'])}" for p in (m.get('props') or []) if clean(p['label']) in want]
+            return clean(m.get('line')), cut(' · '.join(ps[:4]) or first_text(m.get('blocks')), 220)
+        for m in load(f'{d}/equipment.json'):
+            add(m, 'e', gear, 2)
     for m in load(f'{d}/spells.json'):   add(m, 's', spell)
     for m in load(f'{d}/feats.json'):    add(m, 'f', feat)
     for m in load(f'{d}/items.json'):    add(m, 'i', item)
