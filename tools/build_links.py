@@ -6,8 +6,9 @@
 Перезапускайте после любого изменения файлов в data/ и data14/.
 
 Формат записи: [name_ru, name_en, kind, slug, head, body, flag]
-kind: s=заклинания, g=глоссарий, m=бестиарий, i=предметы, f=черты, a=статьи
+kind: s=заклинания, c=классы (только 2024), g=глоссарий, m=бестиарий, i=предметы, f=черты, a=статьи
 flag: 1 = состояние 2014 (ссылка ставится только после слова «состояние»)
+      2 = общий термин правил из глоссария (однословные — только с Заглавной в середине предложения)
 """
 import json, re, os
 
@@ -96,22 +97,29 @@ def build(edition):
     d = 'data' if edition == 24 else 'data14'
     out = []
 
-    def add(m, kind, fn):
+    def add(m, kind, fn, flag=0):
         if m.get('slug') == 'intro' or not m.get('name_ru'):
             return
         head, body = fn(m)
-        out.append([m['name_ru'], m.get('name_en') or '', kind, m['slug'], head, body])
+        out.append([m['name_ru'], m.get('name_en') or '', kind, m['slug'], head, body] + ([flag] if flag else []))
 
     if edition == 24:
         for m in load(f'{d}/glossary.json'):
-            if m.get('group') in GLOSS_OK or m['name_ru'] in GLOSS_NAMES:
-                add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))))
+            strict = m.get('group') in GLOSS_OK or m['name_ru'] in GLOSS_NAMES   # состояния и чувства
+            m = dict(m, name_ru=m['name_ru'].replace('C', 'С'))                    # латинская C в «Cмерти»
+            add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0 if strict else 2)
     else:
         art = next(a for a in load(f'{d}/articles.json') if a['slug'] == 'sostoyaniya')
         bl = art['blocks']
         for i, b in enumerate(bl):
             if b.get('type') == 'heading' and b.get('level') == 4 and i + 1 < len(bl):
                 out.append([b['text'], '', 'a', 'sostoyaniya', 'Состояние', cut(btext(bl[i + 1]), 260), 1])
+    if edition == 24:
+        def klass(m):
+            ct = ' · '.join(f"{clean(c['label'])}: {clean(c['value'])}" for c in (m.get('core_traits') or [])[:2])
+            return 'Класс', cut(ct, 200)
+        for m in load(f'{d}/class.json'):
+            add(m, 'c', klass, 2)
     for m in load(f'{d}/spells.json'):   add(m, 's', spell)
     for m in load(f'{d}/feats.json'):    add(m, 'f', feat)
     for m in load(f'{d}/items.json'):    add(m, 'i', item)

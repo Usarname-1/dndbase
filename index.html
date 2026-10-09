@@ -441,7 +441,7 @@ function edLinks(){document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dat
 async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o][sec]?sec:SWAP[sec];if(!k2||!SXS[o][k2])return;
  const s2=ed==14&&m.url_2024?m.url_2024.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):m.slug;
  const d=await load(k2,o,true);if(location.hash!==h||!d.some(x=>x.slug===s2))return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,s2)}">Версия ${EDK(o)}</a>`}
-const LK={s:'spells',g:'glossary',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
+const LK={s:'spells',g:'glossary',c:'class',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',class:'c',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
 function linkIndex(e){return lix[e]||(lix[e]=fetch((e==14?'data14':'data')+'/links.json').then(r=>r.json()).then(r=>AutoLinks.buildIndex(r,{bracketOnlySingle:e==14})).catch(()=>null))}
 async function autolink(m,h){const e=ed,k=sec,ix=await linkIndex(e);if(!ix||location.hash!==h||ed!==e||sec!==k)return;AutoLinks.linkify($('#card'),ix,{k:SELFK[k],slug:m.slug},x=>hh(e,LK[x.k],x.slug))}
 let IMGM;const imgManifest=()=>IMGM||(IMGM=fetch('img/manifest.json').then(r=>r.json()).then(j=>{for(const e in j)for(const s in j[e])j[e][s]=new Set(j[e][s]);return j}).catch(()=>({})));
