@@ -65,7 +65,7 @@ body.e14{--red:#1f5560;--bar:#2b6a75;--line:#bcd0c9}
 @media(prefers-color-scheme:dark){body.e14{--line:#3d4f4b;--bg:#141b1b;--panel:#1f2a29}}
 body.e14 .tb tr:nth-child(odd) td{background:#dfeae4}
 /* картинки */
-figure.pic{margin:6px 0 10px;text-align:center}figure.pic img{max-width:100%;max-height:340px;border-radius:3px;cursor:zoom-in;background:rgba(0,0,0,.04)}figure.pic.big img{max-height:none;cursor:zoom-out}
+figure.pic{margin:6px 0 10px;text-align:center}figure.pic img{max-width:100%;max-height:340px;border-radius:3px;cursor:zoom-in;background:rgba(0,0,0,.04)}figure.pic.big img{max-height:none;cursor:zoom-out}figure.pic.tok img{max-height:200px;background:none}figure.pic.tok.big img{max-height:400px}
 /* автоссылки-подсказки */
 a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);cursor:help}a.xl:hover,a.xl:focus{color:var(--red);border-bottom-style:solid;outline:0}
 #tip{display:none;position:fixed;z-index:20;max-width:340px;padding:10px 12px;background:#fdf1dc;color:#1d1a16;border:1px solid #c9b48a;border-top:3px solid var(--bar);border-radius:3px;box-shadow:0 6px 20px rgba(0,0,0,.4);font:13.5px/1.4 'PT Sans',sans-serif;pointer-events:none}
@@ -445,8 +445,8 @@ const LK={s:'spells',g:'glossary',m:'bestiary',i:'items',f:'feats',a:'articles'}
 function linkIndex(e){return lix[e]||(lix[e]=fetch((e==14?'data14':'data')+'/links.json').then(r=>r.json()).then(r=>AutoLinks.buildIndex(r,{bracketOnlySingle:e==14})).catch(()=>null))}
 async function autolink(m,h){const e=ed,k=sec,ix=await linkIndex(e);if(!ix||location.hash!==h||ed!==e||sec!==k)return;AutoLinks.linkify($('#card'),ix,{k:SELFK[k],slug:m.slug},x=>hh(e,LK[x.k],x.slug))}
 let IMGM;const imgManifest=()=>IMGM||(IMGM=fetch('img/manifest.json').then(r=>r.json()).then(j=>{for(const e in j)for(const s in j[e])j[e][s]=new Set(j[e][s]);return j}).catch(()=>({})));
-async function addPic(m,h){const M=await imgManifest(),e=ed,k=sec;if(location.hash!==h||ed!==e||sec!==k)return;const set=(M[e]||{})[k];if(!set||!set.has(m.slug)||$('#card figure.pic'))return;const rule=$('#card .rule');if(!rule)return;
- const fig=document.createElement('figure'),im=new Image();fig.className='pic';im.alt=m.name_ru;im.loading='lazy';im.decoding='async';im.onerror=()=>fig.remove();im.onclick=()=>fig.classList.toggle('big');im.src=`img/${e}/${k}/${encodeURIComponent(m.slug)}.webp`;fig.append(im);rule.after(fig)}
+async function addPic(m,h){const M=await imgManifest(),e=ed,k=sec;if(location.hash!==h||ed!==e||sec!==k)return;const ms=M[e]||{},art=ms[k]&&ms[k].has(m.slug),tk=!art&&ms[k+'~t']&&ms[k+'~t'].has(m.slug);if((!art&&!tk)||$('#card figure.pic'))return;const rule=$('#card .rule');if(!rule)return;
+ const fig=document.createElement('figure'),im=new Image();fig.className='pic'+(tk?' tok':'');im.alt=m.name_ru;im.loading='lazy';im.decoding='async';im.onerror=()=>fig.remove();im.onclick=()=>fig.classList.toggle('big');im.src=`img/${e}/${tk?k+'-token':k}/${encodeURIComponent(m.slug)}.webp`;fig.append(im);rule.after(fig)}
 async function route(){const P=parseHash(),k=P.k,slug=P.slug;
  if(P.e!==ed){ed=P.e;SX=SXS[ed]}
  const s=SX[k]?k:(SX[SWAP[k]]?SWAP[k]:'bestiary'),key=ed+s;
