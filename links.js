@@ -22,9 +22,11 @@
     'отражения', 'наблюдение', 'оборона', 'знак', 'шквал', 'умиротворение']);
 
   // начало предложения (или текстового узла): после . ! ? : ; … или в самом начале строки
-  const sentenceStart = (t, s) => {
+  // startsSentence — считать ли началом предложения самое начало строки (см. linkify: после подписи
+  // «Классы», «Время сотворения» значение — это не новое предложение)
+  const sentenceStart = (t, s, startsSentence) => {
     const p = t.slice(0, s).replace(/[\s\u00a0«"“(—–\-•*]+$/, '');
-    return !p || /[.!?:;…]$/.test(p);
+    return !p ? startsSentence !== false : /[.!?:;…]$/.test(p);
   };
 
   const WORD = /[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g;
@@ -76,7 +78,7 @@
 
   /* ---------- поиск совпадений в строке ---------- */
   // вернёт [{s, e, entry}] — непересекающиеся диапазоны
-  function findLinks(text, ix, self) {
+  function findLinks(text, ix, self, startsSentence) {
     const hits = [], skip = e => self && e.k === self.k && e.slug === self.slug;
     const toks = [...text.matchAll(WORD)].map(m => ({ w: m[0], s: m.index, e: m.index + m[0].length }));
     const gapOK = (a, b) => /^[  ]+$/.test(text.slice(a.e, b.s));
@@ -113,7 +115,7 @@
             // термин правил: либо точная форма (состояния, чувства), либо Заглавная буква в середине
             // предложения в любой форме — так 2024 пишет «Долгий отдых», «с Помехой», «Сферой радиусом»
             const cap = /^[А-ЯЁ]/.test(toks[i].w), exact = toks[i].w === ent.ru;
-            if (!((exact && !ent.term) || (cap && !sentenceStart(text, s)))) continue;
+            if (!((exact && !ent.term) || (cap && !sentenceStart(text, s, startsSentence)))) continue;
             // внутри «ёлочек» — названия таблиц и умений («Урон ярости»), а не термины
             const before = text.slice(0, s);
             if (ent.term && (before.split('«').length > before.split('»').length)) continue;
@@ -136,13 +138,27 @@
   function linkify(el, ix, self, hrefFn) {
     if (!el || !ix) return;
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-      acceptNode: n => n.nodeValue.length > 3 && !(n.parentElement && n.parentElement.closest(SKIP))
-        ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+      acceptNode: n => {
+        if (n.nodeValue.length <= 3 || !n.parentElement || n.parentElement.closest(SKIP)) return NodeFilter.FILTER_REJECT;
+        const row = n.parentElement.closest('.pr');          // строка «Компоненты»: «гуано летучей мыши» — не монстр
+        if (row && row.firstElementChild && /^Компоненты/.test(row.firstElementChild.textContent)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
     });
     const nodes = [];
     while (w.nextNode()) nodes.push(w.currentNode);
+    // что стоит перед текстовым узлом: поднимаемся из строчных обёрток (<i>, <em>) до соседа
+    const INLINE = /^(I|EM|SPAN|B|STRONG|SMALL)$/;
+    const prevText = n => {
+      while (!n.previousSibling && n.parentElement && n.parentElement !== el && INLINE.test(n.parentElement.tagName)) n = n.parentElement;
+      return n.previousSibling ? n.previousSibling.textContent : '';
+    };
     for (const n of nodes) {
-      const t = n.nodeValue, hits = findLinks(t, ix, self);
+      // начало узла — начало предложения, если перед ним ничего нет или там закончилась фраза;
+      // «<b>Классы</b> Друид» и ячейки таблицы — значение, а не новое предложение
+      const pt = prevText(n).trim(), par = n.parentElement;
+      const startsSentence = !!pt ? /[.!?:;…]$/.test(pt) : !(par && /^(TD|TH)$/.test(par.tagName));
+      const t = n.nodeValue, hits = findLinks(t, ix, self, startsSentence);
       if (!hits.length) continue;
       const f = document.createDocumentFragment();
       let p = 0;
