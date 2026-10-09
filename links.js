@@ -48,10 +48,11 @@
   // opts.bracketOnlySingle — однословные заклинания/черты находить только по скобкам [en]
   function buildIndex(rows, opts) {
     opts = opts || {};
-    const map = new Map(), en = new Map(), first = new Set(), ambig = new Map();
+    const map = new Map(), en = new Map(), first = new Set(), ambig = new Map(), bySlug = new Map();
     let maxN = 1;
     for (const r of rows) {
       const e = { ru: r[0], en: r[1], k: r[2], slug: r[3], head: r[4], body: r[5], cond: r[6] === 1, term: r[6] === 2 };
+      bySlug.set(e.k + '/' + e.slug, e);          // для готовых ссылок вида data-r="s/mage-hand"
       const ws = (e.ru.replace(/\(.*?\)/g, ' ').match(WORD) || []);
       e.nw = ws.length;
       if (!e.nw || e.nw > MAXN) continue;
@@ -81,7 +82,7 @@
       first.add(stem(ws[0]));
       if (e.nw > maxN) maxN = e.nw;
     }
-    return { map, en, first, maxN, ambig };
+    return { map, en, first, maxN, ambig, bySlug };
   }
 
   /* ---------- поиск совпадений в строке ---------- */
@@ -193,6 +194,26 @@
     }
   }
 
+  // Готовые ссылки (блок «Сотворение заклинаний» у монстров): <a data-r="s/mage-hand">.
+  // Если запись есть у нас — делаем внутреннюю ссылку с подсказкой, иначе оставляем обычный текст.
+  function hydrate(el, ix, hrefFn) {
+    if (!el || !ix) return;
+    el.querySelectorAll('a[data-r]').forEach(a => {
+      const e = ix.bySlug.get(a.dataset.r);
+      if (e) {
+        a._e = e;
+        a.className = 'xl';
+        a.href = hrefFn(e);
+        a.removeAttribute('target');
+        a.removeAttribute('rel');
+      } else {
+        const sp = document.createElement('span');
+        sp.innerHTML = a.innerHTML;
+        a.replaceWith(sp);
+      }
+    });
+  }
+
   /* ---------- подсказка ---------- */
   let tip, tipFor, tipTimer;
   const escH = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -239,7 +260,7 @@
     addEventListener('hashchange', hideTip);
   }
 
-  const api = { buildIndex, findLinks, linkify, bindTips, stem };
+  const api = { buildIndex, findLinks, linkify, hydrate, bindTips, stem };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AutoLinks = api;
 })(typeof window !== 'undefined' ? window : globalThis);
