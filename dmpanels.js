@@ -135,7 +135,7 @@
         const hp = inp({ type: 'number', value: x.hp, class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
         const mx = inp({ type: 'number', value: x.max, class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
         const ac = inp({ value: x.ac, class: 'iac', title: 'Класс доспеха', placeholder: 'КД', onchange: e => upd(x, o => o.ac = e.target.value) });
-        const dm = inp({ type: 'number', placeholder: '±', class: 'idm', title: 'Урон: введите число и Enter. Лечение — число со знаком минус' });
+        const dm = inp({ type: 'number', placeholder: 'урон', class: 'idm', title: 'Урон: введите число и Enter. Лечение — число со знаком минус' });
         dm.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
           const v = num(dm.value); if (!v) return;
@@ -146,7 +146,7 @@
         const sel = h('select', { class: 'icadd', title: 'Добавить состояние', onchange: e => { if (e.target.value) { x.cond.push(e.target.value); ctx.save(); draw(); } } },
           h('option', { value: '' }, '＋'), COND.filter(c => !x.cond.includes(c)).map(c => h('option', { value: c }, c)));
         const del = btn('×', () => { s.list.splice(s.list.indexOf(x), 1); if (s.turn >= s.list.length) s.turn = 0; ctx.save(); draw(); }, 'xx', 'Убрать из боя');
-        r.append(ini, h('div', { class: 'imain' }, h('div', { class: 'itop' }, nm, h('span', { class: 'ihpw', title: 'Хиты' }, hp, '/', mx), ac, dm, del), h('div', { class: 'ibot' }, cond, sel)));
+        r.append(ini, nm, h('span', { class: 'ihpw', title: 'Хиты' }, hp, '/', mx), ac, dm, del, h('div', { class: 'ibot' }, cond, sel));
         return r;
       }
       function draw() {
@@ -155,7 +155,10 @@
         s.list.forEach((x, i) => lst.append(row(x, i)));
         ctx.title('Инициатива' + (s.list.length ? ' · раунд ' + s.round : ''));
       }
-      el.append(toolbar, lst);
+      const head = h('div', { class: 'irow ihead' }, h('span', { title: 'Результат броска инициативы: кто ходит раньше' }, 'Иниц.'), h('span', {}, 'Имя'),
+        h('span', { title: 'Хиты сейчас / максимум' }, 'Хиты тек./макс.'), h('span', { title: 'Класс доспеха' }, 'КД'),
+        h('span', { title: 'Введите число и Enter: положительное — урон, отрицательное — лечение' }, 'Урон / лечение'), h('span'));
+      el.append(toolbar, head, lst);
       draw();
       ctx.el._refresh = draw;
     }
