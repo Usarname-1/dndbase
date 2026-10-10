@@ -1,0 +1,25 @@
+/* ===== Кликабельные броски ===== */
+.rl{cursor:pointer;border-radius:3px;padding:0 3px;margin:0 -1px;background:rgba(146,38,16,.09);border-bottom:1px solid rgba(146,38,16,.5);white-space:nowrap;transition:background .12s}
+.rl:hover,.rl:focus{background:var(--bar);color:#fff;outline:0}
+.abil .rl{display:inline-block;padding:0 6px}
+#rolls{display:none;position:fixed;right:12px;bottom:12px;z-index:30;width:300px;max-width:calc(100vw - 24px);background:#fdf1dc;color:#1d1a16;border:1px solid #c9b48a;border-top:3px solid var(--bar);border-radius:4px;box-shadow:0 8px 28px rgba(0,0,0,.45);font:13px/1.35 'PT Sans',sans-serif}
+#rolls.on{display:block}
+#rolls .rh{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #d9c7a3;font-weight:700;color:var(--red)}
+#rolls .rm{display:flex;margin-left:auto}#rolls .rx{display:flex;gap:2px}
+#rolls button{font:12px 'PT Sans',sans-serif;border:1px solid #c9b48a;background:transparent;color:#1d1a16;padding:2px 6px;cursor:pointer}
+#rolls .rm button{margin-left:-1px}#rolls .rm button:first-child{border-radius:3px 0 0 3px}#rolls .rm button:nth-child(3){border-radius:0 3px 3px 0}#rolls .rm button[data-c]{margin-left:6px;border-radius:3px}
+#rolls .rx button{border:0;font-size:15px;padding:0 5px}
+#rolls button:hover{border-color:var(--bar)}#rolls button.act{background:var(--bar);border-color:var(--bar);color:#fff}
+#rolls .rl1{display:flex;align-items:center;gap:12px;padding:8px 10px}
+#rolls .big{font:700 40px/1 'PT Serif',serif;min-width:62px;text-align:center;color:var(--red)}
+#rolls .big.n20{color:#1f7a2e}#rolls .big.n1{color:#a31515}
+#rolls .det{min-width:0;display:flex;flex-direction:column;gap:2px}
+#rolls .rt{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#6b5f4d;display:block}
+#rolls .rb{display:block;word-break:break-word}
+#rolls .rb b{font-weight:700}#rolls .rb s{opacity:.55}#rolls b.n20{color:#1f7a2e}#rolls b.n1{color:#a31515}
+#rolls em{font-style:normal;font-weight:700;font-size:12px}#rolls em.n20{color:#1f7a2e}#rolls em.n1{color:#a31515}
+#rolls .pop{animation:rpop .28s ease-out}@keyframes rpop{from{transform:scale(.88);opacity:.4}to{transform:none;opacity:1}}
+#rolls .rhist{display:none;max-height:190px;overflow:auto;border-top:1px solid #d9c7a3}
+#rolls.hopen .rhist{display:block}
+#rolls .hr{display:flex;gap:8px;padding:4px 10px;border-bottom:1px dotted #d9c7a3}#rolls .hr>b{min-width:34px;font-size:16px;color:var(--red);text-align:right}
+@media(prefers-reduced-motion:reduce){#rolls .pop{animation:none}}

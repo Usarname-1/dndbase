@@ -151,7 +151,7 @@
   }
 
   /* ---------- DOM ---------- */
-  const SKIP = 'a,h2,h3,h4,b,th,summary,button,.nm,.en,.sub,.meta,script,style';
+  const SKIP = 'a,h2,h3,h4,b,th,summary,button,.nm,.en,.sub,.meta,.rl,script,style';
   function linkify(el, ix, self, hrefFn) {
     if (!el || !ix) return;
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
