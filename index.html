@@ -3,6 +3,7 @@
 <title>D&amp;D — русская база</title>
 <link rel="stylesheet" href="dice.css">
 <link rel="stylesheet" href="dmscreen.css">
+<link rel="stylesheet" href="charsheet.css">
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
 :root{--cf:240px;--cl:340px;--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
@@ -78,11 +79,13 @@ a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);curs
 <nav id="nav"></nav>
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
-<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><p class="empty">Выберите запись в списке</p></div></div><div id="dm"></div></main>
+<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><p class="empty">Выберите запись в списке</p></div></div><div id="dm"></div><div id="cs"></div></main>
 <script src="links.js"></script>
 <script src="dice.js"></script>
 <script src="dmscreen.js"></script>
 <script src="dmpanels.js"></script>
+<script src="charrules.js"></script>
+<script src="charsheet.js"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
@@ -443,8 +446,8 @@ function render(){const c=SX[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].
  const n=flt.filter(o=>o.s.size).length;$('#fn').textContent=n||'';$('#ftoggle').textContent='Фильтры'+(n?` (${n})`:'')}
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 function parseHash(){const h=location.hash.slice(1);let p=h.split('/'),e=ls.get('ed')=='14'?14:24;if(p[0]=='14'){e=14;p=p.slice(1)}else if(h)e=24;return{e,k:p[0],slug:p[1]}}
-function navHTML(){return `<span class="ed"><a data-e="14" href="#14">2014</a><a data-e="24" href="#24">2024</a></span>`+ORDERS[ed].map(k=>`<a href="${hh(ed,k)}" data-s="${k}">${SX[k].t}</a>`).join('')+`<a href="${hh(ed,'dmscreen')}" data-s="dmscreen">Экран мастера</a>`}
-function edLinks(){const dm=document.body.classList.contains('dm');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(dm){a.href=hh(e,'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
+function navHTML(){return `<span class="ed"><a data-e="14" href="#14">2014</a><a data-e="24" href="#24">2024</a></span>`+ORDERS[ed].map(k=>`<a href="${hh(ed,k)}" data-s="${k}">${SX[k].t}</a>`).join('')+`<a href="${hh(ed,'dmscreen')}" data-s="dmscreen">Экран мастера</a><a href="${hh(ed,'sheet')}" data-s="sheet">Листы персонажей</a>`}
+function edLinks(){const dm=document.body.classList.contains('dm')||document.body.classList.contains('cs');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(dm){a.href=hh(e,document.body.classList.contains('cs')?'sheet':'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
 async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o][sec]?sec:SWAP[sec];if(!k2||!SXS[o][k2])return;
  const s2=ed==14&&m.url_2024?m.url_2024.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):m.slug;
  const d=await load(k2,o,true);if(location.hash!==h||!d.some(x=>x.slug===s2))return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,s2)}">Версия ${EDK(o)}</a>`}
@@ -461,8 +464,9 @@ window.DB={get ed(){return ed},SXS,ORDERS,load:(k,e)=>load(k,e,true),hh,esc,norm
  placePic:async(root,e,k,m)=>{IMGM_V=await imgManifest();placePic(root,e,k,m)}};
 async function route(){const P=parseHash(),k=P.k,slug=P.slug;
  if(P.e!==ed){ed=P.e;SX=SXS[ed]}
- if(k=='dmscreen'){document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();document.title='Экран мастера — D&D '+EDK(ed);DM.show();return}
- document.body.classList.remove('dm');
+ if(k=='dmscreen'){document.body.classList.remove('cs');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();document.title='Экран мастера — D&D '+EDK(ed);DM.show();return}
+ if(k=='sheet'){document.body.classList.add('cs','open');document.body.classList.remove('dm');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='sheet'));edLinks();document.title='Листы персонажей — D&D';CS.show();return}
+ document.body.classList.remove('dm','cs');
  const s=SX[k]?k:(SX[SWAP[k]]?SWAP[k]:'bestiary'),key=ed+s;
  document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);
  if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML();$('#q').value='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
