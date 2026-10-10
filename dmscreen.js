@@ -300,7 +300,7 @@
       const pe = a.closest('.dmp'), info = pe && els.get(pe.dataset.id);
       const ed = m[1] ? 14 : 24, sec = m[2], slug = decodeURIComponent(m[3]);
       if (info && info.ctx.p.t === 'entity' && !(e.ctrlKey || e.metaKey) && pe._nav) pe._nav(ed, sec, slug);
-      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey);
+      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && info.ctx.p.t === 'init'));
     });
     if (root.AutoLinks) AutoLinks.bindTips(host);
   }
