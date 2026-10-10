@@ -116,7 +116,7 @@
       if (c.bg2.m === '111') bgA.forEach(k => add(k, 1, 'предыстория'));
       else { add(c.bg2.a, 2, 'предыстория'); add(c.bg2.b, 1, 'предыстория'); }
     }
-    if (c.ed === 14) AB.forEach(a => add(a.k, intOf(c.bonus && c.bonus[a.k]), 'вид'));
+    AB.forEach(a => add(a.k, intOf(c.bonus && c.bonus[a.k]), c.ed === 14 ? 'вид' : 'прочее'));
     const feats = [];
     asiLevels(D.cls).filter(l => l <= lvl).forEach(l => {
       const x = (c.asi || {})[l]; if (!x) return;
@@ -124,6 +124,7 @@
       else if (x.m === '11') { add(x.a, 1, 'ур. ' + l); add(x.b, 1, 'ур. ' + l); }
       else if (x.m === '2') add(x.a, 2, 'ур. ' + l);
     });
+    (c.feats || []).forEach(x => feats.push({ slug: x.slug, lvl: 0, extra: true }));
     AB.forEach(a => { score[a.k] = Math.min(score[a.k], (c.cap20 === false ? 30 : 20)); });
     const m = {}; AB.forEach(a => { m[a.k] = mod(score[a.k]); });
     const pb = lr ? lr.prof : Math.ceil(lvl / 4) + 1;
@@ -223,7 +224,7 @@
       abm: 'std', ab: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }, bg2: { m: '21', a: '', b: '' }, bonus: {}, asi: {},
       skills: [], skillsExtra: [], exp: [], hpMode: 'avg', hpManual: 0, hpBonus: 0, hpCur: null, hpTemp: 0, acMode: 'auto', acManual: 0, acBonus: 0,
       speed: '', spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
-      story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: false
+      story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: false, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
   const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, maxSlotLevel, speciesTraits, speciesSpeed, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
