@@ -75,38 +75,115 @@
 
   /* ---------- Инициатива ---------- */
   const COND = ['Бессознательный', 'Ослеплённый', 'Очарованный', 'Оглохший', 'Испуганный', 'Схваченный', 'Недееспособный', 'Невидимый', 'Парализованный', 'Окаменевший', 'Отравленный', 'Сбитый с ног', 'Опутанный', 'Ошеломлённый', 'Истощение', 'Концентрация'];
+  const COND_RE = { 'Бессознательный': /бессознат/, 'Ослеплённый': /ослеп/, 'Очарованный': /очаро/, 'Оглохший': /оглох|глухот/, 'Испуганный': /испуг|страх/, 'Схваченный': /схвач/, 'Недееспособный': /недееспос/, 'Невидимый': /невидим/, 'Парализованный': /парал/, 'Окаменевший': /окамен/, 'Отравленный': /отравл/, 'Сбитый с ног': /сбит|лежач/, 'Опутанный': /опутан|ограничен/, 'Ошеломлённый': /ошеломл|оглушен/, 'Истощение': /истощ/ };
+  const DMG = ['Кислота', 'Дробящий', 'Холод', 'Огонь', 'Силовое поле', 'Электричество', 'Некротическая энергия', 'Колющий', 'Яд', 'Психическая энергия', 'Излучение', 'Рубящий', 'Звук'];
+  const DMG_RE = { 'Кислота': /кислот/, 'Дробящий': /дробящ/, 'Холод': /холод/, 'Огонь': /огн|огон/, 'Силовое поле': /силов/, 'Электричество': /электр|молни/, 'Некротическая энергия': /некрот/, 'Колющий': /колющ/, 'Яд': /(^|[^а-яё])яд([^а-яё]|$)/, 'Психическая энергия': /психич/, 'Излучение': /излуч/, 'Рубящий': /рубящ/, 'Звук': /звук|гром/ };
+  const QUAL = /немагическ|посеребр|серебр|адамант|кроме|не из |не облада/;
   const rid = () => Math.random().toString(36).slice(2, 8);
-  function sortList(s) {
-    const cur = s.list[s.turn] && s.list[s.turn].id;
-    s.list = s.list.map((x, i) => [x, i]).sort((a, b) => (b[0].init - a[0].init) || (a[1] - b[1])).map(x => x[0]);
-    const i = s.list.findIndex(x => x.id === cur);
-    s.turn = i < 0 ? 0 : i;
+  const lc = t => String(t || '').toLowerCase().replace(/ё/g, 'е');
+  // из текста («Огонь; Яд») → {t: [типы всегда], q: [типы при условии], c: [состояния]}
+  function parseSet(text) {
+    const t = lc(text), out = { t: [], q: [], c: [] };
+    if (!t.trim()) return out;
+    const cond = QUAL.test(t);
+    DMG.forEach(d => { if (DMG_RE[d].test(t.replace(/ё/g, 'е'))) (cond ? out.q : out.t).push(d); });
+    COND.forEach(c => { if (COND_RE[c] && COND_RE[c].test(t)) out.c.push(c); });
+    return out;
+  }
+  const uniq = a => [...new Set(a)];
+  function mkRes(res, imm, vul, cimm) {
+    const R = parseSet(res), I = parseSet(imm), V = parseSet(vul), C = parseSet(cimm);
+    return { r: R.t, i: I.t, v: V.t, q: uniq([...R.q, ...I.q, ...V.q]), ci: uniq([...I.c, ...C.c]) };
+  }
+  const tabNew = (name) => ({ id: rid(), name: name || 'Бой', list: [], turn: 0, round: 1, started: false });
+  function fixInit(s) {                                      // старые сохранения без вкладок
+    if (!s.tabs) { s.tabs = [Object.assign(tabNew('Бой 1'), { list: s.list || [], turn: s.turn || 0, round: s.round || 1, started: !!s.started })]; s.at = s.tabs[0].id; delete s.list; delete s.turn; delete s.round; delete s.started; }
+    if (!s.tabs.some(t => t.id === s.at)) s.at = s.tabs[0].id;
+    s.tabs.forEach(t => t.list.forEach(x => { x.cond = (x.cond || []).map(c => typeof c === 'string' ? { n: c, r: null } : c); }));
+    return s;
+  }
+  const act = s => fixInit(s).tabs.find(t => t.id === s.at);
+  function sortList(t) {
+    const cur = t.list[t.turn] && t.list[t.turn].id;
+    t.list = t.list.map((x, i) => [x, i]).sort((a, b) => (b[0].init - a[0].init) || (a[1] - b[1])).map(x => x[0]);
+    const i = t.list.findIndex(x => x.id === cur);
+    t.turn = i < 0 ? 0 : i;
   }
   function rollInit(mod) { const r = root.Dice.roll('к20' + (mod < 0 ? '−' : '+') + Math.abs(mod), { kind: 'check', silent: true }); return r ? r.total : 10 + mod; }
-  function newRow(o) { return Object.assign({ id: rid(), name: 'Участник', init: 10, hp: 0, max: 0, ac: '', cond: [], mon: null, note: '' }, o); }
+  function newRow(o) { return Object.assign({ id: rid(), name: 'Участник', init: 10, hp: 0, max: 0, ac: '', cond: [], mon: null, note: '', res: null }, o); }
+
+  /* библиотека своих монстров (общая для всех экранов) */
+  const LIB = 'dm.mons';
+  const lib = () => { try { const a = JSON.parse(localStorage.getItem(LIB)); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+  const saveLib = a => { try { localStorage.setItem(LIB, JSON.stringify(a)); } catch (e) { DM.toast('Не удалось сохранить монстра: память браузера заполнена'); } };
+
   DM.INIT = {
     addMonster(s, m, e, qty) {
+      const t = act(s);
       qty = Math.max(1, Math.min(30, qty || 1));
       const ab = m.abilities || {}, dex = ab.dex || {};
       const mod = m.initiative && typeof m.initiative.mod === 'number' ? m.initiative.mod : (typeof dex.mod === 'number' ? dex.mod : 0);
-      const same = s.list.filter(x => x.mon && x.mon.slug === m.slug && x.mon.e === e).length;
+      const same = t.list.filter(x => x.mon && x.mon.slug === m.slug && x.mon.e === e).length;
+      const res = mkRes(m.resistances, m.immunities, m.vulnerabilities, m.condition_immunities);
       for (let i = 0; i < qty; i++) {
         const n = same + i + 1, hp = (m.hp && m.hp.avg) || 0;
-        s.list.push(newRow({
+        t.list.push(newRow({
           name: m.name_ru + (qty > 1 || same ? ' ' + n : ''), init: rollInit(mod), hp, max: hp,
-          ac: m.ac != null ? String(typeof m.ac === 'object' ? (m.ac.value || m.ac.ac || '') : m.ac) : '', mon: { e, sec: 'bestiary', slug: m.slug }, mod
+          ac: m.ac != null ? String(typeof m.ac === 'object' ? (m.ac.value || m.ac.ac || '') : m.ac) : '', mon: { e, sec: 'bestiary', slug: m.slug }, mod, res: JSON.parse(JSON.stringify(res))
         }));
       }
-      sortList(s);
+      sortList(t);
+    },
+    addCustom(s, c, qty) {
+      const t = act(s);
+      qty = Math.max(1, Math.min(30, qty || 1));
+      const same = t.list.filter(x => x.cid === c.id).length;
+      for (let i = 0; i < qty; i++) {
+        const n = same + i + 1;
+        t.list.push(newRow({
+          name: c.name + (qty > 1 || same ? ' ' + n : ''), init: rollInit(c.mod || 0), hp: c.hp || 0, max: c.hp || 0, ac: c.ac || '', mod: c.mod || 0,
+          cid: c.id, note: c.note || '', res: mkRes(c.res, c.imm, c.vul, c.cimm)
+        }));
+      }
+      sortList(t);
     }
   };
 
+  /* окно «свой монстр» */
+  function monForm(c, done) {
+    const f = {};
+    const field = (k, label, attrs, tag) => {
+      f[k] = h(tag || 'input', Object.assign({ type: 'text', autocomplete: 'off' }, attrs || {}));
+      if (c && c[k] != null) f[k].value = c[k];
+      return h('label', { class: 'mf' }, h('span', {}, label), f[k]);
+    };
+    const close = () => ov.remove();
+    const save = () => {
+      const name = f.name.value.trim(); if (!name) { f.name.focus(); return; }
+      const o = { id: c ? c.id : rid(), name, ac: f.ac.value.trim(), hp: Math.max(0, num(f.hp.value)), mod: num(f.mod.value), res: f.res.value, imm: f.imm.value, vul: f.vul.value, cimm: f.cimm.value, note: f.note.value };
+      const a = lib(), i = a.findIndex(x => x.id === o.id);
+      if (i >= 0) a[i] = o; else a.push(o);
+      saveLib(a); close(); done && done(o);
+    };
+    const ov = h('div', { class: 'dmmodal', onclick: e => { if (e.target === ov) close(); } },
+      h('div', { class: 'dmdlg' }, h('h3', {}, c ? 'Изменить монстра' : 'Свой монстр'),
+        field('name', 'Название *', { placeholder: 'Например: Культист-фанатик' }),
+        h('div', { class: 'mrow' }, field('ac', 'КД', { type: 'number' }), field('hp', 'Хиты', { type: 'number' }), field('mod', 'Мод. инициативы', { type: 'number', value: '0' })),
+        field('res', 'Сопротивление урону', { placeholder: 'огонь, холод' }), field('imm', 'Иммунитет к урону', { placeholder: 'яд' }), field('vul', 'Уязвимость', { placeholder: 'дробящий' }),
+        field('cimm', 'Иммунитет к состояниям', { placeholder: 'отравленный, очарованный' }),
+        field('note', 'Атаки, особенности (формулы вроде «+5 к попаданию, 1к8+3» станут кнопками)', { rows: 5 }, 'textarea'),
+        h('p', { class: 'mhint' }, 'Типы урона: ' + DMG.join(', ').toLowerCase() + '.'),
+        h('div', { class: 'mbtn' }, btn('Сохранить', save, 'pri'), btn('Отмена', close))));
+    document.body.append(ov);
+    f.name.focus();
+  }
+
   DM.registerType('init', {
-    name: 'Инициатива', desc: 'Бой: порядок ходов, хиты, КД, состояния, раунды', w: 6, h: 11,
-    init: () => ({ list: [], turn: 0, round: 1, started: false }),
+    name: 'Инициатива', desc: 'Бой: вкладки-схватки, порядок ходов, урон по типам, состояния с длительностью, свои монстры', w: 6, h: 11,
+    init: () => fixInit({}),
     render(ctx) {
-      const s = ctx.p.s, el = ctx.body;
-      const lst = h('div', { class: 'ilist' });
+      const s = fixInit(ctx.p.s), el = ctx.body;
+      const lst = h('div', { class: 'ilist' }), tabsEl = h('div', { class: 'itabs' });
       const toolbar = h('div', { class: 'itools' });
       const name = inp({ placeholder: 'Имя или поиск монстра…', class: 'iname' });
       const qty = inp({ type: 'number', value: '1', min: '1', max: '30', class: 'iqty', title: 'Сколько добавить' });
@@ -114,79 +191,143 @@
       edSel.value = s.fe || String(DB().ed);
       const res = h('div', { class: 'eres' });
       const nQty = () => Math.max(1, Math.min(30, num(qty.value, 1)));
-      const addMon = (e, m) => { DM.INIT.addMonster(s, m, e, nQty()); name.value = ''; res.textContent = ''; ctx.save(); draw(); };
+      const clearSearch = () => { name.value = ''; res.textContent = ''; };
+      const addMon = (e, m) => { DM.INIT.addMonster(s, m, e, nQty()); clearSearch(); ctx.save(); draw(); };
+      const addCust = c => { DM.INIT.addCustom(s, c, nQty()); clearSearch(); ctx.save(); draw(); };
+      const mineRow = c => h('a', { href: '#', onclick: ev => { ev.preventDefault(); ev.stopPropagation(); addCust(c); } },
+        h('span', {}, c.name, h('em', { class: 'mine' }, ' свой')),
+        h('small', {}, 'КД ' + (c.ac || '—') + ' · ХП ' + (c.hp || '—') + ' ',
+          h('button', { type: 'button', class: 'xx', title: 'Изменить', onclick: ev => { ev.preventDefault(); ev.stopPropagation(); monForm(c, () => search(true)); } }, '✎'),
+          h('button', { type: 'button', class: 'xx', title: 'Удалить из библиотеки', onclick: ev => { ev.preventDefault(); ev.stopPropagation(); if (confirm('Удалить «' + c.name + '» из своих монстров?')) { saveLib(lib().filter(x => x.id !== c.id)); search(true); } } }, '🗑')));
       let tk = 0;
-      const search = async () => {
+      const search = async (mine) => {
         const my = ++tk, v = name.value.trim(); res.textContent = '';
-        if (!v) return;
+        const own = lib().filter(c => mine === true || (v && lc(c.name).includes(lc(v))));
+        if (!v && !own.length) return;
+        own.forEach(c => res.append(mineRow(c)));
+        if (!v) { if (!own.length) res.append(h('div', { class: 'none' }, 'Своих монстров пока нет. Нажмите «＋ Свой».')); return; }
         const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 40);
         if (my !== tk) return;
-        if (!hits.length) return res.append(h('div', { class: 'none' }, 'В бестиарии не найдено. «Добавить» — внести как обычного участника.'));
+        if (!hits.length && !own.length) return res.append(h('div', { class: 'none' }, 'В бестиарии не найдено. «Добавить» — внести как обычного участника.'));
         hits.forEach(x => res.append(h('a', { href: DB().hh(x.e, 'bestiary', x.m.slug), onclick: ev => { ev.preventDefault(); ev.stopPropagation(); addMon(x.e, x.m); } },
           h('span', {}, x.m.name_ru), h('small', {}, (edSel.value === 'all' ? DB().EDK(x.e) + ' · ' : '') + 'КД ' + (x.m.ac != null ? x.m.ac : '—') + ' · ХП ' + ((x.m.hp && x.m.hp.avg) || '—') + ' · ' + (x.m.name_en || '')))));
       };
-      name.addEventListener('input', search);
+      name.addEventListener('input', () => search());
       edSel.addEventListener('change', () => { s.fe = edSel.value; ctx.save(); search(); });
       const addByName = async () => {
         const v = name.value.trim(); if (!v) return;
-        const q = nQty(), nv = DB().norm(v);
+        const q = nQty(), nv = lc(v), t = act(s);
+        const c = lib().find(x => lc(x.name) === nv); if (c) return addCust(c);
         const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 200);
-        const x = hits.find(y => DB().norm(y.m.name_ru) === nv || DB().norm(y.m.name_en) === nv);
+        const x = hits.find(y => DB().norm(y.m.name_ru) === DB().norm(v) || DB().norm(y.m.name_en) === DB().norm(v));
         if (x) return addMon(x.e, x.m);
-        for (let i = 0; i < q; i++) s.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v })); sortList(s);
-        name.value = ''; res.textContent = ''; ctx.save(); draw();
+        for (let i = 0; i < q; i++) t.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v })); sortList(t);
+        clearSearch(); ctx.save(); draw();
       };
-      name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); if (e.key === 'Escape') { name.value = ''; res.textContent = ''; } });
+      name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); if (e.key === 'Escape') clearSearch(); });
+      // ход: условия с длительностью заканчиваются в конце хода их носителя
       const next = () => {
-        if (!s.list.length) return;
-        s.started = true;
-        s.turn++; if (s.turn >= s.list.length) { s.turn = 0; s.round++; }
+        const t = act(s); if (!t.list.length) return;
+        const ended = t.started ? t.list[t.turn] : null, gone = [];
+        if (ended) ended.cond = ended.cond.filter(c => { if (c.r == null) return true; c.r--; if (c.r <= 0) { gone.push(c.n); return false; } return true; });
+        t.started = true;
+        t.turn++; if (t.turn >= t.list.length) { t.turn = 0; t.round++; }
         ctx.save(); draw();
+        if (gone.length) DM.toast(ended.name + ': закончилось — ' + gone.join(', '));
+      };
+      const start = () => {
+        const t = act(s); if (!t.list.length) return;
+        t.list.forEach(x => { if (x.mon || x.cid) x.init = rollInit(x.mod || 0); });
+        sortList(t); t.turn = 0; t.round = 1; t.started = true; ctx.save(); draw();
       };
       toolbar.append(edSel, name, qty, btn('Добавить', addByName, 'pri', 'Точное название монстра или просто имя участника; монстра можно выбрать из списка ниже'),
-        btn('Бросить за всех', () => {
-          s.list.forEach(x => { if (x.mon) x.init = rollInit(x.mod || 0); }); sortList(s); ctx.save(); draw();
-        }, '', 'Перебросить инициативу всем монстрам'),
+        btn('＋ Свой', () => monForm(null, c => { DM.toast('Сохранён: ' + c.name); search(true); }), '', 'Создать своего монстра'),
+        btn('Мои', () => search(true), '', 'Показать своих монстров'),
+        btn('Начать бой', start, 'pri', 'Бросить инициативу всем монстрам, сбросить раунд и дать ход первому'),
         btn('След. ход ▶', next, 'pri', 'Передать ход следующему'),
-        btn('Сброс боя', () => {
-          if (!confirm('Очистить бой?')) return;
-          s.list = []; s.turn = 0; s.round = 1; s.started = false; ctx.save(); draw();
-        }));
+        btn('Очистить', () => {
+          if (!confirm('Убрать всех из этой схватки?')) return;
+          const t = act(s); t.list = []; t.turn = 0; t.round = 1; t.started = false; ctx.save(); draw();
+        }, '', 'Убрать всех участников этой вкладки'));
       const upd = (x, f) => { f(x); ctx.save(); };
+      const damage = (x, v, type) => {
+        if (v < 0) { x.hp = x.max ? Math.min(x.max, x.hp - v) : x.hp - v; return 'Лечение ' + (-v); }
+        let k = 1, why = '';
+        const R = x.res;
+        if (type && R) {
+          if (R.i.includes(type)) { k = 0; why = 'иммунитет'; }
+          else if (R.r.includes(type) && R.v.includes(type)) { k = 1; why = 'сопротивление и уязвимость гасят друг друга'; }
+          else if (R.r.includes(type)) { k = .5; why = 'сопротивление'; }
+          else if (R.v.includes(type)) { k = 2; why = 'уязвимость'; }
+          else if (R.q.includes(type)) why = 'есть условное (напр. немагическое оружие) — проверьте вручную';
+        }
+        const d = Math.floor(v * k);
+        x.hp = Math.max(0, x.hp - d);
+        return d + ' урона' + (type ? ' (' + type.toLowerCase() + ')' : '') + (why ? ': ' + why : '') + (k !== 1 ? ' — было ' + v : '');
+      };
+      function resLine(x) {
+        const R = x.res; if (!R) return null;
+        const part = (l, a, c) => a.length ? h('span', { class: 'rs ' + c }, l + ' ' + a.map(t => t.toLowerCase()).join(', ')) : null;
+        const bits = [part('сопр.', R.r, 'r'), part('иммун.', R.i, 'i'), part('уязв.', R.v, 'v'), part('условно*', R.q, 'q'), part('иммун. к сост.', R.ci || [], 'i')].filter(Boolean);
+        return bits.length ? h('div', { class: 'ires', title: '* — сопротивление или иммунитет с условием (немагическое оружие и т. п.): не применяется автоматически' }, bits) : null;
+      }
       function row(x, i) {
-        const cur = s.started && i === s.turn, dead = x.max > 0 && x.hp <= 0;
+        const t = act(s), cur = t.started && i === t.turn, dead = x.max > 0 && x.hp <= 0;
         const r = h('div', { class: 'irow' + (cur ? ' cur' : '') + (dead ? ' dead' : '') });
-        const ini = inp({ type: 'number', value: x.init, class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(s); ctx.save(); draw(); } });
+        const ini = inp({ type: 'number', value: x.init, class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(t); ctx.save(); draw(); } });
         const nm = x.mon
           ? h('a', { href: DB().hh(x.mon.e, x.mon.sec, x.mon.slug), class: 'inm', title: 'Открыть карточку' }, x.name)
           : h('span', { class: 'inm', contenteditable: 'plaintext-only', spellcheck: 'false', onblur: e => upd(x, o => o.name = e.target.textContent.trim() || 'Участник') }, x.name);
         const hp = inp({ type: 'number', value: x.hp, class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
         const mx = inp({ type: 'number', value: x.max, class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
         const ac = inp({ value: x.ac, class: 'iac', title: 'Класс доспеха', placeholder: 'КД', onchange: e => upd(x, o => o.ac = e.target.value) });
-        const dm = inp({ type: 'number', placeholder: 'урон', class: 'idm', title: 'Урон: введите число и Enter. Лечение — число со знаком минус' });
+        const dm = inp({ type: 'number', placeholder: 'урон', class: 'idm', title: 'Введите число и Enter. Отрицательное число — лечение' });
+        const ty = h('select', { class: 'ity', title: 'Тип урона (для сопротивлений и уязвимостей)' }, h('option', { value: '' }, 'тип'), DMG.map(d => h('option', { value: d }, d)));
         dm.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
           const v = num(dm.value); if (!v) return;
-          x.hp = Math.max(0, x.max ? Math.min(x.max, x.hp - v) : x.hp - v);
-          ctx.save(); draw();
+          const msg = damage(x, v, ty.value); ctx.save(); draw(); DM.toast(x.name + ': ' + msg);
         });
-        const cond = h('span', { class: 'icond' }, x.cond.map(c => h('span', { class: 'chip', title: 'Нажмите, чтобы снять', onclick: () => { x.cond.splice(x.cond.indexOf(c), 1); ctx.save(); draw(); } }, c + ' ×')));
-        const sel = h('select', { class: 'icadd', title: 'Добавить состояние', onchange: e => { if (e.target.value) { x.cond.push(e.target.value); ctx.save(); draw(); } } },
-          h('option', { value: '' }, '＋'), COND.filter(c => !x.cond.includes(c)).map(c => h('option', { value: c }, c)));
-        const del = btn('×', () => { s.list.splice(s.list.indexOf(x), 1); if (s.turn >= s.list.length) s.turn = 0; ctx.save(); draw(); }, 'xx', 'Убрать из боя');
-        r.append(ini, nm, h('span', { class: 'ihpw', title: 'Хиты' }, hp, '/', mx), ac, dm, del, h('div', { class: 'ibot' }, cond, sel));
+        const cond = h('span', { class: 'icond' }, x.cond.map(c => h('span', { class: 'chip', title: c.r != null ? 'Осталось раундов: ' + c.r + '. Нажмите, чтобы снять' : 'Нажмите, чтобы снять', onclick: () => { x.cond.splice(x.cond.indexOf(c), 1); ctx.save(); draw(); } }, c.n + (c.r != null ? ' · ' + c.r + ' р.' : '') + ' ×')));
+        const dur = inp({ type: 'number', class: 'idur', placeholder: 'р.', min: '1', title: 'На сколько раундов (пусто — пока не снимете). Заканчивается в конце хода носителя' });
+        const sel = h('select', { class: 'icadd', title: 'Добавить состояние', onchange: e => {
+          const n = e.target.value; if (!n) return;
+          if ((x.res && x.res.ci || []).includes(n) && !confirm(x.name + ' имеет иммунитет к состоянию «' + n + '». Всё равно наложить?')) { draw(); return; }
+          const d = parseInt(dur.value, 10);
+          x.cond.push({ n, r: d > 0 ? d : null }); ctx.save(); draw();
+        } }, h('option', { value: '' }, '＋'), COND.filter(c => !x.cond.some(k => k.n === c)).map(c => h('option', { value: c }, c)));
+        const del = btn('×', () => { t.list.splice(t.list.indexOf(x), 1); if (t.turn >= t.list.length) t.turn = 0; ctx.save(); draw(); }, 'xx', 'Убрать из боя');
+        r.append(ini, nm, h('span', { class: 'ihpw', title: 'Хиты' }, hp, '/', mx), ac, h('span', { class: 'idw' }, dm, ty), del, h('div', { class: 'ibot' }, cond, dur, sel));
+        const rl = resLine(x); if (rl) r.append(rl);
+        if (x.note) { const n = h('div', { class: 'inote' }, x.note); root.Dice.linkify(n); r.append(n); }
         return r;
       }
+      function drawTabs() {
+        tabsEl.textContent = '';
+        s.tabs.forEach(t => {
+          const b = h('button', { type: 'button', class: 'itab' + (t.id === s.at ? ' act' : ''), title: 'Двойной клик — переименовать' }, t.name + (t.list.length ? ' (' + t.list.length + ')' : ''));
+          b.addEventListener('click', () => { if (s.at !== t.id) { s.at = t.id; ctx.save(); draw(); } });
+          b.addEventListener('dblclick', () => { const n = prompt('Название схватки', t.name); if (n && n.trim()) { t.name = n.trim().slice(0, 30); ctx.save(); draw(); } });
+          tabsEl.append(b);
+        });
+        tabsEl.append(btn('+', () => { const t = tabNew('Бой ' + (s.tabs.length + 1)); s.tabs.push(t); s.at = t.id; ctx.save(); draw(); }, 'itab add', 'Новая схватка: можно заранее собрать монстров'));
+        if (s.tabs.length > 1) tabsEl.append(btn('×', () => {
+          const t = act(s); if (!confirm('Удалить схватку «' + t.name + '»?')) return;
+          s.tabs = s.tabs.filter(x => x !== t); s.at = s.tabs[0].id; ctx.save(); draw();
+        }, 'itab del', 'Удалить эту схватку'));
+      }
       function draw() {
+        const t = act(s);
         lst.textContent = '';
-        if (!s.list.length) lst.append(h('p', { class: 'dmempty' }, 'Бой пуст. Впишите имя монстра из бестиария (подставится КД, хиты, бросок инициативы) или любое имя, либо нажмите «В инициативу» на карточке монстра.'));
-        s.list.forEach((x, i) => lst.append(row(x, i)));
-        ctx.title('Инициатива' + (s.list.length ? ' · раунд ' + s.round : ''));
+        if (!t.list.length) lst.append(h('p', { class: 'dmempty' }, 'Здесь пока никого. Найдите монстра выше (подставятся КД, хиты, сопротивления и бросок инициативы), создайте своего («＋ Свой») или нажмите «В инициативу» на карточке монстра. Вкладки сверху — отдельные схватки: можно заготовить их заранее и нажать «Начать бой», когда понадобится.'));
+        t.list.forEach((x, i) => lst.append(row(x, i)));
+        drawTabs();
+        ctx.title('Инициатива · ' + t.name + (t.started ? ' · раунд ' + t.round : ''));
       }
       const head = h('div', { class: 'irow ihead' }, h('span', { title: 'Результат броска инициативы: кто ходит раньше' }, 'Иниц.'), h('span', {}, 'Имя'),
         h('span', { title: 'Хиты сейчас / максимум' }, 'Хиты тек./макс.'), h('span', { title: 'Класс доспеха' }, 'КД'),
-        h('span', { title: 'Введите число и Enter: положительное — урон, отрицательное — лечение' }, 'Урон / лечение'), h('span'));
-      el.append(toolbar, res, head, lst);
+        h('span', { title: 'Число + Enter. Тип урона учитывает сопротивление, уязвимость и иммунитет. Отрицательное число — лечение' }, 'Урон / лечение'), h('span'));
+      el.append(tabsEl, toolbar, res, head, lst);
       draw();
       ctx.el._refresh = draw;
     }
@@ -372,22 +513,68 @@
     }
   });
 
-  /* ---------- Картинка по ссылке ---------- */
+  /* ---------- Картинка: файл с компьютера или ссылка ---------- */
+  // файлы хранятся в IndexedDB браузера (в localStorage они не поместились бы); в экспорт экрана попадает только ссылка-ключ
+  const IDB = {
+    db: null, mem: new Map(),
+    open() {
+      if (this.db) return this.db;
+      return this.db = new Promise((ok, no) => {
+        try { const r = indexedDB.open('dm-img', 1); r.onupgradeneeded = () => r.result.createObjectStore('i'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); }
+      });
+    },
+    async put(k, blob) { this.mem.set(k, blob); try { const d = await this.open(); await new Promise((ok, no) => { const t = d.transaction('i', 'readwrite'); t.objectStore('i').put(blob, k); t.oncomplete = ok; t.onerror = () => no(t.error); }); return true; } catch (e) { return false; } },
+    async get(k) { if (this.mem.has(k)) return this.mem.get(k); try { const d = await this.open(); return await new Promise((ok, no) => { const r = d.transaction('i').objectStore('i').get(k); r.onsuccess = () => ok(r.result || null); r.onerror = () => no(r.error); }); } catch (e) { return null; } }
+  };
+  function shrink(file, max) {                           // уменьшаем большие снимки: до 1600 px по длинной стороне
+    return new Promise((ok, no) => {
+      const url = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas');
+        c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(b => b ? ok(b) : no(new Error('toBlob')), 'image/webp', 0.88);
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); no(new Error('не картинка')); };
+      im.src = url;
+    });
+  }
   DM.registerType('image', {
-    name: 'Картинка', desc: 'Карта или иллюстрация по ссылке (покажите игрокам)', w: 4, h: 7,
-    init: () => ({ url: '' }),
+    name: 'Картинка', desc: 'Карта или иллюстрация: файл с компьютера (можно перетащить или вставить Ctrl+V) или ссылка', w: 4, h: 7,
+    init: () => ({ url: '', key: '' }),
     render(ctx) {
-      const s = ctx.p.s, box = h('div', { class: 'imgbox' });
-      const draw = () => {
+      const s = ctx.p.s, box = h('div', { class: 'imgbox', tabindex: '0' });
+      let objUrl = '';
+      ctx.onDispose(() => { if (objUrl) URL.revokeObjectURL(objUrl); });
+      const draw = async () => {
         box.textContent = '';
-        if (!s.url) return box.append(h('p', { class: 'dmempty' }, 'Вставьте ссылку на изображение (https://…).'));
-        const im = new Image(); im.alt = ''; im.src = s.url;
-        im.onerror = () => { box.textContent = 'Не удалось загрузить картинку по этой ссылке.'; };
+        if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = ''; }
+        let src = s.url;
+        if (s.key) { const b = await IDB.get(s.key); if (b) src = objUrl = URL.createObjectURL(b); }
+        if (!src) return box.append(h('p', { class: 'dmempty' }, 'Выберите файл, перетащите картинку сюда или вставьте её с помощью Ctrl+V. Можно и ссылку (https://…).'));
+        const im = new Image(); im.alt = ''; im.src = src;
+        im.onerror = () => { box.textContent = 'Не удалось показать картинку.'; };
         box.append(im);
       };
-      const u = inp({ placeholder: 'https://… ссылка на картинку', value: s.url });
-      u.addEventListener('change', () => { const v = u.value.trim(); s.url = /^https?:\/\//i.test(v) || !v ? v : ''; if (v && !s.url) DM.toast('Нужна ссылка, начинающаяся с https://'); ctx.save(); draw(); });
-      ctx.body.append(h('div', { class: 'etools' }, u), box); draw();
+      const take = async file => {
+        if (!file || !/^image\//.test(file.type)) return DM.toast('Это не картинка');
+        try {
+          const b = await shrink(file, 1600);
+          s.key = s.key || ('i' + Math.random().toString(36).slice(2, 10)); s.url = '';
+          const saved = await IDB.put(s.key, b);
+          if (!saved) DM.toast('Браузер не дал сохранить файл: картинка пропадёт после перезагрузки');
+          ctx.save(); draw();
+        } catch (e) { DM.toast('Не получилось открыть картинку'); }
+      };
+      const file = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: e => { take(e.target.files[0]); e.target.value = ''; } });
+      const u = inp({ placeholder: 'или ссылка https://…', value: s.url });
+      u.addEventListener('change', () => { const v = u.value.trim(); if (v && !/^https?:\/\//i.test(v)) { DM.toast('Нужна ссылка, начинающаяся с https://'); u.value = ''; return; } s.url = v; if (v) s.key = ''; ctx.save(); draw(); });
+      ctx.el.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); ctx.el.classList.add('drop'); } });
+      ctx.el.addEventListener('dragleave', () => ctx.el.classList.remove('drop'));
+      ctx.el.addEventListener('drop', e => { ctx.el.classList.remove('drop'); const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) { e.preventDefault(); take(f); } });
+      ctx.el.addEventListener('paste', e => { const it = [...(e.clipboardData || { items: [] }).items].find(i => i.type.startsWith('image/')); if (it) { e.preventDefault(); take(it.getAsFile()); } });
+      ctx.body.append(h('div', { class: 'etools' }, btn('Файл с компьютера…', () => file.click(), 'pri'), u, file), box); draw();
     }
   });
 })(window);

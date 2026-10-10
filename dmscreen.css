@@ -65,3 +65,21 @@ body.dm #dm.mob,.dmws.stack{overflow:visible}
 .imgbox img{max-width:100%;border-radius:3px;display:block;margin:auto}
 @media(max-width:720px){body.dm #dm{height:auto}body.dm main{overflow:auto}.dmws{overflow:visible}}
 .dmb button.pri:hover:not(:disabled){color:#fff;filter:brightness(1.15)}
+/* инициатива: вкладки, урон по типам, длительности */
+.itabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.dmb .itab{border-radius:3px 3px 0 0;padding:3px 10px}.dmb .itab.act{background:var(--bar);border-color:var(--bar);color:#fff}.dmb .itab.add,.dmb .itab.del{padding:3px 8px}
+.irow{grid-template-columns:52px minmax(80px,1fr) 128px 44px 140px 22px}
+.idw{display:flex;gap:3px;min-width:0}.dmb .idw .idm{width:54px!important;flex:none}.dmb .idw .ity{width:80px;flex:none;padding:2px!important}
+.idur{width:46px!important}
+.ires{grid-column:2 / -1;display:flex;gap:10px;flex-wrap:wrap;font-size:12px}.rs.r{color:#1f5560}.rs.i{color:#4a4a4a;font-weight:700}.rs.v{color:#a00}.rs.q{color:#8a6a00}
+.inote{grid-column:2 / -1;font-size:13px;white-space:pre-wrap;background:rgba(0,0,0,.04);border-radius:3px;padding:4px 6px}
+.mine{font-size:11px;color:var(--red);font-style:normal;font-weight:700}
+.dmb .eres small button.xx{padding:0 3px;font-size:13px}
+.dmmodal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:12px}
+.dmdlg{background:var(--paper);color:#1d1a16;border:1px solid #c9b48a;border-top:4px solid var(--bar);border-radius:4px;padding:14px 16px;width:min(480px,100%);max-height:92vh;overflow:auto;font:14px 'PT Sans',sans-serif}
+.dmdlg h3{margin:0 0 8px;font:700 20px 'PT Serif',serif;color:var(--red)}
+.dmdlg .mf{display:block;margin-bottom:7px}.dmdlg .mf span{display:block;font-size:12px;color:#6b5f4d;margin-bottom:2px}
+.dmdlg input,.dmdlg textarea{width:100%;font:14px 'PT Sans',sans-serif;padding:5px 7px;border:1px solid var(--line);border-radius:3px;background:#fffaf0;color:#1d1a16}
+.dmdlg .mrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.mhint{font-size:12px;color:#6b5f4d;margin:0 0 8px}.mbtn{display:flex;gap:8px;justify-content:flex-end}
+.dmdlg button{font:700 13px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:#1d1a16;border-radius:3px;padding:6px 14px;cursor:pointer}.dmdlg button.pri{background:var(--bar);border-color:var(--bar);color:#fff}
+.dmp.drop{outline:3px dashed var(--bar)}.imgbox:focus{outline:0}
