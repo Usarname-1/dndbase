@@ -83,3 +83,9 @@ body.dm #dm.mob,.dmws.stack{overflow:visible}
 .dmdlg .mrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.mhint{font-size:12px;color:#6b5f4d;margin:0 0 8px}.mbtn{display:flex;gap:8px;justify-content:flex-end}
 .dmdlg button{font:700 13px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:#1d1a16;border-radius:3px;padding:6px 14px;cursor:pointer}.dmdlg button.pri{background:var(--bar);border-color:var(--bar);color:#fff}
 .dmp.drop{outline:3px dashed var(--bar)}.imgbox:focus{outline:0}
+.pkw{position:relative}.pk{display:flex;flex-wrap:wrap;gap:3px;align-items:center;border:1px solid var(--line);border-radius:3px;background:#fffaf0;padding:3px 5px}
+.pk input{flex:1;min-width:110px;border:0!important;background:transparent!important;padding:3px 2px!important;outline:0}.pk:focus-within{border-color:var(--bar)}
+.pkc{display:contents}.dmdlg .chip{display:inline-block;font-size:12px;padding:1px 7px;border-radius:9px;background:var(--bar);color:#fff;cursor:pointer}
+.pkl{display:none;position:absolute;left:0;right:0;top:100%;z-index:5;max-height:170px;overflow:auto;background:#fffaf0;border:1px solid #c9b48a;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.3)}.pkl.on{display:block}
+.pko,.pkn{padding:5px 9px;cursor:pointer}.pko:hover{background:rgba(146,38,16,.15)}.pkn{color:#6b5f4d;font-style:italic;cursor:default}
+.dmdlg .mf .chip{display:inline-block;color:#fff;font-size:12px;margin:0}

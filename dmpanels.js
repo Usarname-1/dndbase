@@ -149,6 +149,36 @@
     }
   };
 
+  // выбор из списка с поиском: набирайте часть слова, кликайте по подсказке (значение хранится строкой «огонь, яд»)
+  function picker(options, text, ph) {
+    const set = new Set(), chips = h('span', { class: 'pkc' }), list = h('div', { class: 'pkl' });
+    const inpEl = h('input', { type: 'text', autocomplete: 'off', placeholder: ph || 'начните вводить…' });
+    const box = h('div', { class: 'pk' }, chips, inpEl);
+    const wrap = h('div', { class: 'pkw' }, box, list);
+    const pre = parseSet(text); [...pre.t, ...pre.q, ...pre.c].forEach(x => { if (options.includes(x)) set.add(x); });
+    const drawChips = () => { chips.textContent = ''; set.forEach(x => chips.append(h('span', { class: 'chip', title: 'Убрать', onclick: () => { set.delete(x); drawChips(); } }, x + ' ×'))); };
+    const show = () => {
+      const v = lc(inpEl.value.trim());
+      const opts = options.filter(o => !set.has(o) && (!v || lc(o).includes(v)));
+      list.textContent = '';
+      opts.forEach(o => list.append(h('div', { class: 'pko', onmousedown: ev => { ev.preventDefault(); add(o); } }, o)));
+      if (!opts.length) list.append(h('div', { class: 'pkn' }, v ? 'Нет такого' : 'Всё выбрано'));
+      list.classList.add('on');
+    };
+    const add = o => { set.add(o); inpEl.value = ''; drawChips(); list.classList.remove('on'); inpEl.focus(); };
+    inpEl.addEventListener('focus', show);
+    box.addEventListener('click', () => { inpEl.focus(); show(); });
+    inpEl.addEventListener('input', show);
+    inpEl.addEventListener('blur', () => list.classList.remove('on'));
+    inpEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); const o = list.querySelector('.pko'); if (o) add(o.textContent); }
+      else if (e.key === 'Backspace' && !inpEl.value && set.size) { set.delete([...set].pop()); drawChips(); show(); }
+      else if (e.key === 'Escape') list.classList.remove('on');
+    });
+    drawChips();
+    return { el: wrap, get value() { return [...set].join(', '); } };
+  }
+
   /* окно «свой монстр» */
   function monForm(c, done) {
     const f = {};
@@ -157,6 +187,7 @@
       if (c && c[k] != null) f[k].value = c[k];
       return h('label', { class: 'mf' }, h('span', {}, label), f[k]);
     };
+    const pick = (k, label, opts) => { f[k] = picker(opts, c && c[k]); return h('div', { class: 'mf' }, h('span', {}, label), f[k].el); };
     const close = () => ov.remove();
     const save = () => {
       const name = f.name.value.trim(); if (!name) { f.name.focus(); return; }
@@ -169,10 +200,9 @@
       h('div', { class: 'dmdlg' }, h('h3', {}, c ? 'Изменить монстра' : 'Свой монстр'),
         field('name', 'Название *', { placeholder: 'Например: Культист-фанатик' }),
         h('div', { class: 'mrow' }, field('ac', 'КД', { type: 'number' }), field('hp', 'Хиты', { type: 'number' }), field('mod', 'Мод. инициативы', { type: 'number', value: '0' })),
-        field('res', 'Сопротивление урону', { placeholder: 'огонь, холод' }), field('imm', 'Иммунитет к урону', { placeholder: 'яд' }), field('vul', 'Уязвимость', { placeholder: 'дробящий' }),
-        field('cimm', 'Иммунитет к состояниям', { placeholder: 'отравленный, очарованный' }),
+        pick('res', 'Сопротивление урону', DMG), pick('imm', 'Иммунитет к урону', DMG), pick('vul', 'Уязвимость к урону', DMG),
+        pick('cimm', 'Иммунитет к состояниям', COND.filter(x => COND_RE[x])),
         field('note', 'Атаки, особенности (формулы вроде «+5 к попаданию, 1к8+3» станут кнопками)', { rows: 5 }, 'textarea'),
-        h('p', { class: 'mhint' }, 'Типы урона: ' + DMG.join(', ').toLowerCase() + '.'),
         h('div', { class: 'mbtn' }, btn('Сохранить', save, 'pri'), btn('Отмена', close))));
     document.body.append(ov);
     f.name.focus();
