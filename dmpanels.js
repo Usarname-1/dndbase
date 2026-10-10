@@ -53,6 +53,26 @@
     }
   });
 
+  const EQ = { species: 'race', race: 'species', articles: 'glossary', glossary: 'articles' };
+  // поиск по названию: eds — [24,14], secs — 'all' или раздел; возвращает [{e, sec, m}]
+  async function searchDB(db, eds, sec, text, limit) {
+    const v = db.norm(text.trim()); if (!v) return [];
+    const out = [];
+    for (const e of eds) {
+      let keys = sec === 'all' ? db.ORDERS[e] : [db.ORDERS[e].includes(sec) ? sec : EQ[sec]].filter(k => k && db.ORDERS[e].includes(k));
+      for (const k of keys) {
+        const data = await db.load(k, e);
+        for (const m of data) {
+          const n = db.norm(m.name_ru + ' ' + (m.name_en || '')), i = n.indexOf(v);
+          if (i >= 0) out.push({ e, sec: k, m, r: (db.norm(m.name_ru).startsWith(v) || db.norm(m.name_en || '').startsWith(v) ? 0 : 1) });
+        }
+      }
+    }
+    out.sort((a, b) => a.r - b.r || (a.e === b.e ? 0 : b.e - a.e) || a.m.name_ru.localeCompare(b.m.name_ru, 'ru'));
+    return out.slice(0, limit || 60);
+  }
+  const edList = v => v === 'all' ? [24, 14] : [+v];
+
   /* ---------- Инициатива ---------- */
   const COND = ['Бессознательный', 'Ослеплённый', 'Очарованный', 'Оглохший', 'Испуганный', 'Схваченный', 'Недееспособный', 'Невидимый', 'Парализованный', 'Окаменевший', 'Отравленный', 'Сбитый с ног', 'Опутанный', 'Ошеломлённый', 'Истощение', 'Концентрация'];
   const rid = () => Math.random().toString(36).slice(2, 8);
@@ -86,36 +106,44 @@
     init: () => ({ list: [], turn: 0, round: 1, started: false }),
     render(ctx) {
       const s = ctx.p.s, el = ctx.body;
-      let allMon = null;
       const lst = h('div', { class: 'ilist' });
       const toolbar = h('div', { class: 'itools' });
-      const name = inp({ placeholder: 'Имя или монстр…', list: 'dm-mons-' + ctx.p.id, class: 'iname' });
-      const dl = h('datalist', { id: 'dm-mons-' + ctx.p.id });
-      const qty = inp({ type: 'number', value: '1', min: '1', max: '30', class: 'iqty', title: 'Сколько' });
-      const loadMons = async () => {
-        if (allMon) return allMon;
-        try { allMon = await DB().load('bestiary', DB().ed); } catch (e) { allMon = []; }
-        dl.textContent = ''; allMon.forEach(m => dl.append(h('option', { value: m.name_ru })));
-        return allMon;
+      const name = inp({ placeholder: 'Имя или поиск монстра…', class: 'iname' });
+      const qty = inp({ type: 'number', value: '1', min: '1', max: '30', class: 'iqty', title: 'Сколько добавить' });
+      const edSel = h('select', { class: 'eed', title: 'Редакция монстров' }, h('option', { value: '24' }, '2024'), h('option', { value: '14' }, '2014'), h('option', { value: 'all' }, 'Все'));
+      edSel.value = s.fe || String(DB().ed);
+      const res = h('div', { class: 'eres' });
+      const nQty = () => Math.max(1, Math.min(30, num(qty.value, 1)));
+      const addMon = (e, m) => { DM.INIT.addMonster(s, m, e, nQty()); name.value = ''; res.textContent = ''; ctx.save(); draw(); };
+      let tk = 0;
+      const search = async () => {
+        const my = ++tk, v = name.value.trim(); res.textContent = '';
+        if (!v) return;
+        const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 40);
+        if (my !== tk) return;
+        if (!hits.length) return res.append(h('div', { class: 'none' }, 'В бестиарии не найдено. «Добавить» — внести как обычного участника.'));
+        hits.forEach(x => res.append(h('a', { href: DB().hh(x.e, 'bestiary', x.m.slug), onclick: ev => { ev.preventDefault(); ev.stopPropagation(); addMon(x.e, x.m); } },
+          h('span', {}, x.m.name_ru), h('small', {}, (edSel.value === 'all' ? DB().EDK(x.e) + ' · ' : '') + 'КД ' + (x.m.ac != null ? x.m.ac : '—') + ' · ХП ' + ((x.m.hp && x.m.hp.avg) || '—') + ' · ' + (x.m.name_en || '')))));
       };
-      name.addEventListener('focus', loadMons);
+      name.addEventListener('input', search);
+      edSel.addEventListener('change', () => { s.fe = edSel.value; ctx.save(); search(); });
       const addByName = async () => {
         const v = name.value.trim(); if (!v) return;
-        const q = Math.max(1, Math.min(30, num(qty.value, 1)));
-        const mons = await loadMons(), nv = DB().norm(v);
-        const m = mons.find(x => DB().norm(x.name_ru) === nv) || mons.find(x => DB().norm(x.name_en) === nv);
-        if (m) DM.INIT.addMonster(s, m, DB().ed, q);
-        else { for (let i = 0; i < q; i++) s.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v })); sortList(s); }
-        name.value = ''; ctx.save(); draw();
+        const q = nQty(), nv = DB().norm(v);
+        const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 200);
+        const x = hits.find(y => DB().norm(y.m.name_ru) === nv || DB().norm(y.m.name_en) === nv);
+        if (x) return addMon(x.e, x.m);
+        for (let i = 0; i < q; i++) s.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v })); sortList(s);
+        name.value = ''; res.textContent = ''; ctx.save(); draw();
       };
-      name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); });
+      name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); if (e.key === 'Escape') { name.value = ''; res.textContent = ''; } });
       const next = () => {
         if (!s.list.length) return;
         s.started = true;
         s.turn++; if (s.turn >= s.list.length) { s.turn = 0; s.round++; }
         ctx.save(); draw();
       };
-      toolbar.append(name, qty, btn('Добавить', addByName, 'pri', 'Монстр из бестиария (по названию) или просто участник'), dl,
+      toolbar.append(edSel, name, qty, btn('Добавить', addByName, 'pri', 'Точное название монстра или просто имя участника; монстра можно выбрать из списка ниже'),
         btn('Бросить за всех', () => {
           s.list.forEach(x => { if (x.mon) x.init = rollInit(x.mod || 0); }); sortList(s); ctx.save(); draw();
         }, '', 'Перебросить инициативу всем монстрам'),
@@ -158,7 +186,7 @@
       const head = h('div', { class: 'irow ihead' }, h('span', { title: 'Результат броска инициативы: кто ходит раньше' }, 'Иниц.'), h('span', {}, 'Имя'),
         h('span', { title: 'Хиты сейчас / максимум' }, 'Хиты тек./макс.'), h('span', { title: 'Класс доспеха' }, 'КД'),
         h('span', { title: 'Введите число и Enter: положительное — урон, отрицательное — лечение' }, 'Урон / лечение'), h('span'));
-      el.append(toolbar, head, lst);
+      el.append(toolbar, res, head, lst);
       draw();
       ctx.el._refresh = draw;
     }
@@ -170,24 +198,27 @@
     init: () => ({ e: 24, sec: 'bestiary', slug: '', hist: [] }),
     render(ctx) {
       const s = ctx.p.s, db = DB();
-      const secSel = h('select', { class: 'esec', title: 'Раздел' });
-      const edSel = h('select', { class: 'eed', title: 'Редакция' }, h('option', { value: '24' }, '2024'), h('option', { value: '14' }, '2014'));
+      const secSel = h('select', { class: 'esec', title: 'Где искать: раздел' });
+      const edSel = h('select', { class: 'eed', title: 'Где искать: редакция' }, h('option', { value: '24' }, '2024'), h('option', { value: '14' }, '2014'), h('option', { value: 'all' }, 'Все'));
       const q = inp({ placeholder: 'Поиск по названию…', class: 'eq' });
       const res = h('div', { class: 'eres' });
       const card = h('div', { class: 'ecard' });
+      if (!s.fe) { s.fe = String(s.e); s.fs = s.sec; }
       const back = btn('←', () => { const p = s.hist.pop(); if (p) go(p.e, p.sec, p.slug, true); }, 'eback', 'Назад');
       const fill = () => {
+        const ords = s.fe === 'all' ? db.ORDERS[24] : db.ORDERS[+s.fe];
         secSel.textContent = '';
-        db.ORDERS[s.e].forEach(k => secSel.append(h('option', { value: k }, db.SXS[s.e][k].t)));
-        secSel.value = s.sec; edSel.value = String(s.e);
+        secSel.append(h('option', { value: 'all' }, 'Все'));
+        ords.forEach(k => secSel.append(h('option', { value: k }, db.SXS[s.fe === 'all' ? 24 : +s.fe][k].t)));
+        if (s.fs !== 'all' && !ords.includes(s.fs)) s.fs = EQ[s.fs] && ords.includes(EQ[s.fs]) ? EQ[s.fs] : 'all';
+        secSel.value = s.fs; edSel.value = s.fe;
       };
       async function go(e, sec, slug, isBack) {
         if (!db.SXS[e] || !db.SXS[e][sec]) { sec = db.ORDERS[e][0]; slug = ''; }
         if (!isBack && s.slug && (s.e !== e || s.sec !== sec || s.slug !== slug)) { s.hist.push({ e: s.e, sec: s.sec, slug: s.slug }); if (s.hist.length > 30) s.hist.shift(); }
-        s.e = e; s.sec = sec; s.slug = slug || ''; ctx.save(); fill(); DM.noteEntity(ctx.p.id);
+        s.e = e; s.sec = sec; s.slug = slug || ''; ctx.save(); DM.noteEntity(ctx.p.id);
         back.disabled = !s.hist.length;
         card.textContent = '';
-        res.textContent = '';
         if (!s.slug) { card.append(h('p', { class: 'dmempty' }, 'Найдите запись выше или нажмите на ссылку в другой панели.')); ctx.title('Запись'); return; }
         const data = await db.load(sec, e);
         const m = data.find(x => x.slug === s.slug);
@@ -200,18 +231,21 @@
         if (db.placePic) db.placePic(card, e, sec, m);
         card.querySelectorAll('.stat').forEach(x => x.classList.add('ins'));
       }
+      let tk = 0;
       async function search() {
-        const v = db.norm(q.value.trim()); res.textContent = '';
+        const my = ++tk, v = q.value.trim(); res.textContent = '';
         if (!v) return;
-        const data = await db.load(s.sec, s.e);
-        const hits = data.filter(m => db.norm(m.name_ru + ' ' + (m.name_en || '')).includes(v)).slice(0, 30);
+        const hits = await searchDB(db, edList(s.fe), s.fs, v, 60);
+        if (my !== tk) return;
         if (!hits.length) res.append(h('div', { class: 'none' }, 'Ничего не найдено'));
-        hits.forEach(m => res.append(h('a', { href: db.hh(s.e, s.sec, m.slug), onclick: ev => { ev.preventDefault(); ev.stopPropagation(); q.value = ''; go(s.e, s.sec, m.slug); } }, m.name_ru, h('small', {}, m.name_en || ''))));
+        const multi = s.fe === 'all', allSec = s.fs === 'all';
+        hits.forEach(x => res.append(h('a', { href: db.hh(x.e, x.sec, x.m.slug), onclick: ev => { ev.preventDefault(); ev.stopPropagation(); q.value = ''; res.textContent = ''; go(x.e, x.sec, x.m.slug); } },
+          h('span', {}, x.m.name_ru), h('small', {}, [multi ? db.EDK(x.e) : '', allSec ? db.SXS[x.e][x.sec].t : '', x.m.name_en || ''].filter(Boolean).join(' · ')))));
       }
       q.addEventListener('input', search);
       q.addEventListener('keydown', e => { if (e.key === 'Enter') { const a = res.querySelector('a'); if (a) a.click(); } if (e.key === 'Escape') { q.value = ''; res.textContent = ''; } });
-      edSel.addEventListener('change', () => { s.e = +edSel.value; s.sec = db.ORDERS[s.e].includes(s.sec) ? s.sec : db.ORDERS[s.e][0]; s.slug = ''; ctx.save(); fill(); go(s.e, s.sec, ''); search(); });
-      secSel.addEventListener('change', () => { s.sec = secSel.value; s.slug = ''; ctx.save(); go(s.e, s.sec, ''); search(); });
+      edSel.addEventListener('change', () => { s.fe = edSel.value; ctx.save(); fill(); search(); });
+      secSel.addEventListener('change', () => { s.fs = secSel.value; ctx.save(); search(); });
       ctx.addBtn('↗', 'Открыть на странице', () => { if (s.slug) location.hash = db.hh(s.e, s.sec, s.slug); });
       ctx.body.append(h('div', { class: 'etools' }, back, edSel, secSel, q), res, card);
       ctx.el._nav = (e, sec, slug) => go(e, sec, slug);
