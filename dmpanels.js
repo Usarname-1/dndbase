@@ -239,7 +239,7 @@
         if (!v) { if (!own.length) res.append(h('div', { class: 'none' }, 'Своих монстров пока нет. Нажмите «＋ Свой».')); return; }
         const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 40);
         if (my !== tk) return;
-        if (!hits.length && !own.length) return res.append(h('div', { class: 'none' }, 'В бестиарии не найдено. «Добавить» — внести как обычного участника.'));
+        if (!hits.length && !own.length) return res.append(h('div', { class: 'none' }, 'В бестиарии не найдено. Своего участника создайте кнопкой «＋ Свой».'));
         hits.forEach(x => res.append(h('a', { href: DB().hh(x.e, 'bestiary', x.m.slug), onclick: ev => { ev.preventDefault(); ev.stopPropagation(); addMon(x.e, x.m); } },
           h('span', {}, x.m.name_ru), h('small', {}, (edSel.value === 'all' ? DB().EDK(x.e) + ' · ' : '') + 'КД ' + (x.m.ac != null ? x.m.ac : '—') + ' · ХП ' + ((x.m.hp && x.m.hp.avg) || '—') + ' · ' + (x.m.name_en || '')))));
       };
@@ -247,13 +247,12 @@
       edSel.addEventListener('change', () => { s.fe = edSel.value; ctx.save(); search(); });
       const addByName = async () => {
         const v = name.value.trim(); if (!v) return;
-        const q = nQty(), nv = lc(v), t = act(s);
+        const nv = lc(v);
         const c = lib().find(x => lc(x.name) === nv); if (c) return addCust(c);
         const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 200);
         const x = hits.find(y => DB().norm(y.m.name_ru) === DB().norm(v) || DB().norm(y.m.name_en) === DB().norm(v));
         if (x) return addMon(x.e, x.m);
-        for (let i = 0; i < q; i++) t.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v, init: 0 })); sortList(t);
-        clearSearch(); ctx.save(); draw();
+        DM.toast('«' + v + '» не найден в бестиарии — в бой не добавлено. Своего участника создайте кнопкой «＋ Свой».');
       };
       name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); if (e.key === 'Escape') clearSearch(); });
       // ход: условия с длительностью заканчиваются в конце хода их носителя
@@ -271,7 +270,7 @@
         t.list.forEach(x => { if (x.mon || x.cid) x.init = rollInit(x.mod || 0); });
         sortList(t); t.turn = 0; t.round = 1; t.started = true; ctx.save(); draw();
       };
-      toolbar.append(edSel, name, qty, btn('Добавить', addByName, 'pri', 'Точное название монстра или просто имя участника; монстра можно выбрать из списка ниже'),
+      toolbar.append(edSel, name, qty, btn('Добавить', addByName, 'pri', 'Точное название монстра из бестиария или из «Мои»; выбрать можно и из списка ниже. Своего участника — кнопкой «＋ Свой»'),
         btn('＋ Свой', () => monForm(null, c => { DM.toast('Сохранён: ' + c.name); search(true); }), '', 'Создать своего монстра'),
         btn('Мои', () => search(true), '', 'Показать своих монстров'),
         btn('Начать бой', start, 'pri', 'Бросить инициативу всем монстрам, сбросить раунд и дать ход первому'),
@@ -305,12 +304,12 @@
       function row(x, i) {
         const t = act(s), cur = t.started && i === t.turn, dead = x.max > 0 && x.hp <= 0;
         const r = h('div', { class: 'irow' + (cur ? ' cur' : '') + (dead ? ' dead' : '') });
-        const ini = inp({ type: 'number', value: x.init || '', placeholder: '—', class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(t); ctx.save(); draw(); } });
+        const ini = inp({ type: 'number', value: x.init, class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(t); ctx.save(); draw(); } });
         const nm = x.mon
           ? h('a', { href: DB().hh(x.mon.e, x.mon.sec, x.mon.slug), class: 'inm', title: 'Открыть карточку' }, x.name)
           : h('span', { class: 'inm', contenteditable: 'plaintext-only', spellcheck: 'false', onblur: e => upd(x, o => o.name = e.target.textContent.trim() || 'Участник') }, x.name);
-        const hp = inp({ type: 'number', value: x.hp || x.max ? x.hp : '', placeholder: '0', class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
-        const mx = inp({ type: 'number', value: x.max || '', placeholder: 'макс', class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
+        const hp = inp({ type: 'number', value: x.hp, class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
+        const mx = inp({ type: 'number', value: x.max, class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
         const ac = inp({ value: x.ac, class: 'iac', title: 'Класс доспеха', placeholder: 'КД', onchange: e => upd(x, o => o.ac = e.target.value) });
         const dm = inp({ type: 'number', placeholder: 'урон', class: 'idm', title: 'Введите число и Enter. Отрицательное число — лечение' });
         const ty = h('select', { class: 'ity', title: 'Тип урона (для сопротивлений и уязвимостей)' }, h('option', { value: '' }, 'тип'), DMG.map(d => h('option', { value: d }, d)));
