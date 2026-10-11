@@ -145,9 +145,9 @@
     if (!c.cls) t.push(['base', 'Выберите класс']);
     else {
       if (D.cls && c.lvl >= subLevel(D.cls) && !c.sub && (D.cls.subclasses || []).length) t.push(['base', 'Выберите подкласс']);
-      const n = (c.skills || []).length;
+      const bgIds = d.bgChoice ? d.bgChoice.from : [], n = new Set([...(c.skills || []), ...(c.skillsExtra || []).filter(id => !bgIds.includes(id))]).size, allow = ci ? ci.pickN + d.extraN : 0;
       if (ci && n < ci.pickN) t.push(['skills', 'Навыки класса: выбрано ' + n + ' из ' + ci.pickN]);
-      if (ci && n > ci.pickN) t.push(['skills', 'Навыков класса больше, чем положено (' + n + '/' + ci.pickN + ')']);
+      if (ci && n > allow) t.push(['skills', 'Навыков больше, чем положено (' + n + ' из ' + allow + (d.extraN ? ': класс ' + ci.pickN + ' + черты и вид ' + d.extraN : '') + ')']);
     }
     if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['skills', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
     if (!c.sp) t.push(['base', 'Выберите вид']);
@@ -192,13 +192,13 @@
       h('button', { type: 'button', class: 'cstab' + (id === tabId ? ' act' : ''), onclick: () => { tabId = id; render(); } }, t)));
   }
 
+  const ALIGNS = ['Законопослушный добрый', 'Нейтральный добрый', 'Хаотичный добрый', 'Законопослушный нейтральный', 'Нейтральный', 'Хаотичный нейтральный', 'Законопослушный злой', 'Нейтральный злой', 'Хаотичный злой', 'Без мировоззрения'];
   /* ---------- 1. Основа ---------- */
   async function tabBase(p, c, D, d) {
     const ed = c.ed;
     p.append(h('div', { class: 'csgrid' },
       field('Имя персонажа', textIn(c.name, v => { c.name = v; upd(); })),
-      field('Игрок', textIn(c.player, v => { c.player = v; upd(false); })),
-      field('Мировоззрение', textIn(c.align, v => { c.align = v; upd(false); }, { placeholder: 'Например: Нейтральный добрый' })),
+      field('Мировоззрение', sel(ALIGNS.concat(c.align && !ALIGNS.includes(c.align) ? [c.align] : []), c.align, v => { c.align = v; upd(false); }, '— не выбрано —')),
       field('Правила', h('div', { class: 'csro' }, 'D&D ' + (ed === 24 ? '2024' : '2014') + ' (задаются при создании)'))));
     // класс
     const clsSel = sel(D.classes.map(x => [x.slug, x.name_ru]), c.cls, v => {
@@ -273,7 +273,7 @@
       else {
         const opts = D.bg.abilities.map(x => [R.ABK[x], x]);
         p.append(h('div', { class: 'seg csmeth' }, btn('+2 и +1', () => { c.bg2.m = '21'; upd(); }, c.bg2.m === '21' ? 'act' : ''), btn('+1, +1, +1', () => { c.bg2.m = '111'; upd(); }, c.bg2.m === '111' ? 'act' : '')));
-        if (c.bg2.m === '21') p.append(h('div', { class: 'csgrid' }, field('+2 к', sel(opts, c.bg2.a, v => { c.bg2.a = v; upd(); }, '—')), field('+1 к', sel(opts, c.bg2.b, v => { c.bg2.b = v; upd(); }, '—'))));
+        if (c.bg2.m === '21') p.append(h('div', { class: 'csgrid' }, field('+2 к', sel(opts.filter(o => o[0] !== c.bg2.b), c.bg2.a, v => { c.bg2.a = v; upd(); }, '—')), field('+1 к', sel(opts.filter(o => o[0] !== c.bg2.a), c.bg2.b, v => { c.bg2.b = v; upd(); }, '—'))));
         else p.append(h('p', { class: 'mhint' }, '+1 к каждой: ' + D.bg.abilities.join(', ')));
       }
     } else p.append(h('p', { class: 'mhint' }, 'В колонке «Бонусы» впишите прибавки от вида (расовые бонусы).'));
@@ -338,7 +338,7 @@
   async function tabSkills(p, c, D, d) {
     const ci = d.ci;
     p.append(h('h3', { class: 'csh' }, 'Навыки'));
-    if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами. Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
+    if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами.' + (d.extraN ? ' Черты и вид дают ещё ' + d.extraN + ' (' + d.grants.map(g => g.why + ' — ' + g.n).join('; ') + '): отмечайте их галочкой или кнопкой «+», инструменты из «Одарённого» впишите в «Другие владения».' : '') + ' Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
     if (d.bgChoice) p.append(h('p', { class: 'mhint' }, 'Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+» в колонке «Откуда».'));
     const t = h('table', { class: 'cstbl sk' }, h('tr', {}, ['Выбор', 'Навык', 'Бонус', 'Откуда'].map(x => h('th', {}, x))));
     R.AB.forEach(a => {
@@ -474,7 +474,7 @@
       } else if (g && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + q.value : (g.slug === 'shield' ? '+2 к КД' : ''); }
       t.append(h('tr', {}, h('td', {}, h('input', { type: 'checkbox', checked: !!i.eq, title: 'Надето / в руках', onchange: e => { i.eq = e.target.checked; upd(); } })),
         h('td', {}, g ? link(24, 'equipment', g, i.n) : i.n), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
-        h('td', {}, i.spent ? btn('↩', () => { giveCu(c, i.spent); c.inv.splice(idx, 1); upd(); root.DM.toast('Возвращено: ' + fmtCu(i.spent)); }, 'cb2', 'Вернуть в магазин: деньги вернутся') : null, btn('×', () => { c.inv.splice(idx, 1); upd(); }, 'xx', 'Убрать без возврата денег'))));
+        h('td', {}, btn('×', () => { const back = i.spent || 0; if (back) giveCu(c, back); c.inv.splice(idx, 1); upd(); if (back) root.DM.toast('Возвращено: ' + fmtCu(back)); }, 'xx', i.spent ? 'Убрать предмет: потраченные деньги вернутся' : 'Убрать предмет'))));
     });
     if (!c.inv.length) t.append(h('tr', {}, h('td', { colspan: 6, class: 'none' }, 'Пусто. Добавьте предметы ниже.')));
     p.append(t);
@@ -483,10 +483,13 @@
       h('div', { class: 'csgrid' }, field('Бонус к КД (магия и т. п.)', numIn(c.acBonus, v => { c.acBonus = v; upd(); })), field('КД', h('span', {}, h('b', {}, d.ac), ' (' + d.acWhy + ')'))));
     const freeIn = textIn('', v => { }, { placeholder: 'Свободная запись: «Верёвка пеньковая»…' });
     p.append(h('div', { class: 'row' }, freeIn, btn('Добавить запись', () => { const v = freeIn.value.trim(); if (v) { c.inv.push({ n: v, slug: '', q: 1, eq: false }); upd(); } }, 'dmbtn')));
-    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), searchBox(D.gear, g => { const wi = weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, g.name_ru), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (g.cost || '')),
+    const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
+    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Если убрать купленный предмет, деньги вернутся.'), chips, searchBox(D.gear.filter(g => !UI.gearCat || gearCatOf(g) === UI.gearCat), g => { const wi = weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, g.name_ru), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (g.cost || '')),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
-      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, щит…', max: 50, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
+      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, щит…', max: 120, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }
+  const GCAT = [['', 'Всё'], ['weapon', 'Оружие'], ['armor', 'Доспехи и щиты'], ['tool', 'Инструменты'], ['pack', 'Наборы'], ['gear', 'Прочее снаряжение']];
+  const gearCatOf = g => { const l = g.line || ''; return /оружие|боеприпас/i.test(l) ? 'weapon' : /доспех|щит/i.test(l) ? 'armor' : /нструмент/i.test(l) ? 'tool' : /набор/i.test(l) ? 'pack' : 'gear'; };
   function parseKit(txt) {
     if (!txt) return null;
     const m = [...String(txt).matchAll(/\(([А-ЯA-Z])\)\s*([^;]*?)(?=;?\s*(?:или\s*)?\([А-ЯA-Z]\)|$)/gs)];
@@ -589,7 +592,7 @@
     // страница 1
     const p1 = t('section', 'pg p1');
     p1.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, c.name || ' ', h('small', {}, 'Имя персонажа')),
-      h('div', { class: 'pmeta' }, [[D.cls ? D.cls.name_ru : '', 'Класс'], [D.sub ? D.sub.name : '', 'Подкласс'], [D.sp ? D.sp.name_ru : '', 'Вид'], [D.bg ? D.bg.name_ru : '', 'Предыстория'], [c.align, 'Мировоззрение'], [c.player, 'Игрок']].map(([v, l]) => h('div', {}, h('b', {}, v || ' '), h('small', {}, l)))),
+      h('div', { class: 'pmeta' }, [[D.cls ? D.cls.name_ru : '', 'Класс'], [D.sub ? D.sub.name : '', 'Подкласс'], [D.sp ? D.sp.name_ru : '', 'Вид'], [D.bg ? D.bg.name_ru : '', 'Предыстория'], [c.align, 'Мировоззрение']].map(([v, l]) => h('div', {}, h('b', {}, v || ' '), h('small', {}, l)))),
       h('div', { class: 'plvl' }, h('b', {}, c.lvl), h('small', {}, 'Уровень')), h('div', { class: 'plvl' }, h('b', {}, ' '), h('small', {}, 'Опыт'))));
     const left = t('div', 'pcol');
     left.append(h('div', { class: 'pbox pinsp' }, h('i', { class: 'dot big' }), h('b', {}, c.ed === 24 ? 'Героическое вдохновение' : 'Вдохновение')));
