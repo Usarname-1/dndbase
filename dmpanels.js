@@ -74,7 +74,8 @@
   const edList = v => v === 'all' ? [24, 14] : [+v];
 
   /* ---------- Инициатива ---------- */
-  const COND = ['Бессознательный', 'Ослеплённый', 'Очарованный', 'Оглохший', 'Испуганный', 'Схваченный', 'Недееспособный', 'Невидимый', 'Парализованный', 'Окаменевший', 'Отравленный', 'Сбитый с ног', 'Опутанный', 'Ошеломлённый', 'Истощение', 'Концентрация'];
+  const COND = ['Бессознательный', 'Ослеплённый', 'Очарованный', 'Оглохший', 'Испуганный', 'Схваченный', 'Недееспособный', 'Невидимый', 'Парализованный', 'Окаменевший', 'Отравленный', 'Сбитый с ног', 'Опутанный', 'Ошеломлённый', 'Истощение', 'Концентрация',
+    'Окровавленный', 'Умирающий', 'Стабилизированный', 'Горение', 'Героическое вдохновение', 'Укрытие ½', 'Укрытие ¾', 'Затаился'];
   const COND_RE = { 'Бессознательный': /бессознат/, 'Ослеплённый': /ослеп/, 'Очарованный': /очаро/, 'Оглохший': /оглох|глухот/, 'Испуганный': /испуг|страх/, 'Схваченный': /схвач/, 'Недееспособный': /недееспос/, 'Невидимый': /невидим/, 'Парализованный': /парал/, 'Окаменевший': /окамен/, 'Отравленный': /отравл/, 'Сбитый с ног': /сбит|лежач/, 'Опутанный': /опутан|ограничен/, 'Ошеломлённый': /ошеломл|оглушен/, 'Истощение': /истощ/ };
   const DMG = ['Кислота', 'Дробящий', 'Холод', 'Огонь', 'Силовое поле', 'Электричество', 'Некротическая энергия', 'Колющий', 'Яд', 'Психическая энергия', 'Излучение', 'Рубящий', 'Звук'];
   const DMG_RE = { 'Кислота': /кислот/, 'Дробящий': /дробящ/, 'Холод': /холод/, 'Огонь': /огн|огон/, 'Силовое поле': /силов/, 'Электричество': /электр|молни/, 'Некротическая энергия': /некрот/, 'Колющий': /колющ/, 'Яд': /(^|[^а-яё])яд([^а-яё]|$)/, 'Психическая энергия': /психич/, 'Излучение': /излуч/, 'Рубящий': /рубящ/, 'Звук': /звук|гром/ };
@@ -251,7 +252,7 @@
         const hits = await searchDB(DB(), edList(edSel.value), 'bestiary', v, 200);
         const x = hits.find(y => DB().norm(y.m.name_ru) === DB().norm(v) || DB().norm(y.m.name_en) === DB().norm(v));
         if (x) return addMon(x.e, x.m);
-        for (let i = 0; i < q; i++) t.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v })); sortList(t);
+        for (let i = 0; i < q; i++) t.list.push(newRow({ name: q > 1 ? v + ' ' + (i + 1) : v, init: 0 })); sortList(t);
         clearSearch(); ctx.save(); draw();
       };
       name.addEventListener('keydown', e => { if (e.key === 'Enter') addByName(); if (e.key === 'Escape') clearSearch(); });
@@ -304,12 +305,12 @@
       function row(x, i) {
         const t = act(s), cur = t.started && i === t.turn, dead = x.max > 0 && x.hp <= 0;
         const r = h('div', { class: 'irow' + (cur ? ' cur' : '') + (dead ? ' dead' : '') });
-        const ini = inp({ type: 'number', value: x.init, class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(t); ctx.save(); draw(); } });
+        const ini = inp({ type: 'number', value: x.init || '', placeholder: '—', class: 'iini', title: 'Инициатива', onchange: e => { x.init = num(e.target.value); sortList(t); ctx.save(); draw(); } });
         const nm = x.mon
           ? h('a', { href: DB().hh(x.mon.e, x.mon.sec, x.mon.slug), class: 'inm', title: 'Открыть карточку' }, x.name)
           : h('span', { class: 'inm', contenteditable: 'plaintext-only', spellcheck: 'false', onblur: e => upd(x, o => o.name = e.target.textContent.trim() || 'Участник') }, x.name);
-        const hp = inp({ type: 'number', value: x.hp, class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
-        const mx = inp({ type: 'number', value: x.max, class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
+        const hp = inp({ type: 'number', value: x.hp || x.max ? x.hp : '', placeholder: '0', class: 'ihp', title: 'Хиты сейчас', onchange: e => { x.hp = num(e.target.value); ctx.save(); draw(); } });
+        const mx = inp({ type: 'number', value: x.max || '', placeholder: 'макс', class: 'ihp', title: 'Максимум хитов', onchange: e => { x.max = num(e.target.value); ctx.save(); draw(); } });
         const ac = inp({ value: x.ac, class: 'iac', title: 'Класс доспеха', placeholder: 'КД', onchange: e => upd(x, o => o.ac = e.target.value) });
         const dm = inp({ type: 'number', placeholder: 'урон', class: 'idm', title: 'Введите число и Enter. Отрицательное число — лечение' });
         const ty = h('select', { class: 'ity', title: 'Тип урона (для сопротивлений и уязвимостей)' }, h('option', { value: '' }, 'тип'), DMG.map(d => h('option', { value: d }, d)));
@@ -321,11 +322,12 @@
         const cond = h('span', { class: 'icond' }, x.cond.map(c => h('span', { class: 'chip', title: c.r != null ? 'Осталось раундов: ' + c.r + '. Нажмите, чтобы снять' : 'Нажмите, чтобы снять', onclick: () => { x.cond.splice(x.cond.indexOf(c), 1); ctx.save(); draw(); } }, c.n + (c.r != null ? ' · ' + c.r + ' р.' : '') + ' ×')));
         const dur = inp({ type: 'number', class: 'idur', placeholder: 'р.', min: '1', title: 'На сколько раундов (пусто — пока не снимете). Заканчивается в конце хода носителя' });
         const sel = h('select', { class: 'icadd', title: 'Добавить состояние', onchange: e => {
-          const n = e.target.value; if (!n) return;
+          let n = e.target.value; if (!n) return;
+          if (n === '\u0000own') { n = (prompt('Название состояния или эффекта') || '').trim().slice(0, 40); if (!n) { draw(); return; } }
           if ((x.res && x.res.ci || []).includes(n) && !confirm(x.name + ' имеет иммунитет к состоянию «' + n + '». Всё равно наложить?')) { draw(); return; }
           const d = parseInt(dur.value, 10);
           x.cond.push({ n, r: d > 0 ? d : null }); ctx.save(); draw();
-        } }, h('option', { value: '' }, '＋'), COND.filter(c => !x.cond.some(k => k.n === c)).map(c => h('option', { value: c }, c)));
+        } }, h('option', { value: '' }, '＋'), h('option', { value: '\u0000own' }, 'Своё…'), COND.filter(c => !x.cond.some(k => k.n === c)).map(c => h('option', { value: c }, c)));
         const del = btn('×', () => { t.list.splice(t.list.indexOf(x), 1); if (t.turn >= t.list.length) t.turn = 0; ctx.save(); draw(); }, 'xx', 'Убрать из боя');
         r.append(ini, nm, h('span', { class: 'ihpw', title: 'Хиты' }, hp, '/', mx), ac, h('span', { class: 'idw' }, dm, ty), del, h('div', { class: 'ibot' }, cond, dur, sel));
         const rl = resLine(x); if (rl) r.append(rl);
