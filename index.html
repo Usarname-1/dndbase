@@ -450,7 +450,11 @@ function navHTML(){return `<span class="ed"><a data-e="14" href="#14">2014</a><a
 function edLinks(){const dm=document.body.classList.contains('dm')||document.body.classList.contains('cs');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(dm){a.href=hh(e,document.body.classList.contains('cs')?'sheet':'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
 async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o][sec]?sec:SWAP[sec];if(!k2||!SXS[o][k2])return;
  const s2=ed==14&&m.url_2024?m.url_2024.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):m.slug;
- const d=await load(k2,o,true);if(location.hash!==h||!d.some(x=>x.slug===s2))return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,s2)}">Версия ${EDK(o)}</a>`}
+ const d=await load(k2,o,true);if(location.hash!==h)return;
+ let t=d.find(x=>x.slug===s2);
+ // slug может отличаться («enlargereduce» ↔ «enlarge-reduce»): тогда ищем по английскому названию, но только если оно одно
+ if(!t&&m.name_en){const n=norm(m.name_en),c=d.filter(x=>norm(x.name_en)===n);if(c.length===1)t=c[0]}
+ if(!t)return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,t.slug)}">Версия ${EDK(o)}</a>`}
 const LK={s:'spells',g:'glossary',c:'class',e:'equipment',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',class:'c',equipment:'e',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
 function linkIndex(e){return lix[e]||(lix[e]=fetch((e==14?'data14':'data')+'/links.json').then(r=>r.json()).then(r=>AutoLinks.buildIndex(r,{bracketOnlySingle:e==14})).catch(()=>null))}
 async function autolink(m,h){const e=ed,k=sec,ix=await linkIndex(e);if(!ix||location.hash!==h||ed!==e||sec!==k)return;const href=x=>hh(e,LK[x.k],x.slug);AutoLinks.hydrate($('#card'),ix,href);AutoLinks.linkify($('#card'),ix,{k:SELFK[k],slug:m.slug},href)}

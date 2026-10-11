@@ -149,6 +149,7 @@
       if (ci && n < ci.pickN) t.push(['skills', 'Навыки класса: выбрано ' + n + ' из ' + ci.pickN]);
       if (ci && n > ci.pickN) t.push(['skills', 'Навыков класса больше, чем положено (' + n + '/' + ci.pickN + ')']);
     }
+    if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['skills', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
     if (!c.sp) t.push(['base', 'Выберите вид']);
     if (!c.bg) t.push(['base', 'Выберите предысторию']);
     if (c.ed === 24 && D.bg && c.bg2.m === '21' && (!c.bg2.a || !c.bg2.b || c.bg2.a === c.bg2.b)) t.push(['abil', 'Распределите бонусы предыстории (+2 и +1)']);
@@ -166,6 +167,7 @@
     if (d.ws && c.forms.length < Math.min(d.ws.known, 99)) t.push(['forms', 'Облики зверей: ' + c.forms.length + ' из ' + d.ws.known]);
     return t;
   }
+  const bgChoiceNames = d => d.bgChoice.from.map(id => d.skills.find(s => s.id === id).n).join(', ');
   const subLevel = cls => { const f = (cls.features || []).find(x => /подкласс/i.test(x.name) && x.level); return f ? f.level : 3; };
   function summary(c, D, d) {
     const cell = (l, v, tip) => h('div', { class: 'sc1', title: tip || '' }, h('small', {}, l), h('b', {}, v));
@@ -328,6 +330,7 @@
     const ci = d.ci;
     p.append(h('h3', { class: 'csh' }, 'Навыки'));
     if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами. Двойной щелчок по бонусу — экспертиза.'));
+    if (d.bgChoice) p.append(h('p', { class: 'mhint' }, 'Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+» в колонке «Откуда».'));
     const t = h('table', { class: 'cstbl sk' }, h('tr', {}, ['Выбор', 'Навык', 'Бонус', 'Откуда'].map(x => h('th', {}, x))));
     R.AB.forEach(a => {
       t.append(h('tr', { class: 'abh' }, h('td', { colspan: 4 }, h('b', {}, a.ru), h('small', {}, '  модификатор ' + R.sgn(d.mod[a.k])))));
@@ -429,6 +432,12 @@
     const m = String(p.value).match(/^([\dкКdD+\s]+)[,\s]*(.*)$/); if (!m) return null;
     return { dice: m[1].replace(/\s+/g, ''), type: (m[2] || '').trim(), ranged: /дальнобой/i.test(g.line), simple: /простое/i.test(g.line), martial: /воинское/i.test(g.line), fin: ['dagger', 'rapier', 'scimitar', 'shortsword', 'whip', 'dart'].includes(g.slug) };
   }
+  // бонус атаки и модификатор урона: один расчёт для вкладки «Снаряжение» и печатного листа
+  function attackOf(i, g, wi, d) {
+    const auto = wi.ranged ? 'dex' : (wi.fin ? (d.mod.dex > d.mod.str ? 'dex' : 'str') : 'str'), ab = i.ab || auto;
+    const prof = i.prof != null ? !!i.prof : R.weaponProf(d.ci ? d.ci.weapons : '', g);
+    return { ab, prof, atk: d.mod[ab] + (prof ? d.pb : 0), dm: d.mod[ab] };
+  }
   async function tabGear(p, c, D, d) {
     p.append(h('h3', { class: 'csh' }, 'Монеты'), h('div', { class: 'coins' }, COINS.map(([k, t]) => field(t, numIn(c.coins[k], v => { c.coins[k] = Math.max(0, v); upd(false); }, { min: 0, class: 'num' })))));
     // стартовое снаряжение
@@ -451,10 +460,8 @@
       const wi = g && weaponInfo(g);
       let info = '';
       if (wi) {
-        const ab = wi.ranged ? 'dex' : (wi.fin ? (d.mod.dex > d.mod.str ? 'dex' : 'str') : 'str'), use = i.ab || ab;
-        const lc = R.lc(d.ci ? d.ci.weapons : ''), isProf = i.prof != null ? i.prof : ((wi.simple && /прост/.test(lc)) || (wi.martial && /воинск/.test(lc)) || (g && lc.includes(R.lc(g.name_ru).slice(0, 5))));
-        const atk = d.mod[use] + (isProf ? d.pb : 0); const dm = d.mod[use];
-        info = 'атака ' + R.sgn(atk) + ', урон ' + wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type;
+        const a = attackOf(i, g, wi, d), dm = a.dm;
+        info = 'атака ' + R.sgn(a.atk) + ', урон ' + wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type;
       } else if (g && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + q.value : (g.slug === 'shield' ? '+2 к КД' : ''); }
       t.append(h('tr', {}, h('td', {}, h('input', { type: 'checkbox', checked: !!i.eq, title: 'Надето / в руках', onchange: e => { i.eq = e.target.checked; upd(); } })),
         h('td', {}, g ? link(24, 'equipment', g, i.n) : i.n), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
@@ -500,15 +507,30 @@
     const kc = (c.kitCoins || {})[src] || {}; Object.keys(kc).forEach(k => { c.coins[k] = Math.max(0, (c.coins[k] || 0) - kc[k]); });
     c.kitCoins[src] = {}; delete c.kit[src];
   }
+  // в данных встречаются латинские двойники кириллических букв («Cтрел»)
+  const LAT = { C: 'С', c: 'с', A: 'А', a: 'а', E: 'Е', e: 'е', O: 'О', o: 'о', P: 'Р', p: 'р', X: 'Х', x: 'х', T: 'Т', K: 'К', M: 'М', H: 'Н', B: 'В' };
+  const fixLat = s => String(s).replace(/[A-Za-z]/g, ch => LAT[ch] || ch);
+  // основа слова без падежного окончания: «Кинжалов» ≈ «Кинжал», «Одноручных топора» ≈ «Одноручный топор»
+  const wstems = R.wstems;
+  const GEAR_ALIAS = { 'кольчуга': 'Кольчужный доспех' };              // в справочнике доспех называется иначе
+  // предмет из текста набора → запись справочника (точное имя, псевдоним, затем совпадение по основам; неоднозначное — не берём)
+  function findGear(gear, name) {
+    const n = R.lc(name), exact = gear.find(x => R.lc(x.name_ru) === n);
+    if (exact) return exact;
+    if (GEAR_ALIAS[n]) return gear.find(x => x.name_ru === GEAR_ALIAS[n]) || null;
+    const key = wstems(name), hit = gear.filter(x => wstems(x.name_ru) === key);
+    return hit.length === 1 ? hit[0] : null;
+  }
+  // «Набор учёного и 5 ЗМ» — это предмет и монеты: делим на две части
+  const splitCoin = p => { const m = p.match(/^(.+?)\s+и\s+(\d+\s*(?:ЗМ|СМ|ММ|ЭМ|ПМ))$/i); return m ? [m[1], m[2]] : [p]; };
   function addKit(c, D, o, src) {
     removeKit(c, src);
-    const parts = o.txt.split(/,\s*(?![^()]*\))/).map(s => s.trim().replace(/^и\s+/i, '')).filter(Boolean), miss = [], got = {};
+    const parts = fixLat(o.txt).split(/,\s*(?![^()]*\))/).map(s => s.trim().replace(/^и\s+/i, '')).filter(Boolean).flatMap(splitCoin), miss = [], got = {};
     parts.forEach(p => {
       const coin = p.match(/^(\d+)\s*(ЗМ|СМ|ММ|ЭМ|ПМ)$/i);
       if (coin) { const k = { зм: 'zm', см: 'sm', мм: 'mm', эм: 'em', пм: 'pm' }[coin[2].toLowerCase()]; c.coins[k] += +coin[1]; got[k] = (got[k] || 0) + +coin[1]; return; }
       const q = p.match(/^(\d+)\s+(.*)$/), name = (q ? q[2] : p).replace(/\s*\(.*\)\s*$/, ''), qty = q ? +q[1] : 1;
-      const stem = R.lc(name).replace(/(ы|и|а|я|у|ю|ой|ей|ом|ем|ов)$/g, '').slice(0, Math.max(4, R.lc(name).length - 2));
-      const g = D.gear.find(x => R.lc(x.name_ru) === R.lc(name)) || D.gear.find(x => R.lc(x.name_ru).startsWith(stem) && Math.abs(x.name_ru.length - name.length) < 5);
+      const g = findGear(D.gear, name);
       if (g) { const ex = c.inv.find(x => x.slug === g.slug && x.kit === src); if (ex) ex.q += qty; else c.inv.push({ n: g.name_ru, slug: g.slug, q: qty, eq: false, kit: src }); } else miss.push(p);
     });
     miss.forEach(m => c.inv.push({ n: m, slug: '', q: 1, eq: false, kit: src }));
@@ -641,10 +663,8 @@
     const rows = [];
     c.inv.filter(i => i.eq).forEach(i => {
       const g = D.gearBySlug[i.slug], wi = g && weaponInfo(g); if (!wi) return;
-      const ab = wi.ranged ? 'dex' : (wi.fin ? (d.mod.dex > d.mod.str ? 'dex' : 'str') : 'str'), lcw = R.lc(d.ci ? d.ci.weapons : '');
-      const isProf = (wi.simple && /прост/.test(lcw)) || (wi.martial && /воинск/.test(lcw)) || lcw.includes(R.lc(g.name_ru).slice(0, 5));
-      const dm = d.mod[ab];
-      rows.push(h('div', { class: 'prow atk' }, h('b', {}, g.name_ru), h('span', {}, R.sgn(d.mod[ab] + (isProf ? d.pb : 0))), h('span', {}, wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type)));
+      const a = attackOf(i, g, wi, d), dm = a.dm;
+      rows.push(h('div', { class: 'prow atk' }, h('b', {}, g.name_ru), h('span', {}, R.sgn(a.atk)), h('span', {}, wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type)));
     });
     if (d.sp.has) rows.push(h('div', { class: 'prow atk' }, h('b', {}, 'Заклинание'), h('span', {}, R.sgn(d.sp.atk)), h('span', {}, 'Сл ' + d.sp.dc)));
     while (rows.length < 4) rows.push(h('div', { class: 'prow atk' }, ' '));
