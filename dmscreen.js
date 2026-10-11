@@ -187,6 +187,7 @@
       refresh() { if (pe._refresh) pe._refresh(); }
     };
     btns.append(
+      h('button', { type: 'button', class: 'pr', title: 'Печать этой панели (или сохранить в PDF)', onclick: () => printDM(pe) }, '⎙'),
       h('button', { type: 'button', class: 'mv up', title: 'Выше', onclick: () => move(pn, -1) }, '↑'),
       h('button', { type: 'button', class: 'mv dn', title: 'Ниже', onclick: () => move(pn, 1) }, '↓'),
       h('button', { type: 'button', title: 'Закрыть панель', onclick: () => removePanel(pn) }, '×'));
@@ -337,6 +338,21 @@
   const typing = t => t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
   function setPanmode(on) { panmode = on; if (ui) ui.ws.classList.toggle('panmode', on); }
 
+  /* ---------- печать ---------- */
+  // печатает текущий экран (или одну панель): в диалоге браузера можно выбрать «Сохранить как PDF»
+  function printDM(only) {
+    if (!panels().length) { toast('На экране нет панелей'); return; }
+    const tas = [...ui.grid.querySelectorAll('textarea')].map(t => [t, t.style.height]);
+    tas.forEach(([t]) => { t.style.height = t.scrollHeight + 'px'; });
+    if (only) { ui.ws.classList.add('printone'); only.classList.add('pr1'); }
+    const done = () => {
+      ui.ws.classList.remove('printone'); if (only) only.classList.remove('pr1');
+      tas.forEach(([t, hh]) => { t.style.height = hh; });
+    };
+    root.addEventListener('afterprint', done, { once: true });
+    setTimeout(() => root.print(), 50);
+  }
+
   /* ---------- верхняя панель: вкладки и кнопки ---------- */
   function renderBar() {
     const bar = ui.tabs; bar.textContent = '';
@@ -398,6 +414,7 @@
       h('button', { type: 'button', class: 'dmbtn', title: 'Выложить панели рядами без наложений', onclick: arrange }, 'Упорядочить'));
     ui.bar = h('div', { class: 'dmbar' }, ui.tabs, h('span', { class: 'dmsp' }), zoom,
       h('span', { class: 'dmmw' }, addBtn, ui.menu),
+      h('button', { type: 'button', class: 'dmbtn', title: 'Напечатать текущий экран или сохранить его в PDF (в диалоге печати)', onclick: () => printDM() }, 'Печать'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Сохранить все экраны в файл', onclick: exportJson }, 'Экспорт'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Загрузить экраны из файла', onclick: () => file.click() }, 'Импорт'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Вернуть стандартный экран', onclick: () => {
