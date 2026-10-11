@@ -153,7 +153,12 @@
     if (!c.sp) t.push(['base', 'Выберите вид']);
     if (!c.bg) t.push(['base', 'Выберите предысторию']);
     if (c.ed === 24 && D.bg && c.bg2.m === '21' && (!c.bg2.a || !c.bg2.b || c.bg2.a === c.bg2.b)) t.push(['abil', 'Распределите бонусы предыстории (+2 и +1)']);
-    R.asiLevels(D.cls).filter(l => l <= c.lvl).forEach(l => { const x = c.asi[l]; if (!x || (x.m === 'feat' && !x.feat) || (x.m === '2' && !x.a) || (x.m === '11' && (!x.a || !x.b || x.a === x.b))) t.push(['abil', 'Увеличение характеристик на ' + l + ' уровне']); });
+    R.asiLevels(D.cls).filter(l => l <= c.lvl).forEach(l => {
+      const ep = c.ed === 24 && l === R.epicLevel(D.cls), x = c.asi[l];
+      if (!x || ((x.m === 'feat' || ep) && !x.feat) || (!ep && x.m === '2' && !x.a) || (!ep && x.m === '11' && (!x.a || !x.b || x.a === x.b))) { t.push(['abil', (ep ? 'Дар эпического героя на ' : 'Увеличение характеристик на ') + l + ' уровне']); return; }
+      if (x.m === 'feat' || ep) { const f = D.feats.find(y => y.slug === x.feat), fa = R.featAbility(f); if (fa && !fa.opts.includes(x.fa)) t.push(['abil', 'Черта «' + f.name_ru + '» (' + l + ' ур.): выберите, какую характеристику увеличить на 1']); }
+    });
+    if (d.expN > d.expUsed) t.push(['skills', 'Экспертность: отмечено ' + d.expUsed + ' из ' + d.expN + ' (★ у навыка, которым вы владеете)']);
     if (d.sp.has && d.sp.cantrips != null) {
       const cn = c.spells.filter(s => s.lvl === 0 && !s.free).length;
       if (cn < d.sp.cantrips) t.push(['spells', 'Заговоры: ' + cn + ' из ' + d.sp.cantrips]);
@@ -260,7 +265,7 @@
       t.append(h('tr', { class: bgA.includes(a.k) && c.ed === 24 ? 'hl' : '' }, h('td', {}, h('b', {}, a.ru)), h('td', {}, cellBase), h('td', {}, bcell), h('td', {}, h('b', { class: 'big' }, d.score[a.k])), h('td', {}, R.sgn(d.mod[a.k])),
         h('td', {}, R.sgn(d.saves[a.k]) + (d.saveProf.has(a.k) ? ' ●' : ''))));
     });
-    p.append(t);
+    p.append(t, h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.cap20 === false, onchange: e => { c.cap20 = e.target.checked ? false : true; upd(); } }), ' максимум характеристики 30 вместо 20 (особые случаи: дары, предметы)'));
     // бонусы предыстории 2024
     if (c.ed === 24) {
       p.append(h('h3', { class: 'csh' }, 'Бонусы предыстории'));
@@ -277,15 +282,19 @@
     if (lv.length) {
       p.append(h('h3', { class: 'csh' }, 'Увеличение характеристик и черты'));
       lv.forEach(l => {
-        const x = c.asi[l] || (c.asi[l] = { m: '2', a: '', b: '', feat: '' });
+        const ep = c.ed === 24 && l === R.epicLevel(D.cls);
+        const x = c.asi[l] || (c.asi[l] = { m: ep ? 'feat' : '2', a: '', b: '', feat: '' });
+        if (ep) x.m = 'feat';
         const abOpts = R.AB.map(a => [a.k, a.ru]);
-        const box = h('div', { class: 'csasi' }, h('b', {}, l + ' уровень'),
-          sel([['2', '+2 к одной'], ['11', '+1 к двум'], ['feat', 'Черта']], x.m, v => { x.m = v; upd(); }),
+        const box = h('div', { class: 'csasi' }, h('b', {}, l + ' уровень' + (ep ? ' · Дар эпического героя' : '')),
+          ep ? null : sel([['2', '+2 к одной'], ['11', '+1 к двум'], ['feat', 'Черта']], x.m, v => { x.m = v; upd(); }),
           x.m === '2' ? sel(abOpts, x.a, v => { x.a = v; upd(); }, '—') : null,
           x.m === '11' ? [sel(abOpts, x.a, v => { x.a = v; upd(); }, '—'), sel(abOpts, x.b, v => { x.b = v; upd(); }, '—')] : null);
         if (x.m === 'feat') {
-          const cur = D.feats.find(f => f.slug === x.feat);
-          box.append(h('span', { class: 'csfeat' }, cur ? link(c.ed, 'feats', cur) : 'не выбрана'), btn(cur ? 'Сменить' : 'Выбрать черту', () => featDialog(c, D, f => { x.feat = f.slug; upd(); }), 'dmbtn'));
+          const cur = D.feats.find(f => f.slug === x.feat), fa = R.featAbility(cur);
+          box.append(h('span', { class: 'csfeat' }, cur ? link(c.ed, 'feats', cur) : 'не выбрана'),
+            btn(cur ? 'Сменить' : 'Выбрать черту', () => featDialog(c, D, f => { x.feat = f.slug; x.fa = ''; upd(); }, null, ep ? 'Черта Эпического дара' : ''), 'dmbtn'));
+          if (fa) box.append(h('label', { class: 'csfa' }, '+1 к ', sel(fa.opts.map(k => [k, R.ABN(k).ru]), x.fa, v => { x.fa = v; upd(); }, '—'), fa.cap > 20 ? ' (до ' + fa.cap + ')' : ''));
         }
         p.append(box);
       });
@@ -293,11 +302,11 @@
   }
   const AB_RESET = c => { const arr = R.STD_ARRAY; R.AB.forEach((a, i) => { c.ab[a.k] = arr[i]; }); };
   const lvReq = f => { const m = String(f.prerequisite || f.line || '').match(/(\d+)[-\s]*(?:й|го|ого)?\s*уровн/i); return m ? +m[1] : 0; };
-  function featDialog(c, D, pick, skip) {
+  function featDialog(c, D, pick, skip, onlyCat) {
     skip = skip || new Set();
     const ov = h('div', { class: 'dmmodal', onclick: e => { if (e.target === ov) ov.remove(); } });
-    const cats = [...new Set(D.feats.map(f => f.category).filter(Boolean))];
-    let cat = ''; const body = h('div');
+    const cats = onlyCat ? [onlyCat] : [...new Set(D.feats.map(f => f.category).filter(Boolean))];
+    let cat = onlyCat || ''; const body = h('div');
     const chips = h('div', { class: 'seg csmeth wrapseg' }, ['', ...cats].map(k => btn(k ? k.replace(/^Черта\s+/, '') : 'Все', () => { cat = k; draw(); }, '')));
     function draw() {
       chips.querySelectorAll('button').forEach((b, i) => b.classList.toggle('act', (i ? cats[i - 1] : '') === cat));
@@ -329,7 +338,7 @@
   async function tabSkills(p, c, D, d) {
     const ci = d.ci;
     p.append(h('h3', { class: 'csh' }, 'Навыки'));
-    if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами. Двойной щелчок по бонусу — экспертиза.'));
+    if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами. Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
     if (d.bgChoice) p.append(h('p', { class: 'mhint' }, 'Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+» в колонке «Откуда».'));
     const t = h('table', { class: 'cstbl sk' }, h('tr', {}, ['Выбор', 'Навык', 'Бонус', 'Откуда'].map(x => h('th', {}, x))));
     R.AB.forEach(a => {
