@@ -1,16 +1,19 @@
 /* ===== Экран мастера =====
-   Сетка панелей (12 колонок), вкладки-экраны, перетаскивание и изменение размера,
-   сохранение в localStorage, экспорт/импорт JSON. Сами панели — в dmpanels.js (DM.registerType).
+   Свободное полотно: панели лежат где угодно (в пикселях), не прилипают друг к другу и не сдвигают соседей.
+   По полотну можно ездить (перетаскивание пустого места, колесо, Пробел/средняя кнопка) и менять масштаб.
+   Вкладки-экраны, сохранение в localStorage, экспорт/импорт JSON. Сами панели — в dmpanels.js (DM.registerType).
    Связь с основным приложением — через window.DB (см. index.html). */
 (function (root) {
   'use strict';
-  const COLS = 12, ROWH = 44, GAP = 6, KEY = 'dm.v1', STACK_W = 720;
+  const COLW = 80, ROWH = 44, GAP = 6;       // размеры панелей в TYPES.w/h заданы в «клетках» — переводим в пиксели
+  const KEY = 'dm.v1', VER = 2, GRID = 40, ZMIN = .3, ZMAX = 1.6, MINW = 200, MINH = 110, MAXS = 6000, EDGE = 36;
   const TYPES = {}, ORDER = [];
-  let S = null, ui = null, saveT = 0, undo = null, lastEntity = null;
+  let S = null, ui = null, saveT = 0, undo = null, lastEntity = null, panmode = false;
   const els = new Map();                     // id панели -> {pe, ctx, disp}
 
   const uid = () => Math.random().toString(36).slice(2, 9);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const num = (v, d, a, b) => typeof v === 'number' && isFinite(v) ? clamp(v, a, b) : d;
   const DB = () => root.DB;
   function h(tag, attrs, ...kids) {
     const e = document.createElement(tag);
@@ -26,20 +29,52 @@
 
   /* ---------- состояние ---------- */
   function registerType(id, def) { TYPES[id] = def; ORDER.push(id); }
-  const mkPanel = (t, x, y, w, hh, s) => ({ id: uid(), t, x, y, w, h: hh, s: s || (TYPES[t].init ? TYPES[t].init() : {}) });
+  const dimOf = t => ({ w: (TYPES[t].w || 4) * COLW - GAP, h: (TYPES[t].h || 6) * ROWH - GAP });
+  const mkPanel = (t, x, y, w, hh, s, z) => ({ id: uid(), t, x, y, w, h: hh, z: z || 1, s: s || (TYPES[t].init ? TYPES[t].init() : {}) });
   function defaults() {
     return {
-      v: 1, tab: 't1', tabs: [{
-        id: 't1', name: 'Экран 1', panels: [
-          mkPanel('init', 0, 0, 6, 11), mkPanel('dice', 6, 0, 3, 6), mkPanel('conds', 9, 0, 3, 11), mkPanel('notes', 6, 6, 3, 5)]
+      v: VER, tab: 't1', tabs: [{
+        id: 't1', name: 'Экран 1', view: { x: 0, y: 0, z: 1 }, panels: [
+          mkPanel('init', 16, 16, 480, 480, null, 1), mkPanel('dice', 512, 16, 234, 258, null, 2),
+          mkPanel('conds', 762, 16, 234, 480, null, 3), mkPanel('notes', 512, 290, 234, 206, null, 4)]
       }]
     };
   }
-  function readStore() {
-    try { const j = JSON.parse(localStorage.getItem(KEY)); if (j && Array.isArray(j.tabs) && j.tabs.length) return j; } catch (e) { /* пусто */ }
-    return null;
+  // приводит любые данные (из localStorage или файла) к корректному виду; старые сохранения (сетка) переводит в пиксели
+  function normalize(j) {
+    if (!j || typeof j !== 'object' || !Array.isArray(j.tabs)) return null;
+    const old = !(j.v >= VER), tabs = [], tid = new Set();
+    for (const t of j.tabs) {
+      if (!t || typeof t !== 'object' || !Array.isArray(t.panels)) continue;
+      const ps = [], pid = new Set();
+      for (const p of t.panels) {
+        if (!p || typeof p !== 'object' || !TYPES[p.t]) continue;
+        const d = dimOf(p.t), n = ps.length;
+        let x = p.x, y = p.y, w = p.w, hh = p.h;
+        if (old && [x, y, w, hh].every(k => typeof k === 'number' && isFinite(k))) { x = 8 + x * COLW; y = 8 + y * ROWH; w = w * COLW - GAP; hh = hh * ROWH - GAP; }
+        const q = {
+          id: typeof p.id === 'string' && p.id && !pid.has(p.id) ? p.id : uid(), t: p.t,
+          x: num(x, 16 + (n % 10) * 28, -MAXS, MAXS), y: num(y, 16 + (n % 10) * 28, -MAXS, MAXS),
+          w: num(w, d.w, MINW, MAXS), h: num(hh, d.h, MINH, MAXS),
+          z: Math.round(num(old ? n + 1 : p.z, n + 1, 0, 1e6)),
+          s: Object.assign(TYPES[p.t].init ? TYPES[p.t].init() : {}, p.s && typeof p.s === 'object' && !Array.isArray(p.s) ? p.s : {})
+        };
+        if (typeof p.title === 'string' && p.title) q.title = p.title.slice(0, 60);
+        pid.add(q.id); ps.push(q);
+      }
+      const v = t.view && typeof t.view === 'object' ? t.view : {};
+      const id = typeof t.id === 'string' && t.id && !tid.has(t.id) ? t.id : uid();
+      tid.add(id);
+      tabs.push({ id, name: (typeof t.name === 'string' && t.name.trim() ? t.name : 'Экран ' + (tabs.length + 1)).slice(0, 40), panels: ps,
+        view: { x: num(v.x, 0, -MAXS, MAXS), y: num(v.y, 0, -MAXS, MAXS), z: num(v.z, 1, ZMIN, ZMAX) } });
+    }
+    if (!tabs.length) return null;
+    return { v: VER, tab: tabs.some(t => t.id === j.tab) ? j.tab : tabs[0].id, tabs };
   }
-  function ensure() { if (!S) { S = readStore() || defaults(); if (!S.tabs.some(t => t.id === S.tab)) S.tab = S.tabs[0].id; } return S; }
+  function readStore() {
+    try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return null; }
+  }
+  function ensure() { if (!S) S = readStore() || defaults(); return S; }
   function persist() {
     clearTimeout(saveT);
     saveT = setTimeout(() => {
@@ -49,47 +84,89 @@
   }
   const tab = () => ensure().tabs.find(t => t.id === S.tab);
   const panels = () => tab().panels;
+  const view = () => tab().view;
+  const topZ = () => Math.max(0, ...panels().map(p => p.z || 0));
 
-  /* ---------- геометрия ---------- */
-  const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-  const isFree = (pn, x, y, w, hh) => !panels().some(o => o !== pn && overlap({ x, y, w, h: hh }, o));
-  function nearest(pn, wx, wy, w, hh) {
-    if (isFree(pn, wx, wy, w, hh)) return { x: wx, y: wy };
-    const maxY = Math.max(0, ...panels().filter(o => o !== pn).map(o => o.y + o.h)) + hh;
-    let best = null, bd = 1e9;
-    for (let y = 0; y <= maxY; y++) for (let x = 0; x <= COLS - w; x++) {
-      if (!isFree(pn, x, y, w, hh)) continue;
-      const d = Math.abs(x - wx) + Math.abs(y - wy) * 1.2;
-      if (d < bd) { bd = d; best = { x, y }; }
-    }
-    return best || { x: 0, y: maxY };
+  /* ---------- отображение ---------- */
+  const stackMode = () => root.matchMedia('(max-width:720px)').matches;
+  const vis = () => ({ w: ui.ws.clientWidth || 1000, h: ui.ws.clientHeight || 600 });
+
+  function geom(pn) {
+    const e = els.get(pn.id); if (!e) return;
+    Object.assign(e.pe.style, { left: pn.x + 'px', top: pn.y + 'px', width: pn.w + 'px', height: pn.h + 'px', zIndex: pn.z });
   }
-  const metrics = () => { const w = ui.ws.clientWidth || 1000; return { w, cw: w / COLS, stack: w < STACK_W }; };
-
+  function applyView() {
+    if (!ui || !ui.grid) return;
+    const v = view();
+    ui.grid.style.transform = `translate(${-v.x * v.z}px,${-v.y * v.z}px) scale(${v.z})`;
+    const g = GRID * v.z;
+    Object.assign(ui.bg.style, { backgroundSize: g + 'px ' + g + 'px', backgroundPosition: (-v.x * v.z) + 'px ' + (-v.y * v.z) + 'px' });
+    ui.zlab.textContent = Math.round(v.z * 100) + '%';
+  }
   function layout() {
     if (!ui || !ui.grid) return;
-    const M = metrics(), list = panels().slice();
-    ui.ws.classList.toggle('stack', M.stack);
-    if (M.stack) {
+    const stack = stackMode(), list = panels().slice();
+    ui.ws.classList.toggle('stack', stack); ui.bar.classList.toggle('stackm', stack);
+    if (stack) {
       list.sort((a, b) => a.y - b.y || a.x - b.x);
-      ui.grid.style.height = 'auto';
       list.forEach((pn, i) => {
         const e = els.get(pn.id); if (!e) return;
-        Object.assign(e.pe.style, { left: '', top: '', width: '', height: pn.h * ROWH - GAP + 'px' });
-        e.pe.style.order = i;
+        Object.assign(e.pe.style, { left: '', top: '', width: '', height: pn.h + 'px', zIndex: '', order: i });
         e.pe.classList.toggle('first', i === 0); e.pe.classList.toggle('last', i === list.length - 1);
       });
+      ui.grid.style.transform = '';
       return;
     }
-    const bottom = Math.max(0, ...list.map(p => p.y + p.h));
-    ui.grid.style.height = (bottom + 3) * ROWH + 'px';
-    list.forEach(pn => {
-      const e = els.get(pn.id); if (!e) return;
-      Object.assign(e.pe.style, {
-        left: pn.x * M.cw + 'px', top: pn.y * ROWH + 'px',
-        width: pn.w * M.cw - GAP + 'px', height: pn.h * ROWH - GAP + 'px', order: ''
-      });
+    list.forEach(pn => { const e = els.get(pn.id); if (e) { e.pe.style.order = ''; geom(pn); } });
+    applyView();
+  }
+  const bounds = () => {
+    const l = panels(); if (!l.length) return null;
+    const x0 = Math.min(...l.map(p => p.x)), y0 = Math.min(...l.map(p => p.y));
+    return { x: x0, y: y0, w: Math.max(...l.map(p => p.x + p.w)) - x0, h: Math.max(...l.map(p => p.y + p.h)) - y0 };
+  };
+  function setZoom(z, cx, cy) {                // масштаб вокруг точки экрана (cx, cy относительно рабочей области)
+    const v = view(), V = vis();
+    if (cx == null) { cx = V.w / 2; cy = V.h / 2; }
+    const nz = clamp(z, ZMIN, ZMAX), wx = v.x + cx / v.z, wy = v.y + cy / v.z;
+    v.z = nz; v.x = clamp(wx - cx / nz, -MAXS, MAXS); v.y = clamp(wy - cy / nz, -MAXS, MAXS);
+    applyView(); persist();
+  }
+  function fit() {
+    const b = bounds(), v = view(), V = vis();
+    if (!b) { Object.assign(v, { x: 0, y: 0, z: 1 }); }
+    else {
+      v.z = clamp(Math.min(V.w / (b.w + 80), V.h / (b.h + 80), 1), ZMIN, ZMAX);
+      v.x = b.x + b.w / 2 - V.w / 2 / v.z; v.y = b.y + b.h / 2 - V.h / 2 / v.z;
+    }
+    applyView(); persist();
+  }
+  function reveal(pn) {                        // если панель за краем экрана — подъехать к ней
+    const v = view(), V = vis();
+    const l = (pn.x - v.x) * v.z, t = (pn.y - v.y) * v.z, r = l + pn.w * v.z, b = t + pn.h * v.z;
+    if (l >= 0 && t >= 0 && r <= V.w && b <= V.h) return;
+    v.x = pn.x + pn.w / 2 - V.w / 2 / v.z; v.y = pn.y + Math.min(pn.h, V.h / v.z - 40) / 2 - V.h / 2 / v.z;
+    applyView(); persist();
+  }
+  // свободное место в видимой части полотна (если всё занято — каскадом со смещением)
+  function freeSpot(w, hh) {
+    const v = view(), V = vis(), vw = V.w / v.z, vh = V.h / v.z, list = panels();
+    const hit = (x, y) => list.some(o => x < o.x + o.w + 8 && x + w + 8 > o.x && y < o.y + o.h + 8 && y + hh + 8 > o.y);
+    for (let y = v.y + 16; y + hh <= v.y + vh; y += 24) for (let x = v.x + 16; x + w <= v.x + vw; x += 24) if (!hit(x, y)) return { x: Math.round(x), y: Math.round(y) };
+    const k = list.length % 10;
+    return { x: Math.round(v.x + 24 + k * 28), y: Math.round(v.y + 24 + k * 28) };
+  }
+  // «Упорядочить»: выложить панели рядами по ширине экрана без наложений (можно отменить)
+  function arrange() {
+    const list = panels().slice().sort((a, b) => a.y - b.y || a.x - b.x); if (!list.length) return;
+    const saved = list.map(p => [p, p.x, p.y]), v = view(), W = vis().w / v.z - 32;
+    let x = v.x + 16, y = v.y + 16, rowH = 0;
+    list.forEach(p => {
+      if (x > v.x + 16 && x + p.w > v.x + 16 + W) { x = v.x + 16; y += rowH + 12; rowH = 0; }
+      p.x = Math.round(x); p.y = Math.round(y); x += p.w + 12; rowH = Math.max(rowH, p.h); geom(p);
     });
+    persist();
+    toast('Панели выложены рядами', 'Отменить', () => { saved.forEach(([p, px, py]) => { p.x = px; p.y = py; geom(p); }); persist(); });
   }
 
   /* ---------- панели ---------- */
@@ -119,20 +196,27 @@
       pn.title = t.trim(); title.textContent = pn.title || pn.autoTitle || def.name; persist();
     });
     els.set(pn.id, { pe, ctx, disp });
-    pe.addEventListener('pointerdown', () => raise(pe));
+    pe.addEventListener('pointerdown', () => raise(pn));
     pe.querySelector('.dmh').addEventListener('pointerdown', ev => startDrag(ev, pn, pe));
     rez.addEventListener('pointerdown', ev => startResize(ev, pn, pe));
     try { def.render(ctx); } catch (e) { console.error(e); body.textContent = 'Ошибка панели: ' + e.message; }
     if (pn.autoTitle && !pn.title) title.textContent = pn.autoTitle;
+    geom(pn);
     return pe;
   }
-  const raise = pe => { ui.grid.querySelectorAll('.dmp.top').forEach(x => x.classList.remove('top')); pe.classList.add('top'); };
+  function raise(pn) {                         // вынести панель поверх остальных
+    if (stackMode()) return;
+    const l = panels();
+    if (l.every(o => o === pn || o.z < pn.z)) return;
+    pn.z = topZ() + 1;
+    if (pn.z > 100000) { l.slice().sort((a, b) => a.z - b.z).forEach((p, i) => { p.z = i + 1; geom(p); }); }
+    geom(pn); persist();
+  }
 
   function renderTab() {
     for (const [, e] of els) e.disp.forEach(f => { try { f(); } catch (x) { /* ок */ } });
     els.clear();
     ui.grid.textContent = '';
-    ui.ghost = h('div', { class: 'dmghost' }); ui.grid.append(ui.ghost);
     panels().forEach(pn => ui.grid.append(buildPanel(pn)));
     renderBar();
     layout();
@@ -141,14 +225,13 @@
   function addPanel(type, opt) {
     opt = opt || {};
     const def = TYPES[type]; if (!def) return null;
-    const w = opt.w || def.w || 4, hh = opt.h || def.h || 6;
-    const pn = mkPanel(type, 0, 0, w, hh, opt.s);
-    const spot = nearest(pn, 0, 0, w, hh); pn.x = spot.x; pn.y = spot.y;
+    const d = dimOf(type), w = opt.w || d.w, hh = opt.h || d.h;
+    const pn = mkPanel(type, 0, 0, w, hh, opt.s, topZ() + 1);
+    const live = ui && ui.grid && root.document.body.classList.contains('dm');
+    const spot = live ? freeSpot(w, hh) : { x: 16 + (panels().length % 10) * 28, y: 16 + (panels().length % 10) * 28 };
+    pn.x = opt.x != null ? opt.x : spot.x; pn.y = opt.y != null ? opt.y : spot.y;
     panels().push(pn);
-    if (ui && ui.grid && root.document.body.classList.contains('dm')) {
-      ui.grid.append(buildPanel(pn)); layout();
-      const e = els.get(pn.id); if (e) { raise(e.pe); e.pe.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-    }
+    if (live) { ui.grid.append(buildPanel(pn)); layout(); }
     persist();
     return pn;
   }
@@ -175,55 +258,80 @@
     layout(); persist();
   }
 
-  /* ---------- перетаскивание и размер ---------- */
-  function startDrag(ev, pn, pe) {
-    if (ev.button !== 0 || metrics().stack || ev.target.closest('button,input,select,textarea,.dmx')) return;
-    ev.preventDefault();
-    const M = metrics(), gr = ui.grid.getBoundingClientRect(), r = pe.getBoundingClientRect();
-    const ox = ev.clientX - r.left, oy = ev.clientY - r.top;
+  /* ---------- перетаскивание панелей, размер, езда по полотну ---------- */
+  // общий жест: apply(worldX, worldY) вызывается при движении мыши и при автопрокрутке у края экрана
+  function gesture(ev, pe, apply, done) {
+    const v = view(); let cx = ev.clientX, cy = ev.clientY, raf = 0, live = true;
     pe.classList.add('drag'); pe.setPointerCapture(ev.pointerId);
-    let gx = pn.x, gy = pn.y;
-    const ghost = (x, y, w, hh, bad) => {
-      Object.assign(ui.ghost.style, { display: 'block', left: x * M.cw + 'px', top: y * ROWH + 'px', width: w * M.cw - GAP + 'px', height: hh * ROWH - GAP + 'px' });
-      ui.ghost.classList.toggle('bad', !!bad);
+    const upd = () => { const r = ui.ws.getBoundingClientRect(); apply(v.x + (cx - r.left) / v.z, v.y + (cy - r.top) / v.z); };
+    const edge = (p, a, b) => p < a + EDGE ? -(a + EDGE - p) : p > b - EDGE ? p - (b - EDGE) : 0;
+    const tick = () => {
+      if (!live) return;
+      const r = ui.ws.getBoundingClientRect(), dx = clamp(edge(cx, r.left, r.right), -EDGE, EDGE), dy = clamp(edge(cy, r.top, r.bottom), -EDGE, EDGE);
+      if (dx || dy) {
+        v.x = clamp(v.x + dx * .4 / v.z, -MAXS, MAXS); v.y = clamp(v.y + dy * .4 / v.z, -MAXS, MAXS);
+        applyView(); upd();
+      }
+      raf = requestAnimationFrame(tick);
     };
-    ghost(gx, gy, pn.w, pn.h);
-    const mv = e => {
-      const left = e.clientX - gr.left - ox, top = e.clientY - gr.top - oy + ui.ws.scrollTop - (ui.ws.getBoundingClientRect().top - gr.top) * 0;
-      pe.style.left = left + 'px'; pe.style.top = clamp(top, 0, 1e5) + 'px';
-      gx = clamp(Math.round(left / M.cw), 0, COLS - pn.w); gy = Math.max(0, Math.round(top / ROWH));
-      ghost(gx, gy, pn.w, pn.h, !isFree(pn, gx, gy, pn.w, pn.h));
-    };
+    const mv = e => { cx = e.clientX; cy = e.clientY; upd(); };
     const up = () => {
+      live = false; cancelAnimationFrame(raf);
       pe.removeEventListener('pointermove', mv); pe.removeEventListener('pointerup', up); pe.removeEventListener('pointercancel', up);
-      pe.classList.remove('drag'); ui.ghost.style.display = 'none';
-      const s = nearest(pn, gx, gy, pn.w, pn.h); pn.x = s.x; pn.y = s.y;
-      layout(); persist();
+      pe.classList.remove('drag'); done(); persist();
     };
     pe.addEventListener('pointermove', mv); pe.addEventListener('pointerup', up); pe.addEventListener('pointercancel', up);
+    upd(); tick();
+  }
+  const pointWorld = ev => { const v = view(), r = ui.ws.getBoundingClientRect(); return { x: v.x + (ev.clientX - r.left) / v.z, y: v.y + (ev.clientY - r.top) / v.z }; };
+  function startDrag(ev, pn, pe) {
+    if (ev.button !== 0 || stackMode() || ev.target.closest('button,input,select,textarea,.dmx')) return;
+    ev.preventDefault();
+    const p0 = pointWorld(ev), ox = p0.x - pn.x, oy = p0.y - pn.y;
+    gesture(ev, pe, (wx, wy) => { pn.x = Math.round(clamp(wx - ox, -MAXS, MAXS)); pn.y = Math.round(clamp(wy - oy, -MAXS, MAXS)); geom(pn); }, () => { });
   }
   function startResize(ev, pn, pe) {
-    if (ev.button !== 0 || metrics().stack) return;
-    ev.preventDefault(); ev.stopPropagation();
-    const M = metrics(), r0 = pe.getBoundingClientRect();
-    pe.classList.add('drag'); pe.setPointerCapture(ev.pointerId);
-    let nw = pn.w, nh = pn.h;
+    if (ev.button !== 0 || stackMode()) return;
+    ev.preventDefault(); ev.stopPropagation(); raise(pn);
+    const p0 = pointWorld(ev), ox = pn.x + pn.w - p0.x, oy = pn.y + pn.h - p0.y;
+    gesture(ev, pe, (wx, wy) => { pn.w = Math.round(clamp(wx + ox - pn.x, MINW, MAXS)); pn.h = Math.round(clamp(wy + oy - pn.y, MINH, MAXS)); geom(pn); }, () => { });
+  }
+  function startPan(ev) {
+    ev.preventDefault();
+    const v = view(); let lx = ev.clientX, ly = ev.clientY;
+    ui.ws.classList.add('panning'); ui.ws.setPointerCapture(ev.pointerId);
     const mv = e => {
-      nw = clamp(Math.round((e.clientX - r0.left) / M.cw), 2, COLS - pn.x);
-      nh = Math.max(2, Math.round((e.clientY - r0.top) / ROWH));
-      Object.assign(pe.style, { width: nw * M.cw - GAP + 'px', height: nh * ROWH - GAP + 'px' });
-      const bad = !isFree(pn, pn.x, pn.y, nw, nh);
-      Object.assign(ui.ghost.style, { display: 'block', left: pn.x * M.cw + 'px', top: pn.y * ROWH + 'px', width: nw * M.cw - GAP + 'px', height: nh * ROWH - GAP + 'px' });
-      ui.ghost.classList.toggle('bad', bad);
+      v.x = clamp(v.x - (e.clientX - lx) / v.z, -MAXS, MAXS); v.y = clamp(v.y - (e.clientY - ly) / v.z, -MAXS, MAXS);
+      lx = e.clientX; ly = e.clientY; applyView();
     };
     const up = () => {
-      pe.removeEventListener('pointermove', mv); pe.removeEventListener('pointerup', up); pe.removeEventListener('pointercancel', up);
-      pe.classList.remove('drag'); ui.ghost.style.display = 'none';
-      if (isFree(pn, pn.x, pn.y, nw, nh)) { pn.w = nw; pn.h = nh; persist(); } else toast('Здесь тесно: размер не изменён');
-      layout();
+      ui.ws.removeEventListener('pointermove', mv); ui.ws.removeEventListener('pointerup', up); ui.ws.removeEventListener('pointercancel', up);
+      ui.ws.classList.remove('panning'); persist();
     };
-    pe.addEventListener('pointermove', mv); pe.addEventListener('pointerup', up); pe.addEventListener('pointercancel', up);
+    ui.ws.addEventListener('pointermove', mv); ui.ws.addEventListener('pointerup', up); ui.ws.addEventListener('pointercancel', up);
   }
+  // внутри панели колесо прокручивает её содержимое, если есть что прокручивать
+  function scrollsInside(el, dy) {
+    for (; el && el !== ui.ws; el = el.parentElement) {
+      if (el.nodeType !== 1) continue;
+      const oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1 && (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+    }
+    return false;
+  }
+  function onWheel(e) {
+    if (stackMode()) return;
+    const r = ui.ws.getBoundingClientRect();
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); setZoom(view().z * Math.exp(-e.deltaY * .01), e.clientX - r.left, e.clientY - r.top); return; }
+    if (scrollsInside(e.target, e.deltaY)) return;
+    e.preventDefault();
+    const v = view(), k = e.deltaMode === 1 ? 32 : 1;
+    let dx = e.deltaX * k, dy = e.deltaY * k; if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+    v.x = clamp(v.x + dx / v.z, -MAXS, MAXS); v.y = clamp(v.y + dy / v.z, -MAXS, MAXS);
+    applyView(); persist();
+  }
+  const typing = t => t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  function setPanmode(on) { panmode = on; if (ui) ui.ws.classList.toggle('panmode', on); }
 
   /* ---------- верхняя панель: вкладки и кнопки ---------- */
   function renderBar() {
@@ -237,7 +345,7 @@
       bar.append(b);
     });
     bar.append(h('button', { type: 'button', class: 'dmtab add', title: 'Новый экран', onclick: () => {
-      const t = { id: uid(), name: 'Экран ' + (S.tabs.length + 1), panels: [] }; S.tabs.push(t); S.tab = t.id; persist(); renderTab();
+      const t = { id: uid(), name: 'Экран ' + (S.tabs.length + 1), panels: [], view: { x: 0, y: 0, z: 1 } }; S.tabs.push(t); S.tab = t.id; persist(); renderTab();
     } }, '+'));
     if (S.tabs.length > 1) bar.append(h('button', { type: 'button', class: 'dmtab del', title: 'Удалить этот экран', onclick: () => {
       if (!confirm('Удалить экран «' + tab().name + '» вместе со всеми панелями?')) return;
@@ -261,10 +369,10 @@
     const r = new FileReader();
     r.onload = () => {
       try {
-        const j = JSON.parse(r.result);
-        if (!j || !Array.isArray(j.tabs) || !j.tabs.length || !j.tabs.every(t => Array.isArray(t.panels) && t.panels.every(p => TYPES[p.t]))) throw new Error('формат');
+        const j = normalize(JSON.parse(r.result));
+        if (!j) throw new Error('формат');
         if (!confirm('Заменить текущие экраны загруженными из файла?')) return;
-        S = j; if (!S.tabs.some(t => t.id === S.tab)) S.tab = S.tabs[0].id; persist(); renderTab(); toast('Экраны загружены');
+        S = j; persist(); renderTab(); toast('Экраны загружены');
       } catch (e) { toast('Не получилось прочитать файл: это не экран мастера'); }
     };
     r.readAsText(file);
@@ -277,7 +385,14 @@
     ui.menu = h('div', { class: 'dmmenu' });
     const addBtn = h('button', { type: 'button', class: 'dmbtn pri', onclick: e => { e.stopPropagation(); menu(); ui.menu.classList.toggle('on'); } }, '+ Панель');
     const file = h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: e => { if (e.target.files[0]) importJson(e.target.files[0]); e.target.value = ''; } });
-    ui.bar = h('div', { class: 'dmbar' }, ui.tabs, h('span', { class: 'dmsp' }),
+    ui.zlab = h('button', { type: 'button', class: 'dmbtn zl', title: 'Масштаб 100%', onclick: () => setZoom(1) }, '100%');
+    const zoom = h('span', { class: 'dmz' },
+      h('button', { type: 'button', class: 'dmbtn', title: 'Уменьшить', onclick: () => setZoom(view().z / 1.25) }, '−'),
+      ui.zlab,
+      h('button', { type: 'button', class: 'dmbtn', title: 'Увеличить', onclick: () => setZoom(view().z * 1.25) }, '+'),
+      h('button', { type: 'button', class: 'dmbtn', title: 'Показать все панели', onclick: fit }, 'Все'),
+      h('button', { type: 'button', class: 'dmbtn', title: 'Выложить панели рядами без наложений', onclick: arrange }, 'Упорядочить'));
+    ui.bar = h('div', { class: 'dmbar' }, ui.tabs, h('span', { class: 'dmsp' }), zoom,
       h('span', { class: 'dmmw' }, addBtn, ui.menu),
       h('button', { type: 'button', class: 'dmbtn', title: 'Сохранить все экраны в файл', onclick: exportJson }, 'Экспорт'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Загрузить экраны из файла', onclick: () => file.click() }, 'Импорт'),
@@ -285,12 +400,28 @@
         if (!confirm('Сбросить ВСЕ экраны к стандартному? Заметки и бой будут потеряны (сначала можно сделать экспорт).')) return;
         S = defaults(); persist(); renderTab();
       } }, 'Сброс'), file);
+    ui.bg = h('div', { class: 'dmbg' });
     ui.grid = h('div', { class: 'dmg' });
-    ui.ws = h('div', { class: 'dmws' }, ui.grid);
+    ui.ws = h('div', { class: 'dmws', title: '' }, ui.bg, ui.grid);
     host.textContent = '';
     host.append(ui.bar, ui.ws);
     document.addEventListener('click', e => { if (!e.target.closest('.dmmw')) ui.menu.classList.remove('on'); });
     new ResizeObserver(() => layout()).observe(ui.ws);
+    root.matchMedia('(max-width:720px)').addEventListener('change', layout);
+    // езда по полотну: пустое место, средняя кнопка, Пробел + мышь; колесо; Ctrl+колесо — масштаб
+    ui.ws.addEventListener('pointerdown', ev => {
+      if (stackMode()) return;
+      const onPanel = ev.target.closest('.dmp');
+      if ((ev.button === 0 && (!onPanel || panmode)) || ev.button === 1) startPan(ev);
+    });
+    ui.ws.addEventListener('auxclick', e => { if (e.button === 1) e.preventDefault(); });
+    ui.ws.addEventListener('wheel', onWheel, { passive: false });
+    document.addEventListener('keydown', e => {
+      if (e.code !== 'Space' || !document.body.classList.contains('dm') || typing(e.target) || e.target.closest('button')) return;
+      e.preventDefault(); setPanmode(true);
+    });
+    document.addEventListener('keyup', e => { if (e.code === 'Space') setPanmode(false); });
+    root.addEventListener('blur', () => setPanmode(false));
     // ссылки внутри панелей открывают записи в панелях, а не уводят с экрана
     host.addEventListener('click', e => {
       const a = e.target.closest('a[href^="#"]'); if (!a || a.closest('.dmbar')) return;
@@ -318,7 +449,7 @@
     if (!pn && !forceNew) pn = panels().find(p => p.t === 'entity');
     if (pn) {
       const e = els.get(pn.id);
-      if (e && e.pe._nav) { e.pe._nav(ref.e, ref.sec, ref.slug); raise(e.pe); lastEntity = pn.id; return pn; }
+      if (e && e.pe._nav) { e.pe._nav(ref.e, ref.sec, ref.slug); raise(pn); reveal(pn); lastEntity = pn.id; return pn; }
     }
     pn = addPanel('entity', { s: { e: ref.e, sec: ref.sec, slug: ref.slug, hist: [] } });
     if (pn) lastEntity = pn.id;
