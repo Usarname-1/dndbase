@@ -89,6 +89,43 @@
     return m;
   };
 
+  /* ---------- владение оружием ---------- */
+  // основа слова без падежного окончания: «кинжалы» ≈ «Кинжал», «длинные мечи» ≈ «Длинный меч»
+  const ENDS = /(ыми|ими|ого|его|ому|ему|ами|ями|ый|ий|ой|ая|яя|ое|ее|ые|ие|ую|юю|ым|им|ом|ем|ых|их|ов|ей|ам|ям|ах|ях|ою|ею|а|я|у|ю|ы|и|е|о|ь|й)$/;
+  const wstem = w => { const n = lc(w), c = n.replace(ENDS, '').replace(/[ьи]$/, ''); return c.length >= 3 ? c : n; };
+  const wstemList = s => (lc(s).match(/[а-я0-9]+/g) || []).map(wstem);
+  const wstems = s => wstemList(s).join(' ');
+  // свойства оружия — первые жирные слова абзацев: «**Лёгкое.**», «**Фехтовальное.**»
+  function weaponProps(g) {
+    return ((g && g.blocks) || []).filter(b => b.type === 'paragraph').map(b => { const m = String(b.text || '').match(/^\*\*([А-Яа-яЁё ]+?)\.?\*\*/); return m ? lc(m[1]) : null; }).filter(Boolean);
+  }
+  // Владеет ли класс этим оружием. text — строка «Оружие» из класса, g — запись снаряжения.
+  // Понимает: «Простое оружие», «Воинское оружие», «Воинское оружие, обладающее свойством Лёгкое или Фехтовальное»
+  // (2024) и перечни по названиям: «кинжалы, дротики, лёгкие арбалеты» (2014).
+  function weaponProf(text, g) {
+    if (!g) return false;
+    const line = lc(g.line || ''), simple = /прост/.test(line), martial = /воинск/.test(line), gs = wstemList(g.name_ru);
+    for (let clause of lc(text).split(';')) {
+      const lim = clause.match(/воинск\S*\s+оружи\S*,?\s*обладающ\S*\s+свойств\S*\s+(.+)$/);
+      if (lim) {
+        clause = clause.slice(0, lim.index);
+        const want = lim[1].split(/,|\sили\s|\sи\s/).map(x => wstem(x.trim())).filter(Boolean), have = weaponProps(g).map(wstem);
+        if (martial && want.some(w => have.includes(w))) return true;
+      }
+      for (const cat of clause.matchAll(/(?:(?:прост|воинск)\S*\s+(?:и\s+)?)+оружи\S*/g)) {   // «Простое оружие», «Простое и Воинское оружие»
+        if (/прост/.test(cat[0]) && simple) return true;
+        if (/воинск/.test(cat[0]) && martial) return true;
+      }
+      const rest = clause.replace(/(?:(?:прост|воинск)\S*\s+(?:и\s+)?)+оружи\S*/g, ' ');
+      for (const item of rest.split(/,|\sи\s/)) {
+        const it = wstemList(item); if (!it.length) continue;
+        // название должно совпасть целиком: «копья» — это не «Кавалерийское копьё»; «ручные арбалеты» ≈ «Одноручный арбалет»
+        if (it.length === gs.length && it.every((w, k) => gs[k] === w || (w.length >= 4 && gs[k].endsWith(w)))) return true;
+      }
+    }
+    return false;
+  }
+
   /* ---------- черты вида ---------- */
   function paragraphsOf(blocks) { return (blocks || []).filter(b => b.type === 'paragraph').map(b => b.text); }
   function speciesTraits(sp) {                       // «**Название.** текст»
@@ -101,6 +138,23 @@
     if (sp.props) { const p = sp.props.find(x => /скорост/i.test(x.label)); if (p) { const n = intOf(String(p.value).match(/\d+/)); if (n) return n; } }
     if (sp.speeds && sp.speeds.length) return sp.speeds[sp.speeds.length - 1];
     return 30;
+  }
+
+  /* ---------- навыки предыстории ---------- */
+  // У части предысторий 2014 навыки даны на выбор («Выберите два из…», «История, плюс один из…»).
+  // Возвращает {fixed — выдаются сразу, choose — сколько выбрать, from — из чего}.
+  function bgSkillInfo(bg) {
+    const txt = String((bg && bg.skills_text) || ''), listed = skillsIn(((bg && bg.skills) || []).join(', '));
+    const all = skillsIn(((bg && bg.skills) || []).join(', ') + ' ' + txt), fixedAll = { fixed: all, choose: 0, from: [] };
+    if (!bg) return { fixed: [], choose: 0, from: [] };
+    const t = lc(txt), pick = t.match(/выберите\s+(один|одно|два|три)(?=\s|$)/);
+    if (pick && listed.length > NUMW[pick[1]]) return { fixed: [], choose: NUMW[pick[1]], from: listed };
+    const plus = t.search(/(?:,\s*плюс|\sи)\s+(?:один|одно)\s/);
+    if (plus > 0) {
+      const fixed = skillsIn(txt.slice(0, plus)), from = listed.filter(id => !fixed.includes(id));
+      if (from.length) return { fixed, choose: 1, from };
+    }
+    return fixedAll;
   }
 
   /* ---------- производные значения ---------- */
@@ -132,8 +186,9 @@
     const saveProf = new Set(ci ? ci.saves : []), saves = {};
     AB.forEach(a => { saves[a.k] = m[a.k] + (saveProf.has(a.k) ? pb : 0); });
 
-    const bgSk = D.bg ? skillsIn((D.bg.skills || []).join(', ') + ' ' + (D.bg.skills_text || '')) : [];
+    const bgi = bgSkillInfo(D.bg), bgSk = bgi.fixed;
     const pick = new Set(c.skills || []), extra = new Set(c.skillsExtra || []), exp = new Set(c.exp || []);
+    const bgChoice = bgi.choose ? { n: bgi.choose, from: bgi.from, got: bgi.from.filter(id => extra.has(id)).length } : null;
     const skills = SKILLS.map(s => {
       const from = [];
       if (pick.has(s.id)) from.push('класс'); if (bgSk.includes(s.id)) from.push('предыстория'); if (extra.has(s.id)) from.push('другое');
@@ -180,7 +235,7 @@
     }
     // дикий облик (друид)
     const ws = wildShape(D, c, lvl);
-    return { lvl, ci, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
+    return { lvl, ci, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
   }
 
   /* ---------- дикий облик ---------- */
@@ -227,6 +282,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: false, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, maxSlotLevel, speciesTraits, speciesSpeed, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

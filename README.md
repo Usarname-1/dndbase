@@ -2,7 +2,7 @@
 
 [![Сайт](https://img.shields.io/badge/сайт-usarname--1.github.io%2Fdndbase-922610?style=flat-square)](https://usarname-1.github.io/dndbase/)
 [![Редакции](https://img.shields.io/badge/редакции-2014%20%2B%202024-2b6a75?style=flat-square)](https://usarname-1.github.io/dndbase/)
-[![Записей](https://img.shields.io/badge/записей-~7%20250-7a200d?style=flat-square)](https://usarname-1.github.io/dndbase/)
+[![Записей](https://img.shields.io/badge/записей-~7%20220-7a200d?style=flat-square)](https://usarname-1.github.io/dndbase/)
 [![Язык](https://img.shields.io/badge/язык-русский%20%2B%20English-1d1a16?style=flat-square)](https://usarname-1.github.io/dndbase/)
 
 **Бесплатный онлайн-справочник Dungeons & Dragons 5-й редакции на русском языке.**
@@ -41,8 +41,8 @@
 | Черты | 195 | 105 |
 | Магические предметы | 437 | 934 |
 | Снаряжение | 197 | — ¹ |
-| Глоссарий / правила и статьи | 155 | 157 |
-| **Всего записей** | **~2 190** | **~5 060** |
+| Глоссарий / правила и статьи | 155 | 129 |
+| **Всего записей** | **~2 190** | **~5 030** |
 
 ¹ В 2014 обычное снаряжение отдельным разделом не выделено: см. статьи рубрики «Инвентарь» в разделе «Правила и статьи».
 
