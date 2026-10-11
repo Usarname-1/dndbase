@@ -92,3 +92,17 @@ body.dm #dm.mob,.dmws.stack{overflow:visible}
 .pkl{display:none;position:absolute;left:0;right:0;top:100%;z-index:5;max-height:170px;overflow:auto;background:#fffaf0;border:1px solid #c9b48a;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.3)}.pkl.on{display:block}
 .pko,.pkn{padding:5px 9px;cursor:pointer}.pko:hover{background:rgba(146,38,16,.15)}.pkn{color:#6b5f4d;font-style:italic;cursor:default}
 .dmdlg .mf .chip{display:inline-block;color:#fff;font-size:12px;margin:0}
+
+/* печать экрана мастера: панели друг под другом на всю ширину листа */
+@media print{
+ body.dm #dm{display:block!important;height:auto!important}
+ body.dm main{overflow:visible!important;height:auto!important;display:block!important}
+ .dmbar,.dmbg,.dmr,.dmx,.dmtoast,.dmmenu{display:none!important}
+ .dmws{overflow:visible!important;position:static!important;padding:0!important;height:auto!important;flex:none!important}
+ .dmg{position:static!important;transform:none!important;width:auto!important;height:auto!important;display:block!important}
+ .dmp{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;margin:0 0 8px!important;box-shadow:none!important;background:#fff!important;break-inside:avoid;z-index:auto!important;opacity:1!important}
+ .dmb{overflow:visible!important}.dmh{cursor:default}
+ .dmb button,.dmb select,.dmb .idur,.dmb .etools,.dmb .itabs,.dmb .itools,.dmb .idw{display:none!important}
+ .dmb .eres{max-height:none!important}
+ .dmws.printone .dmp:not(.pr1){display:none!important}
+}
