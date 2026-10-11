@@ -74,8 +74,10 @@
     cols.forEach((c, i) => { if (!/уровень|бонус|умения|заговор|заклинани/i.test(c)) out.extra[c] = r[i]; });
     return out;
   }
+  // Дар эпического героя (2024, 19 уровень): вместо увеличения характеристик берётся только черта Эпического дара
+  const epicLevel = cls => { const f = ((cls && cls.features) || []).find(x => /^эпический дар/i.test(x.name)); return f ? f.level : 0; };
   const asiLevels = cls => {
-    const l = ((cls && cls.features) || []).filter(f => /увеличение характеристик|увеличение значени/i.test(f.name)).map(f => f.level);
+    const l = ((cls && cls.features) || []).filter(f => /увеличение характеристик|увеличение значени|^эпический дар/i.test(f.name)).map(f => f.level);
     if (cls && l.length <= 1 && cls.creation !== undefined) {         // 2014: умение описано одно на весь класс
       const x = [4, 8, 12, 16, 19]; if (cls.slug === 'fighter') x.push(6, 14); if (cls.slug === 'rogue') x.push(10);
       return x.sort((a, b) => a - b);
@@ -126,6 +128,25 @@
     return false;
   }
 
+  /* ---------- черты: прибавка к характеристике ---------- */
+  // «**Повышение характеристики.** Увеличьте значение вашей Силы или Ловкости на 1, но не выше 20.»
+  // → { opts: ['str','dex'], cap: 20 }; «одной из ваших характеристик» → все шесть; нет такой строки → null
+  function featAbility(f) {
+    const par = ((f && f.blocks) || []).filter(b => b.type === 'paragraph').map(b => String(b.text || ''))
+      .find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
+    if (!par) return null;
+    const body = par.replace(/^\*\*[^*]+\*\*\.?\s*/, ''), cap = (body.match(/не выше\s+(\d+)/i) || [])[1];
+    const any = /одн\S*\s+из\s+(?:ваших\s+)?характеристик/i.test(body);
+    const head = body.replace(/на\s+1.*$/i, ''), STEM = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };   // падежи: «Силы», «Ловкости»
+    const opts = any ? AB.map(a => a.k) : AB.filter(a => lc(head).includes(STEM[a.k])).map(a => a.k);
+    return opts.length ? { opts, cap: cap ? +cap : 20 } : null;
+  }
+  // сколько навыков класс позволяет усилить Экспертностью к этому уровню (2024)
+  function expertiseSlots(cls, lvl, ed) {
+    if (!cls || ed === 14) return 0;
+    return (cls.features || []).filter(f => f.level <= lvl).reduce((n, f) => n + (/^экспертность$/i.test(f.name) ? 2 : /^(искусный исследователь|академические знания)$/i.test(f.name) ? 1 : 0), 0);
+  }
+
   /* ---------- черты вида ---------- */
   function paragraphsOf(blocks) { return (blocks || []).filter(b => b.type === 'paragraph').map(b => b.text); }
   function speciesTraits(sp) {                       // «**Название.** текст»
@@ -172,14 +193,22 @@
     }
     AB.forEach(a => add(a.k, intOf(c.bonus && c.bonus[a.k]), c.ed === 14 ? 'вид' : 'прочее'));
     const feats = [];
+    const capOf = {}, epic = epicLevel(D.cls);
     asiLevels(D.cls).filter(l => l <= lvl).forEach(l => {
       const x = (c.asi || {})[l]; if (!x) return;
-      if (x.m === 'feat') { if (x.feat) feats.push({ slug: x.feat, lvl: l }); }
+      if (x.m === 'feat' || (c.ed === 24 && l === epic)) {
+        if (!x.feat) return;
+        feats.push({ slug: x.feat, lvl: l });
+        const fa = featAbility((D.feats || []).find(f => f.slug === x.feat));
+        if (fa && x.fa && fa.opts.includes(x.fa)) { add(x.fa, 1, 'черта'); capOf[x.fa] = Math.max(capOf[x.fa] || 0, fa.cap); }
+      }
       else if (x.m === '11') { add(x.a, 1, 'ур. ' + l); add(x.b, 1, 'ур. ' + l); }
       else if (x.m === '2') add(x.a, 2, 'ур. ' + l);
     });
     (c.feats || []).forEach(x => feats.push({ slug: x.slug, lvl: 0, extra: true }));
-    AB.forEach(a => { score[a.k] = Math.min(score[a.k], (c.cap20 === false ? 30 : 20)); });
+    // Дикий чемпион (варвар, 20 ур., 2024): Сила и Телосложение +4, но не выше 25
+    if (c.ed === 24 && D.cls && D.cls.slug === 'barbarian' && lvl >= 20) ['str', 'con'].forEach(k => { add(k, 4, 'Дикий чемпион'); capOf[k] = Math.max(capOf[k] || 0, 25); });
+    AB.forEach(a => { score[a.k] = Math.min(score[a.k], capOf[a.k] || (c.cap20 === false ? 30 : 20)); });
     const m = {}; AB.forEach(a => { m[a.k] = mod(score[a.k]); });
     const pb = lr ? lr.prof : Math.ceil(lvl / 4) + 1;
 
@@ -215,6 +244,7 @@
       const base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост/i.test(p.value), cap = (String(p.value).match(/не более\s*(\d)/) || [])[1];
       ac = base + (dexOk ? (cap ? Math.min(m.dex, +cap) : m.dex) : 0); acWhy = g.name_ru;
     });
+    if (shield && D.cls && D.cls.slug === 'monk' && acWhy === 'без доспеха (монах)') { ac = 10 + m.dex; acWhy = 'со щитом (без защиты монаха)'; }   // защита без доспехов у монаха не работает со Щитом
     if (shield) { ac += 2; acWhy += ' + щит'; }
     if (c.acBonus) ac += c.acBonus;
     if (c.acMode === 'manual' && c.acManual) { ac = c.acManual; acWhy = 'вручную'; }
@@ -235,7 +265,8 @@
     }
     // дикий облик (друид)
     const ws = wildShape(D, c, lvl);
-    return { lvl, ci, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
+    const expN = expertiseSlots(D.cls, lvl, c.ed), expUsed = skills.filter(s => s.lev === 2).length;
+    return { expN, expUsed, lvl, ci, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
   }
 
   /* ---------- дикий облик ---------- */
@@ -282,6 +313,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: false, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
