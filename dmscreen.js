@@ -8,7 +8,7 @@
   const COLW = 80, ROWH = 44, GAP = 6;       // размеры панелей в TYPES.w/h заданы в «клетках» — переводим в пиксели
   const KEY = 'dm.v1', VER = 2, GRID = 40, ZMIN = .3, ZMAX = 1.6, MINW = 200, MINH = 110, MAXS = 6000, EDGE = 36;
   const TYPES = {}, ORDER = [];
-  let S = null, ui = null, saveT = 0, undo = null, lastEntity = null, panmode = false;
+  let zoomT = 0, S = null, ui = null, saveT = 0, undo = null, lastEntity = null, panmode = false;
   const els = new Map();                     // id панели -> {pe, ctx, disp}
 
   const uid = () => Math.random().toString(36).slice(2, 9);
@@ -322,7 +322,11 @@
   function onWheel(e) {
     if (stackMode()) return;
     const r = ui.ws.getBoundingClientRect();
-    if (e.ctrlKey || e.metaKey) { e.preventDefault(); setZoom(view().z * Math.exp(-e.deltaY * .01), e.clientX - r.left, e.clientY - r.top); return; }
+    if (e.ctrlKey || e.metaKey) {                // один «щелчок» колеса = ±10%
+      e.preventDefault();
+      const now = performance.now(); if (now - zoomT < 60 || !e.deltaY) return; zoomT = now;
+      setZoom(Math.round(view().z * 10 + (e.deltaY < 0 ? 1 : -1)) / 10, e.clientX - r.left, e.clientY - r.top); return;
+    }
     if (scrollsInside(e.target, e.deltaY)) return;
     e.preventDefault();
     const v = view(), k = e.deltaMode === 1 ? 32 : 1;
@@ -387,9 +391,9 @@
     const file = h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: e => { if (e.target.files[0]) importJson(e.target.files[0]); e.target.value = ''; } });
     ui.zlab = h('button', { type: 'button', class: 'dmbtn zl', title: 'Масштаб 100%', onclick: () => setZoom(1) }, '100%');
     const zoom = h('span', { class: 'dmz' },
-      h('button', { type: 'button', class: 'dmbtn', title: 'Уменьшить', onclick: () => setZoom(view().z / 1.25) }, '−'),
+      h('button', { type: 'button', class: 'dmbtn', title: 'Уменьшить', onclick: () => setZoom(Math.round(view().z * 10 - 1) / 10) }, '−'),
       ui.zlab,
-      h('button', { type: 'button', class: 'dmbtn', title: 'Увеличить', onclick: () => setZoom(view().z * 1.25) }, '+'),
+      h('button', { type: 'button', class: 'dmbtn', title: 'Увеличить', onclick: () => setZoom(Math.round(view().z * 10 + 1) / 10) }, '+'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Показать все панели', onclick: fit }, 'Все'),
       h('button', { type: 'button', class: 'dmbtn', title: 'Выложить панели рядами без наложений', onclick: arrange }, 'Упорядочить'));
     ui.bar = h('div', { class: 'dmbar' }, ui.tabs, h('span', { class: 'dmsp' }), zoom,
@@ -431,7 +435,7 @@
       const pe = a.closest('.dmp'), info = pe && els.get(pe.dataset.id);
       const ed = m[1] ? 14 : 24, sec = m[2], slug = decodeURIComponent(m[3]);
       if (info && info.ctx.p.t === 'entity' && !(e.ctrlKey || e.metaKey) && pe._nav) pe._nav(ed, sec, slug);
-      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && info.ctx.p.t === 'init'));
+      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && (info.ctx.p.t === 'init' || info.ctx.p.t === 'conds')));
     });
     if (root.AutoLinks) AutoLinks.bindTips(host);
   }
