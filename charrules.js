@@ -147,6 +147,21 @@
     return (cls.features || []).filter(f => f.level <= lvl).reduce((n, f) => n + (/^экспертность$/i.test(f.name) ? 2 : /^(искусный исследователь|академические знания)$/i.test(f.name) ? 1 : 0), 0);
   }
 
+  /* ---------- что дают черты, вид и подкласс ---------- */
+  const CNT = { одним: 1, одному: 1, одного: 1, двумя: 2, двум: 2, тремя: 3, трём: 3 };
+  // «владение тремя навыками или инструментами» / «владение одним навыком на ваш выбор» → число навыков на выбор
+  const skillGrantN = texts => texts.reduce((n, t) => { const m = lc(t).match(/владе\S*\s+(одним|одному|одного|двумя|двум|тремя|трем)\s+навык/); return n + (m ? (CNT[m[1]] || (m[1] === 'трем' ? 3 : 0)) : 0); }, 0);
+  // «Вы получаете владение Воинским оружием и тренированность со Средними доспехами и Щитами»
+  function profGrants(texts) {
+    const arm = new Set(), wp = new Set();
+    texts.forEach(t => {
+      const m = String(t).match(/тренированност\S*\s+(?:с|со)\s+([^.]*)/i);
+      if (m) { const c = lc(m[1]); if (/легк/.test(c)) arm.add('Лёгкие доспехи'); if (/средн/.test(c)) arm.add('Средние доспехи'); if (/тяжел/.test(c)) arm.add('Тяжёлые доспехи'); if (/щит/.test(c)) arm.add('Щиты'); }
+      const w = lc(t).match(/владени\S*\s+(?:всем\s+)?(воинск\S*|прост\S*)\s+оружи/); if (w) wp.add(/воинск/.test(w[1]) ? 'Воинское оружие' : 'Простое оружие');
+    });
+    return { arm: [...arm], wp: [...wp] };
+  }
+
   /* ---------- черты вида ---------- */
   function paragraphsOf(blocks) { return (blocks || []).filter(b => b.type === 'paragraph').map(b => b.text); }
   function speciesTraits(sp) {                       // «**Название.** текст»
@@ -265,8 +280,25 @@
     }
     // дикий облик (друид)
     const ws = wildShape(D, c, lvl);
+    // навыки и владения от черт, вида и подкласса
+    const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
+    if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
+    const grants = [];
+    featObjs.forEach(f => { const n = skillGrantN(paragraphsOf(f.blocks)); if (n) grants.push({ n, why: f.name_ru }); });
+    if (D.sp) speciesTraits(D.sp).forEach(t => { const n = skillGrantN([t.text]); if (n) grants.push({ n, why: D.sp.name_ru + ': ' + t.name }); });
+    const extraN = grants.reduce((q, g) => q + g.n, 0);
+    const subTexts = D.sub ? (D.sub.features || []).filter(f => f.level <= lvl).flatMap(f => paragraphsOf(f.blocks)) : [];
+    const pg = profGrants([...subTexts, ...featObjs.flatMap(f => paragraphsOf(f.blocks))]);
+    let ciX = ci;
+    if (ci && (pg.arm.length || pg.wp.length)) {
+      const hasA = lc(ci.armor), hasW = lc(ci.weapons), addA = pg.arm.filter(a => !hasA.includes(lc(a).slice(0, 4))), addW = pg.wp.filter(w => !hasW.includes(lc(w).slice(0, 5)));
+      ciX = Object.assign({}, ci, {
+        armor: addA.length ? (ci.armor && !/^нет$/i.test(ci.armor.trim()) ? ci.armor + '; ' : '') + addA.join(', ') + ' (подкласс/черты)' : ci.armor,
+        weapons: addW.length ? (ci.weapons && !/^нет$/i.test(ci.weapons.trim()) ? ci.weapons + '; ' : '') + addW.join('; ') : ci.weapons
+      });
+    }
     const expN = expertiseSlots(D.cls, lvl, c.ed), expUsed = skills.filter(s => s.lev === 2).length;
-    return { expN, expUsed, lvl, ci, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
+    return { expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
   }
 
   /* ---------- дикий облик ---------- */
@@ -313,6 +345,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: false, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
