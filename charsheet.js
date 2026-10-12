@@ -31,9 +31,9 @@
     const ed = c.ed, db = DB(), key = ed;
     const g = async (k, e) => { try { return await db.load(k, e || ed); } catch (x) { return []; } };
     if (!dataCache[key]) {
-      const [classes, species, bgs, feats, spells] = await Promise.all([g('class'), g(ed === 14 ? 'race' : 'species'), g('backgrounds'), g('feats'), g('spells')]);
+      const [classes, species, bgs, feats, spells, items] = await Promise.all([g('class'), g(ed === 14 ? 'race' : 'species'), g('backgrounds'), g('feats'), g('spells'), g('items')]);
       const gear = await g('equipment', 24);
-      dataCache[key] = { classes: classes.filter(x => !/sidekick/.test(x.slug)), species, bgs, feats, spells, gear, gearBySlug: Object.fromEntries(gear.map(x => [x.slug, x])) };
+      dataCache[key] = { classes: classes.filter(x => !/sidekick/.test(x.slug)), species, bgs, feats, spells, gear, items, itemsBySlug: Object.fromEntries(items.map(x => [x.slug, x])), gearBySlug: Object.fromEntries(gear.map(x => [x.slug, x])) };
     }
     const D = dataCache[key];
     const cls = D.classes.find(x => x.slug === c.cls) || null;
@@ -481,31 +481,38 @@
     p.append(h('h3', { class: 'csh' }, 'Инвентарь'));
     const t = h('table', { class: 'cstbl inv' }, h('tr', {}, ['Надето', 'Предмет', 'Кол-во', 'Вес', 'Урон / КД', ''].map(x => h('th', {}, x))));
     c.inv.forEach((i, idx) => {
-      const g = D.gearBySlug[i.slug], w = g ? (g.weight_lb || 0) * i.q : 0; weight += w;
+      const g = invG(D, i), w = g ? (g.weight_lb || 0) * i.q : 0; weight += w;
       const wi = g && weaponInfo(g);
       let info = '';
       if (wi) {
         const a = attackOf(i, g, wi, d), dm = a.dm;
         info = 'атака ' + R.sgn(a.atk) + ', урон ' + wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type;
-      } else if (g && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + q.value : (g.slug === 'shield' ? '+2 к КД' : ''); }
+      } else if (g && i.sec !== 'items' && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + q.value : (g.slug === 'shield' ? '+2 к КД' : ''); }
       t.append(h('tr', {}, h('td', {}, h('input', { type: 'checkbox', checked: !!i.eq, title: 'Надето / в руках', onchange: e => { i.eq = e.target.checked; upd(); } })),
-        h('td', {}, g ? link(24, 'equipment', g, i.n) : i.n), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
+        h('td', {}, g ? link(i.sec === 'items' ? c.ed : 24, i.sec === 'items' ? 'items' : 'equipment', g, i.n) : i.n, i.sec === 'items' && g ? h('small', {}, ' ' + [g.rarity, g.attunement ? 'настройка' : ''].filter(Boolean).join(', ')) : null), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
         h('td', {}, btn('×', () => { const back = i.spent || 0; if (back) giveCu(c, back); c.inv.splice(idx, 1); upd(); if (back) root.DM.toast('Возвращено: ' + fmtCu(back)); }, 'xx', i.spent ? 'Убрать предмет: потраченные деньги вернутся' : 'Убрать предмет'))));
     });
     if (!c.inv.length) t.append(h('tr', {}, h('td', { colspan: 6, class: 'none' }, 'Пусто. Добавьте предметы ниже.')));
     p.append(t);
     const cap = d.score.str * 15;
-    p.append(h('p', { class: 'mhint' }, 'Вес снаряжения: ' + (Math.round(weight * 10) / 10) + ' фнт. Грузоподъёмность: ' + cap + ' фнт. ' + (weight > cap ? '— перегруз!' : '')),
+    const att = c.inv.filter(i => i.eq && i.sec === 'items' && (invG(D, i) || {}).attunement).length;
+    p.append(h('p', { class: 'mhint' }, 'Вес снаряжения: ' + (Math.round(weight * 10) / 10) + ' фнт. Грузоподъёмность: ' + cap + ' фнт. ' + (weight > cap ? '— перегруз!' : '') + (att ? ' Настроено на магические предметы: ' + att + ' из 3' + (att > 3 ? ' — многовато!' : '') + ' (отметка «Надето» у предмета с настройкой).' : '')),
       h('div', { class: 'csgrid' }, field('Бонус к КД (магия и т. п.)', numIn(c.acBonus, v => { c.acBonus = v; upd(); })), field('КД', h('span', {}, h('b', {}, d.ac), ' (' + d.acWhy + ')'))));
     const freeIn = textIn('', v => { }, { placeholder: 'Свободная запись: «Верёвка пеньковая»…' });
     p.append(h('div', { class: 'row' }, freeIn, btn('Добавить запись', () => { const v = freeIn.value.trim(); if (v) { c.inv.push({ n: v, slug: '', q: 1, eq: false }); upd(); } }, 'dmbtn')));
+    const RAR = [['', 'Любая редкость'], ['обычн', 'Обычные'], ['необычн', 'Необычные'], ['редк', 'Редкие'], ['очень', 'Очень редкие'], ['легенд', 'Легендарные'], ['артеф', 'Артефакты']];
+    const rarOf = g => { const r = String(g.rarity || '').toLowerCase(); return r.startsWith('очень') ? 'очень' : r.startsWith('необыч') ? 'необычн' : r.startsWith('обыч') ? 'обычн' : r.startsWith('редк') ? 'редк' : r.startsWith('легенд') ? 'легенд' : r.startsWith('артеф') ? 'артеф' : ''; };
+    const cat = UI.gearCat || '';
+    const catalog = (cat === '' ? [...D.gear, ...D.items] : cat === 'magic' ? D.items.filter(g => !UI.gearRar || rarOf(g) === UI.gearRar) : D.gear.filter(g => gearCatOf(g) === cat)).slice().sort((a, b) => (a.section === 'items') - (b.section === 'items') || a.name_ru.localeCompare(b.name_ru, 'ru'));
+    const rarChips = cat === 'magic' ? h('div', { class: 'seg csmeth wrapseg' }, RAR.map(([k, t]) => btn(t, () => { UI.gearRar = k; upd(); }, (UI.gearRar || '') === k ? 'act' : ''))) : null;
     const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
-    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Если убрать купленный предмет, деньги вернутся.'), chips, searchBox(D.gear.filter(g => !UI.gearCat || gearCatOf(g) === UI.gearCat), g => { const wi = weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, g.name_ru), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (g.cost || '')),
+    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, rarChips, searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : g.name_ru), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
-      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, щит…', max: 120, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
+      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }
-  const GCAT = [['', 'Всё'], ['weapon', 'Оружие'], ['armor', 'Доспехи и щиты'], ['tool', 'Инструменты'], ['pack', 'Наборы'], ['gear', 'Прочее снаряжение']];
-  const gearCatOf = g => { const l = g.line || ''; return /оружие|боеприпас/i.test(l) ? 'weapon' : /доспех|щит/i.test(l) ? 'armor' : /нструмент/i.test(l) ? 'tool' : /набор/i.test(l) ? 'pack' : 'gear'; };
+  const invG = (D, i) => i.sec === 'items' ? (D.itemsBySlug || {})[i.slug] : D.gearBySlug[i.slug];   // запись справочника: снаряжение или магический предмет
+  const GCAT = [['', 'Всё'], ['weapon', 'Оружие'], ['armor', 'Доспехи и щиты'], ['tool', 'Инструменты'], ['pack', 'Наборы'], ['gear', 'Прочее снаряжение'], ['magic', 'Магические предметы']];
+  const gearCatOf = g => { if (g.section === 'items') return 'magic'; const l = g.line || ''; return /оружие|боеприпас/i.test(l) ? 'weapon' : /доспех|щит/i.test(l) ? 'armor' : /нструмент/i.test(l) ? 'tool' : /набор/i.test(l) ? 'pack' : 'gear'; };
   function parseKit(txt) {
     if (!txt) return null;
     const m = [...String(txt).matchAll(/\(([А-ЯA-Z])\)\s*([^;]*?)(?=;?\s*(?:или\s*)?\([А-ЯA-Z]\)|$)/gs)];
@@ -513,7 +520,7 @@
   }
   const DEN = [['mm', 1], ['sm', 10], ['em', 50], ['zm', 100], ['pm', 1000]];
   const wallet = c => DEN.reduce((q, [k, v]) => q + (c.coins[k] || 0) * v, 0);
-  const costCu = g => { const n = g && g.cost_gp != null ? parseFloat(String(g.cost_gp).replace(',', '.')) : 0; return isNaN(n) ? 0 : Math.round(n * 100); };
+  const costCu = g => { const n = g && g.cost_gp != null ? parseFloat(String(g.cost_gp).replace(',', '.')) : (g && g.price_gp ? +g.price_gp : 0); return isNaN(n) ? 0 : Math.round(n * 100); };
   const fmtCu = n => { const z = Math.floor(n / 100), sm = Math.floor(n % 100 / 10), m = n % 10; return [z && z + ' ЗМ', sm && sm + ' СМ', m && m + ' ММ'].filter(Boolean).join(' ') || '0'; };
   function giveCu(c, n) { c.coins.zm += Math.floor(n / 100); c.coins.sm += Math.floor(n % 100 / 10); c.coins.mm += n % 10; }
   function pay(c, cu) {
@@ -526,8 +533,8 @@
   function buy(c, g, free) {
     const cu = free ? 0 : costCu(g);
     if (cu && !pay(c, cu)) { root.DM.toast('Не хватает денег: нужно ' + fmtCu(cu) + ', у вас ' + fmtCu(wallet(c))); return; }
-    const ex = c.inv.find(x => x.slug === g.slug && !x.kit);
-    if (ex) { ex.q++; ex.spent = (ex.spent || 0) + cu; } else c.inv.push({ n: g.name_ru, slug: g.slug, q: 1, eq: false, spent: cu });
+    const sec = g.section === 'items' ? 'items' : '', ex = c.inv.find(x => x.slug === g.slug && !x.kit && (x.sec || '') === sec);
+    if (ex) { ex.q++; ex.spent = (ex.spent || 0) + cu; } else c.inv.push({ n: g.name_ru, slug: g.slug, sec, q: 1, eq: false, spent: cu });
     upd(); if (cu) root.DM.toast('Куплено: ' + g.name_ru + ' (−' + fmtCu(cu) + ')');
   }
   function removeKit(c, src) {
@@ -675,7 +682,7 @@
     const p4 = t('section', 'pg');
     p4.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Снаряжение и описание', h('small', {}, c.name || ''))));
     const inv = h('table', { class: 'ptbl' }, h('tr', {}, ['', 'Предмет', 'Кол.', 'Вес'].map(x => h('th', {}, x))));
-    c.inv.forEach(i => { const g = D.gearBySlug[i.slug]; inv.append(h('tr', {}, h('td', {}, i.eq ? '●' : ''), h('td', {}, i.n), h('td', {}, i.q), h('td', {}, g && g.weight_lb ? g.weight_lb * i.q : ''))); });
+    c.inv.forEach(i => { const g = invG(D, i); inv.append(h('tr', {}, h('td', {}, i.eq ? '●' : ''), h('td', {}, i.n), h('td', {}, i.q), h('td', {}, g && g.weight_lb ? g.weight_lb * i.q : ''))); });
     p4.append(t('div', 'pcols two', t('div', 'pcol', box('Монеты', h('div', { class: 'pcoins' }, COINS.map(([k, tt]) => h('div', {}, h('small', {}, tt), h('b', {}, c.coins[k] || ' '))))), box('Инвентарь', inv)),
       t('div', 'pcol', box('Внешность и история', h('div', { class: 'ptxt' }, c.story.look || ' ')), box('Заметки', h('div', { class: 'ptxt tall' }, c.story.notes || ' ')))));
     sh.append(p4);
@@ -690,7 +697,7 @@
   function attacksRows(c, D, d) {
     const rows = [];
     c.inv.filter(i => i.eq).forEach(i => {
-      const g = D.gearBySlug[i.slug], wi = g && weaponInfo(g); if (!wi) return;
+      const g = invG(D, i), wi = g && i.sec !== 'items' && weaponInfo(g); if (!wi) return;
       const a = attackOf(i, g, wi, d), dm = a.dm;
       rows.push(h('div', { class: 'prow atk' }, h('b', {}, g.name_ru), h('span', {}, R.sgn(a.atk)), h('span', {}, wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type)));
     });

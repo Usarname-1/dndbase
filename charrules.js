@@ -253,6 +253,7 @@
     if (D.cls && D.cls.slug === 'monk') { ac = 10 + m.dex + m.wis; acWhy = 'без доспеха (монах)'; }
     let shield = false;
     (c.inv || []).filter(i => i.eq).forEach(i => {
+      if (i.sec === 'items') return;   // магические предметы: бонус к КД вносится вручную
       const g = D.gearBySlug && D.gearBySlug[i.slug]; if (!g) return;
       if (/щит/i.test(g.line || '') && g.slug === 'shield') { shield = true; return; }
       const p = (g.props || []).find(x => /класс защиты/i.test(x.label)); if (!p || !/доспех/i.test(g.line || '')) return;
