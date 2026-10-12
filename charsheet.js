@@ -143,6 +143,7 @@
   /* ---------- сводка и чек-лист ---------- */
   function todo(c, D, d) {
     const t = [], ci = d.ci;
+    { const sch = D.sp && R.speciesChoice(D.sp); if (sch && !c.spOpt) t.push(['base', 'Выберите: ' + sch.label.toLowerCase() + ' (вид)']); }
     if (!c.cls) t.push(['base', 'Выберите класс']);
     else {
       if (D.cls && c.lvl >= subLevel(D.cls) && !c.sub && (D.cls.subclasses || []).length) t.push(['base', 'Выберите подкласс']);
@@ -217,10 +218,12 @@
         fact('Оружие', ci.weapons || '—'), fact('Инструменты', ci.tools || '—'), fact('Заклинательная характеристика', ci.spellAb ? R.ABN(ci.spellAb).ru : '—')));
     }
     // вид
-    p.append(h('h3', { class: 'csh' }, 'Вид'), h('div', { class: 'csgrid' }, field('Вид', sel(D.species.map(x => [x.slug, x.name_ru]), c.sp, v => { c.sp = v; upd(); }, '— выберите вид —')),
+    p.append(h('h3', { class: 'csh' }, 'Вид'), h('div', { class: 'csgrid' }, field('Вид', sel(D.species.map(x => [x.slug, x.name_ru]), c.sp, v => { c.sp = v; c.spOpt = ''; upd(); }, '— выберите вид —')),
       field('Скорость (фт.)', numIn(c.speed === '' ? d.speed : c.speed, v => { c.speed = v; upd(); }))));
     if (D.sp) {
-      const tr = R.speciesTraits(D.sp);
+      const ch = R.speciesChoice(D.sp);
+      if (ch) p.append(h('div', { class: 'csgrid' }, field(ch.label + ' (выбор вида)', sel(ch.options.map(o => [o, o]), c.spOpt, v => { c.spOpt = v; upd(); }, '— выберите —'))));
+      const tr = R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl });
       p.append(h('details', { open: '' }, h('summary', {}, 'Особенности вида (' + tr.length + ')'), h('ul', { class: 'cstr' }, tr.map(t => h('li', {}, h('b', {}, t.name + '. '), t.text.replace(/\*+/g, ''))))));
       if (ed === 14 && D.sp.asi && D.sp.asi.length) p.append(h('p', { class: 'mhint' }, 'Бонусы вида (с учётом всех подрас): ' + D.sp.asi.map(x => x.ability + ' +' + x.value).join(', ') + '. Впишите нужные на вкладке «Характеристики».'));
     }
@@ -384,7 +387,7 @@
     const out = [];
     if (D.cls) (D.cls.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Класс: ' + D.cls.name_ru }));
     if (D.sub) (D.sub.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Подкласс: ' + D.sub.name }));
-    if (D.sp) R.speciesTraits(D.sp).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: 'Вид: ' + D.sp.name_ru }));
+    if (D.sp) R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl }).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: 'Вид: ' + D.sp.name_ru }));
     if (D.bg && D.bg.feat) { const f = D.feats.find(x => x.name_ru === D.bg.feat.name); out.push({ name: D.bg.feat.name, blocks: f ? f.blocks : null, text: f ? '' : 'Черта предыстории', src: 'Предыстория: ' + D.bg.name_ru }); }
     d.feats.forEach(x => { const f = D.feats.find(y => y.slug === x.slug); if (f) out.push({ name: f.name_ru, level: x.lvl, blocks: f.blocks, src: 'Черты' }); });
     return out;
