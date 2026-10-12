@@ -164,9 +164,51 @@
 
   /* ---------- черты вида ---------- */
   function paragraphsOf(blocks) { return (blocks || []).filter(b => b.type === 'paragraph').map(b => b.text); }
-  function speciesTraits(sp) {                       // «**Название.** текст»
+  const OPT_HEAD = /наследие великанов|гномий род|наследие драконов|наследие исчадий|эльфийский род/i;
+  function allTraits(sp) {
     const out = [];
     paragraphsOf(sp && sp.blocks).forEach(t => { const m = t.match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (m) out.push({ name: m[1].replace(/\.$/, ''), text: m[2] }); });
+    return out;
+  }
+  // Подвид/наследие вида: {kind:'par'|'table'|'groups', label, options:[имена], head, table}
+  function speciesChoice(sp) {
+    if (!sp) return null;
+    const bl = sp.blocks || [], tr = allTraits(sp);
+    const subs = (sp.subraces || []).filter(x => typeof x === 'string');
+    if (subs.length > 1) { const hs = bl.filter(b => b.type === 'heading').map(b => b.text), opts = subs.filter(n => hs.includes(n)); if (opts.length > 1) return { kind: 'groups', label: 'Подраса', options: opts }; }
+    const head = tr.find(t => OPT_HEAD.test(t.name) && /выбер/i.test(t.text));
+    if (!head) return null;
+    const tb = bl.find(b => b.type === 'table' && b.rows && b.rows.length > 2 && /^(наследие|род|дракон)/i.test(b.rows[0][0]));
+    if (tb) return { kind: 'table', label: head.name, head: head.name, table: tb, options: tb.rows.slice(1).map(r => r[0]) };
+    const opts = tr.filter(t => /великан\)$|^(Лесной|Скальный) гном$/.test(t.name)).map(t => t.name);
+    if (opts.length > 1) return { kind: 'par', label: head.name, head: head.name, options: opts };
+    return null;
+  }
+  // o = {opt, lvl}: без o — все особенности; с o — только выбранный вариант
+  function speciesTraits(sp, o) {
+    const ch = o && speciesChoice(sp);
+    if (!ch) return allTraits(sp);
+    const opt = o.opt, lvl = o.lvl || 1;
+    if (ch.kind === 'groups') {
+      const out = []; let cur = null;
+      (sp.blocks || []).forEach(b => {
+        if (b.type === 'heading') { cur = b.text; return; }
+        if (b.type !== 'paragraph' || (ch.options.includes(cur) && cur !== opt)) return;
+        const m = b.text.match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (m) out.push({ name: m[1].replace(/\.$/, ''), text: m[2] });
+      });
+      return out;
+    }
+    const tr = allTraits(sp);
+    if (ch.kind === 'par') return tr.filter(t => !ch.options.includes(t.name) || t.name === opt);
+    const out = [];
+    tr.forEach(t => {
+      out.push(t);
+      if (t.name !== ch.head || !opt) return;
+      const hd = ch.table.rows[0], row = ch.table.rows.find((r, i) => i && r[0] === opt); if (!row) return;
+      const parts = [];
+      hd.forEach((hn, j) => { if (!j) return; const n = (hn.match(/(\d+)-й/) || [])[1]; if (n) { if (+n <= lvl) parts.push(n + '-й ур.: ' + row[j]); } else parts.push(hn + ': ' + row[j]); });
+      out.push({ name: t.name + ' — ' + opt, text: parts.join(' ') });
+    });
     return out;
   }
   function speciesSpeed(sp, ed) {
@@ -286,7 +328,7 @@
     if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
     const grants = [];
     featObjs.forEach(f => { const n = skillGrantN(paragraphsOf(f.blocks)); if (n) grants.push({ n, why: f.name_ru }); });
-    if (D.sp) speciesTraits(D.sp).forEach(t => { const n = skillGrantN([t.text]); if (n) grants.push({ n, why: D.sp.name_ru + ': ' + t.name }); });
+    if (D.sp) speciesTraits(D.sp, { opt: c.spOpt, lvl }).forEach(t => { const n = skillGrantN([t.text]); if (n) grants.push({ n, why: D.sp.name_ru + ': ' + t.name }); });
     const extraN = grants.reduce((q, g) => q + g.n, 0);
     const subTexts = D.sub ? (D.sub.features || []).filter(f => f.level <= lvl).flatMap(f => paragraphsOf(f.blocks)) : [];
     const pg = profGrants([...subTexts, ...featObjs.flatMap(f => paragraphsOf(f.blocks))]);
@@ -339,13 +381,13 @@
   /* ---------- вспомогательное ---------- */
   function newChar(ed) {
     return {
-      id: Math.random().toString(36).slice(2, 9), ed: ed || 24, name: '', player: '', cls: '', sub: '', lvl: 1, sp: '', bg: '', align: '',
+      id: Math.random().toString(36).slice(2, 9), ed: ed || 24, name: '', player: '', cls: '', sub: '', lvl: 1, sp: '', spOpt: '', bg: '', align: '',
       abm: 'std', ab: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }, bg2: { m: '21', a: '', b: '' }, bonus: {}, asi: {},
       skills: [], skillsExtra: [], exp: [], hpMode: 'avg', hpManual: 0, hpBonus: 0, hpCur: null, hpTemp: 0, acMode: 'auto', acManual: 0, acBonus: 0,
       speed: '', spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
