@@ -92,3 +92,7 @@ details{margin:4px 0}summary{cursor:pointer;font-weight:700}
 .parm{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:8pt;margin-bottom:3px}.phd{font-size:8.5pt}
 .pfeat{columns:2;column-gap:8mm}.pfi{break-inside:avoid;margin-bottom:4px;font-size:8pt;line-height:1.25}.pfi small{color:#555}.pfi .ft p{margin:1px 0}.pfi .ft ul{margin:1px 0;padding-left:14px}
 .phps small{font-size:5.5pt!important;letter-spacing:-.2px}.prow.atk{grid-template-columns:1fr 9mm 16mm!important;font-size:8pt}
+
+.lchips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px}.lchips.rare{padding-top:6px;border-top:1px dashed var(--line)}
+.lchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:13px;cursor:pointer;user-select:none}.lchip input{width:auto!important;margin:0}.lchip.on{background:var(--bar);border-color:var(--bar);color:#fff}
+@media print{.pg.ptext{column-count:2;column-gap:7mm}.pg.ptext .phead{column-span:all}}

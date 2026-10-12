@@ -7,7 +7,7 @@
   const KEY = 'dm.chars.v1';
   const UI = { spQ: '', spL: 'all', gearQ: '', ftQ: '' };
   let S = null, host = null, tabId = 'base', dataCache = {}, scrollKeep = 0;
-  const TABS = [['base', '1. Основа'], ['abil', '2. Характеристики'], ['skills', '3. Навыки и умения'], ['feats', '4. Черты'], ['spells', '5. Заклинания'], ['gear', '6. Снаряжение'], ['forms', 'Облики зверей'], ['story', 'Описание'], ['sheet', 'Лист / печать']];
+  const TABS = [['base', '1. Основа'], ['abil', '2. Характеристики и навыки'], ['skills', '3. Умения'], ['spells', '4. Заклинания'], ['gear', '5. Снаряжение'], ['forms', 'Облики зверей'], ['story', 'Описание'], ['sheet', 'Лист / печать']];
   const rid = () => Math.random().toString(36).slice(2, 9);
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -83,11 +83,12 @@
     const c = cur();
     body.textContent = '';
     if (!c) { body.append(welcome()); return; }
+    if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {};
     const D = await loadData(c), d = R.derive(c, D);
     body.append(summary(c, D, d), tabsBar(c, D, d));
     const pane = h('div', { class: 'cspane t-' + tabId }); body.append(pane);
-    const fn = { base: tabBase, abil: tabAbil, skills: tabSkills, feats: tabFeats, spells: tabSpells, gear: tabGear, forms: tabForms, story: tabStory, sheet: tabSheet }[tabId] || tabBase;
+    const fn = { base: tabBase, abil: tabAbil, skills: tabSkills, spells: tabSpells, gear: tabGear, forms: tabForms, story: tabStory, sheet: tabSheet }[tabId] || tabBase;
     await fn(pane, c, D, d);
     if (keepScroll) main.scrollTop = top;
   }
@@ -146,10 +147,10 @@
     else {
       if (D.cls && c.lvl >= subLevel(D.cls) && !c.sub && (D.cls.subclasses || []).length) t.push(['base', 'Выберите подкласс']);
       const bgIds = d.bgChoice ? d.bgChoice.from : [], n = new Set([...(c.skills || []), ...(c.skillsExtra || []).filter(id => !bgIds.includes(id))]).size, allow = ci ? ci.pickN + d.extraN : 0;
-      if (ci && n < ci.pickN) t.push(['skills', 'Навыки класса: выбрано ' + n + ' из ' + ci.pickN]);
-      if (ci && n > allow) t.push(['skills', 'Навыков больше, чем положено (' + n + ' из ' + allow + (d.extraN ? ': класс ' + ci.pickN + ' + черты и вид ' + d.extraN : '') + ')']);
+      if (ci && n < ci.pickN) t.push(['abil', 'Навыки класса: выбрано ' + n + ' из ' + ci.pickN]);
+      if (ci && n > allow) t.push(['abil', 'Навыков больше, чем положено (' + n + ' из ' + allow + (d.extraN ? ': класс ' + ci.pickN + ' + черты и вид ' + d.extraN : '') + ')']);
     }
-    if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['skills', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
+    if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['abil', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
     if (!c.sp) t.push(['base', 'Выберите вид']);
     if (!c.bg) t.push(['base', 'Выберите предысторию']);
     if (c.ed === 24 && D.bg && c.bg2.m === '21' && (!c.bg2.a || !c.bg2.b || c.bg2.a === c.bg2.b)) t.push(['abil', 'Распределите бонусы предыстории (+2 и +1)']);
@@ -158,7 +159,7 @@
       if (!x || ((x.m === 'feat' || ep) && !x.feat) || (!ep && x.m === '2' && !x.a) || (!ep && x.m === '11' && (!x.a || !x.b || x.a === x.b))) { t.push(['abil', (ep ? 'Дар эпического героя на ' : 'Увеличение характеристик на ') + l + ' уровне']); return; }
       if (x.m === 'feat' || ep) { const f = D.feats.find(y => y.slug === x.feat), fa = R.featAbility(f); if (fa && !fa.opts.includes(x.fa)) t.push(['abil', 'Черта «' + f.name_ru + '» (' + l + ' ур.): выберите, какую характеристику увеличить на 1']); }
     });
-    if (d.expN > d.expUsed) t.push(['skills', 'Экспертность: отмечено ' + d.expUsed + ' из ' + d.expN + ' (★ у навыка, которым вы владеете)']);
+    if (d.expN > d.expUsed) t.push(['abil', 'Экспертность: отмечено ' + d.expUsed + ' из ' + d.expN + ' (★ у навыка, которым вы владеете)']);
     if (d.sp.has && d.sp.cantrips != null) {
       const cn = c.spells.filter(s => s.lvl === 0 && !s.free).length;
       if (cn < d.sp.cantrips) t.push(['spells', 'Заговоры: ' + cn + ' из ' + d.sp.cantrips]);
@@ -233,6 +234,8 @@
         b.equipment ? fact('Снаряжение', typeof b.equipment === 'string' ? b.equipment : '') : null));
       if (b.blocks && b.blocks.length) p.append(h('details', {}, h('summary', {}, 'Описание предыстории'), blocks(b.blocks)));
     }
+    languagesBlock(p, c);
+    featsBlock(p, c, D, d);
   }
   const fact = (l, v) => h('div', { class: 'fact' }, h('small', {}, l), h('span', {}, v));
 
@@ -299,6 +302,7 @@
         p.append(box);
       });
     }
+    skillsBlock(p, c, D, d);
   }
   const AB_RESET = c => { const arr = R.STD_ARRAY; R.AB.forEach((a, i) => { c.ab[a.k] = arr[i]; }); };
   const lvReq = f => { const m = String(f.prerequisite || f.line || '').match(/(\d+)[-\s]*(?:й|го|ого)?\s*уровн/i); return m ? +m[1] : 0; };
@@ -319,7 +323,18 @@
     ov.append(h('div', { class: 'dmdlg wide' }, h('h3', {}, 'Выбор черты'), chips, body, h('div', { class: 'mbtn' }, btn('Закрыть', () => ov.remove()))));
     document.body.append(ov); draw();
   }
-  async function tabFeats(p, c, D, d) {
+  const LANG_STD = ['Общий', 'Общий жестовый', 'Драконий', 'Дварфийский', 'Эльфийский', 'Великаний', 'Гномий', 'Гоблинский', 'Полуросличий', 'Орочий'];
+  const LANG_RARE = ['Бездны', 'Небесный', 'Глубинная речь', 'Друидический', 'Инфернальный', 'Первичный', 'Сильван', 'Воровской жаргон', 'Подземный'];
+  const langStr = c => [...(c.langs || []), ...(c.story.langs ? [c.story.langs] : [])].join(', ');
+  function languagesBlock(p, c) {
+    c.langs = c.langs || ['Общий'];
+    const chip = l => h('label', { class: 'lchip' + (c.langs.includes(l) ? ' on' : '') }, h('input', { type: 'checkbox', checked: c.langs.includes(l), onchange: e => { c.langs = e.target.checked ? [...c.langs, l] : c.langs.filter(x => x !== l); upd(); } }), l);
+    p.append(h('h3', { class: 'csh' }, 'Языки и инструменты'),
+      h('p', { class: 'mhint' }, (c.ed === 24 ? 'По правилам 2024: Общий и ещё два языка на выбор (стандартные или редкие). ' : '') + 'Выбрано: ' + c.langs.length + '.'),
+      h('div', { class: 'lchips' }, LANG_STD.map(chip)), h('div', { class: 'lchips rare' }, LANG_RARE.map(chip)),
+      h('div', { class: 'csgrid' }, field('Другие языки (если нет в списке)', textIn(c.story.langs, v => { c.story.langs = v; upd(false); })), field('Другие владения (инструменты и т. п.)', textIn(c.story.tools, v => { c.story.tools = v; upd(false); }))));
+  }
+  function featsBlock(p, c, D, d) {
     p.append(h('p', { class: 'mhint' }, c.ed === 24 ? 'Черта Происхождения даётся предысторией. Остальные берутся вместо увеличения характеристик (вкладка «Характеристики») либо добавляются здесь — по виду (Человек) или с позволения Мастера. Если черта даёт +1 к характеристике, впишите его в столбец «Бонусы» на вкладке «Характеристики».' : 'Черты берутся вместо увеличения характеристик (вкладка «Характеристики») или добавляются здесь (например, Человек-вариант). Бонусы к характеристикам впишите на вкладке «Характеристики».'));
     const card = (f, tag, extra) => { const dt = h('details', {}, h('summary', {}, f.name_ru || f.name, h('small', {}, ' · ' + tag), extra || null)); let done = false;
       dt.addEventListener('toggle', () => { if (done || !dt.open) return; done = true; const b = blocks(f.blocks || []); dt.append(b); DB().decorate(b, c.ed, null); }); return dt; };
@@ -335,7 +350,7 @@
   }
 
   /* ---------- 3. Навыки и умения ---------- */
-  async function tabSkills(p, c, D, d) {
+  function skillsBlock(p, c, D, d) {
     const ci = d.ci;
     p.append(h('h3', { class: 'csh' }, 'Навыки'));
     if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами.' + (d.extraN ? ' Черты и вид дают ещё ' + d.extraN + ' (' + d.grants.map(g => g.why + ' — ' + g.n).join('; ') + '): отмечайте их галочкой или кнопкой «+», инструменты из «Одарённого» впишите в «Другие владения».' : '') + ' Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
@@ -353,7 +368,8 @@
       });
     });
     p.append(t);
-    p.append(h('div', { class: 'csgrid' }, field('Языки', textIn(c.story.langs, v => { c.story.langs = v; upd(false); }, { placeholder: 'Всеобщий, …' })), field('Другие владения (инструменты и т. п.)', textIn(c.story.tools, v => { c.story.tools = v; upd(false); }))));
+  }
+  async function tabSkills(p, c, D, d) {
     // умения
     const feats = featureList(c, D, d);
     p.append(h('h3', { class: 'csh' }, 'Умения и особенности (' + feats.length + ')'), h('p', { class: 'mhint' }, 'Всё, что даёт ваш класс, подкласс, вид, предыстория и выбранные черты на текущем уровне.'));
@@ -585,7 +601,7 @@
   /* ---------- Лист для печати ---------- */
   async function tabSheet(p, c, D, d) {
     p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'), h('span', { class: 'mhint' }, 'Лист формата A4, чёрно-белая печать. Заклинания и описания можно включить на других вкладках.')));
-    p.querySelector('.sheetbar').append(field('Описания умений', sel([['none', 'Нет'], ['short', 'Кратко'], ['full', 'Полностью']], c.featTxt, v => { c.featTxt = v; upd(); })));
+    p.querySelector('.sheetbar').append(h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printSpells, onchange: e => { c.printSpells = e.target.checked; upd(); } }), ' описания заклинаний'), field('Описания умений', sel([['none', 'Нет'], ['short', 'Кратко'], ['full', 'Полностью']], c.featTxt, v => { c.featTxt = v; upd(); })));
     const sh = h('div', { class: 'csheet' }); p.append(sh);
     const t = (tag, cls, ...k) => h(tag, { class: cls }, ...k);
     const box = (title, ...k) => h('div', { class: 'pbox' }, h('div', { class: 'ptt' }, title), ...k);
@@ -611,7 +627,7 @@
     const mainA = t('div', 'pcol'), mainB = t('div', 'pcol');
     mainA.append(box('Атаки и заклинания', ...attacksRows(c, D, d)),
       box('Владения', h('div', { class: 'parm' }, ['Лёгкие', 'Средние', 'Тяжёлые', 'Щиты'].map((x, i) => h('span', {}, h('i', { class: (i < 3 ? lcA.includes(['легк', 'средн', 'тяжел'][i]) : lcA.includes('щит')) ? 'dot on' : 'dot' }), ' ' + x))),
-        h('div', { class: 'ptxt' }, [d.ci && d.ci.weapons && 'Оружие: ' + d.ci.weapons, tools && 'Инструменты: ' + tools, c.story.langs && 'Языки: ' + c.story.langs].filter(Boolean).join('\n'))));
+        h('div', { class: 'ptxt' }, [d.ci && d.ci.weapons && 'Оружие: ' + d.ci.weapons, tools && 'Инструменты: ' + tools, langStr(c) && 'Языки: ' + langStr(c)].filter(Boolean).join('\n'))));
     mainB.append(...[box('Умения и особенности', h('div', { class: 'ptxt feats' }, feat.filter(f => f.src !== 'Черты').map(f => h('div', {}, h('b', {}, f.name), h('small', {}, ' ' + f.src.replace(/^[^:]+: /, '') + (f.level ? ', ' + f.level + ' ур.' : '')))))),
       box('Черты', h('div', { class: 'ptxt feats' }, feat.filter(f => f.src === 'Черты' || /^Предыстория/.test(f.src)).map(f => h('div', {}, h('b', {}, f.name))))),
       c.ed === 14 ? box('Личность', h('div', { class: 'ptxt' }, [c.story.traits && 'Черты: ' + c.story.traits, c.story.ideals && 'Идеалы: ' + c.story.ideals, c.story.bonds && 'Привязанности: ' + c.story.bonds, c.story.flaws && 'Слабости: ' + c.story.flaws].filter(Boolean).join('\n') || ' ')) : null].filter(Boolean));
