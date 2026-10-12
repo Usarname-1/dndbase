@@ -7,7 +7,7 @@
   const KEY = 'dm.chars.v1';
   const UI = { spQ: '', spL: 'all', gearQ: '', ftQ: '' };
   let S = null, host = null, tabId = 'base', dataCache = {}, scrollKeep = 0;
-  const TABS = [['base', '1. Основа'], ['abil', '2. Характеристики и навыки'], ['skills', '3. Умения'], ['spells', '4. Заклинания'], ['gear', '5. Снаряжение'], ['forms', 'Облики зверей'], ['story', 'Описание'], ['sheet', 'Лист / печать']];
+  const TABS = [['base', 'Основа', 1], ['abil', 'Характеристики и навыки', 2], ['skills', 'Умения', 3], ['spells', 'Заклинания', 4], ['gear', 'Снаряжение', 5], ['forms', 'Облики зверей'], ['story', 'Описание'], ['sheet', 'Лист / печать']];
   const rid = () => Math.random().toString(36).slice(2, 9);
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -85,9 +85,11 @@
     if (!c) { body.append(welcome()); return; }
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {};
-    const D = await loadData(c), d = R.derive(c, D);
-    body.append(summary(c, D, d), tabsBar(c, D, d));
+    const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
+    body.append(summary(c, D, d, t), tabsBar(c, D, d, t));
     const pane = h('div', { class: 'cspane t-' + tabId }); body.append(pane);
+    const tb = body.querySelector('.cstabs'), on = tb && tb.querySelector('.act');   // активная вкладка — в центр полосы (на узких экранах)
+    if (on) tb.scrollLeft = on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2;
     const fn = { base: tabBase, abil: tabAbil, skills: tabSkills, spells: tabSpells, gear: tabGear, forms: tabForms, story: tabStory, sheet: tabSheet }[tabId] || tabBase;
     await fn(pane, c, D, d);
     if (keepScroll) main.scrollTop = top;
@@ -100,12 +102,13 @@
     const picker = h('select', { class: 'cscur', onchange: e => { s.cur = e.target.value; save(); render(); } },
       s.list.map(c => h('option', { value: c.id, selected: c.id === s.cur }, (c.name || 'Без имени') + (c.cls ? ' — ' + clsLabel(c) : ''))));
     const file = h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: e => { if (e.target.files[0]) importJson(e.target.files[0]); e.target.value = ''; } });
-    bar.append(s.list.length ? picker : h('b', {}, 'Листы персонажей'), h('span', { class: 'dmsp' }),
+    const has = s.list.length > 0;
+    bar.append(...[has ? picker : h('b', {}, 'Листы персонажей'), h('span', { class: 'dmsp' }),
       btn('+ Новый', () => newDialog(), 'dmbtn pri', 'Создать персонажа'),
-      s.list.length ? btn('Копия', dup, 'dmbtn', 'Дублировать выбранного') : null,
-      s.list.length ? btn('Удалить', del, 'dmbtn') : null,
-      s.list.length ? btn('Экспорт', exportJson, 'dmbtn', 'Сохранить всех персонажей в файл') : null,
-      btn('Импорт', () => file.click(), 'dmbtn', 'Загрузить из файла'), file);
+      has && btn('Копия', dup, 'dmbtn', 'Дублировать выбранного'),
+      has && btn('Удалить', del, 'dmbtn danger', 'Удалить выбранного персонажа'),
+      has && btn('Экспорт', exportJson, 'dmbtn', 'Сохранить всех персонажей в файл'),
+      btn('Импорт', () => file.click(), 'dmbtn', 'Загрузить из файла'), file].filter(Boolean));
   }
   const clsLabel = c => { const x = dataCache[c.ed] && dataCache[c.ed].classes.find(k => k.slug === c.cls); return (x ? x.name_ru : c.cls) + ' ' + c.lvl; };
   function dup() { const c = cur(); if (!c) return; const n = JSON.parse(JSON.stringify(c)); n.id = rid(); n.name = (c.name || 'Без имени') + ' (копия)'; S.list.push(n); S.cur = n.id; save(); render(); }
@@ -127,16 +130,21 @@
     r.readAsText(file);
   }
   function newDialog() {
-    const ov = h('div', { class: 'dmmodal', onclick: e => { if (e.target === ov) ov.remove(); } },
-      h('div', { class: 'dmdlg' }, h('h3', {}, 'Новый персонаж'), h('p', { class: 'mhint' }, 'Какими правилами пользуетесь?'),
-        h('div', { class: 'mbtn', style: 'justify-content:flex-start' },
-          btn('D&D 2024', () => mk(24), 'pri'), btn('D&D 2014', () => mk(14), 'pri'), btn('Отмена', () => ov.remove()))));
+    const opt = (ed, title, sub) => h('button', { type: 'button', class: 'csopt', onclick: () => mk(ed) }, h('strong', {}, title), h('span', {}, sub));
+    const ov = h('div', { class: 'dmmodal csmodal', onclick: e => { if (e.target === ov) ov.remove(); } },
+      h('div', { class: 'dmdlg' }, h('h3', {}, 'Новый персонаж'), h('p', { class: 'mhint' }, 'Какими правилами пользуетесь? Это нельзя изменить позже — но можно создать второго персонажа.'),
+        h('div', { class: 'csopts' },
+          opt(24, 'D&D 2024', 'Новая редакция: классы, виды и предыстории из PHB 2024'),
+          opt(14, 'D&D 2014', 'Классическая 5e: расы и подрасы, предыстории из PHB 2014')),
+        h('div', { class: 'mbtn' }, btn('Отмена', () => ov.remove()))));
     const mk = ed => { const c = R.newChar(ed); S.list.push(c); S.cur = c.id; tabId = 'base'; save(); ov.remove(); render(); };
     document.body.append(ov);
   }
   function welcome() {
+    const step = (t, s) => h('div', {}, h('b', {}, t), s);
     return h('div', { class: 'cswel' }, h('h2', {}, 'Листы персонажей'),
-      h('p', {}, 'Выберите класс, уровень, вид и предысторию — бонус мастерства, хиты, спасброски, навыки, ячейки заклинаний и умения подставятся сами. Готовый лист можно распечатать или сохранить в PDF.'),
+      h('p', {}, 'Выберите класс, уровень, вид и предысторию — бонус мастерства, хиты, спасброски, навыки, ячейки заклинаний и умения подставятся сами.'),
+      h('div', { class: 'cssteps' }, step('1. Соберите', 'класс, вид, предыстория, характеристики'), step('2. Дополните', 'заклинания, снаряжение, описание'), step('3. Распечатайте', 'лист A4 или сохраните в PDF')),
       btn('Создать персонажа', newDialog, 'dmbtn pri'));
   }
 
@@ -176,22 +184,34 @@
   }
   const bgChoiceNames = d => d.bgChoice.from.map(id => d.skills.find(s => s.id === id).n).join(', ');
   const subLevel = cls => { const f = (cls.features || []).find(x => /подкласс/i.test(x.name) && x.level); return f ? f.level : 3; };
-  function summary(c, D, d) {
-    const cell = (l, v, tip) => h('div', { class: 'sc1', title: tip || '' }, h('small', {}, l), h('b', {}, v));
+  const TAB_SHORT = { base: 'Основа', abil: 'Характеристики', skills: 'Умения', spells: 'Заклинания', gear: 'Снаряжение', forms: 'Облики', story: 'Описание', sheet: 'Лист' };
+  function summary(c, D, d, t) {
+    const stat = (l, v, tip, key) => h('div', { class: 'cstat' + (key ? ' key' : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
+    const sub = [D.cls && D.cls.name_ru, D.sub && D.sub.name, c.lvl + ' ур.', D.sp && D.sp.name_ru].filter(Boolean);
     const box = h('div', { class: 'cssum' },
-      h('div', { class: 'cssn' }, c.name || 'Без имени', h('small', {}, [D.cls && D.cls.name_ru, D.sub && D.sub.name, c.lvl + ' ур.', D.sp && D.sp.name_ru].filter(Boolean).join(' · '))),
-      cell('Хиты', d.hp), cell('КД', d.ac, d.acWhy), cell('Бонус мастерства', R.sgn(d.pb)), cell('Инициатива', R.sgn(d.init)), cell('Скорость', d.speed + ' фт.'),
-      d.sp.has ? cell('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru) : null);
-    const t = todo(c, D, d);
-    const chk = h('div', { class: 'cstodo' + (t.length ? '' : ' done') });
-    if (!t.length) chk.append(h('span', {}, '✓ Всё заполнено — можно печатать'));
-    else t.slice(0, 6).forEach(([tab, txt]) => chk.append(h('a', { href: '#', onclick: ev => { ev.preventDefault(); tabId = tab; render(); } }, txt)));
-    if (t.length > 6) chk.append(h('span', {}, '…ещё ' + (t.length - 6)));
+      h('div', { class: 'cssn' }, h('h2', {}, c.name || 'Без имени'), h('div', { class: 'cssub' }, sub.map(x => h('span', {}, x)))),
+      h('div', { class: 'csstats' },
+        stat('Хиты', d.hp, 'Максимум хитов', true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init)), stat('Скорость', d.speed + ' фт.'),
+        d.sp.has ? stat('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru) : null));
+    let chk;
+    if (!t.length) chk = h('div', { class: 'cstodo done' }, h('span', {}, '✓ Всё заполнено — лист готов к печати'), btn('Открыть лист', () => { tabId = 'sheet'; render(); }, 'dmbtn pri'));
+    else {      // на узком экране список свёрнут, чтобы не занимать полэкрана; на вкладках остаются счётчики
+      const wide = !window.matchMedia || window.matchMedia('(min-width:761px)').matches, lst = h('div', { class: 'tdl' });
+      t.slice(0, 6).forEach(([tab, txt]) => lst.append(h('a', { href: '#', onclick: ev => { ev.preventDefault(); tabId = tab; render(); } }, h('em', {}, TAB_SHORT[tab]), txt)));
+      if (t.length > 6) lst.append(h('span', { class: 'tdm' }, '…и ещё ' + (t.length - 6)));
+      chk = h('details', { class: 'cstodo', open: wide ? '' : null }, h('summary', { class: 'tdh' }, 'Осталось заполнить: ' + t.length), lst);
+    }
     return h('div', { class: 'cshead' }, box, chk);
   }
-  function tabsBar(c, D, d) {
-    return h('div', { class: 'cstabs' }, TABS.filter(([id]) => (id !== 'forms' || d.ws) && (id !== 'spells' || d.sp.has || true)).map(([id, t]) =>
-      h('button', { type: 'button', class: 'cstab' + (id === tabId ? ' act' : ''), onclick: () => { tabId = id; render(); } }, t)));
+  function tabsBar(c, D, d, t) {
+    const cnt = {}; t.forEach(([tab]) => { cnt[tab] = (cnt[tab] || 0) + 1; });
+    const out = []; let sep = false;
+    TABS.filter(([id]) => id !== 'forms' || d.ws).forEach(([id, label, n]) => {
+      if (!n && !sep) { out.push(h('span', { class: 'tsep' })); sep = true; }
+      out.push(h('button', { type: 'button', 'data-tab': id, class: 'cstab' + (n ? '' : ' sec') + (id === 'sheet' ? ' printtab' : '') + (id === tabId ? ' act' : ''), onclick: () => { tabId = id; render(); } },
+        n ? h('i', {}, n) : null, label, cnt[id] ? h('i', { class: 'bd', title: 'Нужно заполнить: ' + cnt[id] }, cnt[id]) : null));
+    });
+    return h('div', { class: 'cstabs' }, out);
   }
 
   const ALIGNS = ['Законопослушный добрый', 'Нейтральный добрый', 'Хаотичный добрый', 'Законопослушный нейтральный', 'Нейтральный', 'Хаотичный нейтральный', 'Законопослушный злой', 'Нейтральный злой', 'Хаотичный злой', 'Без мировоззрения'];
@@ -256,7 +276,7 @@
       upd();
     }, 'dmbtn', 'Результат можно переставить, редактируя числа'));
     if (info) p.append(h('p', { class: 'mhint' }, info));
-    const t = h('table', { class: 'cstbl' }, h('tr', {}, ['Характеристика', 'База', 'Бонусы', 'Итог', 'Мод.', 'Спасбросок'].map(x => h('th', {}, x))));
+    const grid = h('div', { class: 'csabs' });
     const bgA = D.bg ? (D.bg.abilities || []).map(x => R.ABK[x]) : [];
     R.AB.forEach(a => {
       const base = c.ab[a.k];
@@ -264,14 +284,18 @@
       if (c.abm === 'std') cellBase = sel(std.map(v => [v, v]), base, v => { c.ab[a.k] = +v; upd(); });
       else if (c.abm === 'buy') cellBase = h('span', { class: 'buy' }, btn('−', () => { if (base > 8) { c.ab[a.k]--; upd(); } }, 'cb2'), h('b', {}, base), btn('+', () => { if (base < 15) { c.ab[a.k]++; upd(); } }, 'cb2'));
       else cellBase = numIn(base, v => { c.ab[a.k] = Math.max(1, Math.min(30, v)); upd(); }, { min: 1, max: 30, class: 'num' });
-      const bonus = d.score[a.k] - base;
-      let bcell = h('span', { title: d.src[a.k].join('; ') }, bonus ? R.sgn(bonus) : '—');
-      if (c.ed === 24) { const ex = (c.bonus || {})[a.k] || 0; bcell = h('span', { title: d.src[a.k].join('; ') }, (bonus - ex ? R.sgn(bonus - ex) : '—') + ' + ', numIn(ex, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Прочее: бонусы от черт и т. п.' })); }
-      if (c.ed === 14) bcell = numIn((c.bonus || {})[a.k] || 0, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Бонусы вида и прочее' });
-      t.append(h('tr', { class: bgA.includes(a.k) && c.ed === 24 ? 'hl' : '' }, h('td', {}, h('b', {}, a.ru)), h('td', {}, cellBase), h('td', {}, bcell), h('td', {}, h('b', { class: 'big' }, d.score[a.k])), h('td', {}, R.sgn(d.mod[a.k])),
-        h('td', {}, R.sgn(d.saves[a.k]) + (d.saveProf.has(a.k) ? ' ●' : ''))));
+      const bonus = d.score[a.k] - base, why = d.src[a.k].join('; ');
+      let bcell;
+      if (c.ed === 24) { const ex = (c.bonus || {})[a.k] || 0; bcell = h('span', { class: 'abbon' }, h('span', { class: 'abchip', title: why || 'Бонусы предыстории и черт' }, bonus - ex ? R.sgn(bonus - ex) : '—'), '+', numIn(ex, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Прочее: бонусы от черт и т. п.' })); }
+      else bcell = h('span', { class: 'abbon' }, numIn((c.bonus || {})[a.k] || 0, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Бонусы вида и прочее' }));
+      const sp = d.saveProf.has(a.k);
+      grid.append(h('div', { class: 'abc' + (bgA.includes(a.k) && c.ed === 24 ? ' hl' : ''), title: bgA.includes(a.k) && c.ed === 24 ? 'Эту характеристику можно усилить бонусом предыстории' : '' },
+        h('div', { class: 'abt' }, h('b', {}, a.ru), h('span', { class: 'abtot', title: 'Итоговое значение' }, d.score[a.k])),
+        h('div', { class: 'abbody' }, h('div', { class: 'abmod', title: 'Модификатор' }, R.sgn(d.mod[a.k])),
+          h('div', { class: 'abctl' }, h('div', { class: 'abrow' }, h('small', {}, 'База'), cellBase), h('div', { class: 'abrow' }, h('small', {}, 'Бонусы'), bcell))),
+        h('div', { class: 'absv' + (sp ? ' on' : '') }, (sp ? '● ' : '○ ') + 'Спасбросок ' + R.sgn(d.saves[a.k]))));
     });
-    p.append(t, h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.cap20 === false, onchange: e => { c.cap20 = e.target.checked ? false : true; upd(); } }), ' максимум характеристики 30 вместо 20 (особые случаи: дары, предметы)'));
+    p.append(grid, h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.cap20 === false, onchange: e => { c.cap20 = e.target.checked ? false : true; upd(); } }), ' максимум характеристики 30 вместо 20 (особые случаи: дары, предметы)'));
     // бонусы предыстории 2024
     if (c.ed === 24) {
       p.append(h('h3', { class: 'csh' }, 'Бонусы предыстории'));
@@ -311,7 +335,7 @@
   const lvReq = f => { const m = String(f.prerequisite || f.line || '').match(/(\d+)[-\s]*(?:й|го|ого)?\s*уровн/i); return m ? +m[1] : 0; };
   function featDialog(c, D, pick, skip, onlyCat) {
     skip = skip || new Set();
-    const ov = h('div', { class: 'dmmodal', onclick: e => { if (e.target === ov) ov.remove(); } });
+    const ov = h('div', { class: 'dmmodal csmodal', onclick: e => { if (e.target === ov) ov.remove(); } });
     const cats = onlyCat ? [onlyCat] : [...new Set(D.feats.map(f => f.category).filter(Boolean))];
     let cat = onlyCat || ''; const body = h('div');
     const chips = h('div', { class: 'seg csmeth wrapseg' }, ['', ...cats].map(k => btn(k ? k.replace(/^Черта\s+/, '') : 'Все', () => { cat = k; draw(); }, '')));
@@ -358,7 +382,8 @@
     p.append(h('h3', { class: 'csh' }, 'Навыки'));
     if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами.' + (d.extraN ? ' Черты и вид дают ещё ' + d.extraN + ' (' + d.grants.map(g => g.why + ' — ' + g.n).join('; ') + '): отмечайте их галочкой или кнопкой «+», инструменты из «Одарённого» впишите в «Другие владения».' : '') + ' Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
     if (d.bgChoice) p.append(h('p', { class: 'mhint' }, 'Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+» в колонке «Откуда».'));
-    const t = h('table', { class: 'cstbl sk' }, h('tr', {}, ['Выбор', 'Навык', 'Бонус', 'Откуда'].map(x => h('th', {}, x))));
+    p.append(h('div', { class: 'cslegend' }, h('span', {}, '◆ — навык можно выбрать от класса (галочка)'), h('span', {}, '☆ / ★ — экспертность (удвоенный бонус)'), h('span', {}, '+ — владение из другого источника'), h('span', {}, '● — владение спасброском')));
+    const t = h('table', { class: 'cstbl sk' }, h('tr', {}, [['Класс', 'Выбрать навык от класса'], ['Навык', ''], ['Бонус', 'Итоговый бонус; звёздочка — экспертность'], ['Откуда', 'Источник владения; «+» — добавить владение вручную']].map(([x, tip]) => h('th', { title: tip }, x))));
     R.AB.forEach(a => {
       t.append(h('tr', { class: 'abh' }, h('td', { colspan: 4 }, h('b', {}, a.ru), h('small', {}, '  модификатор ' + R.sgn(d.mod[a.k])))));
       t.append(h('tr', { class: 'sv' + (d.saveProf.has(a.k) ? ' prof' : '') }, h('td', {}, d.saveProf.has(a.k) ? '●' : '○'), h('td', {}, 'Спасбросок'), h('td', {}, h('b', {}, R.sgn(d.saves[a.k]))), h('td', {}, d.saveProf.has(a.k) ? 'класс' : '')));
@@ -412,7 +437,7 @@
     const cnt = { can: mine.filter(s => s.lvl === 0 && !s.free).length, rest: mine.filter(s => s.lvl > 0 && !s.free).length, prep: mine.filter(s => s.lvl > 0 && s.prep && !s.free).length };
     const lim = { can: sp.cantrips, rest: isBook ? 6 + 2 * (c.lvl - 1) : (sp.known != null ? sp.known : sp.prepared), prep: isBook ? sp.prepared : null };
     const full = k => !noLim && lim[k] != null && cnt[k] >= lim[k];
-    const chip = (t, k) => h('span', { class: lim[k] == null ? '' : cnt[k] > lim[k] ? 'over' : cnt[k] === lim[k] ? 'ok' : '' }, t + ': ' + cnt[k] + (lim[k] != null ? ' из ' + lim[k] : ''));
+    const chip = (t, k) => h('span', { class: lim[k] == null ? '' : cnt[k] > lim[k] ? 'over' : cnt[k] === lim[k] ? 'ok' : '', style: lim[k] ? '--p:' + Math.min(100, Math.round(cnt[k] / lim[k] * 100)) + '%' : null }, t + ': ' + cnt[k] + (lim[k] != null ? ' из ' + lim[k] : ''));
     p.append(h('div', { class: 'spcnt' }, lim.can != null ? chip('Заговоры', 'can') : null, lim.rest != null ? chip(isBook ? 'В книге заклинаний' : sp.known != null ? 'Известно заклинаний' : 'Подготовлено заклинаний', 'rest') : null, isBook && lim.prep != null ? chip('Подготовлено', 'prep') : null),
       h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: noLim, onchange: e => { c.spellsFree = e.target.checked; upd(); } }), ' не ограничивать количество'));
     // выбранные — по кругам
