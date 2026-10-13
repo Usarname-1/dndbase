@@ -4,7 +4,7 @@
    · D&D 2014 — серые панели, отдельные блоки спасбросков и навыков.
    Расчёты берутся из charrules.js (CSR); сюда приходят готовые данные derive().
    Страницы: 1) основной лист, 2) тексты умений, 3) заклинания, 4) карточки заклинаний,
-   5) снаряжение и описание. Все размеры — в мм, лист A4 с полями 8 мм. */
+   5) описание и портрет, 6) снаряжение. Все размеры — в мм, лист A4 с полями 8 мм. */
 (function (root) {
   'use strict';
   const h = root.DM.h, R = root.CSR, DB = () => root.DB;
@@ -44,6 +44,16 @@
   const coinBox = (c, cls) => el('div', 'coins ' + (cls || ''), COIN_ORDER.map(([k, t]) => el('div', 'coin', el('small', '', t), el('b', '', sp(c.coins[k] || '')))));
   const lined = (v, cls) => el('div', 'tx ln ' + (cls || ''), v ? el('span', '', v) : null);
 
+  // выбранная предыстория: название, характеристики/навыки/инструменты/черта и начало описания (длину подгоняет trimLists)
+  const plain = t => String(t || '').replace(/\*+/g, '').replace(/\s+/g, ' ').trim();
+  function bgInfo(D) {
+    const b = D.bg; if (!b) return el('div', 'tx gr bgt', el('p', 'bgn', '—'));
+    const fact = (l, v) => v && v.length ? el('p', 'bgf', el('b', '', l + ': '), Array.isArray(v) ? v.join(', ') : v) : null;
+    const para = (b.blocks || []).find(x => x.type === 'paragraph' && x.text && !/^\*\*/.test(x.text));
+    return el('div', 'tx gr bgt', el('p', 'bgn', b.name_ru), fact('Характеристики', b.abilities), fact('Навыки', b.skills), fact('Инструменты', b.tools && !/^(нет|—)$/i.test(b.tools) ? b.tools : ''),
+      fact('Черта', b.feat && b.feat.name), para ? el('p', 'bgd', plain(para.text)) : null);
+  }
+
   /* ============ страница 1 · D&D 2024 ============ */
   function page24(X, c, D, d) {
     const P = el('section', 'pg e24 p1'), L = featLists(X, c, D, d), pf = profFlags(d);
@@ -78,7 +88,7 @@
     const wp = box('wp', 'Оружие и боевые заклинания', h('table', { class: 'wtab' },
       h('tr', {}, h('th', {}, 'Название'), h('th', { class: 'c' }, 'Бонус / Сл'), h('th', {}, 'Урон / вид'), h('th', {}, 'Заметки')), ...wr));
     const fbox = box('fb', 'Умения и способности', el('div', 'fl gr', featItems(L.feats)));
-    const pair = el('div', 'pair', box('tb', 'Черты', el('div', 'fl one gr', featItems(L.traits))), box('nb', 'Заметки', el('div', 'tx gr')));
+    const pair = el('div', 'pair', box('tb', 'Черты', el('div', 'fl one gr', featItems(L.traits))), box('nb', 'Предыстория', bgInfo(D)));
     P.append(hd, rule, el('div', 'bd', el('div', 'left', el('div', 'abcols', colA, colB), profs), el('div', 'right', stats, wp, fbox, pair)));
     return P;
   }
@@ -121,8 +131,9 @@
   /* ============ страница: тексты умений ============ */
   function featPages(X, c, D, d) {
     const P = shell('Умения и особенности', c, 'flow ftxt'), DBx = DB();
-    const cols = el('div', 'pfeat');
-    X.featureList(c, D, d).forEach(f => {
+    const cols = el('div', 'pfeat'), list = X.featureList(c, D, d);
+    if (!list.length) return null;
+    list.forEach(f => {
       const body = el('div', 'ft'); body.innerHTML = (f.blocks ? DBx.B(f.blocks) : esc(f.text || '')).replace(/<\/(p|li|div|h\d)>/g, '$& ');
       if (c.featTxt !== 'full') { const tx = body.textContent.replace(/\s+/g, ' ').trim(); body.textContent = tx.length > 260 ? tx.slice(0, 260).replace(/\s\S*$/, '') + '…' : tx; }
       cols.append(el('div', 'pfi', el('b', '', f.name), el('small', '', ' ' + f.src + (f.level ? ', ' + f.level + ' ур.' : '')), body));
@@ -218,44 +229,60 @@
     return pages;
   }
 
-  /* ============ страница: снаряжение и описание ============ */
+  /* ============ страница: описание ============ */
   function descPage(X, c, D, d) {
-    const ed = c.ed === 24 ? 'e24' : 'e14', P = shell('Снаряжение и описание', c, 'flow desc ' + ed);
-    let w = 0;
-    const rows = (c.inv || []).map(i => { const g = X.invG(D, i), ww = g && g.weight_lb ? g.weight_lb * i.q : 0; w += ww; return h('tr', {}, h('td', { class: 'c' }, i.eq ? '●' : ''), h('td', {}, i.n), h('td', { class: 'c' }, i.q), h('td', { class: 'c' }, ww ? Math.round(ww * 10) / 10 : '')); });
-    while (rows.length < 18) rows.push(h('tr', {}, h('td', { class: 'c' }), h('td', {}), h('td', {}), h('td', {})));
-    const cap = d.score.str * 15, att = (c.inv || []).filter(i => i.eq && i.sec === 'items' && (X.invG(D, i) || {}).attunement).length;
-    const left = el('div', 'dcol', box('dcoin', 'Монеты', coinBox(c)),
-      box('dinv', 'Инвентарь', h('table', { class: 'itab' }, h('tr', {}, h('th', { class: 'c' }, ''), h('th', {}, 'Предмет'), h('th', { class: 'c' }, 'Кол.'), h('th', { class: 'c' }, 'Вес, фнт.')), ...rows),
-        el('div', 'cap', el('span', '', 'Вес: ', el('b', '', Math.round(w * 10) / 10 + ' фнт.')), el('span', '', 'Грузоподъёмность: ', el('b', '', cap + ' фнт.')))),
-      box('att', 'Настройка на магические предметы', el('div', 'attn', [0, 1, 2].map(i => dia(i < att)))),
-      box('port', 'Портрет', el('div', 'tx gr tall')));
+    const ed = c.ed === 24 ? 'e24' : 'e14', P = shell('Описание персонажа', c, 'flow desc ' + ed);
     const story = (k, t, cls) => box('st ' + (cls || ''), t, lined(c.story[k], 'm'));
-    const right = el('div', 'dcol', box('st look', 'Внешность и история', lined(c.story.look, 'm tall')),
+    const portrait = box('port grow', 'Портрет', el('div', 'pimg', c.portrait ? h('img', { src: c.portrait, alt: '' }) : null));
+    const left = el('div', 'dcol', portrait, box('st', 'Союзники и организации', el('div', 'tx ln m')), box('st', 'Цели и задачи', el('div', 'tx ln m')));
+    const right = el('div', 'dcol', box('st look grow', 'Внешность и история', lined(c.story.look, 'm tall')),
       ed === 'e24' ? el('div', 'p4', story('traits', 'Черты характера'), story('ideals', 'Идеалы'), story('bonds', 'Привязанности'), story('flaws', 'Слабости')) : null,
-      box('st', 'Союзники и организации', el('div', 'tx ln m')), box('st', 'Цели и задачи', el('div', 'tx ln m')), box('st', 'Сокровища', el('div', 'tx ln m')), box('st', 'Заметки', lined(c.story.notes, 'm tall')));
+      box('st grow', 'Заметки', lined(c.story.notes, 'm tall')));
     P.append(el('div', 'dgrid', left, right));
     return [P];
   }
 
+  /* ============ страница: снаряжение ============ */
+  function gearPage(X, c, D, d) {
+    const ed = c.ed === 24 ? 'e24' : 'e14', P = shell('Снаряжение', c, 'flow gear desc ' + ed);
+    let w = 0;
+    const rows = (c.inv || []).map(i => { const g = X.invG(D, i), ww = g && g.weight_lb ? g.weight_lb * i.q : 0; w += ww; return h('tr', {}, h('td', { class: 'c' }, i.eq ? '●' : ''), h('td', {}, i.n), h('td', { class: 'c' }, i.q), h('td', { class: 'c' }, ww ? Math.round(ww * 10) / 10 : '')); });
+    while (rows.length < 40) rows.push(h('tr', {}, h('td', { class: 'c' }), h('td', {}), h('td', {}), h('td', {})));
+    const cap = d.score.str * 15, att = (c.inv || []).filter(i => i.eq && i.sec === 'items' && (X.invG(D, i) || {}).attunement).length;
+    const inv = box('dinv', 'Инвентарь', h('table', { class: 'itab' }, h('tr', {}, h('th', { class: 'c' }, ''), h('th', {}, 'Предмет'), h('th', { class: 'c' }, 'Кол.'), h('th', { class: 'c' }, 'Вес, фнт.')), ...rows),
+      el('div', 'cap', el('span', '', 'Вес: ', el('b', '', Math.round(w * 10) / 10 + ' фнт.')), el('span', '', 'Грузоподъёмность: ', el('b', '', cap + ' фнт.'))));
+    const side = el('div', 'dcol', box('att', 'Настройка на магические предметы', el('div', 'attn', [0, 1, 2].map(i => dia(i < att)))),
+      box('st grow', 'Сокровища', el('div', 'tx ln m')), box('st grow', 'Заметки о снаряжении', el('div', 'tx ln m')));
+    P.append(box('dcoin', 'Монеты', coinBox(c)), el('div', 'dgrid gearg', inv, side));
+    return [P];
+  }
+
   /* ============ сборка ============ */
+  const on = (c, k) => !(c.pOff && c.pOff[k]);
   function build(sh, ctx) {
     const { c, D, d, X } = ctx, e24 = c.ed === 24, pages = [];
-    pages.push(e24 ? page24(X, c, D, d) : page14(X, c, D, d));
-    if (c.featTxt !== 'none') pages.push(...featPages(X, c, D, d));
+    if (on(c, 'main')) pages.push(e24 ? page24(X, c, D, d) : page14(X, c, D, d));
+    if (c.featTxt !== 'none') { const fp = featPages(X, c, D, d); if (fp) pages.push(...fp); }
     if (d.sp.has) {
-      pages.push(...(e24 ? spells24(X, c, D, d) : spells14(X, c, D, d)));
+      if (on(c, 'spells')) pages.push(...(e24 ? spells24(X, c, D, d) : spells14(X, c, D, d)));
       if (c.printSpells && c.spells.length) pages.push(...cardPages(c, D, sh));
     }
-    pages.push(...descPage(X, c, D, d));
+    if (on(c, 'desc')) pages.push(...descPage(X, c, D, d));
+    if (on(c, 'gear')) pages.push(...gearPage(X, c, D, d));
     pages.forEach(p => { if (!p.classList.contains('e24') && !p.classList.contains('e14')) p.classList.add(e24 ? 'e24' : 'e14'); });
     sh.append(...pages);
-    const trim = () => trimLists(pages[0]);
-    trim(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(trim);
+    const p1 = pages.find(p => p.classList.contains('p1'));
+    if (p1) { const trim = () => trimLists(p1); trim(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(trim); }
     return pages;
   }
   // списки умений на первой странице не помещаются — обрезаем по высоте блока, остальное есть на страницах с текстами
   function trimLists(P) {
+    P.querySelectorAll('.bgt').forEach(box => {
+      const dsc = box.querySelector('.bgd'); if (!dsc) return;
+      if (!dsc.dataset.full) dsc.dataset.full = dsc.textContent;
+      let t = dsc.dataset.full; dsc.textContent = t;
+      for (let i = 0; i < 60 && box.scrollHeight > box.clientHeight + 1 && t.length > 24; i++) { t = t.slice(0, Math.floor(t.length * 0.9)).replace(/\s\S*$/, ''); dsc.textContent = t + '…'; }
+    });
     P.querySelectorAll('.fl, .tx.ln').forEach(box => {
       box.querySelectorAll('.fmore').forEach(n => n.remove());
       const items = [...box.querySelectorAll('.fi')];

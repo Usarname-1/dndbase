@@ -628,6 +628,7 @@
   async function tabStory(p, c) {
     const ta = (k, label, rows) => field(label, h('textarea', { rows: rows || 3, onchange: e => { c.story[k] = e.target.value; upd(false); } }, c.story[k] || ''));
     p.append(h('div', { class: 'csgrid two' }, ta('traits', 'Черты характера'), ta('ideals', 'Идеалы'), ta('bonds', 'Привязанности'), ta('flaws', 'Слабости'), ta('look', 'Внешность и история', 6), ta('notes', 'Заметки', 6)),
+      h('h3', { class: 'csh' }, 'Портрет'), portraitCtl(c),
       h('h3', { class: 'csh' }, 'Хиты'),
       h('div', { class: 'csgrid' }, field('Способ', sel([['avg', 'Среднее (по умолчанию)'], ['manual', 'Ввести итог вручную']], c.hpMode, v => { c.hpMode = v; upd(); })),
         c.hpMode === 'manual' ? field('Максимум хитов', numIn(c.hpManual, v => { c.hpManual = v; upd(); })) : null,
@@ -646,14 +647,71 @@
     if (d.sp.has) rows.push({ n: 'Заклинания', bonus: R.sgn(d.sp.atk), dmg: 'Сл ' + d.sp.dc, note: R.ABN(d.sp.ab).ru });
     return rows;
   }
+  /* портрет: сжимаем до 900 px по длинной стороне, храним строкой в персонаже */
+  function readPortrait(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader(); fr.onerror = rej;
+      fr.onload = () => {
+        const im = new Image(); im.onerror = rej;
+        im.onload = () => {
+          const k = Math.min(1, 900 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+          cv.width = Math.max(1, Math.round(im.width * k)); cv.height = Math.max(1, Math.round(im.height * k));
+          const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(im, 0, 0, cv.width, cv.height);
+          res(cv.toDataURL('image/jpeg', 0.85));
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function portraitCtl(c) {
+    const inp = h('input', { type: 'file', accept: 'image/*', hidden: '', onchange: e => {
+      const f = e.target.files && e.target.files[0]; if (!f) return;
+      readPortrait(f).then(u => { c.portrait = u; upd(); }).catch(() => root.DM.toast('Не удалось прочитать изображение'));
+    } });
+    return h('div', { class: 'csport' },
+      c.portrait ? h('img', { src: c.portrait, alt: 'Портрет персонажа' }) : h('div', { class: 'csport0' }, 'Портрет не загружен'),
+      h('div', { class: 'csportb' }, btn(c.portrait ? 'Заменить…' : 'Загрузить портрет…', () => inp.click(), 'dmbtn'),
+        c.portrait ? btn('Убрать', () => { delete c.portrait; upd(); }, 'dmbtn') : null, inp));
+  }
+
+  /* что печатать: страницы и отдельные умения (c.pOff, c.featOff) */
+  const fkey = f => f.src + '|' + f.name;
+  const uiOpen = {};
+  function printOptions(c, D, d) {
+    const all = featureList(c, D, d), off = c.featOff || (c.featOff = {}), pOff = c.pOff || (c.pOff = {});
+    const chosen = all.filter(f => !off[fkey(f)]).length;
+    const pg = (label, on, set) => h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: on, onchange: e => { set(e.target.checked); upd(); } }), ' ' + label);
+    const pOn = k => !pOff[k], pSet = k => v => { if (v) delete pOff[k]; else pOff[k] = 1; };
+    const pages = h('div', { class: 'cspages' },
+      pg('Основной лист', pOn('main'), pSet('main')),
+      pg('Тексты умений', c.featTxt !== 'none', v => { c.featTxt = v ? 'short' : 'none'; }),
+      c.featTxt !== 'none' ? sel([['short', 'кратко'], ['full', 'полностью']], c.featTxt, v => { c.featTxt = v; upd(); }) : null,
+      d.sp.has ? pg('Заклинания (список)', pOn('spells'), pSet('spells')) : null,
+      d.sp.has ? pg('Карточки заклинаний', !!c.printSpells, v => { c.printSpells = v; }) : null,
+      pg('Описание и портрет', pOn('desc'), pSet('desc')),
+      pg('Снаряжение', pOn('gear'), pSet('gear')),
+      d.ws && c.forms.length ? pg('Дикий облик', c.printForms !== false, v => { c.printForms = v; }) : null);
+    const groups = [];
+    all.forEach(f => { let g = groups.find(x => x.src === f.src); if (!g) groups.push(g = { src: f.src, items: [] }); g.items.push(f); });
+    const setAll = (items, v) => { items.forEach(f => { if (v) delete off[fkey(f)]; else off[fkey(f)] = 1; }); upd(); };
+    const glist = groups.map(g => h('div', { class: 'csfg' },
+      h('label', { class: 'csfgh' }, h('input', { type: 'checkbox', checked: g.items.every(f => !off[fkey(f)]), onchange: e => setAll(g.items, e.target.checked) }), h('b', {}, ' ' + g.src)),
+      h('div', { class: 'csfgl' }, g.items.map(f => h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: !off[fkey(f)], onchange: e => { if (e.target.checked) delete off[fkey(f)]; else off[fkey(f)] = 1; upd(); } }), ' ' + f.name + (f.level ? ' (' + f.level + ' ур.)' : ''))))));
+    const feats = h('details', { class: 'cspr', open: uiOpen.f ? '' : null, ontoggle: e => { uiOpen.f = e.target.open; } },
+      h('summary', {}, 'Какие умения и способности печатать: ' + chosen + ' из ' + all.length),
+      h('div', { class: 'csfbar' }, btn('Все', () => setAll(all, true), 'dmbtn'), btn('Ничего', () => setAll(all, false), 'dmbtn'),
+        btn('Только класс и подкласс', () => { all.forEach(f => { if (/^(Класс|Подкласс):/.test(f.src)) delete off[fkey(f)]; else off[fkey(f)] = 1; }); upd(); }, 'dmbtn'),
+        h('small', {}, 'Выбор действует и на список в листе, и на страницу с текстами.')), ...glist);
+    return h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Страницы для печати'), pages, feats);
+  }
   async function tabSheet(p, c, D, d) {
-    const CSP = root.CSP;
+    const CSP = root.CSP, X = { featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr };
     p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'),
-      h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printSpells, onchange: e => { c.printSpells = e.target.checked; upd(); } }), ' карточки заклинаний'),
-      field('Описания умений', sel([['none', 'Нет'], ['short', 'Кратко'], ['full', 'Полностью']], c.featTxt, v => { c.featTxt = v; upd(); })),
-      h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. В окне печати включите «Фоновая графика» — тогда сохранятся серые панели и клетка (в Chrome это включается само).')));
+      h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. В окне печати включите «Фоновая графика» — тогда сохранятся серые панели и клетка (в Chrome это включается само).')),
+      h('div', { class: 'noprint sheetopt' }, printOptions(c, D, d), h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Портрет (печатается на странице «Описание»)'), portraitCtl(c))));
     const sh = h('div', { class: 'csheet' }); p.append(sh);
-    CSP.build(sh, { c, D, d, X: { featureList, attackList, invG, langStr } });
+    CSP.build(sh, { c, D, d, X });
     // облики зверей
     if (d.ws && c.forms.length && c.printForms !== false) {
       const beasts = await DB().load('bestiary', c.ed);

@@ -102,7 +102,8 @@
 .e24 .pbv{width:14mm;margin:1.8mm auto 2.4mm;border:1pt solid var(--ln);border-radius:1mm;text-align:center;font:700 14pt/1.5 var(--serif)}
 .e24 .sq6{display:flex;gap:1.1mm;justify-content:center;padding:2.2mm 1mm 2.8mm}
 .e24 .sqr{display:block;width:4.1mm;height:4.1mm;border:.8pt solid var(--ln);border-radius:.8mm}
-.e24 .hic{display:flex;justify-content:center;padding:2.6mm 0 3.2mm}
+.e24 .hi{flex:none}.e24 .hic{display:flex;align-items:center;justify-content:center;padding:1mm 0 1.4mm}.e24 .hic .dt.huge{width:7mm;height:7mm;border-width:.9pt}
+.e24 .acol:last-child>.ab{flex:1}.e24 .acol:last-child>.ab .sks{flex:1}
 .e24 .prof{flex:1;min-height:0}
 .e24 .pry{display:flex;flex-wrap:wrap;gap:.4mm 2.2mm;align-items:center;padding:1mm 2.6mm 0;font-size:6.8pt}
 .e24 .pl{font:700 5.8pt var(--sans);text-transform:uppercase;width:11mm}
@@ -246,3 +247,21 @@
 .e14 .fmore{height:4.7mm;line-height:4.7mm}
 .e24 .dsr .dt{width:2.6mm;height:2.6mm}.e24 .dsc .dsr{padding:0 2.4mm 0 1.6mm}
 .e24 .shield .si .dm{margin-top:1.4mm}
+
+/* предыстория вместо заметок (2024) */
+.e24 .bgt{background:#fff;font-size:6.8pt;line-height:1.28;padding:1.2mm 1.6mm;color:#111}
+.e24 .bgt p{margin:0 0 .7mm}
+.e24 .bgt .bgn{font:700 9pt/1.15 var(--serif);margin-bottom:1mm}
+.e24 .bgt .bgd{margin-top:1mm;color:#333}
+
+/* страницы «Описание» и «Снаряжение» */
+.csheet .port{min-height:128mm}
+.csheet .desc:not(.gear) .dgrid{min-height:250mm;align-items:stretch}
+.csheet .dcol>.port.grow{flex:1}
+.csheet .port .pimg{flex:1;position:relative;overflow:hidden;margin:1.7mm;min-height:0}
+.csheet .port .pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.csheet .gear .dcoin{margin-bottom:2.8mm}
+.csheet .gearg{grid-template-columns:1fr 62mm;align-items:stretch}
+.csheet .gearg .dinv{min-width:0}
+.csheet .dcol .st.grow{flex:1}.csheet .dcol .st.grow .tx{flex:1}
+.csheet .e14 .port .pimg,.csheet .port .pimg{background:#fff}
