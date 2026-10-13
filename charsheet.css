@@ -270,37 +270,7 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
 }
 @media(prefers-reduced-motion:reduce){:is(#cs,.csmodal) *{transition:none!important}}
 
-/* ===== лист для печати (A4) — без изменений ===== */
-.csheet{background:#fff;color:#000}
-.pg{width:100%;max-width:190mm;margin:0 auto 14px;padding:6mm;background:#fff;border:1px solid #bbb;box-sizing:border-box;font:10pt/1.25 'PT Sans',Arial,sans-serif}
-.phead{display:flex;gap:10px;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:6px;flex-wrap:wrap}
-.pname{flex:1 1 40%;font:700 18pt 'PT Serif',serif}.pname small,.pmeta small,.pstats small,.pab small,.phps small{display:block;font:7pt 'PT Sans',sans-serif;text-transform:uppercase;color:#444;font-weight:400}
-.pmeta{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 10px;flex:1 1 55%}.pmeta b{display:block;border-bottom:1px solid #000;min-height:13pt}
-.pcols{display:grid;grid-template-columns:42mm 1fr 1fr;gap:6px}.pcols.two{grid-template-columns:1fr 1fr}.pcol{display:flex;flex-direction:column;gap:5px;min-width:0}
-.pbox{border:1.4px solid #000;border-radius:3px;padding:3px 5px}.ptt{font:700 7.5pt 'PT Sans',sans-serif;text-transform:uppercase;border-bottom:1px solid #000;margin:-1px -2px 3px;padding:0 2px}
-.pabs{display:flex;flex-direction:column;gap:4px}.pab{border:1.4px solid #000;border-radius:5px;text-align:center;padding:2px 0 8px;position:relative}.pab .pm{display:block;font:700 17pt 'PT Serif',serif;line-height:1.1}.pab .ps{position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;background:#fff;border:1.4px solid #000;border-radius:10px;padding:0 6px;font-size:9pt;font-weight:700}
-.prow{font-size:8.5pt;line-height:1.35;display:flex;gap:4px;align-items:baseline}.prow small{color:#555;font-size:7pt}
-.dot{display:inline-block;width:7px;height:7px;border:1px solid #000;border-radius:50%;flex:none;margin-right:2px}.dot.on{background:#000}.dot.ex{box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px #000}
-.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:5px}.pstats>div{border:1.4px solid #000;border-radius:4px;text-align:center;padding:2px}.pstats b{display:block;font:700 13pt 'PT Serif',serif}
-.phps{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;text-align:center}.phps b{display:block;font:700 15pt 'PT Serif',serif;min-height:19pt;border-bottom:1px dotted #000}
-.prow.atk{display:grid;grid-template-columns:1fr 14mm 1fr;border-bottom:1px dotted #777;min-height:12pt}
-.ptxt{white-space:pre-wrap;font-size:8.5pt}.ptxt.tall{min-height:80mm}.ptxt.feats div{margin-bottom:1px}
-.pslots{display:flex;gap:10px;flex-wrap:wrap}.pslots small{display:block;font-size:7pt}.pslots span{display:inline-flex;gap:3px}.pslots .dot{width:9px;height:9px}
-.pspl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:5px}.pnote{font-size:7.5pt;color:#444}
-.ptbl{width:100%;border-collapse:collapse;font-size:8.5pt}.ptbl th,.ptbl td{border-bottom:1px solid #999;padding:1px 3px;text-align:left}
-.pcoins{display:grid;grid-template-columns:repeat(5,1fr);text-align:center;gap:3px}.pcoins b{display:block;border-bottom:1px solid #000;min-height:14pt}
-.pspell{break-inside:avoid;margin-bottom:5px;font-size:8.5pt;border-bottom:1px solid #ccc;padding-bottom:3px}.pspell p{margin:2px 0}.pspell ul{margin:2px 0;padding-left:16px}
-.pform{break-inside:avoid;margin-bottom:8px}.pform .stat{box-shadow:none;font-size:9pt}
-@media(max-width:700px){.pcols{grid-template-columns:1fr}.pcols.two{grid-template-columns:1fr}.pspl{grid-template-columns:1fr}.coins{grid-template-columns:repeat(3,1fr)}}
-.pg.p1 .pcols{grid-template-columns:47mm 1fr}.plvl{text-align:center;min-width:16mm}.plvl b{display:block;border-bottom:1px solid #000;font:700 15pt 'PT Serif',serif;min-height:17pt}.plvl small{font:7pt 'PT Sans';text-transform:uppercase;color:#444}
-.pinsp{display:flex;gap:6px;align-items:center;font-size:8pt;padding:4px 6px}.dot.big{width:12px;height:12px}
-.pabx{border:1.4px solid #000;border-radius:4px;padding:2px 4px}.pah{display:flex;align-items:center;gap:6px;border-bottom:1px solid #000;margin-bottom:2px}.pan{flex:1;font:700 8pt 'PT Sans';text-transform:uppercase}.pam{font:700 15pt 'PT Serif',serif}.pas{border:1.4px solid #000;border-radius:9px;padding:0 6px;font-weight:700;font-size:9pt}
-.pabx .prow b{display:inline-block;min-width:8mm;text-align:right}.prow.sv{font-style:italic;color:#333}
-.pg.p1 .pstats{grid-template-columns:repeat(3,1fr)}.pg.p1 .pstats small{font-size:6.5pt}.pdeath{display:flex;justify-content:space-between;font-size:8pt;margin-top:3px}.dots{display:inline-flex;gap:2px}.dots .dot{width:9px;height:9px}
-.parm{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:8pt;margin-bottom:3px}.phd{font-size:8.5pt}
-.pfeat{columns:2;column-gap:8mm}.pfi{break-inside:avoid;margin-bottom:4px;font-size:8pt;line-height:1.25}.pfi small{color:#555}.pfi .ft p{margin:1px 0}.pfi .ft ul{margin:1px 0;padding-left:14px}
-.phps small{font-size:5.5pt!important;letter-spacing:-.2px}.prow.atk{grid-template-columns:1fr 9mm 16mm!important;font-size:8pt}
-@media print{.pg.ptext{column-count:2;column-gap:7mm}.pg.ptext .phead{column-span:all}}
+/* ===== печать: скрываем интерфейс, оставляем только страницы листа (их стили — в charprint.css) ===== */
 @media print{
  @page{size:A4;margin:8mm}
  html,body{height:auto!important;display:block!important;background:#fff!important}
@@ -308,5 +278,4 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
  main{overflow:visible!important;height:auto!important;padding:0!important}
  body.cs #cs{display:block;background:#fff;min-height:0}
  #cs .csbody{max-width:none;padding:0}.cspane{border:0;padding:0;background:#fff;box-shadow:none;border-radius:0}
- .pg{zoom:1.1;width:calc(100% / 1.1);max-width:none;margin:0;border:0;padding:0;break-after:page;page-break-after:always}.pg:last-child{break-after:auto;page-break-after:auto}
 }

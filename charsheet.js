@@ -221,6 +221,7 @@
     p.append(h('div', { class: 'csgrid' },
       field('Имя персонажа', textIn(c.name, v => { c.name = v; upd(); })),
       field('Мировоззрение', sel(ALIGNS.concat(c.align && !ALIGNS.includes(c.align) ? [c.align] : []), c.align, v => { c.align = v; upd(false); }, '— не выбрано —')),
+      field('Имя игрока', textIn(c.player, v => { c.player = v; upd(false); })),
       field('Правила', h('div', { class: 'csro' }, 'D&D ' + (ed === 24 ? '2024' : '2014') + ' (задаются при создании)'))));
     // класс
     const clsSel = sel(D.classes.map(x => [x.slug, x.name_ru]), c.cls, v => {
@@ -634,104 +635,33 @@
   }
 
   /* ---------- Лист для печати ---------- */
-  async function tabSheet(p, c, D, d) {
-    p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'), h('span', { class: 'mhint' }, 'Лист формата A4, чёрно-белая печать. Заклинания и описания можно включить на других вкладках.')));
-    p.querySelector('.sheetbar').append(h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printSpells, onchange: e => { c.printSpells = e.target.checked; upd(); } }), ' описания заклинаний'), field('Описания умений', sel([['none', 'Нет'], ['short', 'Кратко'], ['full', 'Полностью']], c.featTxt, v => { c.featTxt = v; upd(); })));
-    const sh = h('div', { class: 'csheet' }); p.append(sh);
-    const t = (tag, cls, ...k) => h(tag, { class: cls }, ...k);
-    const box = (title, ...k) => h('div', { class: 'pbox' }, h('div', { class: 'ptt' }, title), ...k);
-    // страница 1
-    const p1 = t('section', 'pg p1');
-    p1.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, c.name || ' ', h('small', {}, 'Имя персонажа')),
-      h('div', { class: 'pmeta' }, [[D.cls ? D.cls.name_ru : '', 'Класс'], [D.sub ? D.sub.name : '', 'Подкласс'], [D.sp ? D.sp.name_ru : '', 'Вид'], [D.bg ? D.bg.name_ru : '', 'Предыстория'], [c.align, 'Мировоззрение']].map(([v, l]) => h('div', {}, h('b', {}, v || ' '), h('small', {}, l)))),
-      h('div', { class: 'plvl' }, h('b', {}, c.lvl), h('small', {}, 'Уровень')), h('div', { class: 'plvl' }, h('b', {}, ' '), h('small', {}, 'Опыт'))));
-    const left = t('div', 'pcol');
-    left.append(h('div', { class: 'pbox pinsp' }, h('i', { class: 'dot big' }), h('b', {}, c.ed === 24 ? 'Героическое вдохновение' : 'Вдохновение')));
-    R.AB.forEach(a => {
-      const blk = h('div', { class: 'pabx' }, h('div', { class: 'pah' }, h('span', { class: 'pan' }, a.ru), h('b', { class: 'pam' }, R.sgn(d.mod[a.k])), h('span', { class: 'pas' }, d.score[a.k])),
-        h('div', { class: 'prow sv' }, h('i', { class: d.saveProf.has(a.k) ? 'dot on' : 'dot' }), h('b', {}, R.sgn(d.saves[a.k])), ' Спасбросок'));
-      d.skills.filter(x => x.ab === a.k).forEach(x => blk.append(h('div', { class: 'prow' }, h('i', { class: x.lev ? 'dot on' + (x.lev === 2 ? ' ex' : '') : 'dot' }), h('b', {}, R.sgn(x.bonus)), ' ' + x.n)));
-      left.append(blk);
-    });
-    left.append(h('div', { class: 'pnote' }, '● — владение, ◎ — экспертиза'));
-    const pas = id => 10 + d.skills.find(x => x.id === id).bonus, lcA = R.lc(d.ci ? d.ci.armor : '');
-    const tile = (l, v) => h('div', {}, h('b', {}, v), h('small', {}, l));
-    const dots = n => h('span', { class: 'dots' }, Array.from({ length: n }, () => h('i', { class: 'dot' })));
-    const tools = [d.ci && d.ci.tools, D.bg && D.bg.tools, c.story.tools].filter(x => x && !/^нет$/i.test(String(x).trim())).join('; ');
-    const feat = featureList(c, D, d);
-    const mainA = t('div', 'pcol'), mainB = t('div', 'pcol');
-    mainA.append(box('Атаки и заклинания', ...attacksRows(c, D, d)),
-      box('Владения', h('div', { class: 'parm' }, ['Лёгкие', 'Средние', 'Тяжёлые', 'Щиты'].map((x, i) => h('span', {}, h('i', { class: (i < 3 ? lcA.includes(['легк', 'средн', 'тяжел'][i]) : lcA.includes('щит')) ? 'dot on' : 'dot' }), ' ' + x))),
-        h('div', { class: 'ptxt' }, [d.ci && d.ci.weapons && 'Оружие: ' + d.ci.weapons, tools && 'Инструменты: ' + tools, langStr(c) && 'Языки: ' + langStr(c)].filter(Boolean).join('\n'))));
-    mainB.append(...[box('Умения и особенности', h('div', { class: 'ptxt feats' }, feat.filter(f => f.src !== 'Черты').map(f => h('div', {}, h('b', {}, f.name), h('small', {}, ' ' + f.src.replace(/^[^:]+: /, '') + (f.level ? ', ' + f.level + ' ур.' : '')))))),
-      box('Черты', h('div', { class: 'ptxt feats' }, feat.filter(f => f.src === 'Черты' || /^Предыстория/.test(f.src)).map(f => h('div', {}, h('b', {}, f.name))))),
-      c.ed === 14 ? box('Личность', h('div', { class: 'ptxt' }, [c.story.traits && 'Черты: ' + c.story.traits, c.story.ideals && 'Идеалы: ' + c.story.ideals, c.story.bonds && 'Привязанности: ' + c.story.bonds, c.story.flaws && 'Слабости: ' + c.story.flaws].filter(Boolean).join('\n') || ' ')) : null].filter(Boolean));
-    const right = t('div', 'pcol',
-      h('div', { class: 'pstats' }, [tile('Класс доспеха', d.ac), tile('Инициатива', R.sgn(d.init)), tile('Скорость', d.speed + ' фт.'), tile('Бонус мастерства', R.sgn(d.pb)), tile('Пассивное Восприятие', pas('perception')), tile('Пассивная Проницательность', pas('insight'))]),
-      h('div', { class: 'pcols two' }, box('Хиты', h('div', { class: 'phps' }, h('div', {}, h('b', {}, d.hp), h('small', {}, 'Максимум')), h('div', {}, h('b', {}, ' '), h('small', {}, 'Текущие')), h('div', {}, h('b', {}, ' '), h('small', {}, 'Временные')))),
-        box('Кость хитов и смерть', h('div', { class: 'phd' }, h('b', {}, c.lvl + 'к' + d.die), h('small', {}, ' всего; потрачено: ____')), h('div', { class: 'pdeath' }, h('span', {}, 'Успехи ', dots(3)), h('span', {}, 'Провалы ', dots(3))))),
-      h('div', { class: 'pcols two' }, mainA, mainB));
-    p1.append(t('div', 'pcols', left, right)); sh.append(p1);
-    // страница: умения и особенности (текст)
-    if (c.featTxt !== 'none') {
-      const p1b = t('section', 'pg'); p1b.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Умения и особенности', h('small', {}, c.name || ''))));
-      const cols = t('div', 'pfeat');
-      feat.forEach(f => {
-        const body = h('div', { class: 'ft' }); body.innerHTML = (f.blocks ? DB().B(f.blocks) : esc(f.text || '')).replace(/<\/(p|li|div|h\d)>/g, '$& ');
-        if (c.featTxt !== 'full') { const tx = body.textContent.replace(/\s+/g, ' ').trim(); body.textContent = tx.length > 260 ? tx.slice(0, 260).replace(/\s\S*$/, '') + '…' : tx; }
-        cols.append(h('div', { class: 'pfi' }, h('b', {}, f.name), h('small', {}, ' ' + f.src + (f.level ? ', ' + f.level + ' ур.' : '')), body));
-      });
-      p1b.append(cols); sh.append(p1b);
-    }
-    // страница 2: заклинания
-    if (d.sp.has) {
-      const p2 = t('section', 'pg');
-      p2.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Заклинания', h('small', {}, c.name || ''))),
-        h('div', { class: 'pstats' }, [['Характеристика', R.ABN(d.sp.ab).ru], ['Сл спасброска', d.sp.dc], ['Бонус атаки', R.sgn(d.sp.atk)], ['Заговоры', d.sp.cantrips != null ? d.sp.cantrips : ' '], ['Подготовлено', d.sp.prepared != null ? d.sp.prepared : (d.sp.known != null ? d.sp.known : ' ')]].map(([l, v]) => h('div', {}, h('b', {}, v), h('small', {}, l)))));
-      const slotRow = h('div', { class: 'pslots' });
-      d.sp.slots.forEach((n, i) => { if (n) slotRow.append(h('div', {}, h('small', {}, (i + 1) + ' ур.'), h('span', {}, Array.from({ length: n }, () => h('i', { class: 'dot' })))) ); });
-      if (d.sp.pact) slotRow.append(h('div', {}, h('small', {}, 'Договор ' + d.sp.pact.lvl + ' ур.'), h('span', {}, Array.from({ length: d.sp.pact.n }, () => h('i', { class: 'dot' })))));
-      p2.append(box('Ячейки заклинаний (отмечайте потраченные)', slotRow));
-      const byL = {}; c.spells.forEach(s => (byL[s.lvl] = byL[s.lvl] || []).push(s));
-      const cols = t('div', 'pspl');
-      Object.keys(byL).sort((a, b) => a - b).forEach(l => cols.append(box(l == 0 ? 'Заговоры' : l + ' уровень', ...byL[l].sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(s => { const m = D.spells.find(x => x.slug === s.slug); return h('div', { class: 'prow' }, h('i', { class: s.prep || l == 0 ? 'dot on' : 'dot' }), s.name, m ? h('small', {}, ' ' + [m.concentration ? 'К' : '', m.ritual ? 'Р' : '', m.range].filter(Boolean).join(' · ')) : null); }))));
-      if (!c.spells.length) cols.append(box('Заклинания', h('div', { class: 'ptxt' }, ' ')));
-      p2.append(cols, h('p', { class: 'pnote' }, '● — заговор или подготовленное заклинание. К — концентрация, Р — ритуал.'));
-      sh.append(p2);
-      if (c.printSpells && c.spells.length) {
-        const p3 = t('section', 'pg ptext'); p3.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Описания заклинаний', h('small', {}, c.name || ''))));
-        c.spells.slice().sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name, 'ru')).forEach(s => { const m = D.spells.find(x => x.slug === s.slug); if (!m) return;
-          const hd = h('div', { class: 'pspell' }, h('b', {}, m.name_ru), h('small', {}, ' ' + (m.line || '') + ' · ' + [m.cast_time, m.range, m.components, m.duration].filter(Boolean).join(' · ')), html(DB().B(m.blocks || []) + (m.higher ? '<p>' + DB().esc(m.higher).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</p>' : '')));
-          p3.append(hd); });
-        sh.append(p3);
-      }
-    }
-    // страница: снаряжение
-    const p4 = t('section', 'pg');
-    p4.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Снаряжение и описание', h('small', {}, c.name || ''))));
-    const inv = h('table', { class: 'ptbl' }, h('tr', {}, ['', 'Предмет', 'Кол.', 'Вес'].map(x => h('th', {}, x))));
-    c.inv.forEach(i => { const g = invG(D, i); inv.append(h('tr', {}, h('td', {}, i.eq ? '●' : ''), h('td', {}, i.n), h('td', {}, i.q), h('td', {}, g && g.weight_lb ? g.weight_lb * i.q : ''))); });
-    p4.append(t('div', 'pcols two', t('div', 'pcol', box('Монеты', h('div', { class: 'pcoins' }, COINS.map(([k, tt]) => h('div', {}, h('small', {}, tt), h('b', {}, c.coins[k] || ' '))))), box('Инвентарь', inv)),
-      t('div', 'pcol', box('Внешность и история', h('div', { class: 'ptxt' }, c.story.look || ' ')), box('Заметки', h('div', { class: 'ptxt tall' }, c.story.notes || ' ')))));
-    sh.append(p4);
-    // облики
-    if (d.ws && c.forms.length && c.printForms !== false) {
-      const beasts = await DB().load('bestiary', c.ed);
-      const p5 = t('section', 'pg pforms'); p5.append(h('div', { class: 'phead' }, h('div', { class: 'pname' }, 'Дикий облик', h('small', {}, c.name || ''))));
-      c.forms.forEach(slug => { const m = beasts.find(x => x.slug === slug); if (!m) return; const w = h('div', { class: 'pform' }); w.innerHTML = DB().SXS[c.ed].bestiary.card(m); p5.append(w); });
-      sh.append(p5);
-    }
-  }
-  function attacksRows(c, D, d) {
+  // строки таблицы «Оружие и боевые заклинания»: надетое оружие + атака заклинанием
+  function attackList(c, D, d) {
     const rows = [];
     c.inv.filter(i => i.eq).forEach(i => {
       const g = invG(D, i), wi = g && i.sec !== 'items' && weaponInfo(g); if (!wi) return;
-      const a = attackOf(i, g, wi, d), dm = a.dm;
-      rows.push(h('div', { class: 'prow atk' }, h('b', {}, g.name_ru), h('span', {}, R.sgn(a.atk)), h('span', {}, wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type)));
+      const a = attackOf(i, g, wi, d), dm = a.dm, pr = R.weaponProps(g).map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(', ');
+      rows.push({ n: g.name_ru, bonus: R.sgn(a.atk), dmg: wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type, note: pr });
     });
-    if (d.sp.has) rows.push(h('div', { class: 'prow atk' }, h('b', {}, 'Заклинание'), h('span', {}, R.sgn(d.sp.atk)), h('span', {}, 'Сл ' + d.sp.dc)));
-    while (rows.length < 4) rows.push(h('div', { class: 'prow atk' }, ' '));
+    if (d.sp.has) rows.push({ n: 'Заклинания', bonus: R.sgn(d.sp.atk), dmg: 'Сл ' + d.sp.dc, note: R.ABN(d.sp.ab).ru });
     return rows;
+  }
+  async function tabSheet(p, c, D, d) {
+    const CSP = root.CSP;
+    p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'),
+      h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printSpells, onchange: e => { c.printSpells = e.target.checked; upd(); } }), ' карточки заклинаний'),
+      field('Описания умений', sel([['none', 'Нет'], ['short', 'Кратко'], ['full', 'Полностью']], c.featTxt, v => { c.featTxt = v; upd(); })),
+      h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. В окне печати включите «Фоновая графика» — тогда сохранятся серые панели и клетка (в Chrome это включается само).')));
+    const sh = h('div', { class: 'csheet' }); p.append(sh);
+    CSP.build(sh, { c, D, d, X: { featureList, attackList, invG, langStr } });
+    // облики зверей
+    if (d.ws && c.forms.length && c.printForms !== false) {
+      const beasts = await DB().load('bestiary', c.ed);
+      const p5 = CSP.shell('Дикий облик', c, 'flow pforms ' + (c.ed === 24 ? 'e24' : 'e14'));
+      c.forms.forEach(slug => { const m = beasts.find(x => x.slug === slug); if (!m) return; const w = h('div', { class: 'pform' }); w.innerHTML = DB().SXS[c.ed].bestiary.card(m); p5.append(w); });
+      sh.append(p5);
+    }
+    CSP.fit(sh);
   }
 
   root.CS = { show, render, load, cur };
