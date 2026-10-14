@@ -91,8 +91,8 @@
     const clsText = D.cls ? D.cls.name_ru + (D.sub ? ' (' + D.sub.name + ')' : '') : '';
     const hd = el('div', 'hd', el('div', 'hname', el('b', '', sp(c.name)), el('small', '', 'Имя персонажа')),
       box('hinfo', null, el('div', 'g4',
-        fld(clsText, 'Класс', 'c1'), fld(D.bg && D.bg.name_ru, 'Предыстория', 'c1'), fld(c.player, 'Имя игрока', 'c2'),
-        fld(D.sp && D.sp.name_ru, 'Раса', 'c1'), fld(c.align, 'Мировоззрение', 'c1'), fld('', 'Опыт', 'c1'), fld(c.lvl, 'Уровень', 'c1 lvl'))));
+        fld(clsText + (clsText ? ' ' : '') + c.lvl, 'Класс и уровень'), fld(D.bg && D.bg.name_ru, 'Предыстория'), fld('', 'Опыт'),
+        fld(D.sp && D.sp.name_ru, 'Раса'), fld(c.align, 'Мировоззрение'), el('div', 'fld'))));
     const strip = el('div', 'abstrip', R.AB.map(a => el('div', 'ab14', el('div', 'an' + (a.ru.length > 9 ? ' long' : ''), a.ru), el('div', 'amod', sgn(d.mod[a.k])), el('div', 'asc', d.score[a.k]))));
     const savesBox = box('sv14', 'Спасброски', ...R.AB.map(a => el('div', 'sk' + (d.saveProf.has(a.k) ? ' prf' : ''), dot(d.saveProf.has(a.k) ? 1 : 0), el('b', 'bn', sgn(d.saves[a.k])), el('span', 'snm big', a.ru))));
     const sk = d.skills.slice().sort((x, y) => x.n.localeCompare(y.n, 'ru'));

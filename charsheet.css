@@ -223,6 +223,10 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
 .slot{text-align:center;background:var(--cs-surface2);border:1px solid var(--cs-line);border-radius:12px;padding:6px 14px;min-width:64px}
 .slot small{display:block;font:700 10.5px 'PT Sans',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cs-muted)}
 .slot b{font:700 22px 'PT Serif',serif;color:var(--cs-accent-ink)}
+.slots.edit .slot{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;min-width:68px;cursor:text}
+#cs .slots.edit .slot input{width:54px;height:36px;text-align:center;font:700 18px 'PT Serif',serif;padding:0 4px;color:var(--cs-accent-ink)}
+.slots.edit .slot.ov{border-color:var(--cs-accent);background:var(--cs-accent-soft)}
+.slots.edit .slot small:last-child{text-transform:none;letter-spacing:0;font-weight:400}
 .spcnt{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .spcnt span{background:linear-gradient(90deg,var(--cs-accent-soft) var(--p,0%),var(--cs-surface2) var(--p,0%));border:1px solid var(--cs-line);padding:5px 13px;border-radius:999px;font-size:13.5px}
 .spcnt .ok{background:var(--cs-ok-soft);border-color:transparent;color:var(--cs-ok);font-weight:700}
