@@ -98,6 +98,7 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
 .cstat{background:var(--cs-surface2);border:1px solid var(--cs-line);border-radius:12px;padding:8px 6px 7px;text-align:center;min-width:0}
 .cstat small{display:block;font:700 10.5px/1.2 'PT Sans',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cs-muted);min-height:25px;display:flex;align-items:center;justify-content:center}
 .cstat b{display:block;font:700 26px/1.15 'PT Serif',serif;white-space:nowrap}
+.cstat.sm b{font-size:19px;line-height:1.5}
 .cstat.key{background:var(--cs-accent-soft);border-color:transparent}
 .cstat.key b{color:var(--cs-accent-ink)}
 
