@@ -142,7 +142,7 @@
   function spells24(X, c, D, d) {
     const list = spellSorted(c, D), pages = [], NEXT = 44;
     // панель ячеек растёт вместе с числом ромбиков (3 в ряд); список на первой странице короче на столько же строк
-    const maxN = Math.max(0, ...d.sp.rows.map(r => r.n)), topH = Math.max(34, 21 + Math.ceil(maxN / 3) * 3.7), FIRST = 34 - Math.ceil((topH - 34) / 5.1);
+    const maxN = Math.max(0, ...d.sp.rows.map(r => r.n)), topH = Math.max(34, 25 + Math.ceil(maxN / 3) * 4), FIRST = 34 - Math.ceil((topH - 34) / 5.1);
     const chunks = []; let i = 0;
     chunks.push(list.slice(0, FIRST)); i = FIRST;
     while (i < list.length) { chunks.push(list.slice(i, i + NEXT)); i += NEXT; }
