@@ -65,7 +65,7 @@
       box('exh', 'Истощение', el('div', 'sq6', Array.from({ length: 6 }, () => h('i', { class: 'sqr' })))),
       box('hi', 'Героическое вдохновение', el('div', 'hic', h('i', { class: 'dt huge' }))));
     const colB = el('div', 'acol', ab(A('int')), ab(A('wis')), ab(A('cha')));
-    const pt = profText(c, D, d, X.langStr);
+    const pt = profText(c, D, d, X.langStr).filter(([l]) => l !== 'Оружие' || pf.other);   // «Простое/Воинское» уже отмечено ромбиками выше
     const profs = box('prof', 'Владение снаряжением и умения',
       el('div', 'pry', el('span', 'pl', 'Доспехи'), ['Лёгкие', 'Средние', 'Тяжёлые', 'Щиты'].map((x, i) => el('span', 'pi', dia(pf.armor[i]), x))),
       el('div', 'pry', el('span', 'pl', 'Оружие'), el('span', 'pi', dia(pf.simple), 'Простое'), el('span', 'pi', dia(pf.martial), 'Воинское'), el('span', 'pi', dia(pf.other), 'Другое')),
@@ -140,7 +140,9 @@
   const slotDia = n => Array.from({ length: n }, () => dia(false));
 
   function spells24(X, c, D, d) {
-    const list = spellSorted(c, D), pages = [], FIRST = 34, NEXT = 44;
+    const list = spellSorted(c, D), pages = [], NEXT = 44;
+    // панель ячеек растёт вместе с числом ромбиков (3 в ряд); список на первой странице короче на столько же строк
+    const maxN = Math.max(0, ...d.sp.rows.map(r => r.n)), topH = Math.max(34, 21 + Math.ceil(maxN / 3) * 3.7), FIRST = 34 - Math.ceil((topH - 34) / 5.1);
     const chunks = []; let i = 0;
     chunks.push(list.slice(0, FIRST)); i = FIRST;
     while (i < list.length) { chunks.push(list.slice(i, i + NEXT)); i += NEXT; }
@@ -148,7 +150,7 @@
       const P = shell('Заклинания', c, 'e24 spg' + (pi ? ' cont' : ''));
       if (!pi) {
         const sl = d.sp.rows.map((r, k) => el('div', 'slc' + (r.n ? '' : ' off'), el('small', '', (k + 1) + '-й'), el('b', '', r.n || '—'), r.n ? el('div', 'sld', slotDia(r.n)) : null, el('i', 'slt', r.tag)));
-        P.append(el('div', 'sptop',
+        P.append(h('div', { class: 'sptop', style: 'height:' + topH.toFixed(1) + 'mm' },
           box('spst', null, el('div', 'ss', el('b', '', casterName(d)), el('small', '', 'Заклинательная характеристика')), el('div', 'ss', el('b', '', sgn(R.mod(d.score[d.sp.ab]))), el('small', '', 'Заклинательный модификатор')),
             el('div', 'ss', el('b', '', d.sp.dc), el('small', '', 'Сложность спасброска')), el('div', 'ss', el('b', '', sgn(d.sp.atk)), el('small', '', 'Бонус атаки заклинанием'))),
           box('spsl', 'Ячейки заклинаний', el('div', 'slg', sl), el('div', 'spn', 'Отмечайте потраченные ячейки'
@@ -244,7 +246,7 @@
       el('div', 'cap', el('span', '', 'Вес: ', el('b', '', Math.round(w * 10) / 10 + ' фнт.')), el('span', '', 'Грузоподъёмность: ', el('b', '', cap + ' фнт.'))));
     const side = el('div', 'dcol', box('att', 'Настройка на магические предметы', el('div', 'attn', [0, 1, 2].map(i => dia(i < att)))),
       box('st grow', 'Сокровища', el('div', 'tx ln m')), box('st grow', 'Заметки о снаряжении', el('div', 'tx ln m')));
-    P.append(box('dcoin', 'Монеты', coinBox(c)), el('div', 'dgrid gearg', inv, side));
+    P.append(el('div', 'dgrid gearg', inv, side));
     return [P];
   }
 
