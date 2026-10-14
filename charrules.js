@@ -84,6 +84,15 @@
     }
     return [...new Set(l)].sort((a, b) => a - b);
   };
+  // ячейки по уровням 1–9: обычные, договора (колдун) и мистический арканум (колдун, 11/13/15/17 ур.)
+  const ARCANUM = [0, 0, 0, 0, 0, 11, 13, 15, 17];
+  function slotRows(sp, cls, lvl) {
+    const rows = (sp.slots || []).slice(0, 9).map(n => ({ n: n || 0, tag: '' }));
+    while (rows.length < 9) rows.push({ n: 0, tag: '' });
+    if (sp.pact && sp.pact.lvl >= 1 && sp.pact.lvl <= 9) { const r = rows[sp.pact.lvl - 1]; r.n += sp.pact.n; r.tag = 'договор'; }
+    if (cls && cls.slug === 'warlock') ARCANUM.forEach((need, i) => { if (need && lvl >= need) { rows[i].n += 1; rows[i].tag = rows[i].tag ? rows[i].tag + ' + арканум' : 'арканум'; } });
+    return rows;
+  }
   const maxSlotLevel = (lr) => {
     if (!lr) return 0;
     let m = 0; lr.slots.forEach((n, i) => { if (n > 0) m = i + 1; });
@@ -218,6 +227,19 @@
     return 30;
   }
 
+  // размер: у вида 2024 в свойствах («Средний … или Маленький … ; выберите»), у расы 2014 — список sizes
+  const SIZES = ['Крошечный', 'Маленький', 'Средний', 'Большой', 'Огромный', 'Громадный'];
+  const SIZE_MULT = { 'Крошечный': 0.5, 'Маленький': 1, 'Средний': 1, 'Большой': 2, 'Огромный': 4, 'Громадный': 8 };
+  function speciesSizes(sp) {
+    if (!sp) return ['Средний'];
+    const p = sp.props && sp.props.find(x => /^размер/i.test(x.label));
+    let list = [];
+    if (p) { const txt = String(p.value); list = SIZES.map(n => ({ n, i: txt.indexOf(n) })).filter(x => x.i >= 0).sort((a, b) => a.i - b.i).map(x => x.n); }
+    else if (sp.sizes && sp.sizes.length) list = sp.sizes.filter(n => SIZES.includes(n));
+    return list.length ? list : ['Средний'];
+  }
+  const sizeOf = (sp, chosen) => { const o = speciesSizes(sp); return o.includes(chosen) ? chosen : o[0]; };
+
   /* ---------- навыки предыстории ---------- */
   // У части предысторий 2014 навыки даны на выбор («Выберите два из…», «История, плюс один из…»).
   // Возвращает {fixed — выдаются сразу, choose — сколько выбрать, from — из чего}.
@@ -313,7 +335,7 @@
       const ab = spAb || c.spellAbManual || 'int';
       sp.ab = ab; sp.dc = 8 + pb + m[ab]; sp.atk = pb + m[ab];
       sp.slots = (c.slotsManual && !lr) ? c.slotsManual : (lr ? lr.slots : new Array(9).fill(0));
-      sp.pact = lr && lr.pact; sp.maxLevel = maxSlotLevel(lr) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0));
+      sp.pact = lr && lr.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.maxLevel = Math.max(maxSlotLevel(lr) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
       sp.cantrips = lr ? lr.cantrips : null;
       // подготовлено: столбец таблицы (2024) или модификатор + уровень (2014, подготавливающие классы)
       let prep = lr ? lr.prepared : null, known = lr ? lr.known : null;
@@ -341,7 +363,7 @@
       });
     }
     const expN = expertiseSlots(D.cls, lvl, c.ed), expUsed = skills.filter(s => s.lev === 2).length;
-    return { expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
+    return { expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)), jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
   }
 
   /* ---------- дикий облик ---------- */
@@ -388,6 +410,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

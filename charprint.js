@@ -44,16 +44,6 @@
   const coinBox = (c, cls) => el('div', 'coins ' + (cls || ''), COIN_ORDER.map(([k, t]) => el('div', 'coin', el('small', '', t), el('b', '', sp(c.coins[k] || '')))));
   const lined = (v, cls) => el('div', 'tx ln ' + (cls || ''), v ? el('span', '', v) : null);
 
-  // выбранная предыстория: название, характеристики/навыки/инструменты/черта и начало описания (длину подгоняет trimLists)
-  const plain = t => String(t || '').replace(/\*+/g, '').replace(/\s+/g, ' ').trim();
-  function bgInfo(D) {
-    const b = D.bg; if (!b) return el('div', 'tx gr bgt', el('p', 'bgn', '—'));
-    const fact = (l, v) => v && v.length ? el('p', 'bgf', el('b', '', l + ': '), Array.isArray(v) ? v.join(', ') : v) : null;
-    const para = (b.blocks || []).find(x => x.type === 'paragraph' && x.text && !/^\*\*/.test(x.text));
-    return el('div', 'tx gr bgt', el('p', 'bgn', b.name_ru), fact('Характеристики', b.abilities), fact('Навыки', b.skills), fact('Инструменты', b.tools && !/^(нет|—)$/i.test(b.tools) ? b.tools : ''),
-      fact('Черта', b.feat && b.feat.name), para ? el('p', 'bgd', plain(para.text)) : null);
-  }
-
   /* ============ страница 1 · D&D 2024 ============ */
   function page24(X, c, D, d) {
     const P = el('section', 'pg e24 p1'), L = featLists(X, c, D, d), pf = profFlags(d);
@@ -87,9 +77,11 @@
     for (let i = 0; i < 6; i++) { const r = rows[i] || {}; wr.push(h('tr', {}, h('td', {}, sp(r.n)), h('td', { class: 'c' }, sp(r.bonus)), h('td', {}, sp(r.dmg)), h('td', {}, sp(r.note)))); }
     const wp = box('wp', 'Оружие и боевые заклинания', h('table', { class: 'wtab' },
       h('tr', {}, h('th', {}, 'Название'), h('th', { class: 'c' }, 'Бонус / Сл'), h('th', {}, 'Урон / вид'), h('th', {}, 'Заметки')), ...wr));
-    const fbox = box('fb', 'Умения и способности', el('div', 'fl gr', featItems(L.feats)));
-    const pair = el('div', 'pair', box('tb', 'Черты', el('div', 'fl one gr', featItems(L.traits))), box('nb', 'Предыстория', bgInfo(D)));
-    P.append(hd, rule, el('div', 'bd', el('div', 'left', el('div', 'abcols', colA, colB), profs), el('div', 'right', stats, wp, fbox, pair)));
+    const fbox = box('fb', 'Умения и способности', el('div', 'fl gr', featItems(L.all)));
+    const mini = (t, v) => box('mn', t, el('b', '', v));
+    const bot = el('div', 'bot', el('div', 'mini4', mini('Размер', d.size), mini('Грузоподъёмность', d.carry + ' / ' + d.carry * 2 + ' фунт.'), mini('Прыжок В.', d.jumpHigh + ' фут.'), mini('Прыжок Д.', d.jumpLong + ' фут.')),
+      box('mon', 'Монеты', coinBox(c)));
+    P.append(hd, rule, el('div', 'bd', el('div', 'left', el('div', 'abcols', colA, colB), profs), el('div', 'right', stats, wp, fbox, bot)));
     return P;
   }
 
@@ -148,19 +140,18 @@
   const slotDia = n => Array.from({ length: n }, () => dia(false));
 
   function spells24(X, c, D, d) {
-    const list = spellSorted(c, D), pages = [], FIRST = 36, NEXT = 44;
+    const list = spellSorted(c, D), pages = [], FIRST = 34, NEXT = 44;
     const chunks = []; let i = 0;
     chunks.push(list.slice(0, FIRST)); i = FIRST;
     while (i < list.length) { chunks.push(list.slice(i, i + NEXT)); i += NEXT; }
     chunks.forEach((chunk, pi) => {
       const P = shell('Заклинания', c, 'e24 spg' + (pi ? ' cont' : ''));
       if (!pi) {
-        const sl = d.sp.slots.map((n, k) => n ? el('div', 'slc', el('small', '', (k + 1) + '-й'), slotDia(n)) : null).filter(Boolean);
-        if (d.sp.pact) sl.push(el('div', 'slc', el('small', '', 'Договор ' + d.sp.pact.lvl + '-й'), slotDia(d.sp.pact.n)));
+        const sl = d.sp.rows.map((r, k) => el('div', 'slc' + (r.n ? '' : ' off'), el('small', '', (k + 1) + '-й'), el('b', '', r.n || '—'), r.n ? el('div', 'sld', slotDia(r.n)) : null, el('i', 'slt', r.tag)));
         P.append(el('div', 'sptop',
           box('spst', null, el('div', 'ss', el('b', '', casterName(d)), el('small', '', 'Заклинательная характеристика')), el('div', 'ss', el('b', '', sgn(R.mod(d.score[d.sp.ab]))), el('small', '', 'Заклинательный модификатор')),
             el('div', 'ss', el('b', '', d.sp.dc), el('small', '', 'Сложность спасброска')), el('div', 'ss', el('b', '', sgn(d.sp.atk)), el('small', '', 'Бонус атаки заклинанием'))),
-          box('spsl', 'Ячейки заклинаний', el('div', 'slg', sl.length ? sl : el('small', 'nosl', 'Нет ячеек')), el('div', 'spn', 'Отмечайте потраченные ячейки'
+          box('spsl', 'Ячейки заклинаний', el('div', 'slg', sl), el('div', 'spn', 'Отмечайте потраченные ячейки'
             + (d.sp.cantrips != null ? ' · Заговоров: ' + d.sp.cantrips : '') + (d.sp.prepared != null ? ' · Подготовлено: ' + d.sp.prepared : d.sp.known != null ? ' · Известно: ' + d.sp.known : '')))));
       }
       const cap = pi ? NEXT : FIRST, rows = [];
@@ -182,10 +173,10 @@
     Object.values(by).forEach(a => a.sort((x, y) => x.name.localeCompare(y.name, 'ru')));
     const min = [8, 12, 12, 12, 9, 9, 8, 8, 6, 6];
     const lvlBox = l => {
-      const items = by[l] || [], n = Math.max(min[l], items.length), slots = l ? d.sp.slots[l - 1] : 0;
+      const items = by[l] || [], n = Math.max(min[l], items.length), sr = l ? d.sp.rows[l - 1] : null, slots = sr ? sr.n : 0;
       const lines = []; for (let i = 0; i < n; i++) { const s = items[i], m = s && D.spells.find(x => x.slug === s.slug);
         lines.push(el('div', 'sl', dot(s && (s.prep || l === 0) ? 1 : 0), el('span', '', s ? s.name : ''), m && (m.concentration || m.ritual) ? el('small', '', [m.concentration ? 'К' : '', m.ritual ? 'Р' : ''].filter(Boolean).join(' ')) : null)); }
-      return el('div', 'lv14', el('div', 'lh', el('span', 'ln0', l), l ? el('span', 'lt', el('small', '', 'Всего ячеек'), el('b', '', slots || '—')) : el('b', 'lz', 'Заговоры'), l && slots ? el('span', 'ls', el('small', '', 'Потрачено'), circles(Math.min(slots, 4))) : null), ...lines);
+      return el('div', 'lv14', el('div', 'lh', el('span', 'ln0', l), l ? el('span', 'lt', el('small', '', 'Всего ячеек'), el('b', '', slots || '—'), sr.tag ? el('small', 'tg', sr.tag) : null) : el('b', 'lz', 'Заговоры'), l && slots ? el('span', 'ls', el('small', '', 'Потрачено'), circles(Math.min(slots, 4))) : null), ...lines);
     };
     const top = el('div', 'sphd', fld(D.cls ? D.cls.name_ru : '', 'Класс заклинателя', 'c1'), el('div', 'bx sbx', el('b', '', casterName(d)), el('small', '', 'Базовая характеристика заклинаний')),
       el('div', 'bx sbx', el('b', '', d.sp.dc), el('small', '', 'Сложность спасброска')), el('div', 'bx sbx', el('b', '', sgn(d.sp.atk)), el('small', '', 'Бонус атаки')));
@@ -233,8 +224,8 @@
   function descPage(X, c, D, d) {
     const ed = c.ed === 24 ? 'e24' : 'e14', P = shell('Описание персонажа', c, 'flow desc ' + ed);
     const story = (k, t, cls) => box('st ' + (cls || ''), t, lined(c.story[k], 'm'));
-    const portrait = box('port grow', 'Портрет', el('div', 'pimg', c.portrait ? h('img', { src: c.portrait, alt: '' }) : null));
-    const left = el('div', 'dcol', portrait, box('st', 'Союзники и организации', el('div', 'tx ln m')), box('st', 'Цели и задачи', el('div', 'tx ln m')));
+    const portrait = box('port', 'Портрет', el('div', 'pimg', c.portrait ? h('img', { src: c.portrait, alt: '' }) : null));
+    const left = el('div', 'dcol', portrait, box('st grow', 'Союзники и организации', el('div', 'tx ln m')), box('st grow', 'Цели и задачи', el('div', 'tx ln m')));
     const right = el('div', 'dcol', box('st look grow', 'Внешность и история', lined(c.story.look, 'm tall')),
       ed === 'e24' ? el('div', 'p4', story('traits', 'Черты характера'), story('ideals', 'Идеалы'), story('bonds', 'Привязанности'), story('flaws', 'Слабости')) : null,
       box('st grow', 'Заметки', lined(c.story.notes, 'm tall')));
@@ -277,12 +268,6 @@
   }
   // списки умений на первой странице не помещаются — обрезаем по высоте блока, остальное есть на страницах с текстами
   function trimLists(P) {
-    P.querySelectorAll('.bgt').forEach(box => {
-      const dsc = box.querySelector('.bgd'); if (!dsc) return;
-      if (!dsc.dataset.full) dsc.dataset.full = dsc.textContent;
-      let t = dsc.dataset.full; dsc.textContent = t;
-      for (let i = 0; i < 60 && box.scrollHeight > box.clientHeight + 1 && t.length > 24; i++) { t = t.slice(0, Math.floor(t.length * 0.9)).replace(/\s\S*$/, ''); dsc.textContent = t + '…'; }
-    });
     P.querySelectorAll('.fl, .tx.ln').forEach(box => {
       box.querySelectorAll('.fmore').forEach(n => n.remove());
       const items = [...box.querySelectorAll('.fi')];

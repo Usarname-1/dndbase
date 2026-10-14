@@ -121,12 +121,17 @@
 .e24 .pair .bx{min-height:0}.e24 .pair .fl,.e24 .pair .tx{flex:1}
 
 /* заклинания 2024 */
-.e24 .sptop{display:grid;grid-template-columns:64mm 1fr;gap:2.5mm;height:31mm;margin-bottom:2.5mm}
+.e24 .sptop{display:grid;grid-template-columns:64mm 1fr;gap:2.5mm;height:34mm;margin-bottom:2.5mm}
 .e24 .spst{padding:2mm 3mm;justify-content:space-between}
 .e24 .ss{display:flex;align-items:center;gap:2mm;border-bottom:.4pt solid #bbb;flex:1}.e24 .ss:last-child{border-bottom:0}
 .e24 .ss b{min-width:17mm;text-align:center;font:700 10pt var(--sans)}.e24 .ss small{font-size:5.4pt;color:#222;font-weight:700}
-.e24 .slg{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4mm 3mm;padding:2mm 3mm .5mm;align-content:start}
-.e24 .slc{display:flex;align-items:center;flex-wrap:wrap;gap:.2mm}.e24 .slc small{width:12mm;font:700 6.6pt var(--sans);color:#222;text-transform:none}
+.e24 .slg{display:grid;grid-template-columns:repeat(9,1fr);gap:1.2mm;padding:1.6mm 2.2mm 0;flex:1;min-height:0}
+.e24 .slc{display:flex;flex-direction:column;align-items:center;border:.6pt solid #888;border-radius:1.2mm;padding:.5mm 0 .4mm;min-width:0;gap:.2mm}
+.e24 .slc small{font:700 5.8pt/1.1 var(--sans);color:#222}
+.e24 .slc b{font:700 11pt/1.05 var(--sans)}
+.e24 .slc .sld{display:flex;flex-wrap:wrap;justify-content:center;gap:.1mm;width:100%;padding:0 .4mm}
+.e24 .slc .slt{font:italic 4.3pt/1.1 var(--sans);color:#444;text-align:center;min-height:1.8mm}
+.e24 .slc.off{opacity:.4}
 .e24 .spn{font-size:5.8pt;color:#555;padding:0 3mm 1.8mm;margin-top:auto}
 .e24 .spt{padding-bottom:1.5mm}
 .e24 .sptab{font-size:7.3pt;margin:0}
@@ -248,16 +253,17 @@
 .e24 .dsr .dt{width:2.6mm;height:2.6mm}.e24 .dsc .dsr{padding:0 2.4mm 0 1.6mm}
 .e24 .shield .si .dm{margin-top:1.4mm}
 
-/* предыстория вместо заметок (2024) */
-.e24 .bgt{background:#fff;font-size:6.8pt;line-height:1.28;padding:1.2mm 1.6mm;color:#111}
-.e24 .bgt p{margin:0 0 .7mm}
-.e24 .bgt .bgn{font:700 9pt/1.15 var(--serif);margin-bottom:1mm}
-.e24 .bgt .bgd{margin-top:1mm;color:#333}
+/* нижний блок 2024: размер, грузоподъёмность, прыжки и монеты */
+.e24 .bot{display:flex;flex-direction:column;gap:2.5mm;height:50mm;flex:none}
+.e24 .mini4{display:grid;grid-template-columns:.85fr 1.75fr 1fr 1fr;gap:2.5mm;height:18mm;flex:none}
+.e24 .mn .bh{font-size:5.6pt;padding:1.4mm .6mm .5mm;margin:0 1.4mm;white-space:nowrap}
+.e24 .mn>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 9.5pt var(--sans);text-align:center;padding:0 1mm .8mm}
+.e24 .mon{flex:1;min-height:0}
+.e24 .mon .coins{flex:1;align-items:center;padding:0 2mm .8mm}
 
 /* страницы «Описание» и «Снаряжение» */
-.csheet .port{min-height:128mm}
+.csheet .port{height:88mm;flex:none}
 .csheet .desc:not(.gear) .dgrid{min-height:250mm;align-items:stretch}
-.csheet .dcol>.port.grow{flex:1}
 .csheet .port .pimg{flex:1;position:relative;overflow:hidden;margin:1.7mm;min-height:0}
 .csheet .port .pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 .csheet .gear .dcoin{margin-bottom:2.8mm}
@@ -265,3 +271,8 @@
 .csheet .gearg .dinv{min-width:0}
 .csheet .dcol .st.grow{flex:1}.csheet .dcol .st.grow .tx{flex:1}
 .csheet .e14 .port .pimg,.csheet .port .pimg{background:#fff}
+
+.e14 .lt .tg{font-size:4.2pt;max-width:12mm;line-height:1.05}
+.e24 .slg{align-content:start;grid-auto-rows:min-content}
+.e24 .slc .dm{margin:.7mm .75mm}
+.e24 .spsl .spn{margin-top:auto;padding-top:1mm}

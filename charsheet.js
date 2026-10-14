@@ -186,12 +186,12 @@
   const subLevel = cls => { const f = (cls.features || []).find(x => /подкласс/i.test(x.name) && x.level); return f ? f.level : 3; };
   const TAB_SHORT = { base: 'Основа', abil: 'Характеристики', skills: 'Умения', spells: 'Заклинания', gear: 'Снаряжение', forms: 'Облики', story: 'Описание', sheet: 'Лист' };
   function summary(c, D, d, t) {
-    const stat = (l, v, tip, key) => h('div', { class: 'cstat' + (key ? ' key' : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
+    const stat = (l, v, tip, key) => h('div', { class: 'cstat' + (key ? ' key' : '') + (String(v).length > 6 ? ' sm' : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
     const sub = [D.cls && D.cls.name_ru, D.sub && D.sub.name, c.lvl + ' ур.', D.sp && D.sp.name_ru].filter(Boolean);
     const box = h('div', { class: 'cssum' },
       h('div', { class: 'cssn' }, h('h2', {}, c.name || 'Без имени'), h('div', { class: 'cssub' }, sub.map(x => h('span', {}, x)))),
       h('div', { class: 'csstats' },
-        stat('Хиты', d.hp, 'Максимум хитов', true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init)), stat('Скорость', d.speed + ' фт.'),
+        stat('Хиты', d.hp, 'Максимум хитов', true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init)), stat('Скорость', d.speed + ' фт.'), D.sp ? stat('Размер', d.size, d.sizeOpts.length > 1 ? 'Можно сменить на вкладке «Основа»' : 'Определяется видом') : null,
         d.sp.has ? stat('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru) : null));
     let chk;
     if (!t.length) chk = h('div', { class: 'cstodo done' }, h('span', {}, '✓ Всё заполнено — лист готов к печати'), btn('Открыть лист', () => { tabId = 'sheet'; render(); }, 'dmbtn pri'));
@@ -240,7 +240,8 @@
     }
     // вид
     p.append(h('h3', { class: 'csh' }, 'Вид'), h('div', { class: 'csgrid' }, field('Вид', sel(D.species.map(x => [x.slug, x.name_ru]), c.sp, v => { c.sp = v; c.spOpt = ''; upd(); }, '— выберите вид —')),
-      field('Скорость (фт.)', numIn(c.speed === '' ? d.speed : c.speed, v => { c.speed = v; upd(); }))));
+      field('Скорость (фт.)', numIn(c.speed === '' ? d.speed : c.speed, v => { c.speed = v; upd(); })),
+      D.sp && d.sizeOpts.length > 1 ? field('Размер (на выбор)', sel(d.sizeOpts.map(x => [x, x]), d.size, v => { c.size = v; upd(); })) : null));
     if (D.sp) {
       const ch = R.speciesChoice(D.sp);
       if (ch) p.append(h('div', { class: 'csgrid' }, field(ch.label + ' (выбор вида)', sel(ch.options.map(o => [o, o]), c.spOpt, v => { c.spOpt = v; upd(); }, '— выберите —'))));
@@ -430,8 +431,8 @@
     p.append(h('div', { class: 'csfacts' }, fact('Характеристика', R.ABN(sp.ab).ru), fact('Сл спасброска', sp.dc), fact('Бонус атаки', R.sgn(sp.atk)),
       sp.cantrips != null ? fact('Заговоры', sp.cantrips) : null, sp.prepared != null ? fact('Подготовлено', sp.prepared) : null, sp.known != null ? fact('Известно заклинаний', sp.known) : null));
     if (sp.pact) p.append(h('p', { class: 'mhint' }, 'Магия договора: ' + sp.pact.n + ' ячейки(а) ' + sp.pact.lvl + '-го уровня (восстанавливаются после короткого отдыха).'));
-    const row = h('div', { class: 'slots' }, sp.slots.map((n, i) => n ? h('div', { class: 'slot' }, h('small', {}, (i + 1) + ' ур.'), h('b', {}, n)) : null));
-    if (sp.slots.some(x => x)) p.append(h('h4', { class: 'csh2' }, 'Ячейки заклинаний'), row);
+    const row = h('div', { class: 'slots' }, sp.rows.map((r, i) => r.n ? h('div', { class: 'slot' }, h('small', {}, (i + 1) + ' ур.'), h('b', {}, r.n), r.tag ? h('small', {}, r.tag) : null) : null));
+    if (sp.rows.some(r => r.n)) p.append(h('h4', { class: 'csh2' }, 'Ячейки заклинаний'), row);
     if (!D.cls) return;
     const isBook = D.cls.slug === 'wizard', lab = n => n === 0 ? 'Заговоры' : n + (c.ed === 14 ? ' круг' : ' уровень');
     const noLim = !!c.spellsFree, mine = c.spells, bySlug = new Set(mine.map(s => s.slug));
