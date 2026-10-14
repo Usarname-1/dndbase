@@ -221,7 +221,6 @@
     p.append(h('div', { class: 'csgrid' },
       field('Имя персонажа', textIn(c.name, v => { c.name = v; upd(); })),
       field('Мировоззрение', sel(ALIGNS.concat(c.align && !ALIGNS.includes(c.align) ? [c.align] : []), c.align, v => { c.align = v; upd(false); }, '— не выбрано —')),
-      field('Имя игрока', textIn(c.player, v => { c.player = v; upd(false); })),
       field('Правила', h('div', { class: 'csro' }, 'D&D ' + (ed === 24 ? '2024' : '2014') + ' (задаются при создании)'))));
     // класс
     const clsSel = sel(D.classes.map(x => [x.slug, x.name_ru]), c.cls, v => {
@@ -433,8 +432,11 @@
     p.append(h('div', { class: 'csfacts' }, fact('Характеристика', R.ABN(sp.ab).ru), fact('Сл спасброска', sp.dc), fact('Бонус атаки', R.sgn(sp.atk)),
       sp.cantrips != null ? fact('Заговоры', sp.cantrips) : null, sp.prepared != null ? fact('Подготовлено', sp.prepared) : null, sp.known != null ? fact('Известно заклинаний', sp.known) : null));
     if (sp.pact) p.append(h('p', { class: 'mhint' }, 'Магия договора: ' + sp.pact.n + ' ячейки(а) ' + sp.pact.lvl + '-го уровня (восстанавливаются после короткого отдыха).'));
-    const row = h('div', { class: 'slots' }, sp.rows.map((r, i) => r.n ? h('div', { class: 'slot' }, h('small', {}, (i + 1) + ' ур.'), h('b', {}, r.n), r.tag ? h('small', {}, r.tag) : null) : null));
-    if (sp.rows.some(r => r.n)) p.append(h('h4', { class: 'csh2' }, 'Ячейки заклинаний'), row);
+    const row = h('div', { class: 'slots edit' }, sp.rows.map((r, i) => h('label', { class: 'slot' + (r.ov ? ' ov' : ''), title: r.ov ? 'Число изменено вручную (по таблице класса: ' + r.base + ')' : 'Можно вписать своё число ячеек' },
+      h('small', {}, (i + 1) + ' ур.'), numIn(r.n, v => { const base = r.ov ? r.base : r.n; c.slotsOv = c.slotsOv || []; if (v === base) delete c.slotsOv[i]; else c.slotsOv[i] = Math.max(0, Math.min(20, v)); upd(); }, { min: 0, max: 20, class: 'num' }), r.tag ? h('small', {}, r.tag) : null)));
+    p.append(h('h4', { class: 'csh2' }, 'Ячейки заклинаний'), row,
+      h('p', { class: 'mhint' }, 'Число ячеек считается по таблице класса. Если оно отличается (предмет, черта, особое правило), впишите своё число в нужный уровень.',
+        (c.slotsOv || []).some(x => x != null) ? btn('Сбросить к таблице класса', () => { c.slotsOv = []; upd(); }, 'dmbtn') : null));
     if (!D.cls) return;
     const isBook = D.cls.slug === 'wizard', lab = n => n === 0 ? 'Заговоры' : n + (c.ed === 14 ? ' круг' : ' уровень');
     const noLim = !!c.spellsFree, mine = c.spells, bySlug = new Set(mine.map(s => s.slug));
@@ -538,7 +540,7 @@
     const catalog = (cat === '' ? [...D.gear, ...D.items] : cat === 'magic' ? D.items.filter(g => !UI.gearRar || rarOf(g) === UI.gearRar) : D.gear.filter(g => gearCatOf(g) === cat)).slice().sort((a, b) => (a.section === 'items') - (b.section === 'items') || a.name_ru.localeCompare(b.name_ru, 'ru'));
     const rarChips = cat === 'magic' ? h('div', { class: 'seg csmeth wrapseg' }, RAR.map(([k, t]) => btn(t, () => { UI.gearRar = k; upd(); }, (UI.gearRar || '') === k ? 'act' : ''))) : null;
     const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
-    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, rarChips, searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : g.name_ru), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
+    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : link(24, 'equipment', g)), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
       cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }

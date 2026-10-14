@@ -155,8 +155,7 @@
 .e14 .hname{width:66mm;flex:none;padding-bottom:3mm}.e14 .hname b{display:block;font:700 16pt/1.2 var(--serif);border-bottom:1pt solid #222;min-height:9mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .e14 .hname small{margin-top:.6mm;font-size:5.6pt}
 .e14 .hinfo{flex:1;height:100%;padding:3.2mm 4mm;justify-content:center}
-.e14 .g4{display:grid;grid-template-columns:1.2fr 1.2fr 1fr 1fr;gap:3.5mm 4mm}.e14 .fld.c2{grid-column:span 2}
-.e14 .fld.lvl b{font-weight:700;font-size:11pt}
+.e14 .g4{display:grid;grid-template-columns:1fr 1.35fr .6fr;gap:3.5mm 4mm}
 .e14 .bd{flex:1;min-height:0;display:flex;gap:3mm}
 .e14 .c1{width:68mm;flex:none;display:flex;flex-direction:column;gap:3mm}.e14 .c2{width:63mm;flex:none;display:flex;flex-direction:column;gap:3mm}.e14 .c3{flex:1;min-width:0;display:flex;flex-direction:column;gap:3mm}
 .e14 .c1top{display:flex;gap:2mm;flex:none}

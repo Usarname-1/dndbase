@@ -335,7 +335,7 @@
       const ab = spAb || c.spellAbManual || 'int';
       sp.ab = ab; sp.dc = 8 + pb + m[ab]; sp.atk = pb + m[ab];
       sp.slots = (c.slotsManual && !lr) ? c.slotsManual : (lr ? lr.slots : new Array(9).fill(0));
-      sp.pact = lr && lr.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.maxLevel = Math.max(maxSlotLevel(lr) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
+      sp.pact = lr && lr.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.rows.forEach((r, i) => { const o = c.slotsOv && c.slotsOv[i]; if (o != null && o !== '') { r.base = r.n; r.n = Math.max(0, Math.min(20, intOf(o))); r.ov = true; } }); sp.maxLevel = Math.max(maxSlotLevel(lr) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
       sp.cantrips = lr ? lr.cantrips : null;
       // подготовлено: столбец таблицы (2024) или модификатор + уровень (2014, подготавливающие классы)
       let prep = lr ? lr.prepared : null, known = lr ? lr.known : null;
