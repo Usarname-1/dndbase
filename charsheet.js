@@ -290,14 +290,14 @@
       let bcell;
       if (c.ed === 24) { const ex = (c.bonus || {})[a.k] || 0; bcell = h('span', { class: 'abbon' }, h('span', { class: 'abchip', title: why || 'Бонусы предыстории и черт' }, bonus - ex ? R.sgn(bonus - ex) : '—'), '+', numIn(ex, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Прочее: бонусы от черт и т. п.' })); }
       else bcell = h('span', { class: 'abbon' }, numIn((c.bonus || {})[a.k] || 0, v => { c.bonus = c.bonus || {}; c.bonus[a.k] = v; upd(); }, { class: 'num', title: 'Бонусы вида и прочее' }));
-      const sp = d.saveProf.has(a.k);
       grid.append(h('div', { class: 'abc' + (bgA.includes(a.k) && c.ed === 24 ? ' hl' : ''), title: bgA.includes(a.k) && c.ed === 24 ? 'Эту характеристику можно усилить бонусом предыстории' : '' },
         h('div', { class: 'abt' }, h('b', {}, a.ru), h('span', { class: 'abtot', title: 'Итоговое значение' }, d.score[a.k])),
         h('div', { class: 'abbody' }, h('div', { class: 'abmod', title: 'Модификатор' }, R.sgn(d.mod[a.k])),
           h('div', { class: 'abctl' }, h('div', { class: 'abrow' }, h('small', {}, 'База'), cellBase), h('div', { class: 'abrow' }, h('small', {}, 'Бонусы'), bcell))),
-        h('div', { class: 'absv' + (sp ? ' on' : '') }, (sp ? '● ' : '○ ') + 'Спасбросок ' + R.sgn(d.saves[a.k]))));
+        h('div', { class: 'abskl' }, skillRows(c, D, d, a))));
     });
-    p.append(grid, h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.cap20 === false, onchange: e => { c.cap20 = e.target.checked ? false : true; upd(); } }), ' максимум характеристики 30 вместо 20 (особые случаи: дары, предметы)'));
+    p.append(grid); skillsHints(p, c, D, d);
+    p.append(h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.cap20 === false, onchange: e => { c.cap20 = e.target.checked ? false : true; upd(); } }), ' максимум характеристики 30 вместо 20 (особые случаи: дары, предметы)'));
     // бонусы предыстории 2024
     if (c.ed === 24) {
       p.append(h('h3', { class: 'csh' }, 'Бонусы предыстории'));
@@ -331,7 +331,6 @@
         p.append(box);
       });
     }
-    skillsBlock(p, c, D, d);
   }
   const AB_RESET = c => { const arr = R.STD_ARRAY; R.AB.forEach((a, i) => { c.ab[a.k] = arr[i]; }); };
   const lvReq = f => { const m = String(f.prerequisite || f.line || '').match(/(\d+)[-\s]*(?:й|го|ого)?\s*уровн/i); return m ? +m[1] : 0; };
@@ -379,25 +378,28 @@
   }
 
   /* ---------- 3. Навыки и умения ---------- */
-  function skillsBlock(p, c, D, d) {
-    const ci = d.ci;
-    p.append(h('h3', { class: 'csh' }, 'Навыки'));
-    if (ci) p.append(h('p', { class: 'mhint' }, 'Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + '. Навыки предыстории подставляются сами.' + (d.extraN ? ' Черты и вид дают ещё ' + d.extraN + ' (' + d.grants.map(g => g.why + ' — ' + g.n).join('; ') + '): отмечайте их галочкой или кнопкой «+», инструменты из «Одарённого» впишите в «Другие владения».' : '') + ' Экспертность — звёздочка ☆ рядом с бонусом' + (d.expN ? ' (положено ' + d.expN + ', отмечено ' + d.expUsed + ')' : '') + '.'));
-    if (d.bgChoice) p.append(h('p', { class: 'mhint' }, 'Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+» в колонке «Откуда».'));
-    p.append(h('div', { class: 'cslegend' }, h('span', {}, '◆ — навык можно выбрать от класса (галочка)'), h('span', {}, '☆ / ★ — экспертность (удвоенный бонус)'), h('span', {}, '+ — владение из другого источника'), h('span', {}, '● — владение спасброском')));
-    const t = h('table', { class: 'cstbl sk' }, h('tr', {}, [['Класс', 'Выбрать навык от класса'], ['Навык', ''], ['Бонус', 'Итоговый бонус; звёздочка — экспертность'], ['Откуда', 'Источник владения; «+» — добавить владение вручную']].map(([x, tip]) => h('th', { title: tip }, x))));
-    R.AB.forEach(a => {
-      t.append(h('tr', { class: 'abh' }, h('td', { colspan: 4 }, h('b', {}, a.ru), h('small', {}, '  модификатор ' + R.sgn(d.mod[a.k])))));
-      t.append(h('tr', { class: 'sv' + (d.saveProf.has(a.k) ? ' prof' : '') }, h('td', {}, d.saveProf.has(a.k) ? '●' : '○'), h('td', {}, 'Спасбросок'), h('td', {}, h('b', {}, R.sgn(d.saves[a.k]))), h('td', {}, d.saveProf.has(a.k) ? 'класс' : '')));
-      d.skills.filter(s => s.ab === a.k).forEach(s => {
-        const can = ci && ci.pickFrom.includes(s.id), on = (c.skills || []).includes(s.id), bg = d.bgSk.includes(s.id);
-        const cb = h('input', { type: 'checkbox', checked: on, disabled: !can || bg && !on, onchange: e => { c.skills = c.skills.filter(x => x !== s.id); if (e.target.checked) c.skills.push(s.id); upd(); } });
-        const extra = btn(c.skillsExtra.includes(s.id) ? '✓' : '+', () => { c.skillsExtra = c.skillsExtra.includes(s.id) ? c.skillsExtra.filter(x => x !== s.id) : [...c.skillsExtra, s.id]; upd(); }, 'cb2', 'Владение из другого источника (вид, черта)');
-        const ex = btn(s.lev === 2 ? '★' : '☆', () => { c.exp = c.exp.includes(s.id) ? c.exp.filter(x => x !== s.id) : [...c.exp, s.id]; upd(); }, 'cb2', 'Экспертиза: удвоенный бонус мастерства');
-        t.append(h('tr', { class: s.lev ? 'prof' : '' }, h('td', {}, can ? h('span', {}, cb, ' ◆') : ''), h('td', {}, s.n), h('td', {}, h('b', {}, R.sgn(s.bonus)), ' ', ex), h('td', {}, s.from.join(', ') || '', ' ', extra)));
-      });
+  // спасбросок и навыки одной характеристики — внутри её карточки
+  function skillRows(c, D, d, a) {
+    const ci = d.ci, rows = [];
+    const sv = d.saveProf.has(a.k);
+    rows.push(h('div', { class: 'skr sv' + (sv ? ' prof' : '') }, h('i', { class: 'skd' + (sv ? ' on' : '') }), h('span', { class: 'skn' }, 'Спасбросок', sv ? h('small', {}, 'класс') : null), h('b', { class: 'skb' }, R.sgn(d.saves[a.k])), h('span', {}), h('span', {})));
+    d.skills.filter(s => s.ab === a.k).forEach(s => {
+      const can = ci && ci.pickFrom.includes(s.id), on = (c.skills || []).includes(s.id), bg = d.bgSk.includes(s.id);
+      const left = can
+        ? h('input', { type: 'checkbox', class: 'skc', title: 'Навык можно выбрать от класса', checked: on, disabled: bg && !on, onchange: e => { c.skills = c.skills.filter(x => x !== s.id); if (e.target.checked) c.skills.push(s.id); upd(); } })
+        : h('i', { class: 'skd' + (s.lev ? ' on' : '') + (s.lev === 2 ? ' ex' : '') });
+      const extra = btn(c.skillsExtra.includes(s.id) ? '✓' : '+', () => { c.skillsExtra = c.skillsExtra.includes(s.id) ? c.skillsExtra.filter(x => x !== s.id) : [...c.skillsExtra, s.id]; upd(); }, 'cb2 sm', 'Владение из другого источника (вид, черта, предыстория)');
+      const ex = btn(s.lev === 2 ? '★' : '☆', () => { c.exp = c.exp.includes(s.id) ? c.exp.filter(x => x !== s.id) : [...c.exp, s.id]; upd(); }, 'cb2 sm', 'Экспертность: удвоенный бонус мастерства');
+      rows.push(h('div', { class: 'skr' + (s.lev ? ' prof' : '') }, left, h('span', { class: 'skn' }, s.n, can ? h('em', { title: 'Можно выбрать от класса' }, ' ◆') : null, s.from.length ? h('small', {}, s.from.join(', ')) : null), h('b', { class: 'skb' }, R.sgn(s.bonus)), ex, extra));
     });
-    p.append(t);
+    return rows;
+  }
+  function skillsHints(p, c, D, d) {
+    const ci = d.ci, tx = [];
+    if (ci) tx.push('Класс «' + D.cls.name_ru + '»: выберите ' + ci.pickN + (ci.pickAny ? ' любых навыка' : ' из отмеченных ◆') + ' галочкой. Навыки предыстории подставляются сами.' + (d.extraN ? ' Черты и вид дают ещё ' + d.extraN + ' (' + d.grants.map(g => g.why + ' — ' + g.n).join('; ') + '): отмечайте их кнопкой «+», инструменты из «Одарённого» впишите в «Другие владения».' : '') + (d.expN ? ' Экспертность — звёздочка ☆ (положено ' + d.expN + ', отмечено ' + d.expUsed + ').' : ''));
+    if (d.bgChoice) tx.push('Предыстория «' + D.bg.name_ru + '»: навыки на выбор — выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (выбрано ' + d.bgChoice.got + '). Отметьте их кнопкой «+».');
+    p.append(h('div', { class: 'cslegend' }, h('span', {}, '◆ — навык можно выбрать от класса'), h('span', {}, '☆ / ★ — экспертность (удвоенный бонус)'), h('span', {}, '+ — владение из другого источника'), h('span', {}, '● — есть владение')));
+    tx.forEach(t => p.append(h('p', { class: 'mhint' }, t)));
   }
   async function tabSkills(p, c, D, d) {
     // умения

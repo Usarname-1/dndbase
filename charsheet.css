@@ -189,8 +189,18 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
 .abrow .abbon{display:inline-flex;align-items:center;gap:6px;color:var(--cs-muted)}
 .abrow .abbon input{width:54px!important;padding:0 4px!important;height:34px!important}
 .abchip{background:var(--cs-surface2);border:1px solid var(--cs-line);border-radius:7px;padding:3px 8px;font-weight:700;color:var(--cs-text)}
-.absv{font-size:13px;color:var(--cs-muted);border-top:1px dashed var(--cs-line2);padding-top:8px;text-align:center}
-.absv.on{color:var(--cs-ok);font-weight:700}
+.abskl{border-top:1px dashed var(--cs-line2);padding-top:6px;display:flex;flex-direction:column}
+.skr{display:grid;grid-template-columns:20px minmax(0,1fr) 34px 28px 28px;align-items:center;gap:4px;padding:3px 0;border-bottom:1px solid var(--cs-line);font-size:13.5px}
+.skr:last-child{border-bottom:0}
+.skr.sv{color:var(--cs-muted)}
+.skr.prof .skn{font-weight:700}
+.skn{min-width:0;line-height:1.2}.skn em{font-style:normal;color:var(--cs-muted);font-size:11px}
+.skn small{display:block;font-size:11px;color:var(--cs-muted);font-weight:400}
+.skb{text-align:right;font:700 14px 'PT Sans',sans-serif}.skr.prof .skb,.skr.sv.prof .skb{color:var(--cs-accent-ink)}
+.skd{display:block;width:11px;height:11px;border-radius:50%;border:1.5px solid var(--cs-muted);margin:0 auto}
+.skd.on{background:var(--cs-ok);border-color:var(--cs-ok)}.skd.ex{box-shadow:0 0 0 2px var(--cs-surface),0 0 0 3.5px var(--cs-ok)}
+.skc{margin:0 auto}
+#cs .cb2.sm{width:28px;height:26px;font-size:14px;padding:0}
 .csasi{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;margin:8px 0;background:var(--cs-surface2);border:1px solid var(--cs-line);border-radius:12px}
 .csasi>b{min-width:120px}
 .csasi .csfeat{font-weight:700}
@@ -274,8 +284,8 @@ body.cs #cs{display:block;background:var(--cs-bg);min-height:100%}
  .cshead{padding:14px;border-radius:14px}
  .cssn h2{font-size:23px}
  .csstats{grid-template-columns:repeat(3,1fr)}
- .csabs{grid-template-columns:repeat(2,1fr)}
- .abbody{grid-template-columns:1fr}.abmod{font-size:34px}
+ .csabs{grid-template-columns:1fr}
+ .abbody{grid-template-columns:76px 1fr}.abmod{font-size:34px}
  .csgrid.two{grid-template-columns:1fr}
  .coins{grid-template-columns:repeat(3,1fr)}
  .cstbl{display:block;overflow-x:auto}
