@@ -20,7 +20,7 @@
   const AB_SHORT = { str: 'Сил', dex: 'Лов', con: 'Тел', int: 'Инт', wis: 'Муд', cha: 'Хар' };
   const COIN_ORDER = [['mm', 'ММ'], ['sm', 'СМ'], ['em', 'ЭМ'], ['zm', 'ЗМ'], ['pm', 'ПМ']];
   const fld = (v, label, cls) => el('div', 'fld ' + (cls || ''), el('b', '', sp(v)), el('small', '', label));
-  const box = (cls, title, ...k) => el('div', 'bx ' + cls, title ? el('div', 'bh', title) : null, ...k);
+  const box = (cls, title, ...k) => el('div', 'bx ' + cls + (title ? '' : ' nh'), title ? el('div', 'bh', title) : null, ...k);
   const skRow = (lev, bonus, name, cls, extra) => el('div', 'sk' + (lev ? ' prf' : '') + (cls ? ' ' + cls : ''), dot(lev), el('b', 'bn', sgn(bonus)), el('span', 'snm', name, extra || null));
   const srcShort = f => f.src.replace(/^[^:]+: /, '') + (f.level ? ', ' + f.level + ' ур.' : '');
   const isFeat = f => f.src === 'Черты' || /^Предыстория/.test(f.src);
@@ -136,6 +136,9 @@
 
   /* ============ страницы заклинаний ============ */
   const spellSorted = (c, D) => c.spells.slice().sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name, 'ru')).map(s => ({ s, m: D.spells.find(x => x.slug === s.slug) }));
+  // в таблице — коротко: «Реакция, совершаемая вами, когда…» → «Реакция», «В, С, М (рубин…)» → «В, С, М»; полный текст — на карточке заклинания
+  const shortCast = t => { t = String(t || ''); if (t.length <= 26) return t; const k = t.split(/[,;]| когда | в ответ | совершаемая | совершаемое /)[0].trim(); return k.length <= 26 ? k : k.slice(0, 25).replace(/\s+\S*$/, '') + '…'; };
+  const shortComp = t => String(t || '').replace(/\s*\(.*$/, '');
   const casterName = d => R.ABN(d.sp.ab).ru;
   const slotDia = n => Array.from({ length: n }, () => dia(false));
 
@@ -158,7 +161,7 @@
       }
       const cap = pi ? NEXT : FIRST, rows = [];
       chunk.forEach(({ s, m }) => rows.push(h('tr', {}, h('td', { class: 'c' }, dia(s.prep || s.lvl === 0)), h('td', { class: 'c' }, s.lvl), h('td', { class: 'snm' }, s.name, s.free ? el('small', '', ' бонус') : null),
-        h('td', {}, m ? m.cast_time : ''), h('td', {}, m ? m.range : ''), h('td', { class: 'c fl' }, m && m.concentration ? 'К' : ''), h('td', { class: 'c fl' }, m && m.ritual ? 'Р' : ''), h('td', { class: 'comp' }, m ? m.components : ''), h('td', {}, ''))));
+        h('td', {}, m ? shortCast(m.cast_time) : ''), h('td', {}, m ? m.range : ''), h('td', { class: 'c fl' }, m && m.concentration ? 'К' : ''), h('td', { class: 'c fl' }, m && m.ritual ? 'Р' : ''), h('td', { class: 'comp' }, m ? shortComp(m.components) : ''), h('td', {}, ''))));
       const blank = pi === chunks.length - 1 ? cap - chunk.length : 0;
       for (let k = 0; k < blank; k++) rows.push(h('tr', {}, ...Array.from({ length: 9 }, (_, j) => h('td', { class: j === 0 ? 'c' : '' }, j === 0 ? dia(false) : ''))));
       P.append(box('spt', 'Заговоры и подготовленные заклинания', h('table', { class: 'sptab' },
@@ -197,7 +200,7 @@
       const mk = () => {
         const body = el('div', 'cbody');
         return { node: el('div', 'scard', el('div', 'ch', el('span', 'cl', m.level), el('b', 'scn', m.name_ru)), el('div', 'chips', flags, chips), body,
-          el('div', 'cf', el('span', 'cc', m.components || ''), el('span', 'cpg', '')), el('div', 'sch', (m.school || '') + ' | ' + (m.name_en || ''))), body };
+          el('div', 'cf', el('span', 'cc', m.components || ''), el('span', 'cpg', '')), el('div', 'sch', el('b', '', m.school || ''), ' · ' + (m.name_en || ''))), body };
       };
       const full = html(DBx.B(m.blocks || []) + (m.higher ? '<p>' + DBx.esc(m.higher).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</p>' : ''));
       let cur = mk(); host.append(cur.node); const group = [cur];
@@ -265,8 +268,18 @@
     pages.forEach(p => { if (!p.classList.contains('e24') && !p.classList.contains('e14')) p.classList.add(e24 ? 'e24' : 'e14'); });
     sh.append(...pages);
     const p1 = pages.find(p => p.classList.contains('p1'));
-    if (p1) { const trim = () => trimLists(p1); trim(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(trim); }
+    if (p1) { const trim = () => { fitNames(p1); trimLists(p1); }; trim(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(trim); }
     return pages;
+  }
+  // длинное имя персонажа и длинные значения в полях шапки уменьшаем, пока не влезут в строку (не меньше 8 пт для имени, 6,5 пт для остальных)
+  function fitNames(P) {
+    P.querySelectorAll('.fld b, .hname b').forEach(b => {
+      b.style.fontSize = '';
+      if (b.scrollWidth <= b.clientWidth + 1) return;
+      const min = b.closest('.snm, .hname') ? 8 : 6.5;
+      let fs = parseFloat(getComputedStyle(b).fontSize) * 0.75;   // px → pt
+      while (b.scrollWidth > b.clientWidth + 1 && fs > min) { fs -= 0.5; b.style.fontSize = fs + 'pt'; }
+    });
   }
   // списки умений на первой странице не помещаются — обрезаем по высоте блока, остальное есть на страницах с текстами
   function trimLists(P) {
