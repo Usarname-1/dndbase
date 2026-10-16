@@ -86,7 +86,8 @@
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
-    body.append(summary(c, D, d, t), tabsBar(c, D, d, t));
+    renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
+    body.append(h('div', { class: 'csside' }, summary(c, D, d, t), tabsBar(c, D, d, t), todoCard(t)));   // слева (на узком экране — сверху): сводка, шаги, что осталось
     const pane = h('div', { class: 'cspane t-' + tabId }); body.append(pane);
     const tb = body.querySelector('.cstabs'), on = tb && tb.querySelector('.act');   // активная вкладка — в центр полосы (на узких экранах)
     if (on) tb.scrollLeft = on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2;
@@ -142,7 +143,7 @@
   }
   function welcome() {
     const step = (t, s) => h('div', {}, h('b', {}, t), s);
-    return h('div', { class: 'cswel' }, h('h2', {}, 'Листы персонажей'),
+    return h('div', { class: 'cswel' }, h('h2', {}, 'Листы персонажей'), h('div', { class: 'rule' }),
       h('p', {}, 'Выберите класс, уровень, вид и предысторию — бонус мастерства, хиты, спасброски, навыки, ячейки заклинаний и умения подставятся сами.'),
       h('div', { class: 'cssteps' }, step('1. Соберите', 'класс, вид, предыстория, характеристики'), step('2. Дополните', 'заклинания, снаряжение, описание'), step('3. Распечатайте', 'лист A4 или сохраните в PDF')),
       btn('Создать персонажа', newDialog, 'dmbtn pri'));
@@ -185,31 +186,39 @@
   const bgChoiceNames = d => d.bgChoice.from.map(id => d.skills.find(s => s.id === id).n).join(', ');
   const subLevel = cls => { const f = (cls.features || []).find(x => /подкласс/i.test(x.name) && x.level); return f ? f.level : 3; };
   const TAB_SHORT = { base: 'Основа', abil: 'Характеристики', skills: 'Умения', spells: 'Заклинания', gear: 'Снаряжение', forms: 'Облики', story: 'Описание', sheet: 'Лист' };
+  // сводка — «статблок игрока»: имя, строка-описание, главные числа и шесть характеристик; всегда на виду, пока правите любую вкладку
   function summary(c, D, d, t) {
-    const stat = (l, v, tip, key) => h('div', { class: 'cstat' + (key ? ' key' : '') + (String(v).length > 6 ? ' sm' : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
-    const sub = [D.cls && D.cls.name_ru, D.sub && D.sub.name, c.lvl + ' ур.', D.sp && D.sp.name_ru].filter(Boolean);
+    const stat = (l, v, tip, key, more) => h('div', { class: 'cstat' + (key ? ' key' : '') + (String(v).length > 6 ? ' sm' : '') + (more ? ' ' + more : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
+    const sub = [(D.cls ? D.cls.name_ru + (D.sub ? ' (' + D.sub.name + ')' : '') + ' ' : '') + c.lvl + ' ур.', D.sp && D.sp.name_ru, D.bg && D.bg.name_ru, c.align].filter(Boolean);
+    const abil = h('div', { class: 'csab' }, R.AB.map(a => h('div', { class: 'cab', title: a.ru + ': ' + d.score[a.k] + ' (' + R.sgn(d.mod[a.k]) + ')' }, h('small', {}, a.s), h('b', {}, R.sgn(d.mod[a.k])), h('i', {}, d.score[a.k]))));
     const box = h('div', { class: 'cssum' },
-      h('div', { class: 'cssn' }, h('h2', {}, c.name || 'Без имени'), h('div', { class: 'cssub' }, sub.map(x => h('span', {}, x)))),
+      h('div', { class: 'cssn' }, h('h2', {}, c.name || 'Без имени'), h('p', { class: 'cssub' }, sub.join(' · '))),
+      h('div', { class: 'rule' }),
       h('div', { class: 'csstats' },
         stat('Хиты', d.hp, 'Максимум хитов', true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init)), stat('Скорость', d.speed + ' фт.'), D.sp ? stat('Размер', d.size, d.sizeOpts.length > 1 ? 'Можно сменить на вкладке «Основа»' : 'Определяется видом') : null,
-        d.sp.has ? stat('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru) : null));
-    let chk;
-    if (!t.length) chk = h('div', { class: 'cstodo done' }, h('span', {}, '✓ Всё заполнено — лист готов к печати'), btn('Открыть лист', () => { tabId = 'sheet'; render(); }, 'dmbtn pri'));
-    else {      // на узком экране список свёрнут, чтобы не занимать полэкрана; на вкладках остаются счётчики
-      const wide = !window.matchMedia || window.matchMedia('(min-width:761px)').matches, lst = h('div', { class: 'tdl' });
-      t.slice(0, 6).forEach(([tab, txt]) => lst.append(h('a', { href: '#', onclick: ev => { ev.preventDefault(); tabId = tab; render(); } }, h('em', {}, TAB_SHORT[tab]), txt)));
-      if (t.length > 6) lst.append(h('span', { class: 'tdm' }, '…и ещё ' + (t.length - 6)));
-      chk = h('details', { class: 'cstodo', open: wide ? '' : null }, h('summary', { class: 'tdh' }, 'Осталось заполнить: ' + t.length), lst);
-    }
-    return h('div', { class: 'cshead' }, box, chk);
+        d.sp.has ? stat('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru, false, 'wide') : null),
+      h('div', { class: 'rule' }), abil);
+    return h('div', { class: 'cshead' }, box);
+  }
+  // чек-лист «что осталось»: отдельная карточка под списком шагов
+  function todoCard(t) {
+    if (!t.length) return h('div', { class: 'cstodo done' }, h('span', {}, '✓ Всё заполнено — лист готов к печати'), btn('Открыть лист', () => { tabId = 'sheet'; render(); }, 'dmbtn pri'));
+    // на узком экране список свёрнут, чтобы не занимать полэкрана; на вкладках остаются счётчики
+    const wide = !window.matchMedia || window.matchMedia('(min-width:761px)').matches, lst = h('div', { class: 'tdl' });
+    t.slice(0, 6).forEach(([tab, txt]) => lst.append(h('a', { href: '#', onclick: ev => { ev.preventDefault(); tabId = tab; render(); } }, h('em', {}, TAB_SHORT[tab]), txt)));
+    if (t.length > 6) lst.append(h('span', { class: 'tdm' }, '…и ещё ' + (t.length - 6)));
+    return h('details', { class: 'cstodo', open: wide ? '' : null }, h('summary', { class: 'tdh' }, 'Осталось заполнить: ' + t.length), lst);
   }
   function tabsBar(c, D, d, t) {
     const cnt = {}; t.forEach(([tab]) => { cnt[tab] = (cnt[tab] || 0) + 1; });
+    // галочка у шага — только там, где программа умеет проверить заполненность, и только когда класс, вид и предыстория уже выбраны
+    const ready = !!(c.cls && c.sp && c.bg), checkable = { base: true, abil: true, spells: !!d.sp.has, forms: true };
     const out = []; let sep = false;
     TABS.filter(([id]) => id !== 'forms' || d.ws).forEach(([id, label, n]) => {
       if (!n && !sep) { out.push(h('span', { class: 'tsep' })); sep = true; }
       out.push(h('button', { type: 'button', 'data-tab': id, class: 'cstab' + (n ? '' : ' sec') + (id === 'sheet' ? ' printtab' : '') + (id === tabId ? ' act' : ''), onclick: () => { tabId = id; render(); } },
-        n ? h('i', {}, n) : null, label, cnt[id] ? h('i', { class: 'bd', title: 'Нужно заполнить: ' + cnt[id] }, cnt[id]) : null));
+        n ? h('i', { class: 'no' }, n) : null, h('span', { class: 'tl' }, label),
+        cnt[id] ? h('i', { class: 'bd', title: 'Нужно заполнить: ' + cnt[id] }, cnt[id]) : (ready && checkable[id] ? h('i', { class: 'ok', title: 'Здесь всё заполнено' }, '✓') : null)));
     });
     return h('div', { class: 'cstabs' }, out);
   }
@@ -227,11 +236,12 @@
       c.cls = v; c.sub = ''; c.skills = []; c.exp = []; c.asi = {}; c.spells = []; c.forms = []; upd();
     }, '— выберите класс —');
     const lvlSel = sel(Array.from({ length: 20 }, (_, i) => [i + 1, i + 1]), c.lvl, v => { c.lvl = +v; upd(); });
-    p.append(h('h3', { class: 'csh' }, 'Класс и уровень'), h('div', { class: 'csgrid' }, field('Класс', clsSel), field('Уровень', lvlSel)));
+    const sl = D.cls ? subLevel(D.cls) : 3, subs = D.cls ? D.cls.subclasses || [] : [];
+    p.append(h('h3', { class: 'csh' }, 'Класс и уровень'), h('div', { class: 'csgrid cls' }, field('Класс', clsSel), field('Уровень', lvlSel),
+      D.cls ? field('Подкласс' + (c.lvl < sl ? ' (с ' + sl + ' уровня)' : ''),
+        sel(subs.map(s => [s.name, s.name + (s.official === false ? ' (неофиц.)' : '')]), c.sub, v => { c.sub = v; upd(); }, c.lvl < sl ? '— пока не нужен —' : '— выберите подкласс —')) : null));
     if (D.cls) {
-      const ci = d.ci, sl = subLevel(D.cls), subs = D.cls.subclasses || [];
-      p.append(h('div', { class: 'csgrid' }, field('Подкласс' + (c.lvl < sl ? ' (с ' + sl + ' уровня)' : ''),
-        sel(subs.map(s => [s.name, s.name + (s.official === false ? ' (неофиц.)' : '')]), c.sub, v => { c.sub = v; upd(); }, c.lvl < sl ? '— пока не нужен —' : '— выберите подкласс —'))));
+      const ci = d.ci;
       if (D.sub) { const dsc = h('details', {}, h('summary', {}, 'О подклассе «' + D.sub.name + '»'), blocks(D.sub.description || [])); p.append(dsc); }
       p.append(h('div', { class: 'csfacts' },
         fact('Кость хитов', 'к' + ci.die), fact('Спасброски', ci.saves.map(k => R.ABN(k).ru).join(', ')), fact('Доспехи', ci.armor || '—'),
@@ -712,10 +722,16 @@
   }
   async function tabSheet(p, c, D, d) {
     const CSP = root.CSP, X = { featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr };
+    // цвет печати: палитра справочника (красная для 2024, бирюзовая для 2014) или чёрно-белый вариант (c.pMono)
+    const colorCtl = h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Цвет печати'),
+      h('div', { class: 'seg csmeth' }, btn('Цветная', () => { delete c.pMono; upd(); }, c.pMono ? '' : 'act'), btn('Чёрно-белая', () => { c.pMono = true; upd(); }, c.pMono ? 'act' : '')),
+      h('p', { class: 'mhint' }, c.pMono ? 'Только чёрный и серый: для принтера без цвета или чтобы сэкономить картридж.'
+        : 'Заголовки и линии цвета справочника (' + (c.ed === 24 ? 'кирпично-красные' : 'бирюзовые') + '), светлые плашки. Бумага остаётся белой.'));
     p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'),
-      h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. В окне печати включите «Фоновая графика» — тогда сохранятся серые панели и клетка (в Chrome это включается само).')),
-      h('div', { class: 'noprint sheetopt' }, printOptions(c, D, d), h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Портрет (печатается на странице «Описание»)'), portraitCtl(c))));
-    const sh = h('div', { class: 'csheet' }); p.append(sh);
+      h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. Если цвета не печатаются, в окне печати включите «Фоновая графика» (в Chrome это включается само).')),
+      h('div', { class: 'noprint sheetopt' }, printOptions(c, D, d), h('div', { class: 'cscol' }, colorCtl,
+        h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Портрет'), portraitCtl(c), h('p', { class: 'mhint' }, 'Печатается на странице «Описание».')))));
+    const sh = h('div', { class: 'csheet' + (c.pMono ? ' mono' : '') }); p.append(sh);
     CSP.build(sh, { c, D, d, X });
     // облики зверей
     if (d.ws && c.forms.length && c.printForms !== false) {
