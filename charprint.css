@@ -160,6 +160,16 @@
 .e24 .sptab th:nth-child(6),.e24 .sptab td:nth-child(6),.e24 .sptab th:nth-child(7),.e24 .sptab td:nth-child(7){width:5mm}
 .e24 .sptab th:nth-child(8),.e24 .sptab td:nth-child(8){width:17mm}.e24 .sptab th:nth-child(9),.e24 .sptab td:nth-child(9){width:26mm}
 
+/* ресурсы класса (обе раскладки): строки «название — значение» или кружки для расходуемых */
+.csheet .resb{flex:none}
+.csheet .resl{display:grid;column-gap:3.5mm;padding:.2mm 2.4mm 1mm}
+.csheet .resi{display:flex;align-items:center;gap:1.4mm;min-height:5.4mm;border-bottom:.4pt solid var(--line);line-height:1.1}
+.csheet .resi .resn{flex:1;min-width:0;font-size:7pt}
+.csheet .resi .resv{font:700 8pt var(--sans);white-space:nowrap}
+.csheet .resi .resk{flex:none;gap:.8mm}.csheet .resi .resk .dt{width:2.7mm;height:2.7mm}
+.e24 .resl{grid-template-columns:1fr 1fr}
+.e14 .resl{grid-template-columns:1fr;padding:0 1.8mm}.e14 .resi{min-height:4.7mm;border-bottom-color:var(--ruled)}
+
 /* ======================= D&D 2014 ======================= */
 /* блок: рамка цвета бирюзы, подпись внизу на плашке под красной линией */
 .e14 .bx{display:flex;flex-direction:column;border:.9pt solid var(--edge);border-radius:1.4mm;background:#fff}

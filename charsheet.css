@@ -128,6 +128,12 @@ body.cs #cs{display:block;min-height:100%}
 .cstat.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 12px}
 .cstat.wide small{min-height:0}.cstat.wide b{font-size:18px;line-height:1.3}
 .csab{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+/* ресурсы класса в сводке: ярость, очки сосредоточенности, кость вдохновения… */
+.csres{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.csr{display:inline-flex;align-items:baseline;gap:5px;background:var(--cs-paper);border:1px solid var(--cs-line);border-radius:999px;padding:1px 9px;min-width:0;max-width:100%}
+.csr small{font:700 10px/1.4 'PT Sans',sans-serif;letter-spacing:.03em;text-transform:uppercase;color:var(--cs-red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csr b{font:700 13px/1.4 'PT Serif',serif;white-space:nowrap}
+.csr.pool{border-color:var(--cs-bar)}
 .cab{background:var(--cs-paper);border:1px solid var(--cs-line);border-radius:3px;text-align:center;padding:3px 0 4px;min-width:0}
 .cab small{display:block;font:700 9px/1.2 'PT Sans',sans-serif;letter-spacing:.03em;color:var(--cs-red)}
 .cab b{display:block;font:700 18px/1.15 'PT Serif',serif}
@@ -231,6 +237,20 @@ body.cs #cs{display:block;min-height:100%}
 .cstbl tr.sv td{color:var(--cs-muted);font-size:13.5px}
 .cstbl tr.prof td b{color:var(--cs-red)}
 .big{font-size:20px}
+.cstbl.res td small{color:var(--cs-muted);font-size:12px}
+.cstbl.res td.nx{color:var(--cs-muted);font-size:13.5px}
+.csfx{display:grid;grid-template-columns:auto minmax(0,1.4fr) auto minmax(0,1.6fr);align-items:baseline;gap:4px 12px;padding:7px 10px;border-bottom:1px solid var(--cs-line);cursor:pointer;font-size:14px;line-height:1.35}
+.csfxl{border-top:2px solid var(--cs-bar);margin:8px 0}
+.csfxl .csfx:nth-child(even){background:var(--cs-zebra)}
+.csfx input{margin:0;align-self:center}
+.csfx .fxn b{display:block;color:var(--cs-red)}
+.csfx small{display:block;font:400 12px/1.3 'PT Sans',sans-serif;color:var(--cs-muted)}
+.csfx .fxk{font:700 10.5px/1.4 'PT Sans',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--cs-muted);white-space:nowrap}
+.csfx .fxt{font-weight:700}
+.csfx .fxt small{font-weight:400}
+.csfx.idle .fxt,.csfx.idle .fxn b{opacity:.55}
+.csfx.off .fxt,.csfx.off .fxn b{text-decoration:line-through;opacity:.5}
+@media(max-width:760px){.csfx{grid-template-columns:auto 1fr;}.csfx .fxk{display:none}.csfx .fxt{grid-column:2}}
 .cstbl.sk td:first-child{width:76px;white-space:nowrap;color:var(--cs-muted)}
 .cstbl.sk td:first-child input{vertical-align:middle;margin-right:4px}
 .cslegend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--cs-muted);margin:4px 0 10px}

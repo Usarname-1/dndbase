@@ -84,7 +84,7 @@
     body.textContent = '';
     if (!c) { body.append(welcome()); return; }
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
-    c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {};
+    c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
     renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
     body.append(h('div', { class: 'csside' }, summary(c, D, d, t), tabsBar(c, D, d, t), todoCard(t)));   // слева (на узком экране — сверху): сводка, шаги, что осталось
@@ -180,6 +180,8 @@
       if (pn < d.sp.prepared) t.push(['spells', 'Подготовлено заклинаний: ' + pn + ' из ' + d.sp.prepared]);
       else if (pn > d.sp.prepared) t.push(['spells', 'Подготовлено больше нормы: ' + pn + '/' + d.sp.prepared]);
     }
+    { const auto = d.hpAuto ? d.hpFx.reduce((q, e) => q + e.v, 0) : 0;   // та же прибавка, вписанная вручную, посчитается дважды
+      if (auto > 0 && c.hpBonus === auto) t.push(['story', 'Прибавка к хитам +' + auto + ' уже считается сама (' + d.hpFx.map(e => e.why).join(', ') + ') — уберите её из поля «Прибавка»']); }
     if (d.ws && c.forms.length < Math.min(d.ws.known, 99)) t.push(['forms', 'Облики зверей: ' + c.forms.length + ' из ' + d.ws.known]);
     return t;
   }
@@ -191,13 +193,17 @@
     const stat = (l, v, tip, key, more) => h('div', { class: 'cstat' + (key ? ' key' : '') + (String(v).length > 6 ? ' sm' : '') + (more ? ' ' + more : ''), title: tip || '' }, h('small', {}, l), h('b', {}, v));
     const sub = [(D.cls ? D.cls.name_ru + (D.sub ? ' (' + D.sub.name + ')' : '') + ' ' : '') + c.lvl + ' ур.', D.sp && D.sp.name_ru, D.bg && D.bg.name_ru, c.align].filter(Boolean);
     const abil = h('div', { class: 'csab' }, R.AB.map(a => h('div', { class: 'cab', title: a.ru + ': ' + d.score[a.k] + ' (' + R.sgn(d.mod[a.k]) + ')' }, h('small', {}, a.s), h('b', {}, R.sgn(d.mod[a.k])), h('i', {}, d.score[a.k]))));
+    const hpTip = 'Максимум хитов' + (d.hpAuto && d.hpFx.length ? ' (умения уже добавили: ' + d.hpFx.map(e => e.why + ' ' + R.sgn(e.v)).join(', ') + ')' : ''),
+      spdTip = d.speedOv != null ? 'Введена вручную' + (d.speedOv !== d.speedAuto ? '; по правилам было бы ' + d.speedAuto + ' фт. (' + d.speedWhy + ')' : '') : d.speedWhy;
+    const res = d.res.length ? h('div', { class: 'csres' }, d.res.map(r => h('span', { class: 'csr' + (r.pool ? ' pool' : ''), title: r.n + ': ' + (r.next ? 'с ' + r.next.lvl + ' уровня будет ' + r.next.v : 'дальше не меняется') },
+      h('small', {}, r.n), h('b', {}, r.v + (r.unit ? ' ' + r.unit : ''))))) : null;
     const box = h('div', { class: 'cssum' },
       h('div', { class: 'cssn' }, h('h2', {}, c.name || 'Без имени'), h('p', { class: 'cssub' }, sub.join(' · '))),
       h('div', { class: 'rule' }),
       h('div', { class: 'csstats' },
-        stat('Хиты', d.hp, 'Максимум хитов', true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init)), stat('Скорость', d.speed + ' фт.'), D.sp ? stat('Размер', d.size, d.sizeOpts.length > 1 ? 'Можно сменить на вкладке «Основа»' : 'Определяется видом') : null,
+        stat('Хиты', d.hp, hpTip, true), stat('КД', d.ac, d.acWhy, true), stat('Бонус мастерства', R.sgn(d.pb)), stat('Инициатива', R.sgn(d.init), d.initWhy), stat('Скорость', d.speed + ' фт.', spdTip), D.sp ? stat('Размер', d.size, d.sizeOpts.length > 1 ? 'Можно сменить на вкладке «Основа»' : 'Определяется видом') : null,
         d.sp.has ? stat('Сл спасброска', d.sp.dc, 'Заклинательная характеристика: ' + R.ABN(d.sp.ab).ru, false, 'wide') : null),
-      h('div', { class: 'rule' }), abil);
+      res, h('div', { class: 'rule' }), abil);
     return h('div', { class: 'cshead' }, box);
   }
   // чек-лист «что осталось»: отдельная карточка под списком шагов
@@ -249,8 +255,11 @@
     }
     // вид
     p.append(h('h3', { class: 'csh' }, 'Вид'), h('div', { class: 'csgrid' }, field('Вид', sel(D.species.map(x => [x.slug, x.name_ru]), c.sp, v => { c.sp = v; c.spOpt = ''; upd(); }, '— выберите вид —')),
-      field('Скорость (фт.)', numIn(c.speed === '' ? d.speed : c.speed, v => { c.speed = v; upd(); })),
+      field('Скорость (фт.)', numIn(d.speed, v => { c.speed = v === d.speedAuto ? '' : v; upd(); })),
       D.sp && d.sizeOpts.length > 1 ? field('Размер (на выбор)', sel(d.sizeOpts.map(x => [x, x]), d.size, v => { c.size = v; upd(); })) : null));
+    p.append(h('p', { class: 'mhint' }, d.speedOv != null
+      ? ['Скорость введена вручную' + (d.speedOv !== d.speedAuto ? ': по правилам было бы ' + d.speedAuto + ' фт. (' + d.speedWhy + '). ' : '. '), btn('Вернуть расчёт', () => { c.speed = ''; upd(); }, 'dmbtn')]
+      : 'Считается сама: ' + d.speedWhy + '. Бонусы от класса, подкласса и черт подставляются по уровню; свою скорость можно вписать в поле.'));
     if (D.sp) {
       const ch = R.speciesChoice(D.sp);
       if (ch) p.append(h('div', { class: 'csgrid' }, field(ch.label + ' (выбор вида)', sel(ch.options.map(o => [o, o]), c.spOpt, v => { c.spOpt = v; upd(); }, '— выберите —'))));
@@ -410,7 +419,30 @@
     p.append(h('div', { class: 'cslegend' }, h('span', {}, '◆ — навык можно выбрать от класса'), h('span', {}, '☆ / ★ — экспертность (удвоенный бонус)'), h('span', {}, '+ — владение из другого источника'), h('span', {}, '● — есть владение')));
     tx.forEach(t => p.append(h('p', { class: 'mhint' }, t)));
   }
+  // ресурсы класса: из таблицы класса (растут с уровнем) и по формулам правил
+  function resourcesBlock(p, c, D, d) {
+    if (!d.res.length) return;
+    const t = h('table', { class: 'cstbl res' }, h('tr', {}, ['Ресурс', 'Сейчас', 'Дальше'].map(x => h('th', {}, x))));
+    d.res.forEach(r => t.append(h('tr', {}, h('td', {}, r.n, r.pool ? h('small', {}, ' · расходуется') : null), h('td', {}, h('b', {}, r.v + (r.unit ? ' ' + r.unit : ''))), h('td', { class: 'nx' }, r.next ? 'с ' + r.next.lvl + ' ур.: ' + r.next.v : 'не меняется'))));
+    p.append(h('h3', { class: 'csh' }, 'Ресурсы класса'), h('p', { class: 'mhint' }, 'Значения берутся из таблицы класса и растут с уровнем сами. На печатном листе они выводятся в блоке «Ресурсы».'), t);
+  }
+  // умения, которые меняют числа листа (скорость, хиты, КД, инициатива, спасброски, навыки, характеристики): включены сами, любое можно отключить
+  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки' };
+  function effectsBlock(p, c, D, d) {
+    if (!d.fx.length) return;
+    const n = d.fx.filter(e => !e.off).length;
+    p.append(h('h3', { class: 'csh' }, 'Автоматические эффекты (' + n + ' из ' + d.fx.length + ')'),
+      h('p', { class: 'mhint' }, 'Что умения класса, подкласса, вида и черт меняют в числах листа: уже учтено в хитах, КД, скорости, инициативе, спасбросках и навыках. Если вы вписали такую прибавку вручную или в вашей игре эффекта нет — снимите галочку.'));
+    const box = h('div', { class: 'csfxl' }); p.append(box);
+    d.fx.forEach(e => box.append(h('label', { class: 'csfx' + (e.off ? ' off' : '') + (!e.on && !e.off ? ' idle' : ''), title: e.src },
+      h('input', { type: 'checkbox', checked: !e.off, onchange: ev => { if (ev.target.checked) delete c.fxOff[e.id]; else c.fxOff[e.id] = 1; upd(); } }),
+      h('span', { class: 'fxn' }, h('b', {}, e.why), h('small', {}, e.src)),
+      h('span', { class: 'fxk' }, FX_KIND[e.k] || e.k),
+      h('span', { class: 'fxt' }, e.text, e.cond ? h('small', { class: 'fxc' }, e.on ? e.cond : 'сейчас не действует: ' + e.cond) : null))));
+  }
   async function tabSkills(p, c, D, d) {
+    resourcesBlock(p, c, D, d);
+    effectsBlock(p, c, D, d);
     // умения
     const feats = featureList(c, D, d);
     p.append(h('h3', { class: 'csh' }, 'Умения и особенности (' + feats.length + ')'), h('p', { class: 'mhint' }, 'Всё, что даёт ваш класс, подкласс, вид, предыстория и выбранные черты на текущем уровне.'));
@@ -640,14 +672,15 @@
   }
 
   /* ---------- Описание ---------- */
-  async function tabStory(p, c) {
+  async function tabStory(p, c, D, d) {
     const ta = (k, label, rows) => field(label, h('textarea', { rows: rows || 3, onchange: e => { c.story[k] = e.target.value; upd(false); } }, c.story[k] || ''));
     p.append(h('div', { class: 'csgrid two' }, ta('traits', 'Черты характера'), ta('ideals', 'Идеалы'), ta('bonds', 'Привязанности'), ta('flaws', 'Слабости'), ta('look', 'Внешность и история', 6), ta('notes', 'Заметки', 6)),
       h('h3', { class: 'csh' }, 'Портрет'), portraitCtl(c),
       h('h3', { class: 'csh' }, 'Хиты'),
       h('div', { class: 'csgrid' }, field('Способ', sel([['avg', 'Среднее (по умолчанию)'], ['manual', 'Ввести итог вручную']], c.hpMode, v => { c.hpMode = v; upd(); })),
         c.hpMode === 'manual' ? field('Максимум хитов', numIn(c.hpManual, v => { c.hpManual = v; upd(); })) : null,
-        field('Прибавка к хитам (Крепкий и т. п.)', numIn(c.hpBonus, v => { c.hpBonus = v; upd(); }))));
+        field('Прибавка к хитам (магия, особые правила)', numIn(c.hpBonus, v => { c.hpBonus = v; upd(); }))),
+      d.hpAuto && d.hpFx.length ? h('p', { class: 'mhint' }, 'Умения уже добавили к хитам ' + R.sgn(d.hpFx.reduce((q, e) => q + e.v, 0)) + ' (' + d.hpFx.map(e => e.why).join(', ') + ') — их вписывать не нужно. Отключить можно на вкладке «Умения».') : null);
   }
 
   /* ---------- Лист для печати ---------- */

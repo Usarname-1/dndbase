@@ -28,7 +28,7 @@
   function shell(title, c, cls) {
     return el('section', 'pg ' + (cls || ''), el('div', 'ph', el('b', 'pt', title), el('span', 'pn', c.name || '')));
   }
-  const passive = (d, id) => 10 + d.skills.find(x => x.id === id).bonus;
+  const passive = (d, id) => (d.passive ? d.passive[id] : 10 + d.skills.find(x => x.id === id).bonus);   // с учётом «Внимательного» и т. п.
   const hasShield = c => (c.inv || []).some(i => i.eq && i.slug === 'shield');
   function profFlags(d) {
     const A = R.lc(d.ci ? d.ci.armor : ''), W = R.lc(d.ci ? d.ci.weapons : '');
@@ -42,6 +42,13 @@
   const featLists = (X, c, D, d) => { const all = X.featureList(c, D, d); return { feats: all.filter(f => !isFeat(f)), traits: all.filter(isFeat), all }; };
   const featItems = list => list.map(f => el('div', 'fi', el('b', '', f.name), el('small', '', ' ' + srcShort(f))));
   const coinBox = (c, cls) => el('div', 'coins ' + (cls || ''), COIN_ORDER.map(([k, t]) => el('div', 'coin', el('small', '', t), el('b', '', sp(c.coins[k] || '')))));
+  // ресурсы класса: название и значение; расходуемые (до 8 штук) — кружками, чтобы отмечать потраченное
+  const resBox = d => {
+    if (!d.res || !d.res.length) return null;
+    const row = r => { const tick = r.pool && r.num && r.num <= 8;
+      return el('div', 'resi', el('span', 'resn', r.n), tick ? el('span', 'cs3 resk', Array.from({ length: r.num }, () => h('i', { class: 'dt' }))) : el('b', 'resv', r.v + (r.unit ? ' ' + r.unit : ''))); };
+    return box('resb', 'Ресурсы', el('div', 'resl', d.res.map(row)));
+  };
   const lined = (v, cls) => el('div', 'tx ln ' + (cls || ''), v ? el('span', '', v) : null);
 
   /* ============ страница 1 · D&D 2024 ============ */
@@ -81,7 +88,7 @@
     const mini = (t, v) => box('mn', t, el('b', '', v));
     const bot = el('div', 'bot', el('div', 'mini4', mini('Размер', d.size), mini('Грузоподъёмность', d.carry + ' / ' + d.carry * 2 + ' фунт.'), mini('Прыжок В.', d.jumpHigh + ' фут.'), mini('Прыжок Д.', d.jumpLong + ' фут.')),
       box('mon', 'Монеты', coinBox(c)));
-    P.append(hd, rule, el('div', 'bd', el('div', 'left', el('div', 'abcols', colA, colB), profs), el('div', 'right', stats, wp, fbox, bot)));
+    P.append(hd, rule, el('div', 'bd', el('div', 'left', el('div', 'abcols', colA, colB), profs), el('div', 'right', stats, wp, resBox(d), fbox, bot)));
     return P;
   }
 
@@ -114,7 +121,7 @@
       box('wp', 'Атаки и заклинания', h('table', { class: 'wtab' }, h('tr', {}, h('th', {}, 'Название'), h('th', { class: 'c' }, 'Бонус атаки'), h('th', {}, 'Урон / вид')), ...wr), el('div', 'tx ln')),
       box('eq', 'Снаряжение', coinBox(c, 'small'), el('div', 'tx ln', inv)));
     const ps = (k, label) => box('pers', label, lined(c.story[k]));
-    const c3 = el('div', 'c3', el('div', 'panel', ps('traits', 'Черты характера'), ps('ideals', 'Идеалы'), ps('bonds', 'Привязанности'), ps('flaws', 'Слабости')),
+    const c3 = el('div', 'c3', el('div', 'panel', ps('traits', 'Черты характера'), ps('ideals', 'Идеалы'), ps('bonds', 'Привязанности'), ps('flaws', 'Слабости')), resBox(d),
       box('fb', 'Умения и способности', el('div', 'tx ln', featItems(L.feats), L.traits.length ? el('div', 'fsub', 'Черты') : null, featItems(L.traits))));
     P.append(hd, el('div', 'bd', c1, c2, c3));
     return P;

@@ -31,7 +31,9 @@
   const mod = s => Math.floor((s - 10) / 2);
   const sgn = n => (n >= 0 ? '+' : '−') + Math.abs(n);
   const intOf = v => { const n = parseInt(String(v == null ? '' : v).replace('−', '-').replace('+', ''), 10); return isNaN(n) ? 0 : n; };
-  const lc = s => String(s || '').toLowerCase().replace(/ё/g, 'е');
+  // в данных местами «й» и «ё» записаны двумя символами (буква + знак): приводим к обычному виду, иначе поиск по тексту их не находит
+  const nfc = s => { s = String(s == null ? '' : s); return s.normalize ? s.normalize('NFC') : s; };
+  const lc = s => nfc(s).toLowerCase().replace(/ё/g, 'е');
 
   /* ---------- разбор данных класса ---------- */
   function trait(cls, re) { const t = ((cls && cls.core_traits) || []).find(x => re.test(x.label)); return t ? String(t.value) : ''; }
@@ -220,11 +222,24 @@
     });
     return out;
   }
-  function speciesSpeed(sp, ed) {
+  // «Ваша базовая скорость ходьбы составляет 25 футов» → 25 (в тексте бывают и другие скорости: «плавание 30 футов»)
+  const walkOf = t => { const s = String(t || '').replace(/\*+/g, ''), m = s.match(/ходьб\S*[^.\d]{0,40}?(\d+)/i) || s.match(/(\d+)\s*фут/i); return m ? +m[1] : 0; };
+  const modeOf = a => { const n = {}; a.forEach(x => { n[x] = (n[x] || 0) + 1; }); return a.slice().sort((x, y) => n[y] - n[x] || a.indexOf(x) - a.indexOf(y))[0]; };
+  // Базовая скорость вида. 2024 — свойство «Скорость»; 2014 — особенность «Скорость» (поле speeds в данных путает ходьбу с полётом и вариантами,
+  // а у подрас особенность лежит в их разделе: берём выбранную подрасу o.opt, а пока она не выбрана — самое частое значение).
+  function speciesSpeed(sp, ed, o) {
     if (!sp) return 30;
     if (sp.props) { const p = sp.props.find(x => /скорост/i.test(x.label)); if (p) { const n = intOf(String(p.value).match(/\d+/)); if (n) return n; } }
-    if (sp.speeds && sp.speeds.length) return sp.speeds[sp.speeds.length - 1];
-    return 30;
+    const ch = speciesChoice(sp), opt = o && o.opt, groups = ch && ch.kind === 'groups' ? ch.options : [];
+    let cur = null; const general = [], mine = [], other = [];
+    (sp.blocks || []).forEach(b => {
+      if (b.type === 'heading') { cur = b.text; return; }
+      if (b.type !== 'paragraph' || !/^\**\s*Скорость\s*\**\s*[.:]/.test(b.text)) return;   // «**Скорость**. …» и «Скорость. …» (жирный шрифт местами потерян); «Скорость курьера» сюда не попадает
+      const n = walkOf(b.text); if (!n) return;
+      (!groups.includes(cur) ? general : cur === opt ? mine : other).push(n);
+    });
+    const pick = mine.length ? mine : general.length ? general : other;
+    return pick.length ? modeOf(pick) : 30;
   }
 
   // размер: у вида 2024 в свойствах («Средний … или Маленький … ; выберите»), у расы 2014 — список sizes
@@ -257,6 +272,215 @@
     return fixedAll;
   }
 
+  /* ---------- слой эффектов ----------
+     Что умения меняют в числах: скорость, инициатива, хиты, КД, спасброски, навыки, характеристики.
+     Правила разобраны по текстам умений из базы: эффект появляется, только если умение есть в данных и уже доступно на этом
+     уровне — поэтому всё растёт с уровнем само. Выбор игрока (боевой стиль, метамагия…) сам не применяется.
+     Каждый эффект можно отключить (c.fxOff[id]): на случай домашних правил и чтобы не считать дважды то, что вписано вручную. */
+  const STEMS = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };
+  const abIn = s => AB.filter(a => lc(s).includes(STEMS[a.k])).map(a => a.k);
+  const abShort = k => ABN(k).ru.slice(0, 3);
+  const plain = t => nfc(t).replace(/\*+/g, '');
+  const sentences = t => plain(t).replace(/([.!?:])\s+/g, '$1\u0001').split('\u0001').map(s => s.trim()).filter(Boolean);
+  // Абзацы умения для разбора. Пропускаем то, что не постоянный эффект: списки после «Пока вы …/В течение …» (временные состояния)
+  // и — у умений класса/подкласса — варианты на выбор: абзацы с жирным заголовком, когда им предшествует «Выберите …»
+  // или умение целиком состоит из таких вариантов («Проклятие совы», «Варвар», «Воин»…). Перечни преимуществ
+  // («Вы получаете следующие преимущества: **Бонус к инициативе.** …») — не варианты, их разбираем.
+  const TEMP_LEAD = /(?:^|[^а-яё])(?:пока|в течение|на время|в этом состоянии)(?![а-яё])/i;
+  const BOLD_LEAD = /^\*\*[^*]+\*\*/;
+  function flatText(bl, options) {
+    const raw = []; let prev = '';
+    (bl || []).forEach(b => {
+      if (b.type === 'paragraph') { prev = nfc(b.text); raw.push(prev); }
+      else if (b.type === 'list') { if (!TEMP_LEAD.test(prev)) (b.items || []).forEach(i => raw.push(nfc(typeof i === 'string' ? i : (i && i.text) || ''))); prev = ''; }
+    });
+    const bold = raw.filter(t => BOLD_LEAD.test(t)).length;
+    const choice = options && bold >= 2 && (raw.some(t => !BOLD_LEAD.test(t) && /выбер|на ваш выбор/i.test(t)) || (bold >= 3 && BOLD_LEAD.test(raw[0])));
+    return raw.filter(t => !(choice && BOLD_LEAD.test(t))).map(plain).filter(Boolean);
+  }
+
+  const lowDie = v => String(v).replace(/^К(?=\d)/, 'к');
+
+  // Что надето. Доспех — только со свойством «Класс защиты» (по нему считается КД); магические доспехи и щиты КД не меняют
+  // (бонус вносится вручную), но отменяют «без доспехов».
+  function wornGear(c, D) {
+    const w = { armor: null, shield: false, anyArmor: false, anyShield: false, heavy: false, medium: false };
+    (c.inv || []).forEach(i => {
+      if (!i.eq) return;
+      const mg = i.sec === 'items', g = mg ? (D.itemsBySlug || {})[i.slug] : (D.gearBySlug || {})[i.slug]; if (!g) return;
+      const line = String(g.line || '');
+      if (mg) {
+        if (/^Доспех\s*\(\s*Щит/i.test(line)) w.anyShield = true;
+        else if (/^Доспех/i.test(line)) { w.anyArmor = true; if (!/любой/i.test(line) && /Тяжёл|Латн|Полулатн|Кольчужн|Пластинчат/i.test(line)) w.heavy = true; }
+        return;
+      }
+      if (g.slug === 'shield' && /щит/i.test(line)) { w.shield = w.anyShield = true; return; }
+      if (!/доспех/i.test(line)) return;
+      w.anyArmor = true; if (/тяжел/.test(lc(line))) w.heavy = true;
+      if ((g.props || []).some(x => /класс защиты/i.test(x.label))) { w.armor = g; w.medium = /средн/.test(lc(line)); }
+    });
+    return w;
+  }
+  // умения, собранные в списки (с уровнем и текстом для разбора): класс, подкласс, вид, черты
+  function sourcesOf(c, D, lvl, featObjs) {
+    const pack = (list, from, label) => (list || []).filter(f => (f.level || 0) <= lvl).map(f => { const paras = flatText(f.blocks, true); return { name: f.name, level: f.level || 0, paras, text: paras.join(' '), from, label }; });
+    return {
+      cf: pack(D.cls && D.cls.features, 'cls', D.cls && D.cls.name_ru),
+      sf: pack(D.sub && D.sub.features, 'sub', D.sub && D.sub.name),
+      tr: D.sp ? speciesTraits(D.sp, { opt: c.spOpt, lvl }).map(t => ({ name: t.name, level: 0, paras: [plain(t.text)], text: plain(t.text), from: 'sp', label: D.sp.name_ru })) : [],
+      ft: featObjs.map(f => { const paras = flatText(f.blocks); return { name: f.name_ru, level: 0, paras, text: paras.join(' '), from: 'ft', label: f.name_ru }; })
+    };
+  }
+  const COND = {
+    noArmorShield: { t: 'пока нет доспехов и щита', f: w => !w.anyArmor && !w.anyShield },
+    noHeavy: { t: 'пока нет тяжёлого доспеха', f: w => !w.heavy },
+    noArmor: { t: 'пока нет доспехов', f: w => !w.anyArmor }
+  };
+  const srcLabel = f => f.from === 'cls' ? f.label + ', ' + f.level + ' ур.' : f.from === 'sub' ? 'подкласс «' + f.label + '», ' + f.level + ' ур.' : f.from === 'sp' ? 'вид: ' + f.label : 'черта';
+  const AC_WORD = /(?:^|[^А-Яа-яЁё])КД(?![А-Яа-яЁё])|Класс\S*\s+(?:Защиты|Доспеха)/;
+  // «Пока вы не носите доспехов, ваш КД равен 10 + модификатор Ловкости + модификатор Мудрости» → { base: 10, abs: ['dex','wis'], pb: false, noShield }
+  function acFormulas(paras) {
+    const out = [];
+    paras.forEach(p => sentences(p).forEach(s => {
+      if (!/не\s+носите\s+(?:ни\s+)?(?:доспех|брон)/i.test(s) || !AC_WORD.test(s) || /^(?:Действием|Бонусным|Реакцией)/i.test(s)) return;
+      const m = s.match(/(\d+)\s*\+\s*(.+)$/); if (!m) return;
+      out.push({ base: +m[1], abs: abIn(m[2]), pb: /бонус\S*\s+(?:мастерства|владения)/i.test(m[2]), noShield: /щит/i.test(s) });
+    }));
+    return out;
+  }
+  const acValue = (f, m, pb) => f.base + f.abs.reduce((q, k) => q + m[k], 0) + (f.pb ? pb : 0);
+  const acFormulaText = f => f.base + f.abs.map(k => ' + ' + abShort(k)).join('') + (f.pb ? ' + БМ' : '');
+
+  // Умения, повышающие характеристики: «Значения ваших Силы и Телосложения увеличиваются на 4, но не выше 25» (до расчёта модификаторов)
+  function abilityFx(S) {
+    const out = [];
+    [...S.cf, ...S.sf].forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      const mm = s.match(/значени\S*\s+(?:ваш\S*\s+)?([А-ЯЁа-яё]+(?:(?:,\s*|\s+и\s+)[А-ЯЁа-яё]+)*)\s+увеличива\S*\s+на\s+(\d+)/i); if (!mm) return;
+      const ab = abIn(mm[1]); if (!ab.length) return;
+      const cap = (s.match(/не\s+выше\s+(\d+)/i) || f.text.match(/Максимальн\S*\s+значени\S*[^.]*?(\d+)\s*\./i) || [])[1];
+      const id = f.from + ':' + f.name + '#ability'; if (out.some(e => e.id === id)) return;
+      out.push({ id, k: 'ability', ab, v: +mm[2], cap: cap ? +cap : 30, why: f.name, src: srcLabel(f), on: true, cond: '',
+        text: ab.map(abShort).join(', ') + ' ' + sgn(+mm[2]) + (cap ? ' (максимум ' + cap + ')' : '') }); /* cap без числа — не ограничиваем выше 30 */
+    })));
+    return out;
+  }
+
+  // Остальные эффекты. X = { lvl, pb, m, score, lr, worn, src }
+  function collectFx(c, D, X) {
+    const { lvl, pb, m, score, lr, worn, src: S } = X, out = [], seen = new Set(), all = [...S.cf, ...S.sf, ...S.tr, ...S.ft];
+    const put = (f, k, o) => {
+      const id = o.id || (f.from + ':' + f.name + '#' + k); if (seen.has(id)) return; seen.add(id);
+      const cond = o.need ? COND[o.need] : null;
+      out.push(Object.assign({ why: f.name, src: srcLabel(f), on: cond ? cond.f(worn) : true, cond: cond ? cond.t : '' }, o, { id, k }));
+    };
+    const speedN = t => { const mm = plain(t).match(/скорост\S*(?:\s+ходьбы)?\s+увеличива\S*\s+на\s+(\d+)\s+фут/i); return mm ? +mm[1] : 0; };
+
+    /* скорость */
+    S.cf.forEach(f => {
+      if (/^(движение|скорость) без доспехов$/i.test(f.name) && lr) {             // монах: прибавка — столбец таблицы класса
+        const key = Object.keys(lr.extra).find(k => /движение без доспехов|скорость без доспехов/i.test(k)), v = key ? intOf(lr.extra[key]) : 0;
+        if (v) put(f, 'speed', { v, need: 'noArmorShield', text: 'Скорость ' + sgn(v) + ' фт.' });
+      } else if (/^(быстрое передвижение|вездеходность)$/i.test(f.name)) {         // варвар (5 ур.), следопыт 2024 (6 ур.)
+        const v = speedN(f.text); if (v) put(f, 'speed', { v, need: 'noHeavy', text: 'Скорость ' + sgn(v) + ' фт.' });
+      }
+    });
+    S.sf.forEach(f => { if (/^(превосходная мобильность|аура рвения)$/i.test(f.name)) { const v = speedN(f.text); if (v) put(f, 'speed', { v, text: 'Скорость ' + sgn(v) + ' фт.' }); } });
+    S.tr.forEach(f => {                                                              // 2024: «Эльфийский род — Лесные эльфы»: «Ваша Скорость увеличивается до 35 футов»
+      const mm = / — /.test(f.name) && f.text.match(/Скорость\S*\s+увеличивается\s+до\s+(\d+)\s+фут/i); if (mm) put(f, 'speed', { set: +mm[1], text: 'Скорость ' + mm[1] + ' фт.' });
+    });
+    S.ft.forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {              // черты: «Ваша Скорость увеличивается на 10 футов» (Быстрый, Подвижный…)
+      const mm = s.match(/^Ваша\s+(?:базовая\s+)?[Сс]корость(?:\s+ходьбы)?\s+увеличивается\s+на\s+(\d+)\s+фут/); if (mm) put(f, 'speed', { v: +mm[1], text: 'Скорость ' + sgn(+mm[1]) + ' фт.' });
+    })));
+
+    /* инициатива: «…вы можете добавить к результату ваш модификатор Мудрости», «бонус +5 к проверкам инициативы», «… бонус мастерства» */
+    all.forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      if (!/инициатив/i.test(s) || !/(добав|получа|прибав)/i.test(s) || /количеств/i.test(s)) return;
+      const n = s.match(/бонус\s+\+(\d+)/i), a = s.match(/модификатор\S*\s+(?:ваш\S*\s+)?(Сил|Ловк|Телос|Интел|Мудр|Хариз)\S*/i);
+      const v = n ? +n[1] : a ? m[abIn(a[1])[0]] : /бонус\S*\s+(?:мастерства|владения)/i.test(s) ? pb : null;
+      if (v == null) return;
+      put(f, 'init', { v, id: f.from === 'sp' ? 'sp:init:' + v : undefined, text: 'Инициатива ' + sgn(v) });   // у вида — без повторов (в данных иногда две версии одной особенности)
+    })));
+
+    /* «половина бонуса мастерства» (Мастер на все руки, Выдающийся атлет 2014): к навыкам без владения и, если бонус «ко всем проверкам», к инициативе */
+    [...S.cf, ...S.sf].forEach(f => f.paras.forEach(p => {
+      const mm = plain(p).match(/добав\S*\s+половин\S*\s+(?:ваш\S*\s+)?бонус\S*\s+(?:мастерства|владения)([^.]*)/i); if (!mm) return;
+      const tail = mm[1], v = /в\s+большую/i.test(tail) ? Math.ceil(pb / 2) : Math.floor(pb / 2);
+      const sc = tail.match(/проверк\S*\s+((?:[А-ЯЁ][а-яё]+(?:,\s*|\s+или\s+|\s+и\s+)?)+)/), abs = sc ? abIn(sc[1]) : null;
+      const skillOnly = /навык/i.test(tail) && !/всем\s+проверк/i.test(tail);
+      put(f, 'skill', { v, nonprof: true, abs, text: 'Навыки без владения ' + sgn(v) + (abs ? ' (' + abs.map(abShort).join(', ') + ')' : '') });
+      if (!skillOnly && (!abs || abs.includes('dex'))) put(f, 'init', { v, text: 'Инициатива ' + sgn(v) });
+    }));
+
+    /* бонус к спасброскам, равный модификатору (Аура защиты паладина): «…бонус к спасброскам, равный вашему модификатору Харизмы (минимум +1)» */
+    [...S.cf, ...S.sf].forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      const mm = s.match(/бонус\S*\s+к\s+спасброс\S*(.*?),?\s*равн\S*\s+(?:вашему\s+)?модификатор\S*\s+(?:ваш\S*\s+)?([А-Яа-яЁё]+)/i); if (!mm) return;
+      const vab = abIn(mm[2])[0]; if (!vab) return;
+      const tg = abIn(mm[1]), v = /минимум|минимальн/i.test(s) ? Math.max(1, m[vab]) : m[vab];
+      put(f, 'save', { v, ab: tg.length ? tg : null, text: 'Спасброски ' + (tg.length ? tg.map(abShort).join(', ') + ' ' : '') + sgn(v) });
+    })));
+
+    /* хиты: «максимум хитов увеличивается на A» + «на 1 за каждый уровень». Крепкий — удвоенный уровень */
+    all.forEach(f => {
+      if (/^крепкий$/i.test(f.name) && /удвоенн\S*\s+уров/i.test(f.text)) { put(f, 'hp', { v: 2 * lvl, text: 'Хиты ' + sgn(2 * lvl) + ' (2 за уровень)' }); return; }
+      f.paras.forEach(p => sentences(p).forEach(s => {
+        const a = s.match(/(?:максимум\S*|максимальн\S*\s+значени\S*)\s+(?:ваших\s+)?хит\S*\s+(?:также\s+)?увеличива\S*\s+на\s+(\d+)/i);
+        if (!a || /его\s+максимум/i.test(s)) return;
+        const per = /(?:кажд\S*|последующ\S*)[^.]*?уров|уров\S*[^.]*?кажд/i.test(s), v = +a[1] + (per ? Math.max(0, lvl - (f.level || 1)) : 0);
+        put(f, 'hp', { v, text: 'Хиты ' + sgn(v) + (per ? ' (растут с уровнем)' : '') });
+      }));
+    });
+
+    /* КД: «Пока вы не носите доспехов, ваш КД равен 10 + модификатор Ловкости + …» — варианты на случай «без доспеха»; считаем лучший */
+    all.forEach(f => acFormulas(f.paras).forEach(fm => {
+      const v = acValue(fm, m, pb), need = fm.noShield ? 'noArmorShield' : 'noArmor';
+      put(f, 'acAlt', { fm, v, need, label: f.from === 'cls' ? f.label.toLowerCase() : f.name, text: 'КД без доспехов: ' + acFormulaText(fm) + ' = ' + v });
+    }));
+    S.ft.forEach(f => { if (/^мастер средних доспехов$/i.test(f.name)) put(f, 'acCap', { v: 3, id: 'ft:' + f.name + '#acCap', on: false, text: 'Средний доспех: бонус Ловкости до +3' }); });
+    out.filter(e => e.k === 'acCap').forEach(e => { e.on = worn.medium && score.dex >= 16; e.cond = 'пока надет средний доспех и Ловкость 16+'; });
+
+    /* пассивные проверки: «бонус +5 к пассивной проверке Мудрости (Восприятие) и … Интеллекта (Расследование)» */
+    S.ft.forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      const mm = /пассивн/i.test(s) && s.match(/бонус\s+\+(\d+)/i); if (!mm) return;
+      const ids = skillsIn(s); if (ids.length) put(f, 'passive', { v: +mm[1], skills: ids, text: 'Пассивные проверки ' + sgn(+mm[1]) });
+    })));
+    return out;
+  }
+
+  /* ---------- ресурсы класса ---------- */
+  // Значения из таблицы класса растут с уровнем сами; остальное — по формулам правил (только если умение уже есть у класса).
+  const POOL_COL = /^(?:ярость|второе дыхание|дикий облик|проведение божественности|очки |единицы |избранный враг)/i;   // тратятся и восстанавливаются
+  const MOVE_COL = /скорост|движени/i;                                                                                   // идёт в скорость, не в ресурсы
+  const POOLS = [
+    { id: 'lay', cls: 'paladin', feat: /^(возложение|наложение) рук$/i, n: 'Возложение рук', unit: 'хитов', pool: true, at: L => 5 * L },
+    { id: 'insp', cls: 'bard', feat: /^(бардовское вдохновение|вдохновение барда)$/i, n: 'Вдохновение барда', pool: true, at: (L, x) => Math.max(1, x.m.cha) },
+    { id: 'inspd', cls: 'bard', ed: 14, feat: /^вдохновение барда$/i, n: 'Кость вдохновения', at: L => 'к' + (L >= 15 ? 12 : L >= 10 ? 10 : L >= 5 ? 8 : 6) },
+    { id: 'arc', cls: 'wizard', feat: /^магическое восстановление$/i, n: 'Магическое восстановление', unit: 'ур. ячеек', at: L => Math.ceil(L / 2) },
+    { id: 'surge', cls: 'fighter', feat: /^всплеск действий$/i, n: 'Всплеск действий', pool: true, at: L => (L >= 17 ? 2 : 1) },
+    { id: 'indom', cls: 'fighter', feat: /^(неукротимый|упорный)$/i, n: 'Неукротимый', pool: true, at: L => (L >= 17 ? 3 : L >= 13 ? 2 : 1) },
+    { id: 'wind', cls: 'fighter', ed: 14, feat: /^второе дыхание$/i, n: 'Второе дыхание', pool: true, at: () => 1 },
+    { id: 'cdc', cls: 'cleric', ed: 14, feat: /^божественный канал$/i, n: 'Божественный канал', pool: true, at: L => (L >= 18 ? 3 : L >= 6 ? 2 : 1) },
+    { id: 'cdp', cls: 'paladin', ed: 14, feat: /^божественный канал$/i, n: 'Божественный канал', pool: true, at: () => 1 },
+    { id: 'ds', cls: 'paladin', ed: 14, feat: /^божественное чувство$/i, n: 'Божественное чувство', pool: true, at: (L, x) => 1 + Math.max(0, x.m.cha) },
+    { id: 'ws', cls: 'druid', ed: 14, feat: /^дикий облик$/i, n: 'Дикий облик', pool: true, at: L => (L >= 20 ? 'без лимита' : 2) },
+    { id: 'kidc', cls: 'monk', feat: /^(ци|монашеская сосредоточенность)$/i, n: ed => (ed === 14 ? 'Сл спасброска ци' : 'Сл сосредоточенности'), at: (L, x) => 8 + Math.ceil(L / 4) + 1 + x.m.wis }
+  ];
+  function resources(c, D, X) {
+    const out = [], { lvl, m, lr } = X; if (!D.cls || !lr) return out;
+    Object.keys(lr.extra).forEach(k => {
+      const v = String(lr.extra[k]).trim(); if (MOVE_COL.test(k) || !v || /^[—–-]+$/.test(v)) return;
+      let next = null;
+      for (let L = lvl + 1; L <= 20 && !next; L++) { const r = levelRow(D.cls, L), nv = r ? String(r.extra[k]).trim() : v; if (nv !== v) next = { lvl: L, v: lowDie(nv) }; }
+      out.push({ id: 'tbl:' + k, n: k, v: lowDie(v), num: /^\d+$/.test(v) ? +v : null, pool: POOL_COL.test(k), next, src: 'table' });
+    });
+    const has = re => (D.cls.features || []).some(f => (f.level || 0) <= lvl && re.test(f.name));
+    POOLS.filter(p => p.cls === D.cls.slug && (!p.ed || p.ed === c.ed) && has(p.feat)).forEach(p => {
+      const v = p.at(lvl, { m }); if (v == null) return;
+      let next = null; for (let L = lvl + 1; L <= 20 && !next; L++) { const nv = p.at(L, { m }); if (nv != null && nv !== v) next = { lvl: L, v: nv }; }
+      out.push({ id: 'calc:' + p.id, n: typeof p.n === 'function' ? p.n(c.ed) : p.n, v, num: typeof v === 'number' ? v : null, unit: p.unit || '', pool: !!p.pool, next, src: 'calc' });
+    });
+    return out;
+  }
+
   /* ---------- производные значения ---------- */
   // c — персонаж (хранится в браузере); D — загруженные данные {cls, sub, sp, bg, feats, gear}
   function derive(c, D) {
@@ -285,47 +509,59 @@
       else if (x.m === '2') add(x.a, 2, 'ур. ' + l);
     });
     (c.feats || []).forEach(x => feats.push({ slug: x.slug, lvl: 0, extra: true }));
-    // Дикий чемпион (варвар, 20 ур., 2024): Сила и Телосложение +4, но не выше 25
-    if (c.ed === 24 && D.cls && D.cls.slug === 'barbarian' && lvl >= 20) ['str', 'con'].forEach(k => { add(k, 4, 'Дикий чемпион'); capOf[k] = Math.max(capOf[k] || 0, 25); });
+    // черты (в том числе черта предыстории 2024) и остальные источники умений
+    const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
+    if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
+    const S = sourcesOf(c, D, lvl, featObjs), off = c.fxOff || {};
+    // умения, повышающие характеристики (Дикий чемпион, Тело и разум): +N с потолком выше обычного
+    const abFx = abilityFx(S).map(e => Object.assign(e, { off: !!off[e.id] }));
+    abFx.filter(e => !e.off).forEach(e => e.ab.forEach(k => { add(k, e.v, e.why); capOf[k] = Math.max(capOf[k] || 0, e.cap); }));
     AB.forEach(a => { score[a.k] = Math.min(score[a.k], capOf[a.k] || (c.cap20 === false ? 30 : 20)); });
     const m = {}; AB.forEach(a => { m[a.k] = mod(score[a.k]); });
     const pb = lr ? lr.prof : Math.ceil(lvl / 4) + 1;
+    const worn = wornGear(c, D);
+    const fx = [...abFx, ...collectFx(c, D, { lvl, pb, m, score, lr, worn, src: S })].map(e => Object.assign(e, { off: !!off[e.id] }));
+    const act = k => fx.filter(e => e.k === k && e.on && !e.off), sum = (list, f) => list.reduce((q, e) => q + (f ? f(e) : e.v), 0);
 
-    const saveProf = new Set(ci ? ci.saves : []), saves = {};
-    AB.forEach(a => { saves[a.k] = m[a.k] + (saveProf.has(a.k) ? pb : 0); });
+    const saveProf = new Set(ci ? ci.saves : []), saves = {}, saveFx = act('save');
+    AB.forEach(a => { saves[a.k] = m[a.k] + (saveProf.has(a.k) ? pb : 0) + sum(saveFx.filter(e => !e.ab || e.ab.includes(a.k))); });
 
     const bgi = bgSkillInfo(D.bg), bgSk = bgi.fixed;
     const pick = new Set(c.skills || []), extra = new Set(c.skillsExtra || []), exp = new Set(c.exp || []);
     const bgChoice = bgi.choose ? { n: bgi.choose, from: bgi.from, got: bgi.from.filter(id => extra.has(id)).length } : null;
+    const skFx = act('skill');
     const skills = SKILLS.map(s => {
       const from = [];
       if (pick.has(s.id)) from.push('класс'); if (bgSk.includes(s.id)) from.push('предыстория'); if (extra.has(s.id)) from.push('другое');
       const lev = exp.has(s.id) && from.length ? 2 : from.length ? 1 : 0;
-      return { id: s.id, n: skillName(s, c.ed), ab: s.ab, lev, from, bonus: m[s.ab] + (lev === 2 ? pb * 2 : lev === 1 ? pb : 0) };
+      const bonus = sum(skFx.filter(e => (!e.nonprof || !lev) && (!e.abs || e.abs.includes(s.ab))));   // «половина бонуса мастерства» — только к навыкам без владения
+      return { id: s.id, n: skillName(s, c.ed), ab: s.ab, lev, from, bonus: m[s.ab] + (lev === 2 ? pb * 2 : lev === 1 ? pb : 0) + bonus };
     });
+    // пассивные проверки: 10 + бонус навыка (+5 у черты «Внимательный» 2014)
+    const psFx = act('passive'), pas = id => 10 + skills.find(s => s.id === id).bonus + sum(psFx.filter(e => e.skills.includes(id)));
+    const passive = { perception: pas('perception'), insight: pas('insight'), investigation: pas('investigation') };
 
     // хиты
     const die = ci ? ci.die : 8;
     const hpLvl = (L) => Math.max(1, Math.floor(die / 2) + 1 + m.con);
+    const hpFx = act('hp'), manualHp = c.hpMode === 'manual' && c.hpManual;
     let hp = die + m.con + (lvl - 1) * hpLvl();
-    if (c.hpMode === 'manual' && c.hpManual) hp = c.hpManual;
+    if (manualHp) hp = c.hpManual; else hp += sum(hpFx);                  // свой итог вводят уже с учётом всего
     hp = Math.max(lvl, hp + (c.hpBonus || 0));
 
-    // КД
+    // КД: доспех из справочника, иначе лучший вариант «без доспеха» (10 + Лов, защита без доспехов, драконья чешуя…)
     let ac = 10 + m.dex, acWhy = 'без доспеха';
-    if (D.cls && D.cls.slug === 'barbarian') { ac = 10 + m.dex + m.con; acWhy = 'без доспеха (варвар)'; }
-    if (D.cls && D.cls.slug === 'monk') { ac = 10 + m.dex + m.wis; acWhy = 'без доспеха (монах)'; }
-    let shield = false;
-    (c.inv || []).filter(i => i.eq).forEach(i => {
-      if (i.sec === 'items') return;   // магические предметы: бонус к КД вносится вручную
-      const g = D.gearBySlug && D.gearBySlug[i.slug]; if (!g) return;
-      if (/щит/i.test(g.line || '') && g.slug === 'shield') { shield = true; return; }
-      const p = (g.props || []).find(x => /класс защиты/i.test(x.label)); if (!p || !/доспех/i.test(g.line || '')) return;
-      const base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост/i.test(p.value), cap = (String(p.value).match(/не более\s*(\d)/) || [])[1];
-      ac = base + (dexOk ? (cap ? Math.min(m.dex, +cap) : m.dex) : 0); acWhy = g.name_ru;
-    });
-    if (shield && D.cls && D.cls.slug === 'monk' && acWhy === 'без доспеха (монах)') { ac = 10 + m.dex; acWhy = 'со щитом (без защиты монаха)'; }   // защита без доспехов у монаха не работает со Щитом
-    if (shield) { ac += 2; acWhy += ' + щит'; }
+    if (worn.armor) {
+      const p = worn.armor.props.find(x => /класс защиты/i.test(x.label)), base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост/i.test(p.value), cap0 = (String(p.value).match(/не более\s*(\d)/) || [])[1];
+      let cap = cap0 ? +cap0 : null; if (cap === 2 && act('acCap').length) cap = Math.max(cap, ...act('acCap').map(e => e.v));   // «Мастер средних доспехов»: +3 вместо +2
+      ac = base + (dexOk ? (cap != null ? Math.min(m.dex, cap) : m.dex) : 0); acWhy = worn.armor.name_ru;
+    } else if (worn.anyArmor) acWhy = 'магический доспех: впишите КД вручную';
+    else {
+      const alts = fx.filter(e => e.k === 'acAlt' && !e.off), best = alts.filter(e => e.on).reduce((b, e) => (e.v > b.v ? e : b), { v: ac });
+      if (best.v > ac) { ac = best.v; acWhy = 'без доспеха (' + best.label + ')'; }
+      else { const blocked = alts.find(e => !e.on && e.v > ac); if (blocked) acWhy = 'без доспеха (' + blocked.label + ' не действует со щитом)'; }   // формула сильнее, но со щитом не работает
+    }
+    if (worn.shield) { ac += 2; acWhy += ' + щит'; }
     if (c.acBonus) ac += c.acBonus;
     if (c.acMode === 'manual' && c.acManual) { ac = c.acManual; acWhy = 'вручную'; }
 
@@ -346,8 +582,6 @@
     // дикий облик (друид)
     const ws = wildShape(D, c, lvl);
     // навыки и владения от черт, вида и подкласса
-    const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
-    if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
     const grants = [];
     featObjs.forEach(f => { const n = skillGrantN(paragraphsOf(f.blocks)); if (n) grants.push({ n, why: f.name_ru }); });
     if (D.sp) speciesTraits(D.sp, { opt: c.spOpt, lvl }).forEach(t => { const n = skillGrantN([t.text]); if (n) grants.push({ n, why: D.sp.name_ru + ': ' + t.name }); });
@@ -363,7 +597,22 @@
       });
     }
     const expN = expertiseSlots(D.cls, lvl, c.ed), expUsed = skills.filter(s => s.lev === 2).length;
-    return { expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, init: m.dex, size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)), jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str, speed: c.speed != null && c.speed !== '' ? intOf(c.speed) : speciesSpeed(D.sp, c.ed), sp, feats, ws };
+
+    // инициатива и скорость: база + эффекты умений; свою скорость в листе вводят уже итоговой
+    const initFx = act('init'), init = m.dex + sum(initFx);
+    const spdFx = act('speed'), spdBase = speciesSpeed(D.sp, c.ed, { opt: c.spOpt, lvl });
+    const spdSet = Math.max(spdBase, ...spdFx.filter(e => e.set).map(e => e.set)), spdAuto = spdSet + sum(spdFx.filter(e => !e.set));
+    const spdOv = c.speed != null && c.speed !== '' ? intOf(c.speed) : null, speed = spdOv != null ? spdOv : spdAuto;
+    const whyOf = (base, list) => [base, ...list.map(e => e.why + ' ' + sgn(e.v))].join(', ');
+    const res = resources(c, D, { lvl, m, lr });
+    return {
+      expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy,
+      init, initWhy: whyOf('Лов ' + sgn(m.dex), initFx), initFx, hpFx, hpAuto: !manualHp, passive, passiveFx: psFx,
+      size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
+      jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
+      speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
+      sp, feats, ws, fx, worn, res
+    };
   }
 
   /* ---------- дикий облик ---------- */
@@ -406,10 +655,10 @@
       id: Math.random().toString(36).slice(2, 9), ed: ed || 24, name: '', player: '', cls: '', sub: '', lvl: 1, sp: '', spOpt: '', bg: '', align: '',
       abm: 'std', ab: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }, bg2: { m: '21', a: '', b: '' }, bonus: {}, asi: {},
       skills: [], skillsExtra: [], exp: [], hpMode: 'avg', hpManual: 0, hpBonus: 0, hpCur: null, hpTemp: 0, acMode: 'auto', acManual: 0, acBonus: 0,
-      speed: '', spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
+      speed: '', fxOff: {}, spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
