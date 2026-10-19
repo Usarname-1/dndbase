@@ -176,9 +176,16 @@
   /* ---------- черты вида ---------- */
   function paragraphsOf(blocks) { return (blocks || []).filter(b => b.type === 'paragraph').map(b => b.text); }
   const OPT_HEAD = /наследие великанов|гномий род|наследие драконов|наследие исчадий|эльфийский род/i;
+  // В данных 2014 рядом с особенностями вида лежат справочные абзацы в том же оформлении: «**Мужские имена:** …», «**Лидер:** …», «**Об эльфах.** …»,
+  // «**Источник: …**». Особенностями они не являются, и без этого фильтра попадали бы в список умений и на печатный лист.
+  const LORE_NAME = /(:\s*$|^источник|^смотрите статью|^об?\s+\S+(ах|ях)$|(^|\s)(имена|имён)(\s|$)|^(лидеры?|штаб-?квартира)$|^(названия\s+\S+|прозвища|фамилии)(\s|$))/i;
+  function traitOf(text) {
+    const m = String(text).match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (!m) return null;
+    const name = m[1].replace(/\.$/, ''); return LORE_NAME.test(name.trim()) ? null : { name, text: m[2] };
+  }
   function allTraits(sp) {
     const out = [];
-    paragraphsOf(sp && sp.blocks).forEach(t => { const m = t.match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (m) out.push({ name: m[1].replace(/\.$/, ''), text: m[2] }); });
+    paragraphsOf(sp && sp.blocks).forEach(t => { const tr = traitOf(t); if (tr) out.push(tr); });
     return out;
   }
   // Подвид/наследие вида: {kind:'par'|'table'|'groups', label, options:[имена], head, table}
@@ -205,7 +212,7 @@
       (sp.blocks || []).forEach(b => {
         if (b.type === 'heading') { cur = b.text; return; }
         if (b.type !== 'paragraph' || (ch.options.includes(cur) && cur !== opt)) return;
-        const m = b.text.match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (m) out.push({ name: m[1].replace(/\.$/, ''), text: m[2] });
+        const tr = traitOf(b.text); if (tr) out.push(tr);
       });
       return out;
     }
@@ -486,8 +493,8 @@
   function derive(c, D) {
     const lvl = Math.max(1, Math.min(20, c.lvl || 1)), ci = classInfo(D.cls), lr = levelRow(D.cls, lvl);
     const score = {}, src = {};
-    AB.forEach(a => { score[a.k] = (c.ab && c.ab[a.k]) || 10; src[a.k] = []; });
-    const add = (k, v, why) => { if (!k || !v) return; score[k] += v; src[k].push(sgn(v) + ' ' + why); };
+    AB.forEach(a => { score[a.k] = intOf(c.ab && c.ab[a.k]) || 10; src[a.k] = []; });   // в сохранённых и импортированных листах значение бывает строкой
+    const add = (k, v, why) => { if (!k || !v || !src[k]) return; score[k] += v; src[k].push(sgn(v) + ' ' + why); };
     // 2024 — бонусы дают предыстории; 2014 — вид (вводятся вручную)
     if (c.ed === 24 && D.bg && c.bg2) {
       const bgA = (D.bg.abilities || []).map(x => ABK[x]).filter(Boolean);
@@ -642,6 +649,7 @@
   const beastOk = (m, ws, ed) => {
     if (!ws) return false;
     if (!/зверь/i.test(String(m.type || ''))) return false;
+    if (m.cr == null || m.cr === '') return false;   // призванные духи без опасности («Дух зверя») под Дикий облик не подходят
     if (crNum(m.cr) > ws.cr) return false;
     const sp = m.speed || {};
     if (sp.fly && !ws.fly) return false;

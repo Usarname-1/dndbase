@@ -327,3 +327,53 @@ test('каждое правило находит своё умение в дан
   const lacking = must.filter(m => !snap.split('\n').some(l => l.startsWith(m + ' | ')));
   assert.deepEqual(lacking, []);
 });
+
+/* ---------- облики зверей ---------- */
+test('Дикий облик: у друида 20 уровня остаются звери с опасностью 1, а существа без опасности не попадают в список', () => {
+  for (const ed of [24, 14]) {
+    const beasts = load(ed === 24 ? 'data/bestiary.json' : 'data14/bestiary.json');
+    const [c, D] = mk(ed, { cls: 'druid', lvl: 20 }), ws = R.wildShape(D, c, 20);
+    assert.ok(ws, ed + ': нет Дикого облика на 20 уровне');
+    const ok = beasts.filter(m => R.beastOk(m, ws, ed));
+    assert.ok(ok.some(m => R.crNum(m.cr) === 1), ed + ': нет ни одного зверя с ОП 1');
+    assert.ok(ok.every(m => m.cr != null && m.cr !== '' && R.crNum(m.cr) <= ws.cr), ed + ': в списке зверь без ОП или сильнее предела');
+    const beast = cr => ({ type: 'Зверь', cr, speed: {} });
+    assert.equal(R.beastOk(beast(null), ws, ed), false);
+    assert.equal(R.beastOk(beast(''), ws, ed), false);
+    assert.equal(R.beastOk(beast('1'), ws, ed), true);
+    assert.equal(R.beastOk(beast('2'), ws, ed), false);
+  }
+});
+test('Дикий облик: Круг Луны — опасность до уровня ÷ 3', () => {
+  for (const ed of [24, 14]) {
+    const [c, D] = mk(ed, { cls: 'druid', lvl: 20, sub: 'луны' });
+    assert.equal(R.wildShape(D, c, 20).cr, 6, ed + ': 20 уровень');
+    assert.equal(R.wildShape(D, c, 9).cr, 3, ed + ': 9 уровень');
+  }
+});
+
+/* ---------- устойчивость к странным данным ---------- */
+test('derive(): характеристики в сохранённом листе могут быть строками или мусором', () => {
+  for (const ed of [24, 14]) {
+    const [c, D] = mk(ed, { cls: 'fighter', lvl: 5 });
+    c.ab = { str: '16', dex: ' 14 ', con: null, int: undefined, wis: 'abc', cha: NaN, luck: 18 };
+    const d = R.derive(c, D);
+    assert.equal(d.score.str, 16); assert.equal(d.score.dex, 14);
+    ['con', 'int', 'wis', 'cha'].forEach(k => assert.equal(d.score[k], 10, ed + ' ' + k));
+    assert.ok(Object.values(d.score).every(Number.isFinite) && Number.isFinite(d.hp) && Number.isFinite(d.ac));
+  }
+});
+
+/* ---------- особенности вида 2014 ---------- */
+test('особенности вида 2014: справочные абзацы (имена, «Лидер», «Об эльфах», «Источник») особенностями не считаются', () => {
+  const LORE = /:\s*$|^Источник|^Смотрите статью|^Об? \S+(ах|ях)$|(^| )(имена|имён)( |$)|^(Лидеры?|Штаб-?[Кк]вартира)$/i;
+  const bad = [];
+  for (const sp of DATA[14].species) {
+    const ch = R.speciesChoice(sp);
+    for (const opt of ch ? ch.options : ['']) R.speciesTraits(sp, { opt, lvl: 20 }).forEach(t => { if (LORE.test(t.name)) bad.push(sp.slug + ': ' + t.name); });
+  }
+  assert.deepEqual(bad, []);
+  const dw = DATA[14].species.find(x => x.slug === 'dwarf'), names = R.speciesTraits(dw, { opt: 'Горный', lvl: 1 }).map(t => t.name);
+  ['Тёмное зрение', 'Дварфийская устойчивость', 'Знание камня', 'Владение доспехами дварфов'].forEach(n => assert.ok(names.includes(n), 'пропала особенность «' + n + '»'));
+  assert.ok(!names.includes('Об эльфах') && !names.includes('Мужские имена'));
+});
