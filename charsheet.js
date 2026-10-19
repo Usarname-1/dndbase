@@ -52,32 +52,52 @@
   function numIn(value, onchange, attrs) { return h('input', Object.assign({ type: 'number', value: value == null ? '' : value, onchange: e => onchange(R.intOf(e.target.value)) }, attrs || {})); }
   function html(htmlStr, cls) { const d = h('div', { class: cls || '' }); d.innerHTML = htmlStr; return d; }
   function blocks(bl) { const d = html(DB().B(bl || []), 'csb'); return d; }
-  function searchBox(items, render, opt) {      // список с поиском; items — массив, render(item) → узел
+  // список с поиском; items — массив, render(item) → узел; opt.max — сколько строк за раз; opt.key — чтобы раскрытый список
+  // не сворачивался после «+ Добавить» (экран перерисовывается целиком)
+  function searchBox(items, render, opt) {
     opt = opt || {};
+    const step = opt.max || 80, more = UI.more = UI.more || {};
+    let extra = opt.key ? more[opt.key] || 0 : 0;
     const q = h('input', { type: 'text', placeholder: opt.ph || 'Поиск…', autocomplete: 'off', value: opt.q || '' }), list = h('div', { class: 'cslist' });
     const draw = () => {
       const v = DB().norm(q.value.trim()); list.textContent = '';
-      const hit = items.filter(i => !v || DB().norm(i.name_ru + ' ' + (i.name_en || '')).includes(v)).slice(0, opt.max || 80);
+      const all = items.filter(i => !v || DB().norm(i.name_ru + ' ' + (i.name_en || '')).includes(v)), hit = all.slice(0, step + extra);
       if (!hit.length) list.append(h('div', { class: 'none' }, 'Ничего не найдено'));
       hit.forEach(i => list.append(render(i)));
+      // хвост длинного списка не должен пропадать молча (раньше зверей с большим ОП и последние заклинания было видно только через поиск)
+      if (all.length > hit.length) list.append(h('div', { class: 'csmore' }, h('small', {}, 'Показано ' + hit.length + ' из ' + all.length),
+        btn('Показать ещё ' + Math.min(step, all.length - hit.length), () => { extra += step; if (opt.key) more[opt.key] = extra; draw(); }, 'dmbtn')));
     };
-    q.addEventListener('input', () => { if (opt.onq) opt.onq(q.value); draw(); }); draw();
+    q.addEventListener('input', () => { extra = 0; if (opt.key) delete more[opt.key]; if (opt.onq) opt.onq(q.value); draw(); }); draw();
     return h('div', { class: 'cssb' }, q, list);
   }
   const link = (ed, sec, m, txt) => h('a', { href: DB().hh(ed, sec, m.slug), target: '_blank', rel: 'noopener', title: 'Открыть карточку в новой вкладке' }, txt || m.name_ru);
 
   /* ---------- общий каркас ---------- */
+  // значение в плитке сводки не должно вылезать за рамку: длинное слово («Маленький», «Громадный») уменьшаем, пока не поместится
+  function fitTiles(root) {
+    root.querySelectorAll('.cstat b').forEach(b => {
+      b.style.fontSize = '';
+      let fs = parseFloat(getComputedStyle(b).fontSize) || 16;
+      while (b.scrollWidth > b.clientWidth && fs > 9) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
+    });
+  }
   function build() {
     host = document.getElementById('cs'); load();
     host.textContent = '';
     host.append(h('div', { class: 'csbar' }), h('div', { class: 'csbody' }));
+    // ширина плиток зависит от окна и от шрифта (он может подгрузиться уже после первой отрисовки)
+    let tm = 0; const refit = () => { clearTimeout(tm); tm = setTimeout(() => fitTiles(host), 80); };
+    window.addEventListener('resize', refit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   }
   async function show() {
     if (!host) build();
     await render();
   }
+  let renderSeq = 0;
   async function render(keepScroll) {
-    const main = document.querySelector('main'), top = keepScroll ? main.scrollTop : 0;
+    const seq = ++renderSeq, main = document.querySelector('main'), top = keepScroll ? main.scrollTop : 0;
     const bar = host.querySelector('.csbar'), body = host.querySelector('.csbody');
     renderBar(bar);
     const c = cur();
@@ -86,8 +106,10 @@
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
+    if (seq !== renderSeq) return;   // пока грузились данные, началась более свежая отрисовка: иначе на экране окажется две сводки подряд
     renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
     body.append(h('div', { class: 'csside' }, summary(c, D, d, t), tabsBar(c, D, d, t), todoCard(t)));   // слева (на узком экране — сверху): сводка, шаги, что осталось
+    fitTiles(body);
     const pane = h('div', { class: 'cspane t-' + tabId }); body.append(pane);
     const tb = body.querySelector('.cstabs'), on = tb && tb.querySelector('.act');   // активная вкладка — в центр полосы (на узких экранах)
     if (on) tb.scrollLeft = on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2;
@@ -364,7 +386,7 @@
       const items = D.feats.filter(f => (!cat || f.category === cat) && !skip.has(f.slug));
       body.append(searchBox(items, f => { const need = lvReq(f), bad = need > c.lvl;
         return h('div', { class: 'csrow', title: f.prerequisite ? 'Требование: ' + f.prerequisite : '', onclick: () => { ov.remove(); pick(f); } }, h('b', {}, f.name_ru), h('small', {}, (f.category ? f.category.replace(/^Черта\s+/, '') : '') + (f.prerequisite && f.prerequisite !== 'None' ? ' · треб.: ' + f.prerequisite : '')), bad ? h('small', { class: 'warn' }, 'нужен ' + need + ' ур.') : null); },
-        { q: UI.ftQ, onq: v => { UI.ftQ = v; }, ph: 'Поиск черты…', max: 100 }));
+        { q: UI.ftQ, key: 'feats:' + cat, onq: v => { UI.ftQ = v; }, ph: 'Поиск черты…', max: 100 }));
     }
     ov.append(h('div', { class: 'dmdlg wide' }, h('h3', {}, 'Выбор черты'), chips, body, h('div', { class: 'mbtn' }, btn('Закрыть', () => ov.remove()))));
     document.body.append(ov); draw();
@@ -508,7 +530,7 @@
     const maxL = Math.max(sp.maxLevel, 0), all = c.spellsAll;
     p.append(h('h3', { class: 'csh' }, 'Добавить заклинание'),
       h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: all, onchange: e => { c.spellsAll = e.target.checked; upd(); } }), ' показать заклинания всех классов (такие добавляются как «бонус»)'));
-    let lvlF = UI.spL;
+    let lvlF = UI.spL; if (lvlF !== 'all' && !(lvlF <= maxL)) lvlF = UI.spL = 'all';   // выбранный раньше круг мог остаться от другого персонажа или уровня
     const cat = D.spells.filter(s => (all || s.classes.some(x => x.slug === D.cls.slug)) && s.level <= maxL && !bySlug.has(s.slug)).sort((x, y) => x.level - y.level || x.name_ru.localeCompare(y.name_ru, 'ru'));
     const fl = h('div', { class: 'seg csmeth wrapseg' }, ['all', ...Array.from({ length: maxL + 1 }, (_, i) => i)].map(v => btn(v === 'all' ? 'Все' : v === 0 ? 'Заговоры' : v + (c.ed === 14 ? ' круг' : ' ур.'), () => { lvlF = UI.spL = v; redraw(); }, '')));
     const box = h('div'); p.append(fl, box);
@@ -520,7 +542,7 @@
         const foreign = !s.classes.some(x => x.slug === D.cls.slug), k = s.level === 0 ? 'can' : 'rest', blocked = !foreign && full(k);
         return h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'spells', s)), h('small', {}, (s.level ? s.level + ' ур. ' : 'заговор ') + (s.school || '') + (s.concentration ? ' · К' : '') + (s.ritual ? ' · Р' : '')),
           h('button', { type: 'button', class: 'dmbtn', disabled: blocked, title: blocked ? 'Лимит исчерпан — уберите другое заклинание' : '', onclick: () => c.spells.push({ slug: s.slug, name: s.name_ru, lvl: s.level, prep: !isBook && s.level > 0, free: foreign }) && upd() }, blocked ? 'лимит' : '+ Добавить'));
-      }, { ph: 'Поиск заклинания по названию…', max: 60, q: UI.spQ, onq: v => { UI.spQ = v; } }));
+      }, { ph: 'Поиск заклинания по названию…', max: 60, key: 'spells:' + lvlF, q: UI.spQ, onq: v => { UI.spQ = v; } }));
     }
     redraw();
     p.append(h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printSpells, onchange: e => { c.printSpells = e.target.checked; upd(false); } }), ' печатать полные описания выбранных заклинаний'));
@@ -584,7 +606,7 @@
     const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
     p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : link(24, 'equipment', g)), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
-      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
+      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, key: 'gear:' + cat + (UI.gearRar || ''), q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }
   const invG = (D, i) => i.sec === 'items' ? (D.itemsBySlug || {})[i.slug] : D.gearBySlug[i.slug];   // запись справочника: снаряжение или магический предмет
   const GCAT = [['', 'Всё'], ['weapon', 'Оружие'], ['armor', 'Доспехи и щиты'], ['tool', 'Инструменты'], ['pack', 'Наборы'], ['gear', 'Прочее снаряжение'], ['magic', 'Магические предметы']];
@@ -656,31 +678,46 @@
       c.ed === 14 ? fact('Плавание', ws.swim ? 'да' : 'нет') : null));
     if (ws.note) p.append(h('p', { class: 'mhint' }, ws.note));
     const beasts = await DB().load('bestiary', c.ed);
+    const crKey = m => (m.cr == null || m.cr === '' ? '—' : String(m.cr));   // у призванных духов в данных 2014 опасности нет
     const chosen = c.forms;
     p.append(h('h3', { class: 'csh' }, 'Ваши облики (' + chosen.length + (ws.known < 99 ? ' из ' + ws.known : '') + ')'));
     const lst = h('div', { class: 'cslist' });
     if (!chosen.length) lst.append(h('div', { class: 'none' }, 'Выберите зверей из списка ниже.'));
     chosen.forEach(slug => { const m = beasts.find(x => x.slug === slug); if (!m) return;
       const sp = m.speed || {}, sps = Object.entries(sp).map(([k, v]) => ({ walk: '', fly: 'полёт ', swim: 'плавание ', climb: 'лазание ', burrow: 'копание ' }[k] || k + ' ') + v).join(', ');
-      lst.append(h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'bestiary', m)), h('small', {}, 'ОП ' + m.cr + ' · КД ' + m.ac + ' · ХП ' + (m.hp && m.hp.avg) + ' · ' + sps), btn('×', () => { c.forms = c.forms.filter(x => x !== slug); upd(); }, 'xx', 'Убрать'))); });
+      lst.append(h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'bestiary', m)), h('small', {}, 'ОП ' + crKey(m) + ' · КД ' + m.ac + ' · ХП ' + (m.hp && m.hp.avg) + ' · ' + sps), btn('×', () => { c.forms = c.forms.filter(x => x !== slug); upd(); }, 'xx', 'Убрать'))); });
     p.append(lst);
     const all = h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: !!c.formsAll, onchange: e => { c.formsAll = e.target.checked; upd(); } }), ' показать всех зверей (по правилам — только подходящих; с позволения Мастера можно и других)');
-    p.append(h('h3', { class: 'csh' }, 'Подходящие звери'), all);
     const cands = beasts.filter(m => !chosen.includes(m.slug) && (c.formsAll ? /зверь/i.test(String(m.type)) : R.beastOk(m, ws, c.ed))).sort((a, b) => R.crNum(a.cr) - R.crNum(b.cr) || a.name_ru.localeCompare(b.name_ru, 'ru'));
-    p.append(searchBox(cands, m => { const sp = m.speed || {}; return h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'bestiary', m)), h('small', {}, 'ОП ' + m.cr + ' · КД ' + m.ac + ' · ХП ' + (m.hp && m.hp.avg) + (sp.fly ? ' · полёт' : '') + (sp.swim ? ' · плавание' : '')), btn('+ Добавить', () => { c.forms.push(m.slug); upd(); }, 'dmbtn')); }, { ph: 'Поиск зверя: волк, медведь, паук…', max: 60 }));
+    p.append(h('h3', { class: 'csh' }, (c.formsAll ? 'Все звери' : 'Подходящие звери') + ' (' + cands.length + ')'), all);
+    // фильтр по опасности: список отсортирован по ОП, и самые сильные звери (ОП 1 с 8 уровня и выше) идут в конце
+    const crs = [...new Set(cands.map(m => crKey(m)))].sort((a, b) => R.crNum(a) - R.crNum(b));
+    let crF = UI.crF && crs.includes(UI.crF) ? UI.crF : '';
+    const chips = crs.length > 1 ? h('div', { class: 'seg csmeth wrapseg' }) : null, box = h('div');
+    const redraw = () => {
+      if (chips) { chips.textContent = ''; [['', 'Все'], ...crs.map(k => [k, 'ОП ' + k])].forEach(([k, t]) => chips.append(btn(t + ' · ' + (k ? cands.filter(m => crKey(m) === k).length : cands.length), () => { crF = UI.crF = k; redraw(); }, k === crF ? 'act' : ''))); }
+      box.textContent = '';
+      box.append(searchBox(crF ? cands.filter(m => crKey(m) === crF) : cands, m => { const sp = m.speed || {}; return h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'bestiary', m)), h('small', {}, 'ОП ' + crKey(m) + ' · КД ' + m.ac + ' · ХП ' + (m.hp && m.hp.avg) + (sp.fly ? ' · полёт' : '') + (sp.swim ? ' · плавание' : '')), btn('+ Добавить', () => { c.forms.push(m.slug); upd(); }, 'dmbtn')); },
+        { ph: 'Поиск зверя: волк, медведь, паук…', max: 60, key: 'beasts:' + crF }));
+    };
+    redraw();
+    p.append(...[chips, box].filter(Boolean));
     p.append(h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: c.printForms !== false, onchange: e => { c.printForms = e.target.checked; upd(false); } }), ' печатать карточки обликов отдельными страницами'));
   }
 
   /* ---------- Описание ---------- */
   async function tabStory(p, c, D, d) {
     const ta = (k, label, rows) => field(label, h('textarea', { rows: rows || 3, onchange: e => { c.story[k] = e.target.value; upd(false); } }, c.story[k] || ''));
-    p.append(h('div', { class: 'csgrid two' }, ta('traits', 'Черты характера'), ta('ideals', 'Идеалы'), ta('bonds', 'Привязанности'), ta('flaws', 'Слабости'), ta('look', 'Внешность и история', 6), ta('notes', 'Заметки', 6)),
+    // в правилах 2024 у предысторий нет черт характера, идеалов, привязанностей и слабостей — эти поля только для 2014
+    const personal = c.ed === 14 ? [ta('traits', 'Черты характера'), ta('ideals', 'Идеалы'), ta('bonds', 'Привязанности'), ta('flaws', 'Слабости')] : [];
+    p.append(h('div', { class: 'csgrid two' }, ...personal, ta('look', 'Внешность и история', 6), ta('notes', 'Заметки', 6)),
       h('h3', { class: 'csh' }, 'Портрет'), portraitCtl(c),
       h('h3', { class: 'csh' }, 'Хиты'),
       h('div', { class: 'csgrid' }, field('Способ', sel([['avg', 'Среднее (по умолчанию)'], ['manual', 'Ввести итог вручную']], c.hpMode, v => { c.hpMode = v; upd(); })),
         c.hpMode === 'manual' ? field('Максимум хитов', numIn(c.hpManual, v => { c.hpManual = v; upd(); })) : null,
-        field('Прибавка к хитам (магия, особые правила)', numIn(c.hpBonus, v => { c.hpBonus = v; upd(); }))),
-      d.hpAuto && d.hpFx.length ? h('p', { class: 'mhint' }, 'Умения уже добавили к хитам ' + R.sgn(d.hpFx.reduce((q, e) => q + e.v, 0)) + ' (' + d.hpFx.map(e => e.why).join(', ') + ') — их вписывать не нужно. Отключить можно на вкладке «Умения».') : null);
+        field('Прибавка к хитам (магия, особые правила)', numIn(c.hpBonus, v => { c.hpBonus = v; upd(); }))));
+    // подсказка — только когда умения что-то добавили к хитам (родной append() превращает null в текст «null»)
+    if (d.hpAuto && d.hpFx.length) p.append(h('p', { class: 'mhint' }, 'Умения уже добавили к хитам ' + R.sgn(d.hpFx.reduce((q, e) => q + e.v, 0)) + ' (' + d.hpFx.map(e => e.why).join(', ') + ') — их вписывать не нужно. Отключить можно на вкладке «Умения».'));
   }
 
   /* ---------- Лист для печати ---------- */
