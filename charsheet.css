@@ -104,6 +104,8 @@ body.cs #cs{display:block;min-height:100%}
 
 /* --- приветствие --- */
 .cswel{text-align:center;margin:7vh auto;max-width:620px;background:var(--cs-paper);padding:28px 32px 30px;border:1px solid var(--cs-edge);border-top:4px solid var(--cs-bar);border-bottom:4px solid var(--cs-bar);border-radius:3px;box-shadow:var(--cs-shadow);color:var(--cs-ink)}
+/* на экране от 1000px .csbody — сетка из двух колонок: без этого карточка занимала бы только узкую левую колонку */
+#cs .csbody>.cswel{grid-column:1/-1;width:100%;box-sizing:border-box}
 .cswel h2{font:700 30px/1.1 'PT Serif',serif;font-variant:small-caps;color:var(--cs-red);margin:0}
 .cswel .rule{margin:10px 0 14px}
 .cswel p{margin:0 0 18px;color:var(--cs-muted);font-size:16px}
@@ -237,6 +239,7 @@ body.cs #cs{display:block;min-height:100%}
 .cstbl tr.sv td{color:var(--cs-muted);font-size:13.5px}
 .cstbl tr.prof td b{color:var(--cs-red)}
 .big{font-size:20px}
+.csmore{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;color:var(--cs-muted);font-size:13px}
 .cstbl.res td small{color:var(--cs-muted);font-size:12px}
 .cstbl.res td.nx{color:var(--cs-muted);font-size:13.5px}
 .csfx{display:grid;grid-template-columns:auto minmax(0,1.4fr) auto minmax(0,1.6fr);align-items:baseline;gap:4px 12px;padding:7px 10px;border-bottom:1px solid var(--cs-line);cursor:pointer;font-size:14px;line-height:1.35}
