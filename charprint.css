@@ -40,6 +40,8 @@
 
 /* линии и клетка для записей */
 .csheet .ln{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(4.7mm - .45pt),var(--ruled) calc(4.7mm - .45pt),var(--ruled) 4.7mm)}
+/* на экране линия .45pt (0,6 px) местами пропадает: строки в предпросмотре идут вразнобой; в печать это не попадает */
+@media screen{.csheet .ln{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(4.7mm - 1px),var(--ruled) calc(4.7mm - 1px),var(--ruled) 4.7mm)}}
 .csheet .tx.ln{line-height:4.7mm;font-size:7.2pt;padding:0 2.2mm;overflow:hidden}
 .csheet .tx.ln p{line-height:4.7mm}
 .csheet .gr{background-color:#fff;background-image:linear-gradient(var(--grid) .4pt,transparent .4pt),linear-gradient(90deg,var(--grid) .4pt,transparent .4pt);background-size:3.5mm 3.5mm}
@@ -216,7 +218,7 @@
 .e14 .hdb,.e14 .dsb{align-items:center;text-align:center}.e14 .hdb>.bh,.e14 .dsb>.bh{align-self:stretch}
 .e14 .hdb>small:first-child,.e14 .dsb>.dsr:first-child{margin-top:auto}
 .e14 .hdb b{font:700 14pt/1.1 var(--serif)}.e14 .hdb .sp{display:none}
-.e14 .dsb .dsr{display:flex;align-items:center;gap:1.5mm;font-size:5.6pt;margin:.4mm 0}.e14 .dsb .dsr small{font-size:5.4pt;color:var(--ink);width:8mm;text-align:left}
+.e14 .dsb .dsr{display:flex;align-items:center;gap:1.2mm;font-size:5.6pt;margin:.4mm 0}.e14 .dsb .dsr small{font-size:5.4pt;color:var(--ink);width:9.2mm;text-align:left;white-space:nowrap}
 .e14 .dsb .dt.big{width:3.4mm;height:3.4mm}
 .e14 .wp{height:56mm;flex:none}.e14 .wp .wtab{flex:none}.e14 .wp .tx.ln{flex:1}
 .e14 .eq{flex:1;min-height:0}.e14 .eq .tx.ln{flex:1}
@@ -254,7 +256,7 @@
 .csheet .cl{display:inline-flex;min-width:4.6mm;height:4.6mm;border-radius:50%;background:var(--bar);color:#fff;font:700 8.5pt var(--serif);align-items:center;justify-content:center;flex:none}
 .csheet .scn{font:700 10pt/1.05 var(--serif);color:var(--red)}
 .csheet .chips{display:flex;flex-wrap:wrap;gap:.8mm;padding:0 2.1mm 1mm}
-.csheet .schip{background:var(--tint);border:.4pt solid var(--line);border-radius:.9mm;font-size:5.8pt;padding:.25mm 1.2mm;white-space:nowrap}
+.csheet .schip{background:var(--tint);border:.4pt solid var(--line);border-radius:.9mm;font-size:5.8pt;line-height:1.2;padding:.25mm 1.2mm;max-width:100%;box-sizing:border-box}   /* длинное «время сотворения» с условием («Реакция, совершаемая вами, когда…») переносится по словам, а не вылезает за карточку */
 .csheet .schip.flag{background:var(--bar);border-color:var(--bar);color:#fff;font-weight:700}
 .csheet .cbody{flex:1;min-height:0;overflow:hidden;padding:.8mm 2.3mm;font:6.9pt/1.22 var(--sans)}
 .csheet .cbody p{margin:0 0 1.1mm}.csheet .cbody ul{margin:0 0 1.1mm;padding-left:3.6mm}.csheet .cbody table{font-size:6pt;width:100%;margin-bottom:1.1mm}.csheet .cbody td,.csheet .cbody th{border:.4pt solid var(--edge);padding:0 .8mm;text-align:left}
@@ -266,7 +268,6 @@
 /* снаряжение и описание */
 .csheet .dgrid{display:grid;grid-template-columns:90mm 1fr;gap:2.8mm;align-items:start}
 .csheet .dcol{display:flex;flex-direction:column;gap:2.8mm;min-width:0}
-.csheet .p4{display:grid;grid-template-columns:1fr 1fr;gap:2.8mm}
 .csheet .itab{font-size:7.4pt}.csheet .itab th{font:700 5.6pt var(--sans);letter-spacing:.03em;text-transform:uppercase;color:var(--red);text-align:left;padding:1.2mm 1mm;border-bottom:1pt solid var(--bar)}
 .csheet .itab td{height:5.1mm;border-bottom:.45pt solid var(--line);padding:0 1mm}.csheet .itab th.c{text-align:center}
 .csheet .itab tr:nth-child(odd):not(:first-child) td{background:var(--tint)}

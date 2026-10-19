@@ -235,12 +235,10 @@
   /* ============ страница: описание ============ */
   function descPage(X, c, D, d) {
     const ed = c.ed === 24 ? 'e24' : 'e14', P = shell('Описание персонажа', c, 'flow desc ' + ed);
-    const story = (k, t, cls) => box('st ' + (cls || ''), t, lined(c.story[k], 'm'));
     const portrait = box('port', 'Портрет', el('div', 'pimg', c.portrait ? h('img', { src: c.portrait, alt: '' }) : null));
     const left = el('div', 'dcol', portrait, box('st grow', 'Союзники и организации', el('div', 'tx ln m')), box('st grow', 'Цели и задачи', el('div', 'tx ln m')));
     const right = el('div', 'dcol', box('st look grow', 'Внешность и история', lined(c.story.look, 'm tall')),
-      ed === 'e24' ? el('div', 'p4', story('traits', 'Черты характера'), story('ideals', 'Идеалы'), story('bonds', 'Привязанности'), story('flaws', 'Слабости')) : null,
-      box('st grow', 'Заметки', lined(c.story.notes, 'm tall')));
+      box('st grow', 'Заметки', lined(c.story.notes, 'm tall')));   // черты характера, идеалы, привязанности и слабости — только на листе 2014 (в 2024 их нет)
     P.append(el('div', 'dgrid', left, right));
     return [P];
   }
@@ -288,11 +286,11 @@
       while (b.scrollWidth > b.clientWidth + 1 && fs > min) { fs -= 0.5; b.style.fontSize = fs + 'pt'; }
     });
   }
-  // списки умений на первой странице не помещаются — обрезаем по высоте блока, остальное есть на страницах с текстами
+  // списки умений и снаряжения на первой странице не помещаются — обрезаем по высоте блока, остальное есть на отдельных страницах
   function trimLists(P) {
     P.querySelectorAll('.fl, .tx.ln').forEach(box => {
       box.querySelectorAll('.fmore').forEach(n => n.remove());
-      const items = [...box.querySelectorAll('.fi')];
+      const items = [...box.querySelectorAll('.fi, .iti')];   // умения и предметы снаряжения (на первой странице 2014 их место ограничено)
       if (!items.length) return;
       items.forEach(i => { i.style.display = ''; });
       const over = () => box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1;
