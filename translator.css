@@ -69,3 +69,55 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
  #tr .trbtn{flex:1 1 auto}
 }
 @media print{body.tr nav{display:none}#tr .trbtns,#tr .trtbl,#tr .trchips,#tr .trlbl,#tr .trhelp,#tr textarea{display:none!important}}
+
+/* ===== конструктор документов и панель «Записка» ===== */
+#tr a.chip{text-decoration:none;display:inline-block}
+#tr .trsub{margin:2px 0 4px}
+#tr .trwrap.wide{max-width:1120px}
+#tr .trview[hidden]{display:none}
+.tdd{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start;color:#1d1a16;font:15px/1.4 'PT Sans',sans-serif}
+.tdd .tddc2{display:flex;flex-direction:column;gap:2px}
+.tdd .tddp{position:sticky;top:8px;min-width:0}
+.tdd .tddv{min-height:200px;border:1px solid var(--line);border-radius:4px;background:repeating-conic-gradient(#e6dcc6 0 25%,#f2eadb 0 50%) 0 0/18px 18px;padding:10px;display:flex;justify-content:center;transition:opacity .15s}
+.tdd .tddv.busy{opacity:.55}
+.tdd .tddv canvas{max-width:100%;height:auto;display:block;box-shadow:0 2px 10px rgba(40,25,5,.25)}
+.tdd :is(input[type=text],textarea,select){width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16}
+.tdd textarea{resize:vertical;min-height:92px;line-height:1.4}
+.tdd :is(input,textarea,select,button):focus-visible{outline:0;border-color:var(--bar);box-shadow:0 0 0 3px rgba(146,38,16,.25)}
+body.e14 .tdd :is(input,textarea,select,button):focus-visible{box-shadow:0 0 0 3px rgba(31,85,96,.3)}
+.tdd .tddn{display:block;text-align:right;color:var(--muted);font-size:12px;margin-top:2px}
+.tdd .tddc{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:14px;cursor:pointer}.tdd .tddc input{width:18px;height:18px;accent-color:var(--bar);margin:0}
+.tdd .tddr{display:flex;align-items:center;gap:10px}.tdd .tddr input{flex:1;accent-color:var(--bar)}.tdd .tddr .tddn{width:30px;margin:0}
+.tdd .tddink{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.tdd .tddink[aria-pressed=true]{border-color:var(--bar);box-shadow:0 0 0 2px #fffaf0,0 0 0 4px var(--bar)}
+.tdd .tddk{margin:10px 0 0;font-size:14px}.tdd .tddk summary{cursor:pointer;font:700 15px 'PT Serif',serif;color:var(--red)}.tdd .tddk p{margin:6px 0 0;padding:8px 10px;background:#fffaf0;border:1px solid var(--line);border-radius:4px}
+.tdd .tddq{margin-top:10px;max-width:260px}
+.tdd .trbtns{align-items:center}
+@media(max-width:900px){.tdd{grid-template-columns:minmax(0,1fr)}.tdd .tddp{position:static;order:-1}}
+/* окно правки на экране мастера */
+.tdmodal{position:fixed;inset:0;z-index:40;background:rgba(20,12,4,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.tdmodal .tdbox{background:var(--paper);color:#1d1a16;border:1px solid #c9b48a;border-top:4px solid var(--bar);border-bottom:4px solid var(--bar);border-radius:3px;width:min(1100px,100%);max-height:100%;overflow:auto;padding:14px 18px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.tdmodal .tdhd{display:flex;gap:8px;align-items:center;margin-bottom:12px;position:sticky;top:-14px;background:var(--paper);padding:6px 0;z-index:2}.tdmodal .tdhd b{flex:1;font:700 20px 'PT Serif',serif;color:var(--red);font-variant:small-caps}
+/* панель «Записка» */
+.tdn{height:100%;overflow:auto}.tdn canvas{width:100%;height:auto;display:block}
+.tdn .tddk{margin:8px 4px;font:14px 'PT Sans',sans-serif}.tdn .tddk summary{cursor:pointer;font-weight:700;color:var(--red)}.tdn .tddk p{margin:4px 0 0}
+@media print{.tdmodal{display:none}}
+
+/* общие элементы в окне правки */
+.tdmodal [hidden]{display:none!important}
+.tdmodal .trlbl{display:block;margin:14px 0 5px;font:700 12px 'PT Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tdmodal .trchips{display:flex;flex-wrap:wrap;gap:6px}
+.tdmodal .chip{font:700 14px 'PT Sans',sans-serif;border:1px solid var(--line);background:#fffaf0;color:#1d1a16;border-radius:4px;padding:6px 12px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.tdmodal .chip:hover{border-color:var(--bar);color:var(--bar)}
+.tdmodal .chip[aria-pressed=true]{background:var(--bar);border-color:var(--bar);color:#fff}
+.tdmodal .chip.sub{font-weight:400;padding:4px 10px;font-size:13px}
+.tdmodal .chip.sub[aria-pressed=true]{font-weight:700}
+.tdmodal textarea{display:block;width:100%;min-height:96px;resize:vertical;font:16px/1.45 'PT Sans',sans-serif;padding:9px 11px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16}
+.tdmodal textarea:focus-visible,#tr .chip:focus-visible,#tr .cell:focus-visible,#tr .trbtn:focus-visible{outline:0;border-color:var(--bar);box-shadow:0 0 0 3px rgba(146,38,16,.25)}
+.tdmodal .trbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tdmodal .trbtn{font:700 14px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:#1d1a16;border-radius:4px;padding:7px 13px;cursor:pointer}
+.tdmodal .trbtn:hover{border-color:var(--bar);color:var(--bar)}
+.tdmodal .trbtn.main{background:var(--bar);border-color:var(--bar);color:#fff}
+.tdmodal .trbtn.main:hover{filter:brightness(1.12);color:#fff}
+.tdmodal .trbtn[hidden]{display:none}
+.tdmodal .trbtn{color:#1d1a16}.tdmodal .trbtn.main{color:#fff}.tdmodal .chip{color:#1d1a16}.tdmodal .chip[aria-pressed=true]{color:#fff}

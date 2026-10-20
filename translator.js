@@ -89,7 +89,7 @@
   const toast = t => root.DM && root.DM.toast ? root.DM.toast(t) : alert(t);
   const imgSrc = (set, l) => 'translator/glyphs/' + set + '-' + String(L.indexOf(l) + 1).padStart(2, '0') + '.png';
 
-  let mode = M[ls.get(KEY + '.mode')] ? ls.get(KEY + '.mode') : 'infernal', built = false, el = {};
+  let mode = M[ls.get(KEY + '.mode')] ? ls.get(KEY + '.mode') : 'infernal', built = false, el = {}, doc = null, docSpec = null;
 
   /* ---------- перевод ---------- */
   // чистая функция: режим и текст на входе; на выходе — результат (строка или список элементов) и строка со звучанием
@@ -173,8 +173,7 @@
   }
   function setMode(m) {
     mode = m; ls.set(KEY + '.mode', m);
-    const orig = !!M[m].img;
-    el.copyT.hidden = orig; el.copyI.hidden = !orig;
+    el.copyT.hidden = !!M[m].img;                        // у картинок-глифов текст не копируется, только PNG
     chips(); table(); convert();
   }
 
@@ -184,18 +183,25 @@
     if (!t.trim()) { toast('Нечего копировать: сначала введите текст'); return; }
     navigator.clipboard.writeText(t).then(() => toast('Перевод скопирован'), () => toast('Не удалось скопировать: браузер не разрешил доступ к буферу'));
   }
-  async function copyImage() {
-    if (!el.out.children.length) { toast('Сначала введите текст'); return; }
-    try {
-      if (typeof html2canvas === 'undefined') await new Promise((ok, no) => document.head.append(h('script', { src: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', onload: ok, onerror: no })));
-      const cv = await html2canvas(el.out, { backgroundColor: '#fffaf0', scale: 2, useCORS: true, logging: false });
-      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
-      if (!blob) throw new Error('пустое изображение');
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      toast('Картинка скопирована: можно вставлять в мессенджер (Ctrl+V)');
-    } catch (e) {
-      toast('Не получилось скопировать картинку: ' + (e && e.message || 'браузер не разрешил'));
-    }
+  // быстрый документ из текущего перевода: чистая записка на пергаменте, без заголовка
+  function quickSpec() {
+    const d = root.TDoc.defaults(); root.TDoc.applyKind(d, 'note');
+    return Object.assign(d, { mode, text: el.input.value, paper: 'parchment', fmt: 'note', ink: 'brown' });
+  }
+  const needText = () => { if (el.input.value.trim()) return false; toast('Сначала введите текст'); return true; };
+  const savePng = () => { if (!needText()) root.TDoc.download(quickSpec()); };
+  const copyPng = () => { if (!needText()) root.TDoc.copy(quickSpec()); };
+  function toDoc() {                                     // перевод → конструктор документов
+    if (docSpec) { docSpec.mode = mode; docSpec.text = el.input.value; ls.set(KEY + '.doc', JSON.stringify(docSpec)); if (doc) doc.sync(); }
+    location.hash = DB().hh(DB().ed, 'translator', 'doc');
+  }
+  const DB = () => root.DB;
+  function toScreen(spec) {                              // записка → панель на экране мастера
+    spec = spec || quickSpec();
+    if (!(spec.text || '').trim()) { toast('Сначала введите текст'); return; }
+    if (!root.DM || !root.DM.addPanel) { toast('Экран мастера недоступен'); return; }
+    root.DM.ensure(); root.DM.addPanel('note', { s: JSON.parse(JSON.stringify(spec)) });
+    root.DM.toast('Записка добавлена на экран мастера', 'Открыть', () => { location.hash = DB().hh(DB().ed, 'dmscreen'); });
   }
   function clearAll() { el.input.value = ''; convert(); el.input.focus(); }
 
@@ -210,35 +216,56 @@
     el.read = h('p', { class: 'trread' });
     el.info = h('p', { class: 'trinfo' });
     el.copyT = h('button', { type: 'button', class: 'trbtn main', onclick: copyText }, 'Скопировать перевод');
-    el.copyI = h('button', { type: 'button', class: 'trbtn main', onclick: copyImage, hidden: true }, 'Скопировать картинку');
     el.tbl = h('div', { class: 'trtbl' });
     const root_ = document.getElementById('tr');
-    root_.append(h('div', { class: 'trwrap' }, h('article', { class: 'stat' },
-      h('h2', {}, 'Переводчик'),
-      h('p', { class: 'en' }, 'Языки и письменность D&D · Dungeons & Dragons'),
-      h('div', { class: 'rule' }),
+    el.viewT = h('div', { class: 'trview' },
       h('p', { class: 'trlead' }, 'Переводит русский текст в письменность вымышленных языков и подсказывает, как это произносить.'),
       h('span', { class: 'trlbl' }, 'Язык'), el.fam, el.varsLbl, el.vars,
       h('label', { class: 'trlbl', for: 'trin' }, 'Текст'), el.input,
       h('span', { class: 'trlbl' }, 'Перевод'), el.out, el.read, el.info,
-      h('div', { class: 'trbtns' }, el.copyT, el.copyI, h('button', { type: 'button', class: 'trbtn', onclick: clearAll }, 'Очистить')),
+      h('div', { class: 'trbtns' }, el.copyT, h('button', { type: 'button', class: 'trbtn main', onclick: savePng }, 'Скачать PNG'), h('button', { type: 'button', class: 'trbtn', onclick: copyPng }, 'Копировать PNG'),
+        h('button', { type: 'button', class: 'trbtn', onclick: toDoc, title: 'Оформить как письмо, указ, записку…' }, 'Сделать документ'), h('button', { type: 'button', class: 'trbtn', onclick: () => toScreen(), title: 'Положить записку на экран мастера' }, 'На экран мастера'),
+        h('button', { type: 'button', class: 'trbtn', onclick: clearAll }, 'Очистить')),
       h('span', { class: 'trlbl' }, 'Знаки (нажмите, чтобы вставить в текст)'), el.tbl,
       h('details', { class: 'trhelp' }, h('summary', {}, 'Как пользоваться'), h('ul', {},
         h('li', {}, h('b', {}, 'Обычные языки'), ': текст превращается в особые знаки, а под ним показано примерное звучание.'),
-        h('li', {}, h('b', {}, 'Оригинал (PHB, BGDIA)'), ': канонические глифы из книг в виде картинок. «Скопировать картинку» кладёт их в буфер, чтобы вставить в чат.'),
+        h('li', {}, h('b', {}, 'Оригинал (PHB, BGDIA)'), ': канонические глифы из книг в виде картинок. «Копировать PNG» кладёт картинку в буфер, чтобы вставить в чат.'),
         h('li', {}, h('b', {}, 'Обратный перевод'), ': вставьте знаки обычного алфавита, и переводчик покажет русский текст. Для оригинальных глифов и воровского жаргона он не работает.'),
-        h('li', {}, h('b', {}, 'Воровской жаргон'), ': русское слово заменяется воровским и значком; значок в таблице можно вставить кликом.'))))));
+        h('li', {}, h('b', {}, 'Воровской жаргон'), ': русское слово заменяется воровским и значком; значок в таблице можно вставить кликом.'))));
+    el.viewD = h('div', { class: 'trview', hidden: true });
+    el.nav = h('div', { class: 'trchips trsub', role: 'tablist' },
+      h('a', { class: 'chip', href: DB().hh(DB().ed, 'translator'), 'data-v': 'tr' }, 'Перевод'),
+      h('a', { class: 'chip', href: DB().hh(DB().ed, 'translator', 'doc'), 'data-v': 'doc' }, 'Документ'));
+    el.wrap = h('div', { class: 'trwrap' }, h('article', { class: 'stat' },
+      h('h2', {}, 'Переводчик'),
+      h('p', { class: 'en' }, 'Языки и письменность D&D · Dungeons & Dragons'),
+      h('div', { class: 'rule' }),
+      el.nav, el.viewT, el.viewD));
+    root_.append(el.wrap);
     built = true;
   }
   function loadFonts() {
     if (document.getElementById('trfonts')) return;
-    document.head.append(h('link', { id: 'trfonts', rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&family=Noto+Sans+Math&family=Noto+Sans+Runic&family=Noto+Sans+Coptic&family=Noto+Sans+Cuneiform&family=Noto+Sans+Imperial+Aramaic&family=Noto+Sans+Shavian&display=swap' }));
+    document.head.append(h('link', { id: 'trfonts', rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&family=Noto+Sans+Math&family=Noto+Sans+Runic&family=Noto+Sans+Coptic&family=Noto+Sans+Cuneiform&family=Noto+Sans+Imperial+Aramaic&family=Noto+Sans+Shavian&family=Marck+Script&family=Caveat:wght@400;700&family=Cormorant+Unicial:wght@400;700&family=Ruslan+Display&family=Neucha&display=swap' }));
   }
-  function show() {
+  function view(v) {                                    // 'tr' — переводчик, 'doc' — конструктор документов
+    const d = v === 'doc';
+    el.viewT.hidden = d; el.viewD.hidden = !d; el.wrap.classList.toggle('wide', d);
+    el.nav.querySelectorAll('a').forEach(a => { a.href = DB().hh(DB().ed, 'translator', a.dataset.v === 'doc' ? 'doc' : ''); a.setAttribute('aria-pressed', String(a.dataset.v === v)); });
+    if (d && !doc) {
+      try { docSpec = JSON.parse(ls.get(KEY + '.doc') || 'null'); } catch (e) { docSpec = null; }
+      docSpec = docSpec && typeof docSpec === 'object' ? docSpec : root.TDoc.defaults();
+      if (!docSpec.text) { docSpec.mode = mode; docSpec.text = el.input.value; }
+      doc = root.TDoc.designer(docSpec, { onChange: s => ls.set(KEY + '.doc', JSON.stringify(s)), actions: [['На экран мастера', toScreen]] });
+      el.viewD.append(doc.el);
+    }
+  }
+  function show(v) {
     loadFonts();
     if (!built) build();
     setMode(mode);
+    view(v === 'doc' ? 'doc' : 'tr');
   }
 
-  root.TR = { show, run, MODES: M, FAMILIES: FAM };
+  root.TR = { show, run, MODES: M, FAMILIES: FAM, G, L, imgSrc };
 })(window);
