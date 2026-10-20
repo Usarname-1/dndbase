@@ -53,7 +53,7 @@ test('главная без JavaScript: один h1, вводный текст �
   assert.ok(card && /Dungeons &amp; Dragons/.test(card[1]) && /<h2>/.test(card[1]), 'во вводном тексте нет названия игры или заголовка');
   const ord = html.match(/ORDERS=\{24:\[([^\]]*)\],14:\[([^\]]*)\]\}/);
   assert.ok(ord, 'не нашёл список разделов ORDERS в index.html');
-  const known = new Set((ord[1] + ',' + ord[2]).match(/'([a-z]+)'/g).map(s => s.replace(/'/g, '')).concat(['dmscreen', 'sheet']));
+  const known = new Set((ord[1] + ',' + ord[2]).match(/'([a-z]+)'/g).map(s => s.replace(/'/g, '')).concat(['dmscreen', 'sheet', 'translator']));
   const used = [...card[1].matchAll(/data-s="([a-z]+)"/g)].map(m => m[1]);
   assert.ok(used.length >= 8, 'во вводном тексте мало ссылок на разделы');
   assert.deepEqual(used.filter(k => !known.has(k)), []);
