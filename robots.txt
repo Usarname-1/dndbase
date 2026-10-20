@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://usarname-1.github.io/dndbase/sitemap.xml

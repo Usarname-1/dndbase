@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>D&amp;D — русская база</title>
+<!--seo:begin-->
+<title>Справочник D&amp;D 5e на русском — бестиарий, заклинания, классы</title>
+<meta name="description" content="Бесплатный справочник D&amp;D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей.">
+<link rel="canonical" href="https://usarname-1.github.io/dndbase/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#922610">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="D&amp;D — русская база">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="D&amp;D 5e на русском — справочник мастера и игрока">
+<meta property="og:description" content="Бесплатный справочник D&amp;D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей.">
+<meta property="og:url" content="https://usarname-1.github.io/dndbase/">
+<meta property="og:image" content="https://usarname-1.github.io/dndbase/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="D&amp;D 5e, русская база: бестиарий, заклинания, классы, расы, черты, предметы. Редакции 2014 и 2024.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"D&D — русская база","alternateName":["Русская база D&D 5e","D&D Base"],"url":"https://usarname-1.github.io/dndbase/","inLanguage":"ru","description":"Бесплатный справочник D&D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей."}</script>
+<!--seo:end-->
 <link rel="stylesheet" href="dice.css">
 <link rel="stylesheet" href="dmscreen.css">
 <link rel="stylesheet" href="charsheet.css">
 <link rel="stylesheet" href="charprint.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
 :root{--cf:240px;--cl:340px;--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
@@ -58,6 +81,8 @@ main{grid-area:main;overflow:auto;padding:26px 18px 60px}.wrap{max-width:780px;m
 .stat a{color:var(--red)}.stat details{margin:6px 0;border-top:1px solid var(--line);padding-top:4px}.stat summary{cursor:pointer;font:700 17px 'PT Serif',serif;color:var(--red)}
 .meta{margin-top:12px;font:13px/1.5 'PT Sans',sans-serif;color:var(--muted)}.meta a{color:var(--bar)}
 .empty{text-align:center;margin-top:18vh;color:var(--muted);font-family:'PT Sans',sans-serif}
+.ttl{margin:0 0 8px;font:700 13px/1.2 'PT Sans',sans-serif;letter-spacing:.02em;color:var(--muted)}
+.home .muted{margin-top:10px;font:14px/1.4 'PT Sans',sans-serif;color:#6b5f4d}.home li{margin-bottom:3px}
 #back{display:none}
 @media(max-width:780px){body{display:block;height:auto}nav{position:sticky;top:0;z-index:2}.col{height:calc(100vh - 42px);border:0}#fcol{display:none}body.fshow #fcol{display:flex}body.fshow #lcol{display:none}main{display:none;padding:10px 6px 40px}
 body.open .col{display:none}body.open main{display:block}#ftoggle,#fdone{display:inline-block}
@@ -79,8 +104,21 @@ a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);curs
 <body>
 <nav id="nav"></nav>
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
-<section class="col" id="lcol"><header><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
-<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><p class="empty">Выберите запись в списке</p></div></div><div id="dm"></div><div id="cs"></div></main>
+<section class="col" id="lcol"><header><h1 class="ttl">Справочник D&amp;D 5e на русском</h1><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
+<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat home">
+<h2>Русская база D&amp;D 5e</h2><p class="en">Dungeons &amp; Dragons 5th Edition · редакции <a href="#14">2014</a> и <a href="#24">2024</a></p><div class="rule"></div>
+<p>Бесплатный справочник по <b>Dungeons &amp; Dragons</b> (D&amp;D, ДнД) для мастеров и игроков: более 7 000 записей на русском языке, английское название всегда рядом.</p>
+<ul>
+<li><a data-s="bestiary" href="#bestiary">Бестиарий</a> — монстры и существа со статблоками, фильтры по опасности (БО), типу и среде</li>
+<li><a data-s="spells" href="#spells">Заклинания</a> — по классу, кругу, школе, ритуалам и концентрации</li>
+<li><a data-s="class" href="#class">Классы</a> и подклассы с таблицами по уровням</li>
+<li><a data-s="species" href="#species">Виды и расы</a>, <a data-s="backgrounds" href="#backgrounds">предыстории</a> и <a data-s="feats" href="#feats">черты</a></li>
+<li><a data-s="items" href="#items">Магические предметы</a> и <a data-s="equipment" href="#equipment">снаряжение</a></li>
+<li><a data-s="glossary" href="#glossary">Правила и глоссарий</a>, статьи</li>
+</ul>
+<p>Поиск работает по-русски и по-английски («огненный шар», «Fireball»). Мастеру пригодится <a data-s="dmscreen" href="#dmscreen">экран мастера</a> с инициативой и кубиками, игроку — <a data-s="sheet" href="#sheet">листы персонажей</a> с автоматическим расчётом и печатью на A4. Регистрация не нужна.</p>
+<p class="muted">Выберите раздел выше или найдите запись в списке слева.</p>
+</article></div></div><div id="dm"></div><div id="cs"></div></main>
 <script src="links.js"></script>
 <script src="dice.js"></script>
 <script src="dmscreen.js"></script>
@@ -89,6 +127,7 @@ a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);curs
 <script src="charprint.js"></script>
 <script src="charsheet.js"></script>
 <script>
+const HOME=document.getElementById('card').innerHTML;   // вводный текст из разметки: он же нужен поисковым роботам без JavaScript
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
 const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b> ${fmt(v)}</p>`:'';
@@ -468,6 +507,8 @@ async function addPic(m,h){IMGM_V=await imgManifest();const e=ed,k=sec;if(locati
 async function decorate(root,e,self){Dice.linkify(root);const ix=await linkIndex(e);if(!ix||!root.isConnected)return;const href=x=>hh(e,LK[x.k],x.slug);AutoLinks.hydrate(root,ix,href);AutoLinks.linkify(root,ix,self,href)}
 window.DB={get ed(){return ed},SXS,ORDERS,load:(k,e)=>load(k,e,true),hh,esc,norm,B:typeof B!=='undefined'?B:null,EDK,decorate,LK,SELFK,ls,
  placePic:async(root,e,k,m)=>{IMGM_V=await imgManifest();placePic(root,e,k,m)}};
+// ссылки вводного текста ведут в разделы выбранной редакции; разделов, которых в ней нет (например, снаряжения в 2014), — без ссылки
+function homeLinks(){document.querySelectorAll('#card a[data-s]').forEach(a=>{let k=a.dataset.s;if(k!='dmscreen'&&k!='sheet'){if(!SX[k])k=SWAP[k];if(!SX[k]){a.replaceWith(...a.childNodes);return}}a.href=hh(ed,k)})}
 async function route(){const P=parseHash(),k=P.k,slug=P.slug;
  if(P.e!==ed){ed=P.e;SX=SXS[ed]}
  if(k=='dmscreen'){document.body.classList.remove('cs');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();document.title='Экран мастера — D&D '+EDK(ed);DM.show();return}
@@ -479,7 +520,7 @@ async function route(){const P=parseHash(),k=P.k,slug=P.slug;
  edLinks();
  const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
  document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
- if(!m){$('#card').innerHTML='<p class="empty">Выберите запись в списке</p>';document.title='D&D '+EDK(ed)+' — русская база';document.body.classList.remove('open');return}
+ if(!m){$('#card').innerHTML=HOME;homeLinks();document.title='D&D '+EDK(ed)+' — русская база';document.body.classList.remove('open');return}
  $('#card').innerHTML=SX[sec].card(m);Dice.linkify($('#card'));document.title=m.name_ru+' — D&D '+EDK(ed);document.body.classList.add('open');$('main').scrollTop=0;
  const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'});xref(m,location.hash);addPic(m,location.hash);autolink(m,location.hash);DM.cardActions&&DM.cardActions(m,ed,sec)}
 
