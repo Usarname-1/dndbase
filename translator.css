@@ -28,7 +28,7 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
  font-family:'Noto Sans Symbols 2','Noto Sans Math','Noto Sans Runic','Noto Sans Coptic','Noto Sans Cuneiform','Noto Sans Imperial Aramaic','Noto Sans Shavian','PT Serif',serif}
 #tr .trout.deep,#tr .trout.thief{font:400 22px/1.5 'PT Serif',serif;letter-spacing:0}
 #tr .trout:empty::before{content:attr(data-ph);font:italic 15px 'PT Sans',sans-serif;letter-spacing:0;color:#7b6a52}
-#tr .trout img{height:46px;width:auto;vertical-align:middle;margin:2px 3px}
+#tr .trout svg{margin:0 .06em;overflow:visible}
 #tr .trout .sp{display:inline-block;width:.6em}
 #tr .trread{margin:10px 0 0;font:italic 16px/1.4 'PT Serif',serif;color:#5a4a33;min-height:1.4em;overflow-wrap:anywhere}
 #tr .trinfo{margin:4px 0 0;font:13px/1.4 'PT Sans',sans-serif;color:var(--muted);min-height:1.4em}
@@ -50,7 +50,7 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
 #tr .cell:hover{border-color:var(--bar);background:#fff3de}
 #tr .cell .l{font:700 12px 'PT Sans',sans-serif;color:var(--red)}
 #tr .cell .g{font:26px/1.1 'Noto Sans Symbols 2','Noto Sans Math','Noto Sans Runic','Noto Sans Coptic','Noto Sans Cuneiform','Noto Sans Imperial Aramaic','Noto Sans Shavian','PT Serif',serif}
-#tr .cell img{height:44px;width:auto}
+#tr .cell svg{height:44px;width:auto}
 #tr .cell.none{opacity:.45}
 #tr .cell.w{flex-direction:row;justify-content:space-between;gap:10px;padding:6px 10px;text-align:left}
 #tr .cell.w span:first-child{font-size:14px;line-height:1.3}#tr .cell.w b{color:var(--red)}
@@ -62,7 +62,6 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
 @media(max-width:780px){
  body.tr main{padding:10px 6px 40px!important}
  #tr .trout{font-size:24px;min-height:110px}
- #tr .trout img{height:38px}
  #tr .trtbl{grid-template-columns:repeat(auto-fill,minmax(56px,1fr))}
  #tr .trtbl.img{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))}
  #tr .trtbl.thief{grid-template-columns:1fr}

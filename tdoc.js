@@ -44,16 +44,11 @@
   function applyKind(s, k) { const d = KINDS[k] || KINDS.note; s.kind = k; for (const f of ['paper', 'font', 'frame', 'seal', 'ink', 'size', 'align', 'fmt']) s[f] = d[f]; return s; }
   function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); return s; }
 
-  /* ---------- картинки-глифы ---------- */
-  const IMG = new Map();
-  const loadImg = src => { if (!IMG.has(src)) IMG.set(src, new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; })); return IMG.get(src); };
-  const TINT = new Map();
-  function tinted(img, color, hgt) {                     // чёрный глиф на прозрачном фоне → нужный цвет чернил
-    const k = img.src + color + hgt; if (TINT.has(k)) return TINT.get(k);
-    const w = Math.max(1, Math.round(img.width * hgt / img.height)), c = document.createElement('canvas'); c.width = w * 2; c.height = hgt * 2;
-    const x = c.getContext('2d'); x.drawImage(img, 0, 0, c.width, c.height); x.globalCompositeOperation = 'source-in'; x.fillStyle = color; x.fillRect(0, 0, c.width, c.height);
-    TINT.set(k, c); return c;
-  }
+  /* ---------- векторные глифы ---------- */
+  const PATHS = new Map();                               // Path2D кэшируем: один и тот же контур рисуется много раз
+  const pathOf = g => { let p = PATHS.get(g); if (!p) { p = new Path2D(g.d); PATHS.set(g, p); } return p; };
+  // положение глифа в строке: базовая линия всех глифов одна, типичный холст центрируется по середине строки (см. tools/vectorize_glyphs.py)
+  const glyphBox = (S, g, ih) => { const k = ih / S.em; return { k, w: g.w * k, top: (S.by - S.em / 2 - g.y0) * k }; };
   const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms))]);
   const fontCss = s => (FONTS.find(f => f[0] === s.font) || FONTS[0])[2];
 
@@ -147,17 +142,16 @@
     const bodyFont = sz => `${sz}px ${m.g ? SYM : fontCss(spec)}`, titleFont = sz => `${m.g ? '' : 'bold '}${sz}px ${m.g ? SYM : fontCss(spec)}`;
     // шрифты и картинки
     const allText = (rb.text || '') + (rt.text || '') + (rs.text || '') + 'АаБб';
-    const srcs = new Set(); [rb, rt, rs].forEach(r => (r.nodes || []).forEach(n => n.img && srcs.add(n.img)));
     const first = ((spec.sign || spec.title || spec.text || '').toLowerCase().match(/[а-яё]/) || ['а'])[0], sealIdx = tr.L.indexOf(first);   // буква для печати
-    if (spec.seal && m.img) srcs.add(tr.imgSrc(m.img, first));
-    await withTimeout(Promise.all([document.fonts.load(bodyFont(28), allText), document.fonts.load(titleFont(28), allText), ...[...srcs].map(loadImg)].map(p => p.catch(() => null))), 3000);
-    const imgs = new Map(); for (const s of srcs) imgs.set(s, await loadImg(s));
+    if (m.img) await withTimeout(tr.loadGlyphs(), 5000);
+    await withTimeout(Promise.all([document.fonts.load(bodyFont(28), allText), document.fonts.load(titleFont(28), allText)].map(p => p.catch(() => null))), 3000);
+    const GS = m.img ? tr.glyphSet(m.img) : null;
     const mc = document.createElement('canvas').getContext('2d');
     const size = spec.size, frameK = spec.frame, mx = frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
     // блок: переносы строк
     function block(r, sz, font, align) {
       const ih = sz * 1.45, items = [];
-      if (r.nodes) r.nodes.forEach(n => { if (n.br) items.push({ k: 'br' }); else if (n.sp) items.push({ k: 'sp', w: sz * .55 }); else if (n.img) items.push({ k: 'i', img: imgs.get(n.img), w: imgs.get(n.img) ? ih * imgs.get(n.img).width / imgs.get(n.img).height + 3 : 0 }); else for (const ch of n.t) items.push({ k: 'c', s: ch }); });
+      if (r.nodes) r.nodes.forEach(n => { if (n.br) items.push({ k: 'br' }); else if (n.sp) items.push({ k: 'sp', w: sz * .55 }); else if (n.set) { const g = GS && GS.glyphs[n.l]; items.push({ k: 'i', g, w: g ? glyphBox(GS, g, ih).w + 3 : 0 }); } else for (const ch of n.t) items.push({ k: 'c', s: ch }); });
       else for (const ch of (r.text || '')) items.push(ch === '\n' ? { k: 'br' } : (ch === ' ' || ch === '\t') ? { k: 'sp' } : { k: 'c', s: ch });
       mc.font = font; const spw = mc.measureText(' ').width || sz * .3;
       items.forEach(it => { if (it.k === 'c') it.w = mc.measureText(it.s).width; else if (it.k === 'sp' && !it.w) it.w = spw; });
@@ -198,7 +192,7 @@
         let x = b.align === 'center' ? mx + (cw - ln.w) / 2 : b.align === 'right' ? right - ln.w : mx; const top = y0 + i * b.lh, base = top + b.lh * .68;
         for (const it of ln.items) {
           if (it.k === 'c') ctx.fillText(it.s, x, base);
-          else if (it.k === 'i' && it.img) { const t = tinted(it.img, ink, Math.round(b.ih)); ctx.drawImage(t, x + 1.5, top + (b.lh - b.ih) / 2, it.w - 3, b.ih); }
+          else if (it.k === 'i' && it.g) { const bx = glyphBox(GS, it.g, b.ih); ctx.save(); ctx.translate(x + 1.5, top + b.lh / 2 + bx.top); ctx.scale(bx.k, bx.k); ctx.fill(pathOf(it.g), 'evenodd'); ctx.restore(); }
           x += it.w;
         }
       });
@@ -216,7 +210,10 @@
       wax(ctx, W - mx - 44, bot + botH / 2, spec.seal, rngOf(spec.seed + 3), (c, cx, cy) => {
         c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
         const ch = m.g ? tr.G[m.g][sealIdx] : null;
-        if (m.img) { const im = imgs.get(tr.imgSrc(m.img, first)) || null; if (im) { const t = tinted(im, 'rgba(0,0,0,.45)', 38), t2 = tinted(im, 'rgba(255,230,220,.28)', 38), w2 = t.width / 2; c.drawImage(t2, cx - w2 / 2 - 1, cy - 19 - 1, w2, 38); c.drawImage(t, cx - w2 / 2, cy - 19, w2, 38); } }
+        const sg = GS && GS.glyphs[first];
+        if (m.img) {
+          if (sg) { const [x0, y0, x1, y1] = sg.bb, k = 38 / Math.max(x1 - x0, y1 - y0), p = pathOf(sg); for (const [dx, col] of [[-1, 'rgba(255,230,220,.3)'], [0, 'rgba(0,0,0,.5)']]) { c.save(); c.translate(cx - (x0 + x1) / 2 * k + dx, cy - (y0 + y1) / 2 * k + dx); c.scale(k, k); c.fillStyle = col; c.fill(p, 'evenodd'); c.restore(); } }
+        }
         else { c.font = `34px ${m.g ? SYM : '"PT Serif",serif'}`; const s = ch || first.toUpperCase(); c.fillStyle = 'rgba(255,230,220,.28)'; c.fillText(s, cx - 1, cy - 1); c.fillStyle = 'rgba(0,0,0,.45)'; c.fillText(s, cx, cy); }
         c.restore();
       });
@@ -245,14 +242,13 @@
     opts = opts || {}; normalize(spec);
     const syncs = [], tr = T();
     let seq = 0, tm = 0;
-    const prev = h('div', { class: 'tddv' }), key = h('details', { class: 'tddk' }, h('summary', {}, 'Расшифровка (для мастера)'), h('p', {}));
+    const prev = h('div', { class: 'tddv' });
     const draw = async () => {
       const my = ++seq; prev.classList.add('busy');
       try {
         const cv = await render(spec, { scale: 2 });
         if (my !== seq) return; prev.replaceChildren(cv); prev.classList.remove('busy');
       } catch (e) { if (my === seq) { prev.textContent = 'Не удалось нарисовать: ' + e.message; prev.classList.remove('busy'); } }
-      key.querySelector('p').textContent = [spec.title, spec.text, spec.sign].filter(Boolean).join('\n\n') || 'Пока пусто'; key.querySelector('p').style.whiteSpace = 'pre-wrap';
     };
     const changed = () => { clearTimeout(tm); tm = setTimeout(draw, 120); opts.onChange && opts.onChange(spec); };
     const fld = (label, node, cls) => h('div', { class: 'tddf ' + (cls || '') }, h('span', { class: 'trlbl' }, label), node);
@@ -290,7 +286,7 @@
       h('button', { type: 'button', class: 'trbtn main', onclick: () => download(spec) }, 'Скачать PNG'),
       h('button', { type: 'button', class: 'trbtn', onclick: () => copy(spec) }, 'Копировать PNG'),
       (opts.actions || []).map(([n, f]) => h('button', { type: 'button', class: 'trbtn', onclick: () => f(spec) }, n)), fld('Качество PNG', qSel, 'tddq'));
-    const el = h('div', { class: 'tdd' }, ctl, h('div', { class: 'tddp' }, prev, key, acts));
+    const el = h('div', { class: 'tdd' }, ctl, h('div', { class: 'tddp' }, prev, acts));
     sync(); draw();
     return { el, spec, sync: () => { normalize(spec); sync(); draw(); }, redraw: draw };
   }

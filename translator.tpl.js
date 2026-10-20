@@ -85,7 +85,20 @@
   const KEY = 'tr.v1';
   const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } } };
   const toast = t => root.DM && root.DM.toast ? root.DM.toast(t) : alert(t);
-  const imgSrc = (set, l) => 'translator/glyphs/' + set + '-' + String(L.indexOf(l) + 1).padStart(2, '0') + '.png';
+  // Оригинальные глифы из книг — векторные контуры (translator/glyphs.json, собирается tools/vectorize_glyphs.py).
+  // Загружаются при первом обращении; пока не загрузились, run() всё равно отдаёт буквы, а вывод перерисовывается после загрузки.
+  let GL = null, glP = null;
+  const loadGlyphs = () => glP || (glP = fetch('translator/glyphs.json').then(r => r.json()).then(j => (GL = j.sets)).catch(() => { glP = null; return null; }));
+  const glyph = (set, l) => GL && GL[set] && GL[set].glyphs[l] || null;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  // Глиф как inline-SVG высотой ih (в em шрифта вывода или в px). Строка письма у всех глифов одна: нижний край svg опускается под базовую линию на (h − y0).
+  function glyphSvg(set, l, ih, unit) {
+    const S = GL && GL[set], g = S && S.glyphs[l]; if (!g) return null;
+    const k = ih / S.em, e = document.createElementNS(SVGNS, 'svg'), u = unit || 'px', p = document.createElementNS(SVGNS, 'path');
+    e.setAttribute('viewBox', '0 0 ' + g.w + ' ' + g.h); e.setAttribute('aria-hidden', 'true');
+    e.style.width = (g.w * k).toFixed(3) + u; e.style.height = (g.h * k).toFixed(3) + u; e.style.verticalAlign = (-(g.h - g.y0) * k).toFixed(3) + u;
+    p.setAttribute('d', g.d); p.setAttribute('fill', 'currentColor'); p.setAttribute('fill-rule', 'evenodd'); e.append(p); return e;
+  }
 
   let mode = M[ls.get(KEY + '.mode')] ? ls.get(KEY + '.mode') : 'infernal', built = false, el = {}, doc = null, docSpec = null;
 
@@ -100,7 +113,7 @@
         const l = c.toLowerCase();
         if (c === '\n') nodes.push({ br: 1 });
         else if (c === ' ') nodes.push({ sp: 1 });
-        else if (L.includes(l)) nodes.push({ img: imgSrc(m.img, l), l });
+        else if (L.includes(l)) nodes.push({ set: m.img, l });
         else nodes.push({ t: c });
       }
       return { nodes, read: text.trim() ? 'Звучание: ' + reading(text, m.s) : '' };
@@ -122,7 +135,10 @@
     ls.set(KEY + '.text', text);
     el.out.className = 'trout ' + mode;
     el.out.replaceChildren();
-    if (r.nodes) r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: 'sp' }, ' ') : n.img ? h('img', { src: n.img, alt: n.l, onerror: e => { e.target.style.display = 'none'; } }) : n.t));
+    if (r.nodes) {
+      if (!GL) loadGlyphs().then(() => { if (GL) { convert(); table(); } });
+      r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: 'sp' }, ' ') : n.set ? (glyphSvg(n.set, n.l, 1.65, 'em') || '') : n.t));
+    }
     else el.out.textContent = r.text;
     el.read.textContent = r.read;
     el.info.replaceChildren(...info(M[mode]));
@@ -155,7 +171,7 @@
     if (m.img) box.classList.add('img');
     L.split('').forEach((l, i) => {
       if (m.img) box.append(h('button', { type: 'button', class: 'cell', title: 'Вставить букву «' + l + '»', onclick: () => insert(l) },
-        h('span', { class: 'l' }, l.toUpperCase()), h('img', { src: imgSrc(m.img, l), alt: '', loading: 'lazy', onerror: e => { e.target.style.display = 'none'; } })));
+        h('span', { class: 'l' }, l.toUpperCase()), glyphSvg(m.img, l, 44) || ''));
       else { const g = G[m.g][i]; box.append(h('button', { type: 'button', class: 'cell' + (g ? '' : ' none'), title: g ? 'Вставить знак' : 'У этой буквы нет знака', onclick: () => insert(g || l) },
         h('span', { class: 'l' }, l.toUpperCase()), h('span', { class: 'g' }, g || '—'))); }
     });
@@ -265,5 +281,5 @@
     view(v === 'doc' ? 'doc' : 'tr');
   }
 
-  root.TR = { show, run, MODES: M, FAMILIES: FAM, G, L, imgSrc };
+  root.TR = { show, run, MODES: M, FAMILIES: FAM, G, L, loadGlyphs, glyph, glyphSet: set => GL && GL[set] || null };
 })(window);
