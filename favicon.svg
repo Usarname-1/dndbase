@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Кость d20">
+  <rect width="64" height="64" rx="14" fill="#922610"/>
+  <g fill="none" stroke="#fdf1dc" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 8.5 52 20v24L32 55.5 12 44V20z"/>
+    <path d="M32 19.5 43 39.5H21z"/>
+    <path d="M32 19.5 12 20M32 19.5 52 20M43 39.5 52 44M43 39.5 32 55.5M21 39.5 12 44M21 39.5 32 55.5"/>
+  </g>
+</svg>
