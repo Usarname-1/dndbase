@@ -199,10 +199,10 @@
     if (!t.trim()) { toast('Нечего копировать: сначала введите текст'); return; }
     navigator.clipboard.writeText(t).then(() => toast('Перевод скопирован'), () => toast('Не удалось скопировать: браузер не разрешил доступ к буферу'));
   }
-  // быстрый документ из текущего перевода: чистая записка на пергаменте, без заголовка
+  // быстрый документ из текущего перевода: текст на белом фоне, без заголовка и рамки
   function quickSpec() {
     const d = root.TDoc.defaults(); root.TDoc.applyKind(d, 'note');
-    return Object.assign(d, { mode, text: el.input.value, paper: 'parchment', fmt: 'note', ink: 'brown' });
+    return Object.assign(d, { mode, text: el.input.value, paper: 'white', fmt: 'tight', ink: 'black', font: 'serif', frame: 'none', seal: '' });   // PNG из переводчика: чёрный текст на белом
   }
   const needText = () => { if (el.input.value.trim()) return false; toast('Сначала введите текст'); return true; };
   const savePng = () => { if (!needText()) root.TDoc.download(quickSpec()); };
