@@ -12,6 +12,7 @@
   const INKS = [['black', 'Чёрные', '#1c1610'], ['brown', 'Коричневые', '#4a2c14'], ['red', 'Красные', '#8a1c12'], ['blue', 'Синие', '#1f3a6e']];
   const PAPERS = {
     parchment: { n: 'Пергамент', g: ['#efdcae', '#dcc18a'], tone: '120,80,30', blot: 1 },
+    white: { n: 'Белая', g: ['#ffffff', '#ffffff'], tone: '0,0,0', blot: 0, plain: 1 },
     clean: { n: 'Чистая', g: ['#faf6ea', '#f0ead8'], tone: '150,140,110', blot: .35 },
     worn: { n: 'Потёртая', g: ['#e2d1a5', '#cdb887'], tone: '100,80,40', blot: 1, worn: 1 },
     torn: { n: 'Рваная', g: ['#ecd9a9', '#d8bd85'], tone: '120,80,30', blot: 1, torn: 1 },
@@ -63,6 +64,7 @@
   }
   function paper(ctx, w, hh, kind, rng) {
     const P = PAPERS[kind], tone = P.tone;
+    if (P.plain) { ctx.fillStyle = P.g[0]; ctx.fillRect(0, 0, w, hh); return; }      // чисто белый лист: без фактуры и затемнения краёв
     ctx.save();
     if (P.torn) {                                        // тень и рваная кромка
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.38)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3; ctx.fillStyle = P.g[0]; ctx.beginPath(); jag(ctx, w, hh, 2, 7, 6, rngOf(7)); ctx.fill(); ctx.restore();
@@ -147,7 +149,8 @@
     await withTimeout(Promise.all([document.fonts.load(bodyFont(28), allText), document.fonts.load(titleFont(28), allText)].map(p => p.catch(() => null))), 3000);
     const GS = m.img ? tr.glyphSet(m.img) : null;
     const mc = document.createElement('canvas').getContext('2d');
-    const size = spec.size, frameK = spec.frame, mx = frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
+    const size = spec.size, frameK = spec.frame, tight = spec.fmt === 'tight';      // tight — компактный лист вплотную к тексту (быстрый экспорт из переводчика)
+    const mx = tight ? 36 : frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = tight ? 32 : frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
     // блок: переносы строк
     function block(r, sz, font, align) {
       const ih = sz * 1.45, items = [];
@@ -176,7 +179,7 @@
     const titleH = tT ? tT.lines.length * tT.lh + size * .9 : 0, bodyH = tB.lines.length * tB.lh;
     const signH = tS ? tS.lines.length * tS.lh + (K.line ? 10 : 0) : 0, botH = Math.max(signH, sealOn ? 96 : 0), gap = (tS || sealOn) ? size * .9 : 0;
     let H = Math.ceil(my + titleH + bodyH + gap + botH + my);
-    H = spec.fmt === 'page' ? Math.max(H, Math.round(W * 1.414)) : Math.max(H, 250);
+    H = spec.fmt === 'page' ? Math.max(H, Math.round(W * 1.414)) : tight ? Math.max(H, 90) : Math.max(H, 250);
     const torn = !!PAPERS[spec.paper].torn, pad = torn ? 20 : 0;
     const cv = document.createElement('canvas'); cv.width = Math.round((W + pad * 2) * scale); cv.height = Math.round((H + pad * 2) * scale);
     const ctx = cv.getContext('2d'); ctx.scale(scale, scale); ctx.translate(pad, pad);
