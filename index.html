@@ -461,20 +461,15 @@ const ABBR={"Player's Handbook 2014":'PHB',"Dungeon Master's Guide 2014":'DMG',"
 const partsNav=m=>{if(!m.parts)return'';const i=m.part-1,n=m.parts.length,a=(p,t,c)=>p?`<a class="${c}" href="${hh(14,'articles',p.slug)}" title="${esc(p.name)}">${t}</a>`:`<span class="${c} off">${t}</span>`;
  return `<div class="parts" role="navigation" aria-label="Части статьи"><div class="pt">${a(m.parts[i-1],'‹','pp')}<span>Статья «${esc(m.parent_name)}» · часть ${m.part} из ${n}</span>${a(m.parts[i+1],'›','pp')}</div><div class="pl">${m.parts.map(p=>`<a href="${hh(14,'articles',p.slug)}"${p.slug==m.slug?' aria-current="true"':''}>${esc(p.name)}</a>`).join('')}</div></div>`},
  partsFoot=m=>{if(!m.parts)return'';const i=m.part-1,p=m.parts[i-1],q=m.parts[i+1];return `<div class="partsfoot">${p?`<a href="${hh(14,'articles',p.slug)}">← ${esc(p.name)}</a>`:'<span></span>'}${q?`<a href="${hh(14,'articles',q.slug)}">${esc(q.name)} →</a>`:''}</div>`};
-S14.articles={t:'Статьи',sub:m=>m.parent?m.parent_name+' · '+m.part+'/'+m.parts.length:m.category_ru,card:m=>`<article class="stat">${head(m,m.parent?m.category_ru+' · '+m.parent_name:m.category_ru)}${partsNav(m)}${B(m.blocks)}${partsFoot(m)}${foot(m)}`};
+S14.articles={t:'Правила и статьи',sub:m=>m.parent?m.parent_name+' · '+m.part+'/'+m.parts.length:m.category_ru,card:m=>`<article class="stat">${head(m,m.parent?m.category_ru+' · '+m.parent_name:m.category_ru)}${partsNav(m)}${B(m.blocks)}${partsFoot(m)}${foot(m)}`};
 FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Статья',m=>[m.parent_name||m.name_ru],ru],['Источник',SRC,null,1]];
 SUM14.articles=m=>[[m.category_ru,(m.sources||[]).map(abbr).join(', ')]];
-// глоссарий 2014: статьи с правилами разбиты на отдельные термины (tools/restructure_articles.py), group — название статьи
-S14.glossary={t:'Глоссарий',sub:m=>m.group||'',card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`};
-FILTERS14.glossary=[['Группа',m=>[m.group||'—']],['Источник',SRC,null,1]];
-SUM14.glossary=m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]];
-SORT14.glossary=[A,['Группа',m=>m.group]];
 SORT14.articles=[['По статьям',m=>(m.parent_name||m.name_ru)+'\u0001'+String(m.part||0).padStart(3,'0')],A];
 FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
 SUM14.bestiary=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.bestiary);
 SUM14.race=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.race);
 for(const k in S14){S14[k].F=FILTERS14[k]||[];S14[k].sum=SUM14[k];S14[k].SORT=SORT14[k]||[A]}
-const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','glossary','articles']},
+const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','articles']},
  SXS={24:S,14:S14},cache={},SWAP={species:'race',race:'species',articles:'glossary',glossary:'articles'};
 let ed=24,SX=S;
 const hh=(e,k,slug)=>'#'+(e==14?'14/':'')+k+(slug?'/'+slug:''),
@@ -514,7 +509,6 @@ async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o
  let t=d.find(x=>x.slug===s2);
  // slug может отличаться («enlargereduce» ↔ «enlarge-reduce»): тогда ищем по английскому названию, но только если оно одно
  if(!t&&m.name_en){const n=norm(m.name_en),c=d.filter(x=>norm(x.name_en)===n);if(c.length===1)t=c[0]}
- if(!t&&sec=='glossary'){const n=norm(m.name_ru),c=d.filter(x=>norm(x.name_ru)===n);if(c.length===1)t=c[0]}   // глоссарии редакций связаны по названию
  if(!t)t=d.find(x=>x.parent===s2&&x.part==1);
  if(!t)return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,t.slug)}">Версия ${EDK(o)}</a>`}
 const LK={s:'spells',g:'glossary',c:'class',e:'equipment',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',class:'c',equipment:'e',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
