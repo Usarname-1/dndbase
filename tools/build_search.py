@@ -8,7 +8,7 @@ import json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECTIONS = {
     'data': ['bestiary', 'spells', 'class', 'species', 'backgrounds', 'feats', 'items', 'equipment', 'glossary'],
-    'data14': ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'articles'],
+    'data14': ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'glossary', 'articles'],
 }
 
 def sub(k, m):
@@ -22,6 +22,8 @@ def sub(k, m):
         return m.get('cost') or ''
     if k == 'feats':
         return (m.get('category') or '').replace(' черта', '').replace('Черта ', '')
+    if k == 'glossary':
+        return m.get('group') or ''
     if k == 'articles':
         return (m['parent_name'] + ' · ' + str(m['part']) + '/' + str(len(m['parts']))) if m.get('parent') else (m.get('category_ru') or '')
     if k == 'race':
