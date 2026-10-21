@@ -19,6 +19,27 @@ for (const d of Object.keys(SEC)) {
   });
 }
 
+for (const d of Object.keys(SEC)) {
+  test(`тексты ${d}/text/*.json идут в том же порядке, что названия в ${d}/search.json`, () => {
+    const ix = JSON.parse(read(d + '/search.json'));
+    for (const k of SEC[d]) {
+      const names = ix.filter(x => x[2] === k), tx = JSON.parse(read(`${d}/text/${k}.json`));
+      assert.equal(tx.length, names.length, `${d}/${k}`);
+      assert.ok(tx.every(t => typeof t === 'string'));
+      // текст не пустой и содержит описание, а не только служебные поля
+      assert.ok(tx.filter(t => t.length > 20).length > names.length * 0.9, `${d}/${k}: слишком много пустых текстов`);
+    }
+  });
+}
+
+test('поиск по тексту: слово из описания находит запись, которой нет в названии', () => {
+  const ix = JSON.parse(read('data/search.json')).filter(x => x[2] === 'spells');
+  const tx = JSON.parse(read('data/text/spells.json'));
+  const j = ix.findIndex(x => x[3] === 'fireball');
+  assert.ok(/сфер/i.test(tx[j]) || /огн/i.test(tx[j]));
+  assert.ok(!/взрыв/i.test(ix[j][0]));
+});
+
 test('в обеих редакциях находится «Огненный шар / Fireball»', () => {
   for (const d of Object.keys(SEC)) {
     const e = JSON.parse(read(d + '/search.json')).find(x => x[3] === 'fireball' && x[2] === 'spells');

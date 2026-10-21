@@ -65,7 +65,7 @@
 - Сортировка по алфавиту, CR, уровню, КД, хитам, редкости, цене.
 - Карточки в духе официального статблока: характеристики, спасброски, особенности, легендарные действия, логово, региональные эффекты, художественное описание.
 - Классы 2014: таблица прогрессии, умения по уровням, все подклассы (официальные и из Unearthed Arcana — с пометкой).
-- **Глобальный поиск** по названиям во всех разделах выбранной редакции (2014 или 2024): кнопка «🔍 Поиск» в верхней панели, `Ctrl/⌘+K` или `/` — работает на любой странице. Результаты ранжируются по точности совпадения, над списком — фильтр по разделам со счётчиками, выбор стрелками, Enter открывает запись, Esc закрывает. Индексы лежат в `data/search.json` и `data14/search.json` (сборка — `python3 tools/build_search.py`, после правки данных пересобрать; `tests/gsearch.test.js` следит, чтобы индекс не отстал). Код: `gsearch.js`, `gsearch.css`.
+- **Глобальный поиск** по всей базе выбранной редакции (2014 или 2024): кнопка «🔍 Поиск» в верхней панели, `Ctrl/⌘+K` или `/` — работает на любой странице. Ищет и **по названиям** (рус / eng), и **по тексту записей** — по описаниям заклинаний, умениям монстров, правилам; у найденного по тексту показывается фрагмент со словом, а у слов подбираются другие падежи («слепота» → «слепоты»). Галочка «Искать в обеих редакциях» добавляет вторую редакцию (у результатов — пометка 2014/2024), галочка «По тексту записей» отключает поиск по описаниям; выбор запоминается. Результаты ранжируются по точности (название точно → по словам → по началу → в тексте), над списком — фильтр по разделам со счётчиками; стрелки выбирают, Enter открывает, Esc закрывает. Названия грузятся при первом открытии окна (`data/search.json`, `data14/search.json`), тексты — когда набрано 3 буквы и только для нужных редакций (`data/text/`, `data14/text/`; сжатые ≈1 МБ для 2024 и ≈6 МБ для 2014). Пересборка после правки данных — `python3 tools/build_search.py`; `tests/gsearch.test.js` следит, чтобы индексы не отстали. Код: `gsearch.js`, `gsearch.css`.
 - **Переводчик**, **экран мастера** и **листы персонажей** — отдельные разделы в меню (см. ниже).
 - Работает на телефоне. Тёмная тема подстраивается под систему. Выбранная редакция запоминается.
 - Статический сайт: открыл в браузере — и всё. GitHub Pages, Netlify или просто локальный HTTP-сервер.
@@ -144,12 +144,14 @@ dndbase/
 │   ├── bestiary.json, spells.json, class.json, species.json, backgrounds.json,
 │   │   feats.json, items.json, equipment.json, glossary.json
 │   ├── links.json      # индекс автоссылок-подсказок
-│   └── search.json     # индекс глобального поиска
+│   ├── search.json     # индекс глобального поиска: названия
+│   └── text/           # полный текст записей по разделам (для поиска по тексту)
 ├── data14/             # JSON редакции 2014
 │   ├── bestiary.json, spells.json, class.json, race.json, backgrounds.json,
 │   │   feats.json, items.json, articles.json
 │   ├── links.json
-│   └── search.json
+│   ├── search.json
+│   └── text/
 ├── gsearch.js / .css   # глобальный поиск (Ctrl/⌘+K, «/»)
 ├── dice.js / .css      # кликабельные броски
 ├── links.js            # автоссылки-подсказки
@@ -229,7 +231,7 @@ Unofficial **Dungeons & Dragons 5th Edition** reference in **Russian**. Covers b
 
 - Live site: [https://usarname-1.github.io/dndbase/](https://usarname-1.github.io/dndbase/)
 - Edition switch (2014 / 2024) with cross-links between versions of the same entry
-- Global search across every section of the selected edition (`Ctrl/⌘+K` or `/`), in Russian **and** English (`Fireball` finds «Огненный шар»)
+- Global search (`Ctrl/⌘+K` or `/`) across every section — by name **and** by full text, in Russian and English (`Fireball` finds «Огненный шар»), with an option to search both editions at once
 - Dice-rolling statblocks, a DM screen, printable character sheets, and a translator into D&D scripts (Infernal, Dwarvish, Elvish, Draconic…) with a document maker (letters, scrolls, decrees on aged paper; PNG export) and downloadable fonts
 - Filters for CR, type, school, rarity, source, and more
 - Book-style statblocks, no account required, static GitHub Pages app

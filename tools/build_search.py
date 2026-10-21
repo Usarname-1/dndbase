@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Индекс глобального поиска: data/search.json (2024) и data14/search.json (2014).
-Запись: [name_ru, name_en, раздел, slug, подпись]. Запуск: python3 tools/build_search.py"""
-import json, os
+"""Индекс глобального поиска.
+  data/search.json, data14/search.json — названия: [name_ru, name_en, раздел, slug, подпись];
+  data/text/<раздел>.json, data14/text/<раздел>.json — полный текст записей для поиска «по тексту»: список строк,
+  порядок тот же, что у записей этого раздела в search.json.
+Запуск: python3 tools/build_search.py"""
+import json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECTIONS = {
     'data': ['bestiary', 'spells', 'class', 'species', 'backgrounds', 'feats', 'items', 'equipment', 'glossary'],
@@ -25,13 +28,40 @@ def sub(k, m):
         return ' / '.join(m.get('sizes') or [])
     return ''
 
+# служебные поля, которых нет в тексте карточки
+SKIP = {'type', 'kind', 'key', 'id', 'slug', 'section', 'edition', 'sources', 'url', 'url_2024', 'id_2024', 'homebrew',
+        'name_ru', 'name_en', 'alignment', 'saves_proficient', 'comp', 'cr', 'sizes', 'speed', 'abilities', 'swarm', 'named_npc'}
+
+def texts(o, out):
+    if isinstance(o, str):
+        out.append(o)
+    elif isinstance(o, list):
+        for x in o:
+            texts(x, out)
+    elif isinstance(o, dict):
+        for k, v in o.items():
+            if k not in SKIP:
+                texts(v, out)
+
+def flat(m):
+    parts = []
+    texts(m, parts)
+    t = ' '.join(p for p in parts if len(p.strip()) > 1 and not re.fullmatch(r'[\d\s.,+\-–−/()%]*', p))
+    return re.sub(r'\s+', ' ', t.replace('*', '')).strip()
+
 for d, keys in SECTIONS.items():
     out = []
+    os.makedirs(os.path.join(ROOT, d, 'text'), exist_ok=True)
     for k in keys:
+        tx = []
         for m in json.load(open(os.path.join(ROOT, d, k + '.json'), encoding='utf-8')):
             if not m.get('slug') or not m.get('name_ru'):
                 continue
             out.append([m['name_ru'], m.get('name_en') or '', k, m['slug'], sub(k, m)])
+            tx.append(flat(m))
+        tp = os.path.join(ROOT, d, 'text', k + '.json')
+        json.dump(tx, open(tp, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+        print('  ', tp, len(tx), os.path.getsize(tp) // 1024, 'КБ')
     p = os.path.join(ROOT, d, 'search.json')
     json.dump(out, open(p, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     print(p, len(out), os.path.getsize(p) // 1024, 'КБ')
