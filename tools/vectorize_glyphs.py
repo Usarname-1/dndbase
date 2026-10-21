@@ -15,7 +15,10 @@ NAMES = {'dragon': 'Драконий (иокхарик)', 'elf': 'Эльфийс
 TARGET_H = 640                                           # высота, до которой растягиваем перед трассировкой
 
 def mask(path):
-    a = cv2.imread(path, cv2.IMREAD_UNCHANGED)[..., 3].astype(np.float32)
+    im = cv2.imread(path, cv2.IMREAD_UNCHANGED).astype(np.float32)
+    # чернила = непрозрачность × тёмность: «дырки» в буквах (у эльфийского, дварфийского, инфернального) нарисованы
+    # непрозрачными белыми пикселями, по одной прозрачности они бы закрасились
+    a = im[..., 3] * (1 - im[..., :3].mean(axis=2) / 255)
     u = max(2, int(np.ceil(TARGET_H / a.shape[0])))
     a = cv2.copyMakeBorder(a, 3, 3, 3, 3, cv2.BORDER_CONSTANT, value=0)   # поля, чтобы контур не прилипал к краю
     big = cv2.resize(a, None, fx=u, fy=u, interpolation=cv2.INTER_CUBIC)
