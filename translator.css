@@ -90,7 +90,6 @@ body.e14 .tdd :is(input,textarea,select,button):focus-visible{box-shadow:0 0 0 3
 .tdd .tddink{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
 .tdd .tddink[aria-pressed=true]{border-color:var(--bar);box-shadow:0 0 0 2px #fffaf0,0 0 0 4px var(--bar)}
 .tdd .tddk{margin:10px 0 0;font-size:14px}.tdd .tddk summary{cursor:pointer;font:700 15px 'PT Serif',serif;color:var(--red)}.tdd .tddk p{margin:6px 0 0;padding:8px 10px;background:#fffaf0;border:1px solid var(--line);border-radius:4px}
-.tdd .tddq{margin-top:10px;max-width:260px}
 .tdd .trbtns{align-items:center}
 @media(max-width:900px){.tdd{grid-template-columns:minmax(0,1fr)}.tdd .tddp{position:static;order:-1}}
 /* окно правки на экране мастера */
@@ -120,3 +119,6 @@ body.e14 .tdd :is(input,textarea,select,button):focus-visible{box-shadow:0 0 0 3
 .tdmodal .trbtn.main:hover{filter:brightness(1.12);color:#fff}
 .tdmodal .trbtn[hidden]{display:none}
 .tdmodal .trbtn{color:#1d1a16}.tdmodal .trbtn.main{color:#fff}.tdmodal .chip{color:#1d1a16}.tdmodal .chip[aria-pressed=true]{color:#fff}
+
+/* список качества PNG — в одном ряду с кнопками, той же высоты и вида */
+.tdd .trbtns select.tddq,.tdmodal .trbtns select.tddq{width:auto;height:32px;box-sizing:border-box;padding:0 28px 0 12px;margin:0;font:700 14px 'PT Sans',sans-serif;color:#1d1a16;background-color:transparent;cursor:pointer}
