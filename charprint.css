@@ -2,7 +2,8 @@
    Разметку строит charprint.js. Все размеры в мм; лист A4 с полями 8 мм → область 194 × 279 мм.
    Оформление — в стиле справочника: белая бумага (чернила не тратятся на фон), кремовые плашки,
    кирпично-красные заголовки и линии для правил 2024, бирюзовые — для 2014, сужающиеся разделители.
-   .e24 / .e14 — раскладка под правила 2024 / 2014; .mono — чёрно-белый вариант (все цвета через переменные).
+   .e24 / .e14 — раскладка под правила 2024 / 2014 (правила пишутся как «:where(.csheet) .e14 …»: класс e14 бывает и у <body>, когда выбрана
+   редакция 2014, и без ограничения предком такие правила портили бы лист 2024); .mono — чёрно-белый вариант (все цвета через переменные).
    Лист не зависит от тёмной темы сайта: все цвета заданы здесь. */
 .csheet{--ink:#1d1a16;--muted:#6b5f4d;--red:#7a200d;--bar:#922610;--edge:#b9a074;--line:#d9c7a3;--ruled:#c9b48a;--grid:#eadfc6;--tint:#f5ecd9;--zebra:#f0dfbf;--paper:#fdf1dc;--panel:#f5ecd9;
  --sans:'PT Sans','Open Sans',Arial,sans-serif;--serif:'PT Serif',Georgia,serif;
@@ -65,102 +66,102 @@
 
 /* ======================= D&D 2024 ======================= */
 /* блок: красная верхняя линия, рамка цвета пергамента, заголовок капителью */
-.e24 .bx{display:flex;flex-direction:column;border:.8pt solid var(--edge);border-top:1.8pt solid var(--bar);border-radius:1.2mm;background:#fff;position:relative}
-.e24 .bh{font:700 7.2pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:1.6mm 1.5mm .7mm;margin:0 1.8mm;border-bottom:.6pt solid var(--line)}
-.e24 .bx>.tx,.e24 .bx>.fl{margin:0 1.7mm 1.7mm}
-.e24.p1{display:flex;flex-direction:column;gap:2.5mm}
-.e24 .hd{display:grid;grid-template-columns:64mm 18mm 19mm 1fr;gap:2.5mm;height:32mm;flex:none}
-.e24 .hn{padding:2.2mm 3.6mm}
-.e24 .hn .fld.snm b{font:700 14pt var(--serif);font-variant:small-caps;color:var(--red);min-height:7.2mm}
-.e24 .g2{display:grid;grid-template-columns:1fr 1fr;gap:.8mm 4mm;margin-top:1.4mm}
-.e24 .lv{border:1.2pt solid var(--bar);border-radius:50%;align-items:center;justify-content:center;text-align:center;box-shadow:inset 0 0 0 .8mm #fff,inset 0 0 0 1.05mm var(--line)}
-.e24 .lv b{font:700 18pt/1 var(--serif);color:var(--red)}.e24 .xpl{display:block;width:11mm;height:4.5mm;border-bottom:.7pt solid var(--edge);margin-top:1.5mm}
+:where(.csheet) .e24 .bx{display:flex;flex-direction:column;border:.8pt solid var(--edge);border-top:1.8pt solid var(--bar);border-radius:1.2mm;background:#fff;position:relative}
+:where(.csheet) .e24 .bh{font:700 7.2pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:1.6mm 1.5mm .7mm;margin:0 1.8mm;border-bottom:.6pt solid var(--line)}
+:where(.csheet) .e24 .bx>.tx,:where(.csheet) .e24 .bx>.fl{margin:0 1.7mm 1.7mm}
+:where(.csheet) .e24.p1{display:flex;flex-direction:column;gap:2.5mm}
+:where(.csheet) .e24 .hd{display:grid;grid-template-columns:64mm 18mm 19mm 1fr;gap:2.5mm;height:32mm;flex:none}
+:where(.csheet) .e24 .hn{padding:2.2mm 3.6mm}
+:where(.csheet) .e24 .hn .fld.snm b{font:700 14pt var(--serif);font-variant:small-caps;color:var(--red);min-height:7.2mm}
+:where(.csheet) .e24 .g2{display:grid;grid-template-columns:1fr 1fr;gap:.8mm 4mm;margin-top:1.4mm}
+:where(.csheet) .e24 .lv{border:1.2pt solid var(--bar);border-radius:50%;align-items:center;justify-content:center;text-align:center;box-shadow:inset 0 0 0 .8mm #fff,inset 0 0 0 1.05mm var(--line)}
+:where(.csheet) .e24 .lv b{font:700 18pt/1 var(--serif);color:var(--red)}:where(.csheet) .e24 .xpl{display:block;width:11mm;height:4.5mm;border-bottom:.7pt solid var(--edge);margin-top:1.5mm}
 .csheet .shield{position:relative}
 .csheet .shield .sv{position:absolute;inset:0}.csheet .shield .sv svg{display:block;width:100%;height:100%}
 .csheet .shield .sv path{fill:var(--tint);stroke:var(--bar);stroke-width:1.6;vector-effect:non-scaling-stroke}
 .csheet .si{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:.8mm}
 .csheet .si b{font:700 20pt/1.05 var(--serif);color:var(--red)}.csheet .si small{font-size:5pt}
-.e24 .hpb{display:grid;grid-template-columns:1fr 16mm 26mm}
-.e24 .hpb>div{display:flex;flex-direction:column;min-width:0}
-.e24 .hpb>div+div{border-left:.6pt solid var(--line)}
-.e24 .hph{font:700 6.9pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;min-height:8.6mm;display:flex;align-items:flex-end;justify-content:center;padding:1.4mm 1mm .8mm;margin:0 1.5mm;border-bottom:.6pt solid var(--line)}
-.e24 .hpr{display:grid;grid-template-columns:1fr 20mm;flex:1}
-.e24 .hpcur{display:flex;align-items:flex-end;justify-content:flex-start;padding:0 0 2mm 3mm}
-.e24 .hpmt{display:flex;flex-direction:column;border-left:.4pt dashed var(--edge);text-align:center}
-.e24 .hmx{flex:1;display:flex;flex-direction:column;justify-content:center}.e24 .hmx b{font:700 15pt/1 var(--serif)}
-.e24 .htmp{flex:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2mm;border-top:.4pt dashed var(--edge)}
-.e24 .hdv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.e24 .hdv b{font:700 15pt/1 var(--serif)}
-.e24 .hdu{display:flex;align-items:flex-end;justify-content:center;height:9mm;padding-bottom:2mm;margin:0 3mm;border-top:.4pt dashed var(--edge)}
-.e24 .dsc{align-items:stretch}.e24 .dsr{display:flex;align-items:center;justify-content:space-between;padding:0 1.8mm;flex:1;gap:.8mm}.e24 .dsr small{font-size:5.6pt;color:var(--ink)}
-.e24 .hrule{height:5mm;display:flex;align-items:center;gap:3mm;flex:none}
-.e24 .hrule::before,.e24 .hrule::after{content:'';flex:1;height:1.5mm;background:var(--bar)}
-.e24 .hrule::before{clip-path:polygon(0 50%,100% 0,100% 100%)}
-.e24 .hrule::after{clip-path:polygon(0 0,100% 50%,0 100%)}
-.e24 .hrule span{font:700 10pt var(--serif);font-variant:small-caps;color:var(--red);letter-spacing:.08em}
-.e24 .bd{flex:1;min-height:0;display:flex;gap:2.5mm}
-.e24 .left{width:73mm;flex:none;display:flex;flex-direction:column;gap:2.5mm}
-.e24 .abcols{display:flex;gap:2.5mm;flex:none}
-.e24 .acol{flex:1;display:flex;flex-direction:column;gap:2.5mm;min-width:0}
-.e24 .right{flex:1;min-width:0;display:flex;flex-direction:column;gap:2.5mm}
-.e24 .ab .am{display:flex;justify-content:center;align-items:flex-start;gap:1.2mm;padding:1.8mm 1mm 1.2mm}
-.e24 .mc{text-align:center;width:15.5mm}
-.e24 .circ{display:flex;width:13mm;height:13mm;margin:0 auto .7mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 15pt var(--serif)}
-.e24 .vc{text-align:center;padding-top:2.4mm;width:12.5mm}
-.e24 .val{display:flex;width:11mm;height:8mm;border:1pt solid var(--edge);border-radius:1.3mm;align-items:center;justify-content:center;font:700 11pt var(--sans);margin:0 auto .7mm}
-.e24 .mc small,.e24 .vc small{font-size:4.5pt;text-align:center}
-.e24 .sks{border-top:.6pt solid var(--line);margin:0 1.8mm 1.8mm}
-.e24 .sk{display:flex;align-items:center;gap:1.3mm;min-height:5.2mm;border-bottom:.4pt solid var(--line);padding:.2mm 0}
-.e24 .sk:last-child{border-bottom:0}
-.e24 .sk .bn{min-width:6.3mm;text-align:center;font:700 8pt var(--sans);border-bottom:.5pt solid var(--edge);line-height:1.2}
-.e24 .sk .snm{font-size:6.9pt;line-height:1.05}.e24 .sk.sv .snm{font-weight:700;color:var(--red)}
-.e24 .pbv{width:14mm;margin:1.8mm auto 2.4mm;border:1pt solid var(--bar);border-radius:1mm;background:var(--tint);text-align:center;font:700 14pt/1.5 var(--serif)}
-.e24 .sq6{display:flex;gap:1.1mm;justify-content:center;padding:2.2mm 1mm 2.8mm}
-.e24 .sqr{display:block;width:4.1mm;height:4.1mm;border:.8pt solid var(--bar);border-radius:.8mm;background:#fff}
-.e24 .hi{flex:none}.e24 .hic{display:flex;align-items:center;justify-content:center;padding:1mm 0 1.4mm}.e24 .hic .dt.huge{width:7mm;height:7mm;border-width:.9pt}
-.e24 .acol:last-child>.ab{flex:1}.e24 .acol:last-child>.ab .sks{flex:1}
-.e24 .prof{flex:1;min-height:0}
-.e24 .pry{display:flex;flex-wrap:wrap;gap:.4mm 2.2mm;align-items:center;padding:1mm 2.6mm 0;font-size:6.8pt}
-.e24 .pl{font:700 5.8pt var(--sans);text-transform:uppercase;color:var(--red);width:11mm}
-.e24 .pi{display:inline-flex;align-items:center;gap:.5mm}
-.e24 .prof .tx{flex:1;padding:1.2mm 2.4mm;font-size:7.2pt;line-height:1.3}.e24 .prof .tx p{margin-bottom:1.1mm}
-.e24 .prof .tx b{color:var(--red)}
-.e24 .st4{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm;height:20mm;flex:none}
-.e24 .sb .bh{font-size:6.2pt;padding-top:1.5mm;min-height:7.6mm;display:flex;align-items:center;justify-content:center}
-.e24 .sb>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 14pt var(--sans)}
-.e24 .sb .pas2{font-size:4.3pt;text-align:center;padding:0 1mm 1.8mm;letter-spacing:0;margin-top:-1mm}
-.e24 .sb>b+.pas2{margin-top:-2mm}
-.e24 .wp{flex:none}
-.e24 .fb{flex:1;min-height:0}
-.e24 .fb .fl.gr{flex:1}
-.e24 .pair{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;height:50mm;flex:none}
-.e24 .pair .bx{min-height:0}.e24 .pair .fl,.e24 .pair .tx{flex:1}
+:where(.csheet) .e24 .hpb{display:grid;grid-template-columns:1fr 16mm 26mm}
+:where(.csheet) .e24 .hpb>div{display:flex;flex-direction:column;min-width:0}
+:where(.csheet) .e24 .hpb>div+div{border-left:.6pt solid var(--line)}
+:where(.csheet) .e24 .hph{font:700 6.9pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;min-height:8.6mm;display:flex;align-items:flex-end;justify-content:center;padding:1.4mm 1mm .8mm;margin:0 1.5mm;border-bottom:.6pt solid var(--line)}
+:where(.csheet) .e24 .hpr{display:grid;grid-template-columns:1fr 20mm;flex:1}
+:where(.csheet) .e24 .hpcur{display:flex;align-items:flex-end;justify-content:flex-start;padding:0 0 2mm 3mm}
+:where(.csheet) .e24 .hpmt{display:flex;flex-direction:column;border-left:.4pt dashed var(--edge);text-align:center}
+:where(.csheet) .e24 .hmx{flex:1;display:flex;flex-direction:column;justify-content:center}:where(.csheet) .e24 .hmx b{font:700 15pt/1 var(--serif)}
+:where(.csheet) .e24 .htmp{flex:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2mm;border-top:.4pt dashed var(--edge)}
+:where(.csheet) .e24 .hdv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}:where(.csheet) .e24 .hdv b{font:700 15pt/1 var(--serif)}
+:where(.csheet) .e24 .hdu{display:flex;align-items:flex-end;justify-content:center;height:9mm;padding-bottom:2mm;margin:0 3mm;border-top:.4pt dashed var(--edge)}
+:where(.csheet) .e24 .dsc{align-items:stretch}:where(.csheet) .e24 .dsr{display:flex;align-items:center;justify-content:space-between;padding:0 1.8mm;flex:1;gap:.8mm}:where(.csheet) .e24 .dsr small{font-size:5.6pt;color:var(--ink)}
+:where(.csheet) .e24 .hrule{height:5mm;display:flex;align-items:center;gap:3mm;flex:none}
+:where(.csheet) .e24 .hrule::before,:where(.csheet) .e24 .hrule::after{content:'';flex:1;height:1.5mm;background:var(--bar)}
+:where(.csheet) .e24 .hrule::before{clip-path:polygon(0 50%,100% 0,100% 100%)}
+:where(.csheet) .e24 .hrule::after{clip-path:polygon(0 0,100% 50%,0 100%)}
+:where(.csheet) .e24 .hrule span{font:700 10pt var(--serif);font-variant:small-caps;color:var(--red);letter-spacing:.08em}
+:where(.csheet) .e24 .bd{flex:1;min-height:0;display:flex;gap:2.5mm}
+:where(.csheet) .e24 .left{width:73mm;flex:none;display:flex;flex-direction:column;gap:2.5mm}
+:where(.csheet) .e24 .abcols{display:flex;gap:2.5mm;flex:none}
+:where(.csheet) .e24 .acol{flex:1;display:flex;flex-direction:column;gap:2.5mm;min-width:0}
+:where(.csheet) .e24 .right{flex:1;min-width:0;display:flex;flex-direction:column;gap:2.5mm}
+:where(.csheet) .e24 .ab .am{display:flex;justify-content:center;align-items:flex-start;gap:1.2mm;padding:1.8mm 1mm 1.2mm}
+:where(.csheet) .e24 .mc{text-align:center;width:15.5mm}
+:where(.csheet) .e24 .circ{display:flex;width:13mm;height:13mm;margin:0 auto .7mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 15pt var(--serif)}
+:where(.csheet) .e24 .vc{text-align:center;padding-top:2.4mm;width:12.5mm}
+:where(.csheet) .e24 .val{display:flex;width:11mm;height:8mm;border:1pt solid var(--edge);border-radius:1.3mm;align-items:center;justify-content:center;font:700 11pt var(--sans);margin:0 auto .7mm}
+:where(.csheet) .e24 .mc small,:where(.csheet) .e24 .vc small{font-size:4.5pt;text-align:center}
+:where(.csheet) .e24 .sks{border-top:.6pt solid var(--line);margin:0 1.8mm 1.8mm}
+:where(.csheet) .e24 .sk{display:flex;align-items:center;gap:1.3mm;min-height:5.2mm;border-bottom:.4pt solid var(--line);padding:.2mm 0}
+:where(.csheet) .e24 .sk:last-child{border-bottom:0}
+:where(.csheet) .e24 .sk .bn{min-width:6.3mm;text-align:center;font:700 8pt var(--sans);border-bottom:.5pt solid var(--edge);line-height:1.2}
+:where(.csheet) .e24 .sk .snm{font-size:6.9pt;line-height:1.05}:where(.csheet) .e24 .sk.sv .snm{font-weight:700;color:var(--red)}
+:where(.csheet) .e24 .pbv{width:14mm;margin:1.8mm auto 2.4mm;border:1pt solid var(--bar);border-radius:1mm;background:var(--tint);text-align:center;font:700 14pt/1.5 var(--serif)}
+:where(.csheet) .e24 .sq6{display:flex;gap:1.1mm;justify-content:center;padding:2.2mm 1mm 2.8mm}
+:where(.csheet) .e24 .sqr{display:block;width:4.1mm;height:4.1mm;border:.8pt solid var(--bar);border-radius:.8mm;background:#fff}
+:where(.csheet) .e24 .hi{flex:none}:where(.csheet) .e24 .hic{display:flex;align-items:center;justify-content:center;padding:1mm 0 1.4mm}:where(.csheet) .e24 .hic .dt.huge{width:7mm;height:7mm;border-width:.9pt}
+:where(.csheet) .e24 .acol:last-child>.ab{flex:1}:where(.csheet) .e24 .acol:last-child>.ab .sks{flex:1}
+:where(.csheet) .e24 .prof{flex:1;min-height:0}
+:where(.csheet) .e24 .pry{display:flex;flex-wrap:wrap;gap:.4mm 2.2mm;align-items:center;padding:1mm 2.6mm 0;font-size:6.8pt}
+:where(.csheet) .e24 .pl{font:700 5.8pt var(--sans);text-transform:uppercase;color:var(--red);width:11mm}
+:where(.csheet) .e24 .pi{display:inline-flex;align-items:center;gap:.5mm}
+:where(.csheet) .e24 .prof .tx{flex:1;padding:1.2mm 2.4mm;font-size:7.2pt;line-height:1.3}:where(.csheet) .e24 .prof .tx p{margin-bottom:1.1mm}
+:where(.csheet) .e24 .prof .tx b{color:var(--red)}
+:where(.csheet) .e24 .st4{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm;height:20mm;flex:none}
+:where(.csheet) .e24 .sb .bh{font-size:6.2pt;padding-top:1.5mm;min-height:7.6mm;display:flex;align-items:center;justify-content:center}
+:where(.csheet) .e24 .sb>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 14pt var(--sans)}
+:where(.csheet) .e24 .sb .pas2{font-size:4.3pt;text-align:center;padding:0 1mm 1.8mm;letter-spacing:0;margin-top:-1mm}
+:where(.csheet) .e24 .sb>b+.pas2{margin-top:-2mm}
+:where(.csheet) .e24 .wp{flex:none}
+:where(.csheet) .e24 .fb{flex:1;min-height:0}
+:where(.csheet) .e24 .fb .fl.gr{flex:1}
+:where(.csheet) .e24 .pair{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;height:50mm;flex:none}
+:where(.csheet) .e24 .pair .bx{min-height:0}:where(.csheet) .e24 .pair .fl,:where(.csheet) .e24 .pair .tx{flex:1}
 
 /* заклинания 2024 */
-.e24 .sptop{display:grid;grid-template-columns:64mm 1fr;gap:2.5mm;height:34mm;margin-bottom:2.5mm}
-.e24 .spst{padding:2mm 3mm;justify-content:space-between}
-.e24 .ss{display:flex;align-items:center;gap:2mm;border-bottom:.4pt solid var(--line);flex:1}.e24 .ss:last-child{border-bottom:0}
-.e24 .ss b{min-width:17mm;text-align:center;font:700 10pt var(--sans)}.e24 .ss small{font-size:5.4pt;color:var(--red);font-weight:700}
-.e24 .slg{display:grid;grid-template-columns:repeat(9,1fr);gap:1.2mm;padding:1.6mm 2.2mm 0;flex:1;min-height:0}
-.e24 .slc{display:flex;flex-direction:column;align-items:center;border:.6pt solid var(--edge);border-radius:1.2mm;padding:.5mm 0 .4mm;min-width:0;gap:.2mm}
-.e24 .slc small{font:700 5.8pt/1.1 var(--serif);font-variant:small-caps;color:var(--red)}
-.e24 .slc b{font:700 11pt/1.05 var(--sans)}
-.e24 .slc .sld{display:flex;flex-wrap:wrap;justify-content:center;gap:.1mm;width:100%;padding:0 .4mm}
-.e24 .slc .slt{font:italic 4.3pt/1.1 var(--sans);color:var(--muted);text-align:center;min-height:1.8mm}
-.e24 .slc.off{opacity:.4}
-.e24 .spn{font-size:5.8pt;color:var(--muted);padding:0 3mm 1.8mm;margin-top:auto}
-.e24 .spt{padding-bottom:1.5mm}
-.e24 .sptab{font-size:7.3pt;margin:0;table-layout:fixed}
-.e24 .spt .sptab{width:calc(100% - 3.6mm);margin:0 1.8mm}
-.e24 .sptab th{font:700 5.6pt var(--sans);letter-spacing:.03em;text-transform:uppercase;text-align:left;color:var(--red);border-bottom:1pt solid var(--bar);padding:1.2mm .8mm;white-space:nowrap;overflow:hidden}
-.e24 .sptab td{height:5.4mm;border-bottom:.4pt solid var(--line);padding:0 .8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.e24 .sptab tr:nth-child(odd):not(:first-child) td{background:var(--tint)}
-.e24 .sptab td.snm{font-weight:700;font-size:7.5pt}.e24 .sptab td.snm small{display:inline;text-transform:none;font-size:5.6pt;font-weight:400;color:var(--muted)}
-.e24 .sptab td.comp{font-size:6.6pt;color:#333}
-.e24 .sptab td.fl{font-weight:700;font-size:7pt;columns:auto;padding:0;color:var(--red)}
-.e24 .sptab th:nth-child(1),.e24 .sptab td:nth-child(1){width:6mm}.e24 .sptab th:nth-child(2),.e24 .sptab td:nth-child(2){width:6.5mm}
-.e24 .sptab th:nth-child(4),.e24 .sptab td:nth-child(4){width:28mm}.e24 .sptab th:nth-child(5),.e24 .sptab td:nth-child(5){width:20mm}
-.e24 .sptab th:nth-child(6),.e24 .sptab td:nth-child(6),.e24 .sptab th:nth-child(7),.e24 .sptab td:nth-child(7){width:5mm}
-.e24 .sptab th:nth-child(8),.e24 .sptab td:nth-child(8){width:17mm}.e24 .sptab th:nth-child(9),.e24 .sptab td:nth-child(9){width:26mm}
+:where(.csheet) .e24 .sptop{display:grid;grid-template-columns:64mm 1fr;gap:2.5mm;height:34mm;margin-bottom:2.5mm}
+:where(.csheet) .e24 .spst{padding:2mm 3mm;justify-content:space-between}
+:where(.csheet) .e24 .ss{display:flex;align-items:center;gap:2mm;border-bottom:.4pt solid var(--line);flex:1}:where(.csheet) .e24 .ss:last-child{border-bottom:0}
+:where(.csheet) .e24 .ss b{min-width:17mm;text-align:center;font:700 10pt var(--sans)}:where(.csheet) .e24 .ss small{font-size:5.4pt;color:var(--red);font-weight:700}
+:where(.csheet) .e24 .slg{display:grid;grid-template-columns:repeat(9,1fr);gap:1.2mm;padding:1.6mm 2.2mm 0;flex:1;min-height:0}
+:where(.csheet) .e24 .slc{display:flex;flex-direction:column;align-items:center;border:.6pt solid var(--edge);border-radius:1.2mm;padding:.5mm 0 .4mm;min-width:0;gap:.2mm}
+:where(.csheet) .e24 .slc small{font:700 5.8pt/1.1 var(--serif);font-variant:small-caps;color:var(--red)}
+:where(.csheet) .e24 .slc b{font:700 11pt/1.05 var(--sans)}
+:where(.csheet) .e24 .slc .sld{display:flex;flex-wrap:wrap;justify-content:center;gap:.1mm;width:100%;padding:0 .4mm}
+:where(.csheet) .e24 .slc .slt{font:italic 4.3pt/1.1 var(--sans);color:var(--muted);text-align:center;min-height:1.8mm}
+:where(.csheet) .e24 .slc.off{opacity:.4}
+:where(.csheet) .e24 .spn{font-size:5.8pt;color:var(--muted);padding:0 3mm 1.8mm;margin-top:auto}
+:where(.csheet) .e24 .spt{padding-bottom:1.5mm}
+:where(.csheet) .e24 .sptab{font-size:7.3pt;margin:0;table-layout:fixed}
+:where(.csheet) .e24 .spt .sptab{width:calc(100% - 3.6mm);margin:0 1.8mm}
+:where(.csheet) .e24 .sptab th{font:700 5.6pt var(--sans);letter-spacing:.03em;text-transform:uppercase;text-align:left;color:var(--red);border-bottom:1pt solid var(--bar);padding:1.2mm .8mm;white-space:nowrap;overflow:hidden}
+:where(.csheet) .e24 .sptab td{height:5.4mm;border-bottom:.4pt solid var(--line);padding:0 .8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:where(.csheet) .e24 .sptab tr:nth-child(odd):not(:first-child) td{background:var(--tint)}
+:where(.csheet) .e24 .sptab td.snm{font-weight:700;font-size:7.5pt}:where(.csheet) .e24 .sptab td.snm small{display:inline;text-transform:none;font-size:5.6pt;font-weight:400;color:var(--muted)}
+:where(.csheet) .e24 .sptab td.comp{font-size:6.6pt;color:#333}
+:where(.csheet) .e24 .sptab td.fl{font-weight:700;font-size:7pt;columns:auto;padding:0;color:var(--red)}
+:where(.csheet) .e24 .sptab th:nth-child(1),:where(.csheet) .e24 .sptab td:nth-child(1){width:6mm}:where(.csheet) .e24 .sptab th:nth-child(2),:where(.csheet) .e24 .sptab td:nth-child(2){width:6.5mm}
+:where(.csheet) .e24 .sptab th:nth-child(4),:where(.csheet) .e24 .sptab td:nth-child(4){width:28mm}:where(.csheet) .e24 .sptab th:nth-child(5),:where(.csheet) .e24 .sptab td:nth-child(5){width:20mm}
+:where(.csheet) .e24 .sptab th:nth-child(6),:where(.csheet) .e24 .sptab td:nth-child(6),:where(.csheet) .e24 .sptab th:nth-child(7),:where(.csheet) .e24 .sptab td:nth-child(7){width:5mm}
+:where(.csheet) .e24 .sptab th:nth-child(8),:where(.csheet) .e24 .sptab td:nth-child(8){width:17mm}:where(.csheet) .e24 .sptab th:nth-child(9),:where(.csheet) .e24 .sptab td:nth-child(9){width:26mm}
 
 /* ресурсы класса (обе раскладки): строки «название — значение» или кружки для расходуемых */
 .csheet .resb{flex:none}
@@ -169,76 +170,76 @@
 .csheet .resi .resn{flex:1;min-width:0;font-size:7pt}
 .csheet .resi .resv{font:700 8pt var(--sans);white-space:nowrap}
 .csheet .resi .resk{flex:none;gap:.8mm}.csheet .resi .resk .dt{width:2.7mm;height:2.7mm}
-.e24 .resl{grid-template-columns:1fr 1fr}
-.e14 .resl{grid-template-columns:1fr;padding:0 1.8mm}.e14 .resi{min-height:4.7mm;border-bottom-color:var(--ruled)}
+:where(.csheet) .e24 .resl{grid-template-columns:1fr 1fr}
+:where(.csheet) .e14 .resl{grid-template-columns:1fr;padding:0 1.8mm}:where(.csheet) .e14 .resi{min-height:4.7mm;border-bottom-color:var(--ruled)}
 
 /* ======================= D&D 2014 ======================= */
 /* блок: рамка цвета бирюзы, подпись внизу на плашке под красной линией */
-.e14 .bx{display:flex;flex-direction:column;border:.9pt solid var(--edge);border-radius:1.4mm;background:#fff}
-.e14 .bx.nh{border-top:1.6pt solid var(--bar)}
-.e14 .bh{order:9;margin-top:auto;font:700 6.9pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:1.2mm 1mm 1.4mm;background:var(--tint);border-top:1.2pt solid var(--bar);border-radius:0 0 1mm 1mm}
-.e14 .bx>.tx,.e14 .bx>.fl{margin:0}
-.e14.p1{display:flex;flex-direction:column;gap:3mm}
-.e14 .hd{display:flex;gap:5mm;height:33mm;flex:none;align-items:flex-end}
-.e14 .hname{width:66mm;flex:none;padding-bottom:3mm}.e14 .hname b{display:block;font:700 16pt/1.2 var(--serif);font-variant:small-caps;color:var(--red);border-bottom:1.4pt solid var(--bar);min-height:9mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.e14 .hname small{margin-top:.6mm;font-size:5.6pt}
-.e14 .hinfo{flex:1;height:100%;padding:3.2mm 4mm;justify-content:center}
-.e14 .g4{display:grid;grid-template-columns:1fr 1.35fr .6fr;gap:3.5mm 4mm}
-.e14 .bd{flex:1;min-height:0;display:flex;gap:3mm}
-.e14 .c1{width:68mm;flex:none;display:flex;flex-direction:column;gap:3mm}.e14 .c2{width:63mm;flex:none;display:flex;flex-direction:column;gap:3mm}.e14 .c3{flex:1;min-width:0;display:flex;flex-direction:column;gap:3mm}
-.e14 .c1top{display:flex;gap:2mm;flex:none}
-.e14 .abstrip{width:18mm;flex:none;background:var(--panel);border:.7pt solid var(--line);border-radius:5mm;padding:4mm 1.5mm 6mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
-.e14 .ab14{width:14.4mm;background:#fff;border:.9pt solid var(--bar);border-radius:1.6mm;text-align:center;padding:1.2mm 0 4.6mm;position:relative;margin-bottom:3mm}
-.e14 .an{font:700 5.6pt var(--sans);text-transform:uppercase;letter-spacing:.02em;color:var(--red)}.e14 .an.long{font-size:4.5pt;letter-spacing:-.05pt}
-.e14 .amod{font:700 17pt/1.2 var(--serif)}
-.e14 .asc{position:absolute;left:50%;bottom:-3.2mm;transform:translateX(-50%);width:10.6mm;height:6.4mm;border:.9pt solid var(--bar);border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;font:700 9.5pt var(--sans)}
-.e14 .c1b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3mm}
-.e14 .insp{display:flex;align-items:center;gap:2mm;height:10mm;flex:none}
-.e14 .sqb{display:block;width:10mm;height:10mm;border:1.2pt solid var(--bar);border-radius:1.6mm;background:#fff;flex:none}
-.e14 .insp b,.e14 .pbc b{flex:1;border:.9pt solid var(--edge);border-radius:1.4mm;background:var(--tint);font:700 7pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:2.2mm 1mm}
-.e14 .pbc{display:flex;align-items:center;gap:0;height:10mm;flex:none}
-.e14 .pcirc{display:flex;width:10.5mm;height:10.5mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 11pt var(--serif);flex:none;margin-right:-1mm;position:relative;z-index:1}
-.e14 .sk{display:flex;align-items:center;gap:1.4mm;padding:0 2mm;height:4.85mm}
-.e14 .sk .bn{min-width:6.2mm;text-align:center;font:400 9pt var(--sans);border-bottom:.6pt solid var(--edge);line-height:1.1}
-.e14 .sk .snm{font-size:7pt;white-space:nowrap}.e14 .sk .snm.big{font-size:8.2pt}.e14 .sk .at{font-style:normal;color:var(--muted);font-size:6pt}
-.e14 .sv14,.e14 .sk14{padding-top:1.4mm}
-.e14 .sv14{flex:none}.e14 .sk14{flex:none}
-.e14 .pasw{display:flex;align-items:center;gap:2.5mm;flex:none}
-.e14 .poval{display:flex;width:11mm;height:11mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 10.5pt var(--serif);flex:none}
-.e14 .pasw b{font:700 7pt/1.15 var(--serif);font-variant:small-caps;letter-spacing:.03em;color:var(--red)}
-.e14 .lang{flex:1;min-height:0}.e14 .lang .tx.ln{flex:1;padding-top:1mm}
-.e14 .lang .tx b{color:var(--red)}
-.e14 .panel{background:var(--panel);border:.7pt solid var(--line);border-radius:5mm;padding:3mm;display:flex;flex-direction:column;gap:2.5mm}
-.e14 .p3{display:flex;gap:2.5mm;height:22mm}
-.e14 .s14{width:17.5mm;flex:none}.e14 .s14 .si b{font:700 15pt/1}.e14 .s14 .si small{font:700 5.6pt var(--sans);margin-bottom:.3mm;color:var(--red)}
-.e14 .sb{flex:1}.e14 .sb>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 14pt var(--sans)}
-.e14 .mx{height:14mm}.e14 .mx>b{flex:1;display:flex;align-items:center;justify-content:center;font:700 12pt var(--serif)}
-.e14 .curhp,.e14 .tmp{height:24mm}
-.e14 .p2{display:flex;gap:2.5mm;height:23mm}.e14 .p2 .bx{flex:1}
-.e14 .hdb,.e14 .dsb{align-items:center;text-align:center}.e14 .hdb>.bh,.e14 .dsb>.bh{align-self:stretch}
-.e14 .hdb>small:first-child,.e14 .dsb>.dsr:first-child{margin-top:auto}
-.e14 .hdb b{font:700 14pt/1.1 var(--serif)}.e14 .hdb .sp{display:none}
-.e14 .dsb .dsr{display:flex;align-items:center;gap:1.2mm;font-size:5.6pt;margin:.4mm 0}.e14 .dsb .dsr small{font-size:5.4pt;color:var(--ink);width:9.2mm;text-align:left;white-space:nowrap}
-.e14 .dsb .dt.big{width:3.4mm;height:3.4mm}
-.e14 .wp{height:56mm;flex:none}.e14 .wp .wtab{flex:none}.e14 .wp .tx.ln{flex:1}
-.e14 .eq{flex:1;min-height:0}.e14 .eq .tx.ln{flex:1}
-.e14 .coins.small{padding:2mm 2mm 1mm;gap:1mm}.e14 .coins.small .coin b{min-height:5.6mm;line-height:5.4mm;font-size:8pt}
-.e14 .iti{display:flex;align-items:center;gap:1.4mm;height:4.7mm;white-space:nowrap;overflow:hidden}.e14 .iti .eqm{width:2.2mm;font-style:normal;font-size:6pt;flex:none;color:var(--bar)}.e14 .iti b{margin-left:auto;font-size:7pt}
-.e14 .pers{height:21.5mm}.e14 .pers .tx.ln{flex:1;padding:0 1.5mm}
-.e14 .c3 .fb{flex:1;min-height:0}.e14 .c3 .fb .tx.ln{flex:1}
-.e14 .c3 .fi{margin:0;height:4.7mm;line-height:4.7mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.e14 .fsub{font:700 6pt var(--sans);text-transform:uppercase;color:var(--red);height:4.7mm;line-height:4.7mm}
+:where(.csheet) .e14 .bx{display:flex;flex-direction:column;border:.9pt solid var(--edge);border-radius:1.4mm;background:#fff}
+:where(.csheet) .e14 .bx.nh{border-top:1.6pt solid var(--bar)}
+:where(.csheet) .e14 .bh{order:9;margin-top:auto;font:700 6.9pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:1.2mm 1mm 1.4mm;background:var(--tint);border-top:1.2pt solid var(--bar);border-radius:0 0 1mm 1mm}
+:where(.csheet) .e14 .bx>.tx,:where(.csheet) .e14 .bx>.fl{margin:0}
+:where(.csheet) .e14.p1{display:flex;flex-direction:column;gap:3mm}
+:where(.csheet) .e14 .hd{display:flex;gap:5mm;height:33mm;flex:none;align-items:flex-end}
+:where(.csheet) .e14 .hname{width:66mm;flex:none;padding-bottom:3mm}:where(.csheet) .e14 .hname b{display:block;font:700 16pt/1.2 var(--serif);font-variant:small-caps;color:var(--red);border-bottom:1.4pt solid var(--bar);min-height:9mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:where(.csheet) .e14 .hname small{margin-top:.6mm;font-size:5.6pt}
+:where(.csheet) .e14 .hinfo{flex:1;height:100%;padding:3.2mm 4mm;justify-content:center}
+:where(.csheet) .e14 .g4{display:grid;grid-template-columns:1fr 1.35fr .6fr;gap:3.5mm 4mm}
+:where(.csheet) .e14 .bd{flex:1;min-height:0;display:flex;gap:3mm}
+:where(.csheet) .e14 .c1{width:68mm;flex:none;display:flex;flex-direction:column;gap:3mm}:where(.csheet) .e14 .c2{width:63mm;flex:none;display:flex;flex-direction:column;gap:3mm}:where(.csheet) .e14 .c3{flex:1;min-width:0;display:flex;flex-direction:column;gap:3mm}
+:where(.csheet) .e14 .c1top{display:flex;gap:2mm;flex:none}
+:where(.csheet) .e14 .abstrip{width:18mm;flex:none;background:var(--panel);border:.7pt solid var(--line);border-radius:5mm;padding:4mm 1.5mm 6mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+:where(.csheet) .e14 .ab14{width:14.4mm;background:#fff;border:.9pt solid var(--bar);border-radius:1.6mm;text-align:center;padding:1.2mm 0 4.6mm;position:relative;margin-bottom:3mm}
+:where(.csheet) .e14 .an{font:700 5.6pt var(--sans);text-transform:uppercase;letter-spacing:.02em;color:var(--red)}:where(.csheet) .e14 .an.long{font-size:4.5pt;letter-spacing:-.05pt}
+:where(.csheet) .e14 .amod{font:700 17pt/1.2 var(--serif)}
+:where(.csheet) .e14 .asc{position:absolute;left:50%;bottom:-3.2mm;transform:translateX(-50%);width:10.6mm;height:6.4mm;border:.9pt solid var(--bar);border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;font:700 9.5pt var(--sans)}
+:where(.csheet) .e14 .c1b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3mm}
+:where(.csheet) .e14 .insp{display:flex;align-items:center;gap:2mm;height:10mm;flex:none}
+:where(.csheet) .e14 .sqb{display:block;width:10mm;height:10mm;border:1.2pt solid var(--bar);border-radius:1.6mm;background:#fff;flex:none}
+:where(.csheet) .e14 .insp b,:where(.csheet) .e14 .pbc b{flex:1;border:.9pt solid var(--edge);border-radius:1.4mm;background:var(--tint);font:700 7pt/1.1 var(--serif);font-variant:small-caps;letter-spacing:.035em;color:var(--red);text-align:center;padding:2.2mm 1mm}
+:where(.csheet) .e14 .pbc{display:flex;align-items:center;gap:0;height:10mm;flex:none}
+:where(.csheet) .e14 .pcirc{display:flex;width:10.5mm;height:10.5mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 11pt var(--serif);flex:none;margin-right:-1mm;position:relative;z-index:1}
+:where(.csheet) .e14 .sk{display:flex;align-items:center;gap:1.4mm;padding:0 2mm;height:4.85mm}
+:where(.csheet) .e14 .sk .bn{min-width:6.2mm;text-align:center;font:400 9pt var(--sans);border-bottom:.6pt solid var(--edge);line-height:1.1}
+:where(.csheet) .e14 .sk .snm{font-size:7pt;white-space:nowrap}:where(.csheet) .e14 .sk .snm.big{font-size:8.2pt}:where(.csheet) .e14 .sk .at{font-style:normal;color:var(--muted);font-size:6pt}
+:where(.csheet) .e14 .sv14,:where(.csheet) .e14 .sk14{padding-top:1.4mm}
+:where(.csheet) .e14 .sv14{flex:none}:where(.csheet) .e14 .sk14{flex:none}
+:where(.csheet) .e14 .pasw{display:flex;align-items:center;gap:2.5mm;flex:none}
+:where(.csheet) .e14 .poval{display:flex;width:11mm;height:11mm;border:1.2pt solid var(--bar);border-radius:50%;background:var(--tint);align-items:center;justify-content:center;font:700 10.5pt var(--serif);flex:none}
+:where(.csheet) .e14 .pasw b{font:700 7pt/1.15 var(--serif);font-variant:small-caps;letter-spacing:.03em;color:var(--red)}
+:where(.csheet) .e14 .lang{flex:1;min-height:0}:where(.csheet) .e14 .lang .tx.ln{flex:1;padding-top:1mm}
+:where(.csheet) .e14 .lang .tx b{color:var(--red)}
+:where(.csheet) .e14 .panel{background:var(--panel);border:.7pt solid var(--line);border-radius:5mm;padding:3mm;display:flex;flex-direction:column;gap:2.5mm}
+:where(.csheet) .e14 .p3{display:flex;gap:2.5mm;height:22mm}
+:where(.csheet) .e14 .s14{width:17.5mm;flex:none}:where(.csheet) .e14 .s14 .si b{font:700 15pt/1}:where(.csheet) .e14 .s14 .si small{font:700 5.6pt var(--sans);margin-bottom:.3mm;color:var(--red)}
+:where(.csheet) .e14 .sb{flex:1}:where(.csheet) .e14 .sb>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 14pt var(--sans)}
+:where(.csheet) .e14 .mx{height:14mm}:where(.csheet) .e14 .mx>b{flex:1;display:flex;align-items:center;justify-content:center;font:700 12pt var(--serif)}
+:where(.csheet) .e14 .curhp,:where(.csheet) .e14 .tmp{height:24mm}
+:where(.csheet) .e14 .p2{display:flex;gap:2.5mm;height:23mm}:where(.csheet) .e14 .p2 .bx{flex:1}
+:where(.csheet) .e14 .hdb,:where(.csheet) .e14 .dsb{align-items:center;text-align:center}:where(.csheet) .e14 .hdb>.bh,:where(.csheet) .e14 .dsb>.bh{align-self:stretch}
+:where(.csheet) .e14 .hdb>small:first-child,:where(.csheet) .e14 .dsb>.dsr:first-child{margin-top:auto}
+:where(.csheet) .e14 .hdb b{font:700 14pt/1.1 var(--serif)}:where(.csheet) .e14 .hdb .sp{display:none}
+:where(.csheet) .e14 .dsb .dsr{display:flex;align-items:center;gap:1.2mm;font-size:5.6pt;margin:.4mm 0}:where(.csheet) .e14 .dsb .dsr small{font-size:5.4pt;color:var(--ink);width:9.2mm;text-align:left;white-space:nowrap}
+:where(.csheet) .e14 .dsb .dt.big{width:3.4mm;height:3.4mm}
+:where(.csheet) .e14 .wp{height:56mm;flex:none}:where(.csheet) .e14 .wp .wtab{flex:none}:where(.csheet) .e14 .wp .tx.ln{flex:1}
+:where(.csheet) .e14 .eq{flex:1;min-height:0}:where(.csheet) .e14 .eq .tx.ln{flex:1}
+:where(.csheet) .e14 .coins.small{padding:2mm 2mm 1mm;gap:1mm}:where(.csheet) .e14 .coins.small .coin b{min-height:5.6mm;line-height:5.4mm;font-size:8pt}
+:where(.csheet) .e14 .iti{display:flex;align-items:center;gap:1.4mm;height:4.7mm;white-space:nowrap;overflow:hidden}:where(.csheet) .e14 .iti .eqm{width:2.2mm;font-style:normal;font-size:6pt;flex:none;color:var(--bar)}:where(.csheet) .e14 .iti b{margin-left:auto;font-size:7pt}
+:where(.csheet) .e14 .pers{height:21.5mm}:where(.csheet) .e14 .pers .tx.ln{flex:1;padding:0 1.5mm}
+:where(.csheet) .e14 .c3 .fb{flex:1;min-height:0}:where(.csheet) .e14 .c3 .fb .tx.ln{flex:1}
+:where(.csheet) .e14 .c3 .fi{margin:0;height:4.7mm;line-height:4.7mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:where(.csheet) .e14 .fsub{font:700 6pt var(--sans);text-transform:uppercase;color:var(--red);height:4.7mm;line-height:4.7mm}
 
 /* заклинания 2014 */
-.e14 .sphd{display:grid;grid-template-columns:1fr 38mm 38mm 38mm;gap:3.5mm;margin-bottom:3.5mm;align-items:end}
-.e14 .sbx{padding:2mm 1.5mm 1mm;text-align:center;height:14mm;justify-content:flex-end}.e14 .sbx b{font:700 12pt var(--sans);display:block;order:0}
-.e14 .sbx small{order:1;margin-top:.6mm;font-size:5pt}
-.e14 .lvcols{display:flex;gap:4mm}.e14 .lvc{flex:1;display:flex;flex-direction:column;gap:3mm;min-width:0}
-.e14 .lh{display:flex;align-items:center;gap:1.6mm;border:1pt solid var(--bar);border-radius:2mm;background:var(--tint);height:7.2mm;padding:0 1.8mm;margin-bottom:.6mm}
-.e14 .ln0{font:700 13pt var(--serif);color:var(--red);width:5mm;text-align:center}.e14 .lz{font:700 7.4pt var(--serif);font-variant:small-caps;letter-spacing:.04em;color:var(--red);flex:1;text-align:center}
-.e14 .lt{display:flex;align-items:center;gap:1.2mm}.e14 .lt b{font:400 10pt var(--sans);border-bottom:.6pt solid var(--edge);background:#fff;min-width:5mm;text-align:center}.e14 .lt small,.e14 .ls small{font-size:4.5pt;max-width:9mm;line-height:1}
-.e14 .ls{display:flex;align-items:center;gap:1mm;margin-left:auto}.e14 .ls .dt{width:2.9mm;height:2.9mm}
-.e14 .sl{display:flex;align-items:center;gap:1.5mm;height:5.1mm;border-bottom:.45pt solid var(--ruled);font-size:7.4pt;white-space:nowrap;overflow:hidden}.e14 .sl small{display:inline;margin-left:auto;font-size:5.6pt;color:var(--red);font-weight:700}
+:where(.csheet) .e14 .sphd{display:grid;grid-template-columns:1fr 38mm 38mm 38mm;gap:3.5mm;margin-bottom:3.5mm;align-items:end}
+:where(.csheet) .e14 .sbx{padding:2mm 1.5mm 1mm;text-align:center;height:14mm;justify-content:flex-end}:where(.csheet) .e14 .sbx b{font:700 12pt var(--sans);display:block;order:0}
+:where(.csheet) .e14 .sbx small{order:1;margin-top:.6mm;font-size:5pt}
+:where(.csheet) .e14 .lvcols{display:flex;gap:4mm}:where(.csheet) .e14 .lvc{flex:1;display:flex;flex-direction:column;gap:3mm;min-width:0}
+:where(.csheet) .e14 .lh{display:flex;align-items:center;gap:1.6mm;border:1pt solid var(--bar);border-radius:2mm;background:var(--tint);height:7.2mm;padding:0 1.8mm;margin-bottom:.6mm}
+:where(.csheet) .e14 .ln0{font:700 13pt var(--serif);color:var(--red);width:5mm;text-align:center}:where(.csheet) .e14 .lz{font:700 7.4pt var(--serif);font-variant:small-caps;letter-spacing:.04em;color:var(--red);flex:1;text-align:center}
+:where(.csheet) .e14 .lt{display:flex;align-items:center;gap:1.2mm}:where(.csheet) .e14 .lt b{font:400 10pt var(--sans);border-bottom:.6pt solid var(--edge);background:#fff;min-width:5mm;text-align:center}:where(.csheet) .e14 .lt small,:where(.csheet) .e14 .ls small{font-size:4.5pt;max-width:9mm;line-height:1}
+:where(.csheet) .e14 .ls{display:flex;align-items:center;gap:1mm;margin-left:auto}:where(.csheet) .e14 .ls .dt{width:2.9mm;height:2.9mm}
+:where(.csheet) .e14 .sl{display:flex;align-items:center;gap:1.5mm;height:5.1mm;border-bottom:.45pt solid var(--ruled);font-size:7.4pt;white-space:nowrap;overflow:hidden}:where(.csheet) .e14 .sl small{display:inline;margin-left:auto;font-size:5.6pt;color:var(--red);font-weight:700}
 
 /* ======================= общие страницы ======================= */
 /* тексты умений */
@@ -287,17 +288,17 @@
 .csheet .pform .meta{margin-top:1mm;font-size:6.4pt;line-height:1.3;color:var(--muted)}
 .csheet.mono .pform .stat{background:#fff;color:#111}.csheet.mono .pform .tb tr:nth-child(odd) td{background:#ececec}.csheet.mono .pform .stat *{color:inherit}
 .csheet .fmore{font:italic 6pt var(--sans);color:var(--muted);break-inside:avoid}
-.e14 .fmore{height:4.7mm;line-height:4.7mm}
-.e24 .dsr .dt{width:2.6mm;height:2.6mm}.e24 .dsc .dsr{padding:0 2.4mm 0 1.6mm}
-.e24 .shield .si .dm{margin-top:1.4mm}
+:where(.csheet) .e14 .fmore{height:4.7mm;line-height:4.7mm}
+:where(.csheet) .e24 .dsr .dt{width:2.6mm;height:2.6mm}:where(.csheet) .e24 .dsc .dsr{padding:0 2.4mm 0 1.6mm}
+:where(.csheet) .e24 .shield .si .dm{margin-top:1.4mm}
 
 /* нижний блок 2024: размер, грузоподъёмность, прыжки и монеты */
-.e24 .bot{display:flex;flex-direction:column;gap:2.5mm;height:50mm;flex:none}
-.e24 .mini4{display:grid;grid-template-columns:.85fr 1.75fr 1fr 1fr;gap:2.5mm;height:18mm;flex:none}
-.e24 .mn .bh{font-size:5.9pt;padding:1.4mm .6mm .5mm;margin:0 1.4mm;white-space:nowrap}
-.e24 .mn>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 9.5pt var(--sans);text-align:center;padding:0 1mm .8mm}
-.e24 .mon{flex:1;min-height:0}
-.e24 .mon .coins{flex:1;align-items:center;padding:0 2mm .8mm}
+:where(.csheet) .e24 .bot{display:flex;flex-direction:column;gap:2.5mm;height:50mm;flex:none}
+:where(.csheet) .e24 .mini4{display:grid;grid-template-columns:.85fr 1.75fr 1fr 1fr;gap:2.5mm;height:18mm;flex:none}
+:where(.csheet) .e24 .mn .bh{font-size:5.9pt;padding:1.4mm .6mm .5mm;margin:0 1.4mm;white-space:nowrap}
+:where(.csheet) .e24 .mn>b{flex:1;display:flex;align-items:center;justify-content:center;font:400 9.5pt var(--sans);text-align:center;padding:0 1mm .8mm}
+:where(.csheet) .e24 .mon{flex:1;min-height:0}
+:where(.csheet) .e24 .mon .coins{flex:1;align-items:center;padding:0 2mm .8mm}
 
 /* страницы «Описание» и «Снаряжение» */
 .csheet .port{height:88mm;flex:none}
@@ -310,7 +311,7 @@
 .csheet .dcol .st.grow{flex:1}.csheet .dcol .st.grow .tx{flex:1}
 .csheet .e14 .port .pimg,.csheet .port .pimg{background:#fff}
 
-.e14 .lt .tg{font-size:4.2pt;max-width:12mm;line-height:1.05}
-.e24 .slg{align-content:start;grid-auto-rows:min-content}
-.e24 .slc .dm{margin:.7mm .55mm}
-.e24 .spsl .spn{margin-top:auto;padding-top:1mm}
+:where(.csheet) .e14 .lt .tg{font-size:4.2pt;max-width:12mm;line-height:1.05}
+:where(.csheet) .e24 .slg{align-content:start;grid-auto-rows:min-content}
+:where(.csheet) .e24 .slc .dm{margin:.7mm .55mm}
+:where(.csheet) .e24 .spsl .spn{margin-top:auto;padding-top:1mm}
