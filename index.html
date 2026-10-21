@@ -98,6 +98,12 @@ body.e14{--red:#1f5560;--bar:#2b6a75;--line:#bcd0c9}
 body.e14 .tb tr:nth-child(odd) td{background:#dfeae4}
 /* картинки */
 figure.pic{margin:6px 0 10px;text-align:center}figure.pic img{max-width:100%;max-height:340px;border-radius:3px;cursor:zoom-in;background:rgba(0,0,0,.04)}figure.pic.big img{max-height:none;cursor:zoom-out}figure.pic.tok img{max-height:200px;background:none}figure.pic.tok.big img{max-height:400px}
+/* части статей 2014 */
+.parts{margin:2px 0 12px;font:13.5px/1.3 'PT Sans',sans-serif}.parts .pt{display:flex;align-items:center;gap:8px;color:var(--muted);margin-bottom:6px}.parts .pt span:not(.pp){flex:1;text-align:center}
+.parts .pp{flex:none;width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line);border-radius:4px;color:var(--red);text-decoration:none;font-size:18px;line-height:1;background:var(--panel)}.parts a.pp:hover{border-color:var(--bar)}.parts .pp.off{opacity:.35}
+.parts .pl{display:flex;flex-wrap:wrap;gap:5px;max-height:8.6em;overflow-y:auto;padding:2px 2px 4px;position:relative}
+.parts .pl a{padding:3px 10px;border:1px solid var(--line);border-radius:14px;color:inherit;text-decoration:none;background:var(--panel);white-space:nowrap}.parts .pl a:hover{border-color:var(--bar);color:var(--red)}.parts .pl a[aria-current]{background:var(--bar);border-color:var(--bar);color:#fff}
+.partsfoot{display:flex;justify-content:space-between;gap:12px;margin:18px 0 4px;padding-top:10px;border-top:1px solid var(--line);font:700 14px 'PT Sans',sans-serif}.partsfoot a{color:var(--red);text-decoration:none}.partsfoot a:hover{text-decoration:underline}
 /* автоссылки-подсказки */
 a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);cursor:help}a.xl:hover,a.xl:focus{color:var(--red);border-bottom-style:solid;outline:0}
 #tip{display:none;position:fixed;z-index:20;max-width:340px;padding:10px 12px;background:#fdf1dc;color:#1d1a16;border:1px solid #c9b48a;border-top:3px solid var(--bar);border-radius:3px;box-shadow:0 6px 20px rgba(0,0,0,.4);font:13.5px/1.4 'PT Sans',sans-serif;pointer-events:none}
@@ -451,10 +457,14 @@ feats:[A],backgrounds:[A],race:[A],
 class:[A,['Кость хитов',m=>parseInt((FILTERS14.class[1][1](m)[0]||'').slice(1))||null]]};
 const ABBR={"Player's Handbook 2014":'PHB',"Dungeon Master's Guide 2014":'DMG',"Monster Manual 2014":'MM',"Mordenkainen's Tome of Foes":'MToF',"Volo's guide to monsters":'VGtM',"Mordenkainen Presents: Monsters of the Multiverse":'MPMM',"Xanathar's Guide to Everything":'XGtE',"Tasha's Cauldron of Everything":'TCoE'},
  abbr=s=>ABBR[s]||(s||'').split(/[\s:]+/).filter(w=>/^[A-Z]/.test(w)&&!['The','Of'].includes(w)).map(w=>w[0]).join('')||s;
-S14.articles={t:'Правила и статьи',sub:m=>m.category_ru,card:m=>`<article class="stat">${head(m,m.category_ru)}${B(m.blocks)}${foot(m)}`};
-FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Источник',SRC,null,1]];
+// длинные статьи разделены на части (tools/split_articles.py): у части есть parent, parent_name, part и parts — список частей для вкладок
+const partsNav=m=>{if(!m.parts)return'';const i=m.part-1,n=m.parts.length,a=(p,t,c)=>p?`<a class="${c}" href="${hh(14,'articles',p.slug)}" title="${esc(p.name)}">${t}</a>`:`<span class="${c} off">${t}</span>`;
+ return `<div class="parts" role="navigation" aria-label="Части статьи"><div class="pt">${a(m.parts[i-1],'‹','pp')}<span>Статья «${esc(m.parent_name)}» · часть ${m.part} из ${n}</span>${a(m.parts[i+1],'›','pp')}</div><div class="pl">${m.parts.map(p=>`<a href="${hh(14,'articles',p.slug)}"${p.slug==m.slug?' aria-current="true"':''}>${esc(p.name)}</a>`).join('')}</div></div>`},
+ partsFoot=m=>{if(!m.parts)return'';const i=m.part-1,p=m.parts[i-1],q=m.parts[i+1];return `<div class="partsfoot">${p?`<a href="${hh(14,'articles',p.slug)}">← ${esc(p.name)}</a>`:'<span></span>'}${q?`<a href="${hh(14,'articles',q.slug)}">${esc(q.name)} →</a>`:''}</div>`};
+S14.articles={t:'Правила и статьи',sub:m=>m.parent?m.parent_name+' · '+m.part+'/'+m.parts.length:m.category_ru,card:m=>`<article class="stat">${head(m,m.parent?m.category_ru+' · '+m.parent_name:m.category_ru)}${partsNav(m)}${B(m.blocks)}${partsFoot(m)}${foot(m)}`};
+FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Статья',m=>[m.parent_name||m.name_ru],ru],['Источник',SRC,null,1]];
 SUM14.articles=m=>[[m.category_ru,(m.sources||[]).map(abbr).join(', ')]];
-SORT14.articles=[A];
+SORT14.articles=[['По статьям',m=>(m.parent_name||m.name_ru)+'\u0001'+String(m.part||0).padStart(3,'0')],A];
 FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
 SUM14.bestiary=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.bestiary);
 SUM14.race=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.race);
@@ -499,6 +509,7 @@ async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o
  let t=d.find(x=>x.slug===s2);
  // slug может отличаться («enlargereduce» ↔ «enlarge-reduce»): тогда ищем по английскому названию, но только если оно одно
  if(!t&&m.name_en){const n=norm(m.name_en),c=d.filter(x=>norm(x.name_en)===n);if(c.length===1)t=c[0]}
+ if(!t)t=d.find(x=>x.parent===s2&&x.part==1);
  if(!t)return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,t.slug)}">Версия ${EDK(o)}</a>`}
 const LK={s:'spells',g:'glossary',c:'class',e:'equipment',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',class:'c',equipment:'e',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
 function linkIndex(e){return lix[e]||(lix[e]=fetch((e==14?'data14':'data')+'/links.json').then(r=>r.json()).then(r=>AutoLinks.buildIndex(r,{bracketOnlySingle:e==14})).catch(()=>null))}
@@ -523,10 +534,11 @@ async function route(){const P=parseHash(),k=P.k,slug=P.slug;
  document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);
  if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML();$('#q').value='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
  edLinks();
- const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
+ let m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
+ if(!m&&slug&&sec=='articles'){const f=data.find(x=>x.parent===decodeURIComponent(slug)&&x.part==1);if(f){history.replaceState(null,'',hh(ed,sec,f.slug));return route()}} // старая ссылка на статью целиком → её первая часть
  document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
  if(!m){$('#card').innerHTML=HOME;homeLinks();document.title='D&D '+EDK(ed)+' — русская база';document.body.classList.remove('open');return}
- $('#card').innerHTML=SX[sec].card(m);Dice.linkify($('#card'));document.title=m.name_ru+' — D&D '+EDK(ed);document.body.classList.add('open');$('main').scrollTop=0;
+ $('#card').innerHTML=SX[sec].card(m);Dice.linkify($('#card'));document.title=m.name_ru+' — D&D '+EDK(ed);document.body.classList.add('open');$('main').scrollTop=0;{const c=$('#card .pl [aria-current]');c&&($('#card .pl').scrollTop=Math.max(0,c.offsetTop-40))}
  const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'});xref(m,location.hash);addPic(m,location.hash);autolink(m,location.hash);DM.cardActions&&DM.cardActions(m,ed,sec)}
 
 ['nof','nol'].forEach(c=>ls.get(c)=='1'&&document.body.classList.add(c));
