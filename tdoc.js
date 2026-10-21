@@ -274,7 +274,7 @@
     const fontSel = h('select', { 'aria-label': 'Шрифт' }, FONTS.map(f => h('option', { value: f[0] }, f[1]))); fontSel.addEventListener('change', () => { spec.font = fontSel.value; changed(); }); syncs.push(() => { fontSel.value = spec.font; });
     const size = h('input', { type: 'range', min: 14, max: 48, step: 1, 'aria-label': 'Размер текста' }), sizeV = h('small', { class: 'tddn' });
     size.addEventListener('input', () => { spec.size = +size.value; sizeV.textContent = size.value; changed(); }); syncs.push(() => { size.value = spec.size; sizeV.textContent = spec.size; });
-    const qSel = h('select', { 'aria-label': 'Качество PNG' }, [[1, 'Обычное, 720 px'], [2, 'Хорошее, 1440 px'], [3, 'Для печати, 2160 px']].map(([v, n]) => h('option', { value: v }, n))); qSel.addEventListener('change', () => { spec.q = +qSel.value; opts.onChange && opts.onChange(spec); }); syncs.push(() => { qSel.value = spec.q || 2; });
+    const qSel = h('select', { 'aria-label': 'Качество PNG', title: 'Качество PNG', class: 'trbtn tddq' }, [[1, 'Обычное, 720 px'], [2, 'Хорошее, 1440 px'], [3, 'Для печати, 2160 px']].map(([v, n]) => h('option', { value: v }, n))); qSel.addEventListener('change', () => { spec.q = +qSel.value; opts.onChange && opts.onChange(spec); }); syncs.push(() => { qSel.value = spec.q || 2; });
     const sync = () => syncs.forEach(f => f());
     const src = opts.source === false ? null : [fld('Язык', modeSel), text('text', 'Текст (по-русски)', 3000, true), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc' }, trBox, ' Переводить заголовок и подпись')];
     const ctl = h('div', { class: 'tddc2' }, src,
@@ -288,7 +288,7 @@
     const acts = h('div', { class: 'trbtns' },
       h('button', { type: 'button', class: 'trbtn main', onclick: () => download(spec) }, 'Скачать PNG'),
       h('button', { type: 'button', class: 'trbtn', onclick: () => copy(spec) }, 'Копировать PNG'),
-      (opts.actions || []).map(([n, f]) => h('button', { type: 'button', class: 'trbtn', onclick: () => f(spec) }, n)), fld('Качество PNG', qSel, 'tddq'));
+      (opts.actions || []).map(([n, f]) => h('button', { type: 'button', class: 'trbtn', onclick: () => f(spec) }, n)), qSel);
     const el = h('div', { class: 'tdd' }, ctl, h('div', { class: 'tddp' }, prev, acts));
     sync(); draw();
     return { el, spec, sync: () => { normalize(spec); sync(); draw(); }, redraw: draw };
