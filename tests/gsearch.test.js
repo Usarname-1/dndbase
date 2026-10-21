@@ -2,7 +2,7 @@
 const test = require('node:test'), assert = require('node:assert'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..'), read = f => fs.readFileSync(path.join(root, f), 'utf8');
 const SEC = { data: ['bestiary', 'spells', 'class', 'species', 'backgrounds', 'feats', 'items', 'equipment', 'glossary'],
-  data14: ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'articles'] };
+  data14: ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'glossary', 'articles'] };
 
 for (const d of Object.keys(SEC)) {
   test(`индекс ${d}/search.json покрывает все записи разделов (пересоберите: python3 tools/build_search.py)`, () => {

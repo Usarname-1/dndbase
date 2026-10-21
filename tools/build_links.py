@@ -109,11 +109,10 @@ def build(edition):
             m = dict(m, name_ru=m['name_ru'].replace('C', 'С'))                    # латинская C в «Cмерти»
             add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0 if strict else 2)
     else:
-        art = next(a for a in load(f'{d}/articles.json') if a['slug'] == 'sostoyaniya')
-        bl = art['blocks']
-        for i, b in enumerate(bl):
-            if b.get('type') == 'heading' and b.get('level') == 4 and i + 1 < len(bl):
-                out.append([b['text'], '', 'a', 'sostoyaniya', 'Состояние', cut(btext(bl[i + 1]), 260), 1])
+        # состояния 2014 — записи глоссария группы «Состояния» (кроме вводной «Состояния»)
+        for m in load(f'{d}/glossary.json'):
+            if m.get('group') == 'Состояния' and m['name_ru'] != 'Состояния' and m.get('blocks'):
+                out.append([m['name_ru'], '', 'g', m['slug'], 'Состояние', cut(btext(m['blocks'][0]), 260), 1])
     if edition == 24:
         def klass(m):
             ct = ' · '.join(f"{clean(c['label'])}: {clean(c['value'])}" for c in (m.get('core_traits') or [])[:2])
