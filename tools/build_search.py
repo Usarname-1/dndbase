@@ -23,7 +23,7 @@ def sub(k, m):
     if k == 'feats':
         return (m.get('category') or '').replace(' черта', '').replace('Черта ', '')
     if k == 'articles':
-        return m.get('category_ru') or ''
+        return (m['parent_name'] + ' · ' + str(m['part']) + '/' + str(len(m['parts']))) if m.get('parent') else (m.get('category_ru') or '')
     if k == 'race':
         return ' / '.join(m.get('sizes') or [])
     return ''
