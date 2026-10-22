@@ -8,7 +8,7 @@ import json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECTIONS = {
     'data': ['bestiary', 'spells', 'class', 'species', 'backgrounds', 'feats', 'items', 'equipment', 'glossary'],
-    'data14': ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'articles'],
+    'data14': ['bestiary', 'spells', 'class', 'race', 'backgrounds', 'feats', 'items', 'equipment', 'glossary', 'articles'],
 }
 
 def sub(k, m):

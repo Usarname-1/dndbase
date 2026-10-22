@@ -455,11 +455,24 @@ S14.articles={t:'Правила и статьи',sub:m=>m.category_ru,card:m=>`<
 FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Источник',SRC,null,1]];
 SUM14.articles=m=>[[m.category_ru,(m.sources||[]).map(abbr).join(', ')]];
 SORT14.articles=[A];
+/* разделы, выделенные из статей 2014: снаряжение (data14/equipment.json) и глоссарий (data14/glossary.json) */
+S14.equipment={t:'Снаряжение',sub:m=>m.cost||'',card:S.equipment.card};
+FILTERS14.equipment=[
+ ['Категория',m=>[m.category_ru||'Прочее']],
+ ['Вид яда',m=>m.category_ru=='Яды'?((m.line.match(/\((.*)\)/)||[])[1]||'').split(/\s+или\s+/).map(capf).filter(Boolean):[],null,1],
+ ['Цена за дозу',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,[['до 250 зм',250],['251–600 зм',600],['более 600 зм',1/0]])],ord(['до 250 зм','251–600 зм','более 600 зм','Без цены'])],
+ ['Источник',SRC,null,1]];
+SUM14.equipment=m=>[[m.line]];
+SORT14.equipment=[A,['Цена',m=>m.cost_gp],['Вид',m=>m.line]];
+S14.glossary={t:'Глоссарий',sub:()=>'',card:S.glossary.card};
+FILTERS14.glossary=[['Группа',m=>[m.group||'—']]];
+SUM14.glossary=m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]];
+SORT14.glossary=[A,['Группа',m=>m.group]];
 FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
 SUM14.bestiary=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.bestiary);
 SUM14.race=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.race);
 for(const k in S14){S14[k].F=FILTERS14[k]||[];S14[k].sum=SUM14[k];S14[k].SORT=SORT14[k]||[A]}
-const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','articles']},
+const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','equipment','glossary','articles']},
  SXS={24:S,14:S14},cache={},SWAP={species:'race',race:'species',articles:'glossary',glossary:'articles'};
 let ed=24,SX=S;
 const hh=(e,k,slug)=>'#'+(e==14?'14/':'')+k+(slug?'/'+slug:''),
@@ -492,7 +505,7 @@ function render(){const c=SX[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 function parseHash(){const h=location.hash.slice(1);let p=h.split('/'),e=ls.get('ed')=='14'?14:24;if(p[0]=='14'){e=14;p=p.slice(1)}else if(h)e=24;return{e,k:p[0],slug:p[1]}}
 function navHTML(){return `<span class="ed"><a data-e="14" href="#14">2014</a><a data-e="24" href="#24">2024</a></span>`+ORDERS[ed].map(k=>`<a href="${hh(ed,k)}" data-s="${k}">${SX[k].t}</a>`).join('')+`<a href="${hh(ed,'dmscreen')}" data-s="dmscreen">Экран мастера</a><a href="${hh(ed,'sheet')}" data-s="sheet">Листы персонажей</a><a href="${hh(ed,'translator')}" data-s="translator">Переводчик</a><button id="gs" type="button" title="Глобальный поиск (Ctrl+K или /)">🔍 Поиск<kbd>/</kbd></button>`}
-function edLinks(){const dm=document.body.classList.contains('dm')||document.body.classList.contains('cs')||document.body.classList.contains('tr');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(dm){a.href=hh(e,document.body.classList.contains('tr')?'translator':document.body.classList.contains('cs')?'sheet':'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
+function edLinks(){const dm=document.body.classList.contains('dm')||document.body.classList.contains('cs')||document.body.classList.contains('tr');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(dm){a.href=hh(e,document.body.classList.contains('tr')?'translator':document.body.classList.contains('cs')?'sheet':'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){if(!SXS[e][k])k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
 async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o][sec]?sec:SWAP[sec];if(!k2||!SXS[o][k2])return;
  const s2=ed==14&&m.url_2024?m.url_2024.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):m.slug;
  const d=await load(k2,o,true);if(location.hash!==h)return;
