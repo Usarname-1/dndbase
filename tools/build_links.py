@@ -89,6 +89,11 @@ def feat(m):
     return ('Треб.: ' + pre if pre else clean(m.get('category') or m.get('line'))), first_text(m.get('blocks'))
 
 
+def gear14(m):
+    ps = [f"{clean(p['label'])}: {clean(p['value'])}" for p in (m.get('props') or [])]
+    return clean(m.get('line')), cut(' · '.join(ps) + (' — ' if ps else '') + first_text(m.get('blocks'), 160), 240)
+
+
 GLOSS_OK = {'Состояния'}
 GLOSS_NAMES = {'Тёмное зрение', 'Слепое зрение', 'Истинное зрение', 'Чувство вибрации'}
 
@@ -109,6 +114,12 @@ def build(edition):
             m = dict(m, name_ru=m['name_ru'].replace('C', 'С'))                    # латинская C в «Cмерти»
             add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0 if strict else 2)
     else:
+        # разделы 2014, выделенные из статей: определения (глоссарий) и снаряжение (пока яды)
+        for m in load(f'{d}/glossary.json'):
+            add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0)
+        for m in load(f'{d}/equipment.json'):
+            one = len(re.findall(r'[А-Яа-яЁёA-Za-z]+', re.sub(r'\(.*?\)', ' ', m['name_ru']))) == 1   # однословные («Злоба») — только как термин
+            add(m, 'e', gear14, 2 if one else 0)
         art = next(a for a in load(f'{d}/articles.json') if a['slug'] == 'sostoyaniya')
         bl = art['blocks']
         for i, b in enumerate(bl):
