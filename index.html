@@ -136,7 +136,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
 const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b> ${fmt(v)}</p>`:'';
 const T=(rows,h)=>`<div class="sc"><table class="tb">${rows.map((r,i)=>`<tr${h&&!i?' class="h"':''}>${r.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:b.type=='embed'?(b.name?`<p class="en">См. также: ${esc(b.name)}</p>`:''):`<p>${fmt(b.text)}</p>`).join('');
+const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map((i,k)=>{const r=b.refs&&b.refs[k];return r?`<li><a class="ref" href="${hh(ed,...r.split('/'))}">${fmt(i)}</a></li>`:`<li>${fmt(i)}</li>`}).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:b.type=='embed'?(b.name?`<p class="en">См. также: ${esc(b.name)}</p>`:''):`<p>${fmt(b.text)}</p>`).join('');
 const head=(m,sub)=>`<h2>${esc(m.name_ru)}</h2>${m.name_en?`<p class="en">${esc(m.name_en)}</p>`:''}${sub?`<p class="sub">${esc(sub)}</p>`:''}<div class="rule"></div>`;
 const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener"></a><span id="xref"></span></p>`;
 const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
