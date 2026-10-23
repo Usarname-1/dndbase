@@ -167,7 +167,7 @@ body.e14 .home{--cov:#0e2f35}
 .home .tools span{display:block;margin-top:3px;font:14px/1.45 'PT Sans',sans-serif;color:#4a3f31}
 .home .tools a:hover{background:#fff8ea;border-top-color:var(--red)}
 .home .about{margin:clamp(22px,3vw,32px) 0 0;padding-top:12px;border-top:1px solid var(--line);font:13.5px/1.55 'PT Sans',sans-serif;color:var(--muted)}
-.home .about a{color:var(--bar)}.home .about.cat{margin-top:14px;padding-top:0;border-top:0}
+.home .about a{color:var(--bar)}
 @media(prefers-reduced-motion:reduce){.home .runes{animation:none}}
 @media(max-width:780px){.home .cover{padding-left:18px;padding-right:18px}.home .cover::before{inset:6px}.home .cover::after{inset:10px}.home .eds a{max-width:none}.home .eds a+a{border-left:1px solid rgba(214,179,106,.55);border-top:0}.home .sheet{margin-left:10px;margin-right:10px}}
 </style></head>
@@ -209,7 +209,6 @@ body.e14 .home{--cov:#0e2f35}
 <a data-s="sheet" href="#sheet"><b>Листы персонажей</b><span>Расчёт бонусов и хитов, выбор заклинаний, печать на A4.</span></a>
 <a data-s="translator" href="#translator"><b>Переводчик</b><span>Текст драконьим, эльфийским, дварфийским и другими алфавитами D&amp;D.</span></a>
 </div>
-<p class="about cat">Каталог страниц без JavaScript. Редакция <a href="2024/">2024</a>: <a href="2024/bestiary/">бестиарий</a>, <a href="2024/spells/">заклинания</a>, <a href="2024/class/">классы</a>, <a href="2024/species/">виды</a>, <a href="2024/backgrounds/">предыстории</a>, <a href="2024/feats/">черты</a>, <a href="2024/items/">магические предметы</a>, <a href="2024/equipment/">снаряжение</a>, <a href="2024/glossary/">глоссарий</a>. Редакция <a href="2014/">2014</a>: <a href="2014/bestiary/">бестиарий</a>, <a href="2014/spells/">заклинания</a>, <a href="2014/class/">классы</a>, <a href="2014/race/">расы</a>, <a href="2014/backgrounds/">предыстории</a>, <a href="2014/feats/">черты</a>, <a href="2014/items/">магические предметы</a>, <a href="2014/equipment/">снаряжение</a>, <a href="2014/glossary/">глоссарий</a>, <a href="2014/articles/">правила и статьи</a>.</p>
 <p class="about">Бесплатный справочник по Dungeons &amp; Dragons (D&amp;D, ДнД) на русском языке: более 7 000 записей. Поиск понимает русские и английские названия, регистрация не нужна. Проект неофициальный и не связан с Wizards of the Coast. <a href="https://github.com/Usarname-1/dndbase" target="_blank" rel="noopener">Исходный код и замечания на GitHub</a>.</p>
 </div>
 </article></article></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
@@ -235,7 +234,7 @@ const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
 const num=(a,b)=>parseFloat(a)-parseFloat(b),CR=['0','1/8','1/4','1/2',...Array.from({length:30},(_,i)=>''+(i+1))];
 const lvl=m=>m.level?m.level+' уровень':'Заговор',rar=m=>(m.rarity||'—');
 const ABIL=[['str','СИЛ'],['dex','ЛОВ'],['con','ТЕЛ'],['int','ИНТ'],['wis','МДР'],['cha','ХАР']];
-const at=(k,m)=>`<table><tr><th></th><th></th><th>мод</th><th>спас</th></tr>${k.map(([a,r])=>{const x=m.abilities[a];if(!x)return'';return`<tr><td>${r}</td><td>${x.score}</td><td>${sg(x.mod)}</td><td>${sg(x.save)}</td></tr>`}).join('')}</table>`;
+const at=(k,m)=>`<table><tr><th></th><th></th><th>мод</th><th>спас</th></tr>${k.map(([a,r])=>{const x=m.abilities[a];return`<tr><td>${r}</td><td>${x.score}</td><td>${sg(x.mod)}</td><td>${sg(x.save)}</td></tr>`}).join('')}</table>`;
 const spRef=u=>{const p=String(u||'').replace(/\/$/,'').split('/'),k=p[3]=='spells'?'s':p[3]=='glossary'?'g':'';return k?k+'/'+p.pop().replace(/^\d+-/,''):''};
 const ent=e=>`<p class="it${e.indent||e.n?' ind':''}">${e.n?`<b>${e.n}.</b> `:''}${e.name?`<span class="nm">${esc(e.name)}.</span> `:''}${fmt(e.text)}${(e.rows||[]).map(r=>`<br><i>${esc(r.label)}:</i> `+r.spells.map(s=>`<a href="${esc(s.url)}" data-r="${esc(spRef(s.url))}" target="_blank" rel="noopener"><i>${esc(s.name)}</i></a>`).join(', ')).join('')}</p>`;
 const loreBl=l=>(Array.isArray(l)?l:(l&&l.blocks)||[]).map(b=>b.type=='table'&&b.header===undefined?{...b,header:true}:b),
