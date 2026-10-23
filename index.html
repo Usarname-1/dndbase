@@ -459,13 +459,17 @@ SORT14.articles=[A];
 S14.equipment={t:'Снаряжение',sub:m=>m.cost||'',card:S.equipment.card};
 FILTERS14.equipment=[
  ['Категория',m=>[m.category_ru||'Прочее']],
+ ['Класс',m=>[(m.line||'').match(/^(Простое|Воинское|Лёгкий|Средний|Тяжёлый)/)?.[1]].filter(Boolean),ord(['Простое','Воинское','Лёгкий','Средний','Тяжёлый'])],
+ ['Дистанция оружия',m=>[(m.line||'').match(/(Рукопашное|Дальнобойное)/)?.[1]].filter(Boolean)],
+ ['Тип урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ').pop()]:[],ord(DMGT)],
+ ['Кость урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ')[0]]:[]],
  ['Вид яда',m=>m.category_ru=='Яды'?((m.line.match(/\((.*)\)/)||[])[1]||'').split(/\s+или\s+/).map(capf).filter(Boolean):[],null,1],
- ['Цена за дозу',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,[['до 250 зм',250],['251–600 зм',600],['более 600 зм',1/0]])],ord(['до 250 зм','251–600 зм','более 600 зм','Без цены'])],
+ ['Стоимость',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,GP)],ord([...GPL,'Без цены'])],
  ['Источник',SRC,null,1]];
-SUM14.equipment=m=>[[m.line]];
-SORT14.equipment=[A,['Цена',m=>m.cost_gp],['Вид',m=>m.line]];
+SUM14.equipment=m=>[[m.line,pv(m,'Урон'),pv(m,'Класс защиты')&&'КЗ '+pv(m,'Класс защиты'),pv(m,'Вес')]];
+SORT14.equipment=[A,['Стоимость',m=>m.cost_gp],['Вес',m=>m.weight_lb],['Категория',m=>m.category_ru]];
 S14.glossary={t:'Глоссарий',sub:()=>'',card:S.glossary.card};
-FILTERS14.glossary=[['Группа',m=>[m.group||'—']]];
+FILTERS14.glossary=[['Группа',m=>[m.group||'Общие термины']],['Источник',SRC,null,1]];
 SUM14.glossary=m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]];
 SORT14.glossary=[A,['Группа',m=>m.group]];
 FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
