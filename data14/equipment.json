@@ -15406,6 +15406,35 @@
  {
   "section": "equipment",
   "id": null,
+  "slug": "uluchshenie-korpusa-zhivoj-korabl",
+  "url": "https://dnd.su/articles/222-mounts-and-vehicles/",
+  "name_ru": "Улучшение корпуса «Живой корабль»",
+  "name_en": "",
+  "edition": "2014",
+  "sources": [
+   "Ghosts of Saltmarsh"
+  ],
+  "category_ru": "Улучшения кораблей",
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Корпус этого судна был изготовлен в Царстве Фей под руководством мастера эладрина корабельщика. Это живое дерево питается водой и солнечным светом."
+   },
+   {
+    "type": "paragraph",
+    "text": "Виноградные лозы, покрытые толстыми листьями, свисают с его бортов, а древесина при повреждении истекает свежим соком. Корабль получает бонус +2 ко всем проверкам Телосложения или спасброскам. Пока у корабля есть хотя бы 1 хит, он восстанавливает 10 хитов каждую минуту."
+   }
+  ],
+  "line": "Модернизация корпуса",
+  "props": [],
+  "cost": "",
+  "cost_gp": null,
+  "weight": "",
+  "weight_lb": null
+ },
+ {
+  "section": "equipment",
+  "id": null,
   "slug": "ukreplennyj-korpus",
   "url": "https://dnd.su/articles/222-mounts-and-vehicles/",
   "name_ru": "Укрёпленный корпус",

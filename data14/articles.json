@@ -37768,6 +37768,21 @@
      "Наборный доспех",
      "Латы",
      "Щит"
+    ],
+    "refs": [
+     "equipment/padded-armor",
+     "equipment/leather-armor",
+     "equipment/studded-leather-armor",
+     "equipment/hide-armor",
+     "equipment/chain-shirt",
+     "equipment/scale-mail",
+     "equipment/breastplate",
+     "equipment/half-plate-armor",
+     "equipment/ring-mail",
+     "equipment/chain-mail",
+     "equipment/splint-armor",
+     "equipment/plate-armor",
+     "equipment/shield"
     ]
    },
    {
@@ -37787,6 +37802,21 @@
      "Наборный доспех",
      "Латы",
      "Щит"
+    ],
+    "refs": [
+     "equipment/padded-armor",
+     "equipment/leather-armor",
+     "equipment/studded-leather-armor",
+     "equipment/hide-armor",
+     "equipment/chain-shirt",
+     "equipment/scale-mail",
+     "equipment/breastplate",
+     "equipment/half-plate-armor",
+     "equipment/ring-mail",
+     "equipment/chain-mail",
+     "equipment/splint-armor",
+     "equipment/plate-armor",
+     "equipment/shield"
     ]
    },
    {
@@ -37933,6 +37963,19 @@
      "Тяжёлое",
      "Универсальное",
      "Фехтовальное"
+    ],
+    "refs": [
+     "glossary/ammunition",
+     "glossary/two-handed",
+     "glossary/reach",
+     "glossary/range",
+     "glossary/light",
+     "glossary/thrown",
+     "glossary/special",
+     "glossary/loading",
+     "glossary/heavy",
+     "glossary/versatile",
+     "glossary/finesse"
     ]
    },
    {
@@ -37950,6 +37993,19 @@
      "Тяжёлое",
      "Универсальное",
      "Фехтовальное"
+    ],
+    "refs": [
+     "glossary/ammunition",
+     "glossary/two-handed",
+     "glossary/reach",
+     "glossary/range",
+     "glossary/light",
+     "glossary/thrown",
+     "glossary/special",
+     "glossary/loading",
+     "glossary/heavy",
+     "glossary/versatile",
+     "glossary/finesse"
     ]
    },
    {
@@ -38282,6 +38338,45 @@
      "Длинный лук",
      "Духовая трубка",
      "Сеть"
+    ],
+    "refs": [
+     "equipment/quarterstaff",
+     "equipment/mace",
+     "equipment/club",
+     "equipment/dagger",
+     "equipment/spear",
+     "equipment/light-hammer",
+     "equipment/javelin",
+     "equipment/greatclub",
+     "equipment/handaxe",
+     "equipment/sickle",
+     "equipment/light-crossbow",
+     "equipment/dart",
+     "equipment/shortbow",
+     "equipment/sling",
+     "equipment/halberd",
+     "equipment/war-pick",
+     "equipment/warhammer",
+     "equipment/battleaxe",
+     "equipment/glaive",
+     "equipment/greatsword",
+     "equipment/lance",
+     "equipment/longsword",
+     "equipment/whip",
+     "equipment/shortsword",
+     "equipment/maul",
+     "equipment/morningstar",
+     "equipment/pike",
+     "equipment/rapier",
+     "equipment/greataxe",
+     "equipment/scimitar",
+     "equipment/trident",
+     "equipment/flail",
+     "equipment/hand-crossbow",
+     "equipment/heavy-crossbow",
+     "equipment/longbow",
+     "equipment/blowgun",
+     "equipment/net"
     ]
    },
    {
@@ -38325,6 +38420,45 @@
      "Длинный лук",
      "Духовая трубка",
      "Сеть"
+    ],
+    "refs": [
+     "equipment/quarterstaff",
+     "equipment/mace",
+     "equipment/club",
+     "equipment/dagger",
+     "equipment/spear",
+     "equipment/light-hammer",
+     "equipment/javelin",
+     "equipment/greatclub",
+     "equipment/handaxe",
+     "equipment/sickle",
+     "equipment/light-crossbow",
+     "equipment/dart",
+     "equipment/shortbow",
+     "equipment/sling",
+     "equipment/halberd",
+     "equipment/war-pick",
+     "equipment/warhammer",
+     "equipment/battleaxe",
+     "equipment/glaive",
+     "equipment/greatsword",
+     "equipment/lance",
+     "equipment/longsword",
+     "equipment/whip",
+     "equipment/shortsword",
+     "equipment/maul",
+     "equipment/morningstar",
+     "equipment/pike",
+     "equipment/rapier",
+     "equipment/greataxe",
+     "equipment/scimitar",
+     "equipment/trident",
+     "equipment/flail",
+     "equipment/hand-crossbow",
+     "equipment/heavy-crossbow",
+     "equipment/longbow",
+     "equipment/blowgun",
+     "equipment/net"
     ]
    },
    {
@@ -38342,6 +38476,10 @@
     "items": [
      "Длинное копьё",
      "Сеть"
+    ],
+    "refs": [
+     "equipment/lance",
+     "equipment/net"
     ]
    }
   ]
@@ -38985,6 +39123,16 @@
      "Набор священника",
      "Набор учёного",
      "Набор артиста"
+    ],
+    "refs": [
+     "equipment/entertainers-pack",
+     "equipment/burglars-pack",
+     "equipment/diplomats-pack",
+     "equipment/dungeoneers-pack",
+     "equipment/explorers-pack",
+     "equipment/priests-pack",
+     "equipment/scholars-pack",
+     "equipment/entertainers-pack"
     ]
    }
   ]
@@ -40595,6 +40743,23 @@
      "Набор священника",
      "Набор учёного",
      "Набор охотника на монстров"
+    ],
+    "refs": [
+     "equipment/entertainers-pack",
+     "equipment/burglars-pack",
+     "equipment/diplomats-pack",
+     "equipment/dungeoneers-pack",
+     "equipment/explorers-pack",
+     "equipment/priests-pack",
+     "equipment/scholars-pack",
+     "equipment/entertainers-pack",
+     "equipment/burglars-pack",
+     "equipment/diplomats-pack",
+     "equipment/dungeoneers-pack",
+     "equipment/explorers-pack",
+     "equipment/priests-pack",
+     "equipment/scholars-pack",
+     "equipment/nabor-ohotnika-na-monstrov"
     ]
    },
    {
@@ -40619,6 +40784,21 @@
      "Наборный доспех",
      "Латы",
      "Щит"
+    ],
+    "refs": [
+     "equipment/padded-armor",
+     "equipment/leather-armor",
+     "equipment/studded-leather-armor",
+     "equipment/hide-armor",
+     "equipment/chain-shirt",
+     "equipment/scale-mail",
+     "equipment/breastplate",
+     "equipment/half-plate-armor",
+     "equipment/ring-mail",
+     "equipment/chain-mail",
+     "equipment/splint-armor",
+     "equipment/plate-armor",
+     "equipment/shield"
     ]
    },
    {
@@ -40638,6 +40818,21 @@
      "Наборный доспех",
      "Латы",
      "Щит"
+    ],
+    "refs": [
+     "equipment/padded-armor",
+     "equipment/leather-armor",
+     "equipment/studded-leather-armor",
+     "equipment/hide-armor",
+     "equipment/chain-shirt",
+     "equipment/scale-mail",
+     "equipment/breastplate",
+     "equipment/half-plate-armor",
+     "equipment/ring-mail",
+     "equipment/chain-mail",
+     "equipment/splint-armor",
+     "equipment/plate-armor",
+     "equipment/shield"
     ]
    },
    {
@@ -40758,6 +40953,21 @@
      "Фехтовальное",
      "Боекомплект",
      "Очередь"
+    ],
+    "refs": [
+     "glossary/ammunition",
+     "glossary/two-handed",
+     "glossary/reach",
+     "glossary/range",
+     "glossary/light",
+     "glossary/thrown",
+     "glossary/special",
+     "glossary/loading",
+     "glossary/heavy",
+     "glossary/versatile",
+     "glossary/finesse",
+     "glossary/magazine",
+     "glossary/burst-fire"
     ]
    },
    {
@@ -40777,6 +40987,21 @@
      "Фехтовальное",
      "Боекомплект",
      "Очередь"
+    ],
+    "refs": [
+     "glossary/ammunition",
+     "glossary/two-handed",
+     "glossary/reach",
+     "glossary/range",
+     "glossary/light",
+     "glossary/thrown",
+     "glossary/special",
+     "glossary/loading",
+     "glossary/heavy",
+     "glossary/versatile",
+     "glossary/finesse",
+     "glossary/magazine",
+     "glossary/burst-fire"
     ]
    },
    {
@@ -40801,6 +41026,17 @@
      "Большой длинный лук",
      "Хупак",
      "Разделочные когти"
+    ],
+    "refs": [
+     "equipment/lance",
+     "equipment/net",
+     "equipment/dvuhklinkovyj-skimitar",
+     "equipment/iklva",
+     "equipment/korotkoe-kope-s-kryukom",
+     "equipment/legkij-mnogozaryadnyj-arbalet",
+     "equipment/bolshoj-dlinnyj-luk",
+     "equipment/hupak",
+     "equipment/razdelochnye-kogti"
     ]
    },
    {
@@ -41036,6 +41272,12 @@
      "Контактный яд",
      "Оружейный яд",
      "Поглощаемый яд"
+    ],
+    "refs": [
+     "glossary/inhaled-poison",
+     "glossary/contact-poison",
+     "glossary/injury-poison",
+     "glossary/ingested-poison"
     ]
    },
    {
@@ -41288,6 +41530,11 @@
      "Боекомплект",
      "Боеприпас (огнестрельное оружие)",
      "Очередь"
+    ],
+    "refs": [
+     "glossary/magazine",
+     "glossary/ammunition-svojstva-oruzhiya",
+     "glossary/burst-fire"
     ]
    },
    {
@@ -41297,6 +41544,11 @@
      "Боекомплект",
      "Боеприпас (огнестрельное оружие)",
      "Очередь"
+    ],
+    "refs": [
+     "glossary/magazine",
+     "glossary/ammunition-svojstva-oruzhiya",
+     "glossary/burst-fire"
     ]
    },
    {
@@ -50695,6 +50947,23 @@
      "Парализованный",
      "Сбитый с ног / Лежащий ничком",
      "Схваченный"
+    ],
+    "refs": [
+     "glossary/bessoznatelnyj",
+     "glossary/ispugannyj",
+     "glossary/istoshchennyj",
+     "glossary/nevidimyj",
+     "glossary/nedeesposobnyj",
+     "glossary/oglohshij",
+     "glossary/okamenevshij",
+     "glossary/oputannyj",
+     "glossary/osleplennyj",
+     "glossary/otravlennyj",
+     "glossary/ocharovannyj",
+     "glossary/oshelomlennyj",
+     "glossary/paralizovannyj",
+     "glossary/sbityj-s-nog-lezhashchij-nichkom",
+     "glossary/shvachennyj"
     ]
    }
   ]
@@ -54734,6 +55003,15 @@
      "Синяя гниль",
      "Сточная чума",
      "Хохочущая лихорадка"
+    ],
+    "refs": [
+     "glossary/glaznaya-gnil",
+     "glossary/gortannye-piyavki",
+     "glossary/drozhashchaya-bolezn",
+     "glossary/lihoradka-sinego-tumana",
+     "glossary/sinyaya-gnil",
+     "glossary/stochnaya-chuma",
+     "glossary/hohochushchaya-lihoradka"
     ]
    }
   ]
@@ -55003,6 +55281,16 @@
      "Слепое зрение",
      "Тёмное зрение",
      "Истинное зрение"
+    ],
+    "refs": [
+     "glossary/padenie",
+     "glossary/skorost-padeniya",
+     "glossary/letayushchie-sushchestva-i-padenie",
+     "glossary/udushenie",
+     "glossary/zrenie-i-svet",
+     "glossary/slepoe-zrenie",
+     "glossary/temnoe-zrenie",
+     "glossary/istinnoe-zrenie"
     ]
    },
    {
@@ -55016,6 +55304,15 @@
      "Вода",
      "Взаимодействие с предметами",
      "Укрытие"
+    ],
+    "refs": [
+     "glossary/rasstoyanie-slyshimosti",
+     "glossary/vidimost-na-otkrytom-prostranstve",
+     "glossary/eda-i-voda",
+     "glossary/eda",
+     "glossary/voda",
+     "glossary/vzaimodejstvie-s-predmetami",
+     "glossary/ukrytie"
     ]
    },
    {
@@ -55095,6 +55392,14 @@
      "Паутина",
      "Красно–коричневая плесень",
      "Демонический ихор"
+    ],
+    "refs": [
+     "glossary/zheltaya-plesen",
+     "glossary/zelenaya-sliz",
+     "glossary/korichnevaya-plesen",
+     "glossary/pautina",
+     "glossary/krasno-korichnevaya-plesen",
+     "glossary/demonicheskij-ihor"
     ]
    },
    {
@@ -55118,6 +55423,16 @@
      "Сбор еды",
      "Блуждания",
      "Рыбалка на тупоголовую форель"
+    ],
+    "refs": [
+     "glossary/chrezvychajnyj-holod",
+     "glossary/chrezvychajnaya-zhara",
+     "glossary/silnyj-veter",
+     "glossary/obilnye-osadki",
+     "glossary/bolshaya-vysota",
+     "glossary/sbor-edy",
+     "glossary/bluzhdaniya",
+     "glossary/rybalka-na-tupogolovuyu-forel"
     ]
    },
    {
@@ -55143,6 +55458,14 @@
      "Скользкий лёд",
      "Тонкий лёд",
      "Холодная вода"
+    ],
+    "refs": [
+     "glossary/britvennaya-loza",
+     "glossary/zybuchij-pesok",
+     "glossary/oskvernennaya-zemlya",
+     "glossary/skolzkij-led",
+     "glossary/tonkij-led",
+     "glossary/holodnaya-voda"
     ]
    },
    {
@@ -55162,6 +55485,12 @@
      "Падение в воду",
      "Падение на существо",
      "Заклинания в качестве эквивалентов природных опасностей"
+    ],
+    "refs": [
+     "glossary/laviny",
+     "glossary/padenie-v-vodu",
+     "glossary/padenie-na-sushchestvo",
+     "glossary/zaklinaniya-v-kachestve-ekvivalentov-prirodnyh-opasnostej"
     ]
    },
    {
@@ -55179,6 +55508,10 @@
     "items": [
      "Лавины (IDRotF)",
      "Метели"
+    ],
+    "refs": [
+     "glossary/laviny-idrotf",
+     "glossary/meteli"
     ]
    },
    {
@@ -55229,6 +55562,23 @@
      "Колонии мимиков",
      "Первозданный плод",
      "Таинственные тропы"
+    ],
+    "refs": [
+     "glossary/blagodatnoe-siyanie",
+     "glossary/dalnij-predel",
+     "glossary/obitel-neupokoennyh",
+     "glossary/kishashchaya-nasekomymi-oblast",
+     "glossary/zerkalnaya-zona",
+     "glossary/psihicheskij-rezonans",
+     "glossary/raspletennaya-magiya",
+     "glossary/magicheskie-proyavleniya",
+     "glossary/misticheskie-buri",
+     "glossary/otgoloski-emocij",
+     "glossary/zacharovannye-istochniki",
+     "glossary/volshebnye-griby",
+     "glossary/kolonii-mimikov",
+     "glossary/pervozdannyj-plod",
+     "glossary/tainstvennye-tropy"
     ]
    }
   ]
@@ -55284,6 +55634,16 @@
      "Очки заклинаний",
      "Заговоры",
      "Ритуалы"
+    ],
+    "refs": [
+     "glossary/uroven-zaklinaniya",
+     "glossary/izvestnye-i-podgotovlennye-zaklinaniya",
+     "glossary/nakladyvanie-zaklinanij-v-dospehe",
+     "glossary/yachejki-zaklinanij",
+     "glossary/nakladyvanie-zaklinaniya-s-uvelichennym-urovnem",
+     "glossary/ochki-zaklinanij",
+     "glossary/zagovory",
+     "glossary/ritualy"
     ]
    },
    {
@@ -55326,6 +55686,31 @@
      "Броски атаки",
      "Объединение магических эффектов",
      "Персонализация заклинаний"
+    ],
+    "refs": [
+     "glossary/vremya-nakladyvaniya",
+     "glossary/range",
+     "glossary/komponenty",
+     "glossary/dlitelnost",
+     "glossary/koncentraciya",
+     "glossary/shkoly-magii",
+     "glossary/celi",
+     "glossary/svobodnyj-put-do-celi",
+     "glossary/nacelivanie-na-sebya",
+     "glossary/nablyudaya-za-rabotoj-zaklinatelya",
+     "glossary/opredelenie-zaklinaniya",
+     "glossary/nedopustimye-celi-zaklinaniya",
+     "glossary/oblasti-vozdejstviya",
+     "glossary/konus",
+     "glossary/kub",
+     "glossary/liniya",
+     "glossary/sfera",
+     "glossary/cilindr",
+     "glossary/oblasti-vozdejstviya-na-setke",
+     "glossary/spasbroski",
+     "glossary/broski-ataki",
+     "glossary/obedinenie-magicheskih-effektov",
+     "glossary/personalizaciya-zaklinanij"
     ]
    }
   ]
@@ -55367,6 +55752,19 @@
      "Пространство",
      "Протискивание в меньшее пространство",
      "Игра на сетке"
+    ],
+    "refs": [
+     "glossary/preryvanie-peremeshcheniya",
+     "glossary/peremeshchenie-mezhdu-atakami",
+     "glossary/ispolzovanie-raznyh-skorostej",
+     "glossary/trudnoprohodimaya-mestnost",
+     "glossary/lezhanie-nichkom",
+     "glossary/peremeshchenie-i-drugie-sushchestva",
+     "glossary/peremeshchenie-poletom",
+     "glossary/razmer-sushchestva",
+     "glossary/prostranstvo",
+     "glossary/protiskivanie-v-menshee-prostranstvo",
+     "glossary/igra-na-setke"
     ]
    },
    {
@@ -55394,6 +55792,12 @@
      "Темп перемещения",
      "Труднопроходимая местность (перемещение во время приключения)",
      "Особый темп путешествия"
+    ],
+    "refs": [
+     "glossary/skorost",
+     "glossary/temp-peremeshcheniya",
+     "glossary/trudnoprohodimaya-mestnost-peremeshchenie-vo-vremya-priklyucheniya",
+     "glossary/osobyj-temp-puteshestviya"
     ]
    },
    {
@@ -55414,6 +55818,13 @@
      "Видимость под водой",
      "Прыжки",
      "Небо"
+    ],
+    "refs": [
+     "glossary/lazanie-plavanie-i-polzanie",
+     "glossary/plavanie",
+     "glossary/vidimost-pod-vodoj",
+     "glossary/pryzhki",
+     "glossary/nebo"
     ]
    }
   ]
@@ -55454,6 +55865,11 @@
      "Короткий отдых",
      "Продолжительный отдых",
      "Сон"
+    ],
+    "refs": [
+     "glossary/korotkij-otdyh",
+     "glossary/prodolzhitelnyj-otdyh",
+     "glossary/son"
     ]
    },
    {
@@ -55489,6 +55905,37 @@
      "Создание магического предмета",
      "Тренировки для получения уровней",
      "Соперники"
+    ],
+    "refs": [
+     "glossary/zatraty-na-sushchestvovanie",
+     "glossary/deyatelnost-vo-vremya-prostoya",
+     "glossary/azartnye-igry",
+     "glossary/bojcovskij-turnir",
+     "glossary/vosstanovlenie",
+     "glossary/issledovanie",
+     "glossary/issledovanie-xge",
+     "glossary/ispolnenie-svyashchennyh-ritualov",
+     "glossary/kommercheskaya-deyatelnost",
+     "glossary/izgotovlenie-predmeta",
+     "glossary/kutezh",
+     "glossary/kutezh-xge",
+     "glossary/obuchenie",
+     "glossary/obuchenie-xge",
+     "glossary/otdyh-xge",
+     "glossary/pokupka-magicheskih-predmetov",
+     "glossary/poluchenie-slavy",
+     "glossary/postrojka-kreposti",
+     "glossary/prestupnaya-deyatelnost",
+     "glossary/prodazha-magicheskih-predmetov",
+     "glossary/prodazha-magicheskogo-predmeta",
+     "glossary/rabota",
+     "glossary/rabota-po-professii",
+     "glossary/rasprostranenie-sluhov",
+     "glossary/remeslo",
+     "glossary/religioznoe-sluzhenie",
+     "glossary/sozdanie-magicheskogo-predmeta",
+     "glossary/trenirovki-dlya-polucheniya-urovnej",
+     "glossary/soperniki"
     ]
    }
   ]
@@ -55711,6 +56158,16 @@
      "Падающая сеть",
      "Сфера аннигиляции",
      "Ямы"
+    ],
+    "refs": [
+     "glossary/katyashchijsya-shar",
+     "glossary/obrushivayushchijsya-potolok",
+     "glossary/ognedyshashchaya-statuya",
+     "glossary/otravlennaya-igla",
+     "glossary/otravlennye-drotiki",
+     "glossary/padayushchaya-set",
+     "glossary/sfera-annigilyacii",
+     "glossary/yamy"
     ]
    },
    {
@@ -56141,6 +56598,17 @@
      "Отравленная игла (XGtE)",
      "Косящее лезвие",
      "Вековой сон"
+    ],
+    "refs": [
+     "glossary/medvezhij-kapkan",
+     "glossary/arbalet-lovushka",
+     "glossary/padayushchaya-reshetka",
+     "glossary/ispepelyayushchij-potok",
+     "equipment/net",
+     "glossary/lovchaya-yama",
+     "glossary/otravlennaya-igla-xgte",
+     "glossary/kosyashchee-lezvie",
+     "glossary/vekovoj-son"
     ]
    },
    {
@@ -56501,6 +56969,11 @@
      "Путь клинков",
      "Сфера сокрушающей участи",
      "Ядовитая буря"
+    ],
+    "refs": [
+     "glossary/put-klinkov",
+     "glossary/sfera-sokrushayushchej-uchasti",
+     "glossary/yadovitaya-burya"
     ]
    }
   ]
@@ -57163,6 +57636,32 @@
      "Крупношляпник",
      "Карликовая бородавка",
      "Фрукт танцующей обезьяны"
+    ],
+    "refs": [
+     "equipment/tezh",
+     "equipment/dikij-koren",
+     "equipment/zabou",
+     "equipment/koren-rajyah",
+     "equipment/listya-mengi",
+     "equipment/oreh-vukka",
+     "equipment/yagody-sinda",
+     "equipment/yacha",
+     "equipment/bochkonozhka",
+     "equipment/sineshlyapnik",
+     "equipment/ognennyj-lishajnik",
+     "equipment/ryabaya-kora",
+     "equipment/trillimak",
+     "equipment/vodoshar",
+     "equipment/zarhvud",
+     "equipment/nochnik",
+     "equipment/nos-nilhogga",
+     "equipment/ormu",
+     "equipment/timmask",
+     "equipment/yazyk-bezumiya",
+     "equipment/ognenozhka",
+     "equipment/krupnoshlyapnik",
+     "equipment/karlikovaya-borodavka",
+     "equipment/frukt-tancuyushchej-obezyany"
     ]
    },
    {
@@ -58872,6 +59371,41 @@
      "Астральный ялик",
      "Астральный бриг",
      "Межпланарный рейдер"
+    ],
+    "refs": [
+     "equipment/warship",
+     "equipment/galley",
+     "equipment/keelboat",
+     "equipment/longship",
+     "equipment/sailing-ship",
+     "equipment/rowboat",
+     "equipment/canoe",
+     "equipment/nebesnyj-korabl",
+     "equipment/battle-balloon",
+     "equipment/mechanical-beholder",
+     "equipment/demon-grinder",
+     "equipment/devils-ride",
+     "equipment/scavenger",
+     "equipment/tormentor",
+     "equipment/bombarda",
+     "equipment/zhivoj-korabl",
+     "equipment/zvezdnyj-motylek",
+     "equipment/kalmar",
+     "equipment/kosmicheskij-galeon",
+     "equipment/letuchaya-ryba",
+     "equipment/minoga",
+     "equipment/molotoglav",
+     "equipment/nautiloid",
+     "equipment/nochnoj-pauk",
+     "equipment/osa",
+     "equipment/skorpion",
+     "equipment/sorokoput",
+     "equipment/strekoza",
+     "equipment/tiran",
+     "equipment/cherepaha",
+     "equipment/astralnyj-yalik",
+     "equipment/astralnyj-brig",
+     "equipment/mezhplanarnyj-rejder"
     ]
    },
    {
@@ -59039,9 +59573,17 @@
      "Бурлящий корпус",
      "Корабль смерти",
      "Морозостойкий корпус",
-     "Живой корабль (улучшение корпуса)",
+     "Улучшение корпуса «Живой корабль»",
      "Укрёпленный корпус",
      "Бдительный наблюдатель"
+    ],
+    "refs": [
+     "equipment/burlyashchij-korpus",
+     "equipment/korabl-smerti",
+     "equipment/morozostojkij-korpus",
+     "equipment/uluchshenie-korpusa-zhivoj-korabl",
+     "equipment/ukreplennyj-korpus",
+     "equipment/bditelnyj-nablyudatel"
     ]
    },
    {
@@ -59063,6 +59605,14 @@
      "Драконьи паруса",
      "Кричащие паруса",
      "Косящие весла"
+    ],
+    "refs": [
+     "equipment/zavodnye-vesla",
+     "equipment/vechno-polnye-parusa",
+     "equipment/nepokornye-parusa",
+     "equipment/drakoni-parusa",
+     "equipment/krichashchie-parusa",
+     "equipment/kosyashchie-vesla"
     ]
    },
    {
@@ -59082,6 +59632,12 @@
      "Ударное орудие",
      "Взрывное орудие",
      "Захватывающее орудие"
+    ],
+    "refs": [
+     "equipment/magicheskaya-artilleriya",
+     "equipment/udarnoe-orudie",
+     "equipment/vzryvnoe-orudie",
+     "equipment/zahvatyvayushchee-orudie"
     ]
    },
    {
@@ -59100,6 +59656,11 @@
      "Носовая фигура хранителя",
      "Носовая фигура красного дракона",
      "Носовая фигура штормового великана"
+    ],
+    "refs": [
+     "equipment/nosovaya-figura-hranitelya",
+     "equipment/nosovaya-figura-krasnogo-drakona",
+     "equipment/nosovaya-figura-shtormovogo-velikana"
     ]
    },
    {
@@ -59118,6 +59679,11 @@
      "Кости бесконечного труда",
      "Знамя контрабандиста",
      "Барабаны надсмотрщика"
+    ],
+    "refs": [
+     "equipment/kosti-beskonechnogo-truda",
+     "equipment/znamya-kontrabandista",
+     "equipment/barabany-nadsmotrshchika"
     ]
    },
    {
@@ -59526,6 +60092,12 @@
      "Огнемёт",
      "Адский крикун",
      "Распылитель Стикса"
+    ],
+    "refs": [
+     "equipment/raspylitel-kislotnoj-zhelchi",
+     "equipment/ognemet",
+     "equipment/adskij-krikun",
+     "equipment/raspylitel-stiksa"
     ]
    },
    {
@@ -59544,6 +60116,11 @@
      "Канийская броня",
      "Позолоченная броня смерти",
      "Шипованная броня душ"
+    ],
+    "refs": [
+     "equipment/kanijskaya-bronya",
+     "equipment/pozolochennaya-bronya-smerti",
+     "equipment/shipovannaya-bronya-dush"
     ]
    },
    {
@@ -59561,6 +60138,10 @@
     "items": [
      "Некротическая дымовая завеса",
      "Телепорт"
+    ],
+    "refs": [
+     "equipment/nekroticheskaya-dymovaya-zavesa",
+     "equipment/teleport"
     ]
    },
    {
@@ -68747,6 +69328,26 @@
      "Подготовка",
      "Классовое умение",
      "Импровизация"
+    ],
+    "refs": [
+     "glossary/ataka",
+     "glossary/zahvat",
+     "glossary/tolchok",
+     "glossary/nakladyvanie-zaklinaniya",
+     "glossary/ryvok",
+     "glossary/othod",
+     "glossary/uklonenie",
+     "glossary/vysvobozhdenie",
+     "glossary/pomoshch",
+     "glossary/ispolzovanie-predmeta",
+     "glossary/aktivaciya-predmeta",
+     "glossary/vzyat-ili-snyat-shchit",
+     "glossary/zasada",
+     "glossary/poisk",
+     "glossary/stabilizaciya",
+     "glossary/podgotovka",
+     "glossary/klassovoe-umenie",
+     "glossary/improvizaciya"
     ]
    },
    {
@@ -68763,6 +69364,9 @@
     "ordered": false,
     "items": [
      "Сражение двумя оружиями"
+    ],
+    "refs": [
+     "glossary/srazhenie-dvumya-oruzhiyami"
     ]
    },
    {
@@ -68783,6 +69387,9 @@
     "ordered": false,
     "items": [
      "Классовые умения"
+    ],
+    "refs": [
+     "glossary/klassovye-umeniya"
     ]
    },
    {
@@ -68800,6 +69407,10 @@
     "items": [
      "Провоцированная атака",
      "Подготовленная атака"
+    ],
+    "refs": [
+     "glossary/provocirovannaya-ataka",
+     "glossary/podgotovlennaya-ataka"
     ]
    },
    {
@@ -68829,6 +69440,9 @@
     "ordered": false,
     "items": [
      "Разговор"
+    ],
+    "refs": [
+     "glossary/razgovor"
     ]
    },
    {
@@ -68849,6 +69463,9 @@
     "ordered": false,
     "items": [
      "Прерывание концентрации"
+    ],
+    "refs": [
+     "glossary/preryvanie-koncentracii"
     ]
    },
    {
@@ -68870,6 +69487,14 @@
      "Обезоруживание",
      "Пробегание",
      "Толкание в сторону"
+    ],
+    "refs": [
+     "glossary/vzbiranie-na-bolshee-sushchestvo",
+     "glossary/kuvyrok",
+     "glossary/metka",
+     "glossary/obezoruzhivanie",
+     "glossary/probeganie",
+     "glossary/tolkanie-v-storonu"
     ]
    }
   ]
@@ -72195,6 +72820,11 @@
      "Значение и модификаторы характеристик",
      "Преимущество и помеха",
      "Бонус мастерства"
+    ],
+    "refs": [
+     "glossary/znachenie-i-modifikatory-harakteristik",
+     "glossary/preimushchestvo-i-pomeha",
+     "glossary/bonus-masterstva"
     ]
    },
    {
@@ -72259,6 +72889,10 @@
     "items": [
      "Состязание",
      "Навыки"
+    ],
+    "refs": [
+     "glossary/sostyazanie",
+     "glossary/navyki"
     ]
    },
    {
@@ -72281,6 +72915,11 @@
      "Пассивные проверки",
      "Совместные проверки",
      "Групповые проверки"
+    ],
+    "refs": [
+     "glossary/passivnye-proverki",
+     "glossary/sovmestnye-proverki",
+     "glossary/gruppovye-proverki"
     ]
    },
    {
