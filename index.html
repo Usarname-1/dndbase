@@ -622,7 +622,7 @@ window.DB={get ed(){return ed},SXS,ORDERS,load:(k,e)=>load(k,e,true),hh,esc,norm
  placePic:async(root,e,k,m)=>{IMGM_V=await imgManifest();placePic(root,e,k,m)}};
 // ссылки вводного текста ведут в разделы выбранной редакции; разделов, которых в ней нет (например, снаряжения в 2014), — без ссылки
 function homeLinks(){document.querySelectorAll('#card a[data-s]').forEach(a=>{let k=a.dataset.s;if(k!='dmscreen'&&k!='sheet'&&k!='translator'){if(!SX[k])k=SWAP[k];if(!SX[k]){a.replaceWith(...a.childNodes);return}}a.href=hh(ed,k)})}
-async function route(){const P=parseHash(),k=P.k,slug=P.slug;document.body.classList.remove('land');
+async function route(){const P=parseHash(),k=P.k,slug=P.slug;document.body.classList.remove('land');if($('#card .home')){$('#card').innerHTML='';document.body.classList.remove('open')}
  if(P.e!==ed){ed=P.e;SX=SXS[ed]}
  if(k=='translator'){document.body.classList.remove('dm','cs');document.body.classList.add('tr','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='translator'));edLinks();document.title='Переводчик — D&D';TR.show(slug);return}
  if(k=='dmscreen'){document.body.classList.remove('cs','tr');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();document.title='Экран мастера — D&D '+EDK(ed);DM.show();return}
@@ -632,7 +632,7 @@ async function route(){const P=parseHash(),k=P.k,slug=P.slug;document.body.class
  if(!k||k=='24'||k=='home'){land();return}
  const s=SX[k]?k:(SX[SWAP[k]]?SWAP[k]:'bestiary'),key=ed+s;
  document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);
- if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML();$('#q').value='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
+ if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML();$('#q').value='';$('#list').innerHTML='';$('#fl').innerHTML='';$('#fn').textContent='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
  edLinks();
  const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
  document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
