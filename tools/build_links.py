@@ -95,6 +95,10 @@ def gear14(m):
 
 
 GLOSS_OK = {'Состояния'}
+# слишком общие однословные названия глоссария 2014: как обычные слова встречаются и с Заглавной (заголовки, ячейки таблиц) — автоссылками не ставим
+GENERIC14 = {'Скорость', 'Пространство', 'Небо', 'Цели', 'Дистанция', 'Работа', 'Поиск', 'Помощь', 'Метка', 'Вода', 'Еда', 'Обучение', 'Исследование',
+             'Восстановление', 'Соперники', 'Сон', 'Особое', 'Навыки', 'Линия', 'Падение', 'Разговор', 'Подготовка', 'Импровизация', 'Паутина', 'Ямы',
+             'Лёгкое', 'Тяжёлое', 'Плавание', 'Прыжки', 'Состязание', 'Спасброски', 'Атака', 'Кутёж', 'Ремесло', 'Куб', 'Сфера', 'Блуждания'}
 GLOSS_NAMES = {'Тёмное зрение', 'Слепое зрение', 'Истинное зрение', 'Чувство вибрации'}
 
 
@@ -114,17 +118,17 @@ def build(edition):
             m = dict(m, name_ru=m['name_ru'].replace('C', 'С'))                    # латинская C в «Cмерти»
             add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0 if strict else 2)
     else:
-        # разделы 2014, выделенные из статей: определения (глоссарий) и снаряжение (пока яды)
+        # разделы 2014, выделенные из статей: определения (глоссарий) и снаряжение
         for m in load(f'{d}/glossary.json'):
-            add(m, 'g', lambda m: (clean(m.get('group')), gloss_text(m.get('blocks'))), 0)
+            # состояния — однословные строчные, ссылка только после слова «состояние» (flag 1);
+            # чувства и многословные названия — как есть; остальные однословные термины — только с Заглавной в середине предложения
+            flag = 1 if m.get('group') == 'Состояния' else 0 if m['name_ru'] in GLOSS_NAMES else 2
+            if re.sub(r'\s*\(.*?\)', '', m['name_ru']) in GENERIC14:
+                continue
+            add(m, 'g', lambda m: (clean(m.get('group')) or 'Правило', gloss_text(m.get('blocks'))), flag)
         for m in load(f'{d}/equipment.json'):
             one = len(re.findall(r'[А-Яа-яЁёA-Za-z]+', re.sub(r'\(.*?\)', ' ', m['name_ru']))) == 1   # однословные («Злоба») — только как термин
             add(m, 'e', gear14, 2 if one else 0)
-        art = next(a for a in load(f'{d}/articles.json') if a['slug'] == 'sostoyaniya')
-        bl = art['blocks']
-        for i, b in enumerate(bl):
-            if b.get('type') == 'heading' and b.get('level') == 4 and i + 1 < len(bl):
-                out.append([b['text'], '', 'a', 'sostoyaniya', 'Состояние', cut(btext(bl[i + 1]), 260), 1])
     if edition == 24:
         def klass(m):
             ct = ' · '.join(f"{clean(c['label'])}: {clean(c['value'])}" for c in (m.get('core_traits') or [])[:2])
