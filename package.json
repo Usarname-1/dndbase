@@ -1,0 +1,7 @@
+{
+  "name": "dndbase",
+  "private": true,
+  "description": "Русская база D&D 5e. Зависимости нужны только для сборки статических страниц (tools/build_static.js)",
+  "scripts": { "build:static": "node tools/build_static.js", "test": "node --test tests/*.test.js" },
+  "devDependencies": { "jsdom": "^26.0.0" }
+}
