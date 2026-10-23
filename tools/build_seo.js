@@ -86,7 +86,8 @@ function inject(html, block) {
 function build(cfg) {
   cfg = cfg || readConfig();
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-  return { 'index.html': inject(html, headBlock(cfg)), 'sitemap.xml': sitemapXml(cfg), 'robots.txt': robotsTxt(cfg) };
+  // sitemap.xml со всеми страницами пишет tools/build_static.js
+  return { 'index.html': inject(html, headBlock(cfg)), 'robots.txt': robotsTxt(cfg) };
 }
 
 function main() {
