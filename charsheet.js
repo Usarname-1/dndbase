@@ -273,7 +273,7 @@
       if (D.sub) { const dsc = h('details', {}, h('summary', {}, 'О подклассе «' + D.sub.name + '»'), blocks(D.sub.description || [])); p.append(dsc); }
       p.append(h('div', { class: 'csfacts' },
         fact('Кость хитов', 'к' + ci.die), fact('Спасброски', ci.saves.map(k => R.ABN(k).ru).join(', ')), fact('Доспехи', ci.armor || '—'),
-        fact('Оружие', ci.weapons || '—'), fact('Инструменты', ci.tools || '—'), fact('Заклинательная характеристика', ci.spellAb ? R.ABN(ci.spellAb).ru : '—')));
+        fact('Оружие', ci.weapons || '—'), fact('Инструменты', ci.tools || '—'), fact('Заклинательная характеристика', ci.spellAb ? R.ABN(ci.spellAb).ru : d.sp.has && d.sp.via ? R.ABN(d.sp.ab).ru + ' (подкласс «' + d.sp.via + '»)' : '—')));
     }
     // вид
     p.append(h('h3', { class: 'csh' }, 'Вид'), h('div', { class: 'csgrid' }, field('Вид', sel(D.species.map(x => [x.slug, x.name_ru]), c.sp, v => { c.sp = v; c.spOpt = ''; upd(); }, '— выберите вид —')),
@@ -507,6 +507,11 @@
     }
     p.append(h('div', { class: 'csfacts' }, fact('Характеристика', R.ABN(sp.ab).ru), fact('Сл спасброска', sp.dc), fact('Бонус атаки', R.sgn(sp.atk)),
       sp.cantrips != null ? fact('Заговоры', sp.cantrips) : null, sp.prepared != null ? fact('Подготовлено', sp.prepared) : null, sp.known != null ? fact('Известно заклинаний', sp.known) : null));
+    if (sp.via) {
+      const lname = { wizard: 'Волшебника', cleric: 'Жреца', sorcerer: 'Чародея', warlock: 'Колдуна', druid: 'Друида', bard: 'Барда', paladin: 'Паладина', ranger: 'Следопыта', artificer: 'Изобретателя' }[sp.list] || sp.list;
+      p.append(h('p', { class: 'mhint' }, 'Заклинания даёт подкласс «' + sp.via + '»: таблица ячеек и число заклинаний взяты из него, список — заклинаний ' + lname + '.' +
+        (sp.schools ? ' Заклинания должны быть из школ: ' + sp.schools.map(x => x.name).join(', ') + (sp.freeLvls.length ? ' (кроме выученных на ' + sp.freeLvls.join(', ') + ' уровнях — любой школы)' : '') + '. Остальные помечаются, но не запрещены.' : '')));
+    }
     if (sp.pact) p.append(h('p', { class: 'mhint' }, 'Магия договора: ' + sp.pact.n + ' ячейки(а) ' + sp.pact.lvl + '-го уровня (восстанавливаются после короткого отдыха).'));
     const row = h('div', { class: 'slots edit' }, sp.rows.map((r, i) => h('label', { class: 'slot' + (r.ov ? ' ov' : ''), title: r.ov ? 'Число изменено вручную (по таблице класса: ' + r.base + ')' : 'Можно вписать своё число ячеек' },
       h('small', {}, (i + 1) + ' ур.'), numIn(r.n, v => { const base = r.ov ? r.base : r.n; c.slotsOv = c.slotsOv || []; if (v === base) delete c.slotsOv[i]; else c.slotsOv[i] = Math.max(0, Math.min(20, v)); upd(); }, { min: 0, max: 20, class: 'num' }), r.tag ? h('small', {}, r.tag) : null)));
@@ -514,7 +519,7 @@
       h('p', { class: 'mhint' }, 'Число ячеек считается по таблице класса. Если оно отличается (предмет, черта, особое правило), впишите своё число в нужный уровень.',
         (c.slotsOv || []).some(x => x != null) ? btn('Сбросить к таблице класса', () => { c.slotsOv = []; upd(); }, 'dmbtn') : null));
     if (!D.cls) return;
-    const isBook = D.cls.slug === 'wizard', lab = n => n === 0 ? 'Заговоры' : n + (c.ed === 14 ? ' круг' : ' уровень');
+    const isBook = D.cls.slug === 'wizard', listSlug = sp.list || D.cls.slug, lab = n => n === 0 ? 'Заговоры' : n + (c.ed === 14 ? ' круг' : ' уровень');
     const noLim = !!c.spellsFree, mine = c.spells, bySlug = new Set(mine.map(s => s.slug));
     const cnt = { can: mine.filter(s => s.lvl === 0 && !s.free).length, rest: mine.filter(s => s.lvl > 0 && !s.free).length, prep: mine.filter(s => s.lvl > 0 && s.prep && !s.free).length };
     const lim = { can: sp.cantrips, rest: isBook ? 6 + 2 * (c.lvl - 1) : (sp.known != null ? sp.known : sp.prepared), prep: isBook ? sp.prepared : null };
@@ -534,7 +539,7 @@
         const m = D.spells.find(x => x.slug === s.slug);
         const prepCb = isBook && l > 0 ? h('label', { class: 'prep' }, h('input', { type: 'checkbox', checked: !!s.prep, disabled: !s.prep && !s.free && full('prep'), onchange: e => { s.prep = e.target.checked; upd(); } }), ' подготовлено') : null;
         const fr = h('label', { class: 'prep', title: 'Бонусное заклинание (от подкласса, вида, черты): не считается в лимит' }, h('input', { type: 'checkbox', checked: !!s.free, onchange: e => { s.free = e.target.checked; upd(); } }), ' бонус');
-        box.append(h('div', { class: 'csrow' + (s.prep ? ' prepd' : '') }, h('b', {}, m ? link(c.ed, 'spells', m, s.name) : s.name), h('small', {}, m ? [m.school, m.concentration ? 'К' : '', m.ritual ? 'Р' : ''].filter(Boolean).join(' · ') : ''), prepCb, fr, btn('×', () => { c.spells = c.spells.filter(x => x.slug !== s.slug); upd(); }, 'xx', 'Убрать')));
+        box.append(h('div', { class: 'csrow' + (s.prep ? ' prepd' : '') }, h('b', {}, m ? link(c.ed, 'spells', m, s.name) : s.name), h('small', {}, m ? [m.school, m.concentration ? 'К' : '', m.ritual ? 'Р' : ''].filter(Boolean).join(' · ') : ''), m && l > 0 && !s.free && R.outOfSchools(sp, m.school) ? h('small', { class: 'warn', title: 'Не из школ подкласса: допустимо только для заклинания, выученного на ' + sp.freeLvls.join(', ') + ' уровне' }, 'вне школ') : null, prepCb, fr, btn('×', () => { c.spells = c.spells.filter(x => x.slug !== s.slug); upd(); }, 'xx', 'Убрать')));
       });
       p.append(box);
     }
@@ -543,7 +548,7 @@
     p.append(h('h3', { class: 'csh' }, 'Добавить заклинание'),
       h('label', { class: 'csall' }, h('input', { type: 'checkbox', checked: all, onchange: e => { c.spellsAll = e.target.checked; upd(); } }), ' показать заклинания всех классов (такие добавляются как «бонус»)'));
     let lvlF = UI.spL; if (lvlF !== 'all' && !(lvlF <= maxL)) lvlF = UI.spL = 'all';   // выбранный раньше круг мог остаться от другого персонажа или уровня
-    const cat = D.spells.filter(s => (all || s.classes.some(x => x.slug === D.cls.slug)) && s.level <= maxL && !bySlug.has(s.slug)).sort((x, y) => x.level - y.level || x.name_ru.localeCompare(y.name_ru, 'ru'));
+    const cat = D.spells.filter(s => (all || s.classes.some(x => x.slug === listSlug)) && s.level <= maxL && !bySlug.has(s.slug)).sort((x, y) => x.level - y.level || x.name_ru.localeCompare(y.name_ru, 'ru'));
     const fl = h('div', { class: 'seg csmeth wrapseg' }, ['all', ...Array.from({ length: maxL + 1 }, (_, i) => i)].map(v => btn(v === 'all' ? 'Все' : v === 0 ? 'Заговоры' : v + (c.ed === 14 ? ' круг' : ' ур.'), () => { lvlF = UI.spL = v; redraw(); }, '')));
     const box = h('div'); p.append(fl, box);
     function redraw() {
@@ -551,8 +556,8 @@
       box.textContent = '';
       const items = cat.filter(s => lvlF === 'all' || s.level === lvlF);
       box.append(searchBox(items, s => {
-        const foreign = !s.classes.some(x => x.slug === D.cls.slug), k = s.level === 0 ? 'can' : 'rest', blocked = !foreign && full(k);
-        return h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'spells', s)), h('small', {}, (s.level ? s.level + ' ур. ' : 'заговор ') + (s.school || '') + (s.concentration ? ' · К' : '') + (s.ritual ? ' · Р' : '')),
+        const foreign = !s.classes.some(x => x.slug === listSlug), k = s.level === 0 ? 'can' : 'rest', blocked = !foreign && full(k);
+        return h('div', { class: 'csrow' }, h('b', {}, link(c.ed, 'spells', s)), h('small', {}, (s.level ? s.level + ' ур. ' : 'заговор ') + (s.school || '') + (s.concentration ? ' · К' : '') + (s.ritual ? ' · Р' : '')), s.level > 0 && R.outOfSchools(sp, s.school) ? h('small', { class: 'warn', title: 'Не из школ подкласса: допустимо только для заклинаний, выученных на ' + (sp.freeLvls.join(', ') || 'особых') + ' уровнях' }, 'вне школ') : null,
           h('button', { type: 'button', class: 'dmbtn', disabled: blocked, title: blocked ? 'Лимит исчерпан — уберите другое заклинание' : '', onclick: () => c.spells.push({ slug: s.slug, name: s.name_ru, lvl: s.level, prep: !isBook && s.level > 0, free: foreign }) && upd() }, blocked ? 'лимит' : '+ Добавить'));
       }, { ph: 'Поиск заклинания по названию…', max: 60, key: 'spells:' + lvlF, q: UI.spQ, onq: v => { UI.spQ = v; } }));
     }

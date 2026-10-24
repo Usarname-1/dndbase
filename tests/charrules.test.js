@@ -456,3 +456,47 @@ test('черта 2014 вместо увеличения характеристи
   d = run(14, { cls: 'fighter', lvl: 1, ab: { str: 14 }, set: { feats: [{ slug: 'athlete', fa: 'str' }] } }); assert.equal(d.score.str, 15);   // добавлена вручную (Человек-вариант)
   d = run(14, { cls: 'fighter', lvl: 1, ab: { str: 14 }, feats: ['athlete'] }); assert.equal(d.score.str, 14);          // без выбора характеристики — как раньше
 });
+
+/* ---------- заклинания, которые даёт подкласс ---------- */
+const subOf = (ed, cls, name) => DATA[ed].classes.find(x => x.slug === cls).subclasses.find(s => s.name === name);
+test('Мистический рыцарь и Мистический ловкач: ячейки, заговоры и число заклинаний по таблицам PHB (2014 и 2024)', () => {
+  const SLOTS = { 3: [2], 4: [3], 6: [3], 7: [4, 2], 9: [4, 2], 10: [4, 3], 13: [4, 3, 2], 16: [4, 3, 3], 19: [4, 3, 3, 1], 20: [4, 3, 3, 1] };
+  const KNOWN = { 3: 3, 4: 4, 7: 5, 8: 6, 10: 7, 11: 8, 13: 9, 14: 10, 16: 11, 19: 12, 20: 13 };
+  for (const ed of [14, 24]) for (const [cls, sub, can0] of [['fighter', 'Мистический рыцарь', 2], ['rogue', 'Мистический ловкач', 3]]) {
+    for (const lvl of [3, 4, 6, 7, 9, 10, 13, 16, 19, 20]) {
+      const d = run(ed, { cls, sub, lvl, ab: { int: 16 } }), ex = SLOTS[lvl].concat([0, 0, 0, 0, 0, 0, 0, 0, 0]).slice(0, 9), tag = `ед.${ed} ${cls} ур.${lvl}`;
+      assert.ok(d.sp.has, tag); assert.deepEqual(d.sp.rows.map(r => r.n), ex, tag);
+      assert.equal(d.sp.cantrips, can0 + (lvl >= 10 ? 1 : 0), tag + ' заговоры');
+      assert.equal(d.sp.ab, 'int', tag); assert.equal(d.sp.dc, 8 + d.pb + 3, tag + ' Сл'); assert.equal(d.sp.atk, d.pb + 3, tag + ' атака');
+      assert.equal(d.sp.maxLevel, SLOTS[lvl].length, tag + ' макс. круг'); assert.equal(d.sp.list, 'wizard', tag);
+    }
+    for (const [lvl, n] of Object.entries(KNOWN)) { const d = run(ed, { cls, sub, lvl: +lvl }); assert.equal(ed === 14 ? d.sp.known : d.sp.prepared, n, `ед.${ed} ${cls} ур.${lvl}: число заклинаний`); assert.equal(ed === 14 ? d.sp.prepared : d.sp.known, null); }
+    assert.ok(!run(ed, { cls, sub, lvl: 2 }).sp.has, `ед.${ed} ${cls}: до 3 уровня заклинаний нет`);
+  }
+});
+test('заклинания подкласса: другой список и характеристика (Костяной рыцарь — жрец, Мистический воин — чародей)', () => {
+  let d = run(14, { cls: 'fighter', sub: 'Костяной рыцарь', lvl: 7, ab: { wis: 16, int: 8 } });
+  assert.equal(d.sp.list, 'cleric'); assert.equal(d.sp.ab, 'wis'); assert.equal(d.sp.dc, 8 + 3 + 3); assert.deepEqual(d.sp.rows.map(r => r.n).slice(0, 3), [4, 2, 0]);
+  d = run(24, { cls: 'monk', sub: 'Мистический воин', lvl: 7, ab: { wis: 16 } });
+  assert.equal(d.sp.list, 'sorcerer'); assert.equal(d.sp.ab, 'wis'); assert.equal(d.sp.prepared, 5);
+});
+test('школы подкласса 2014: Воплощение и Ограждение (воин), Иллюзия и Очарование (плут); исключения — 8, 14, 20 уровни', () => {
+  const sp = (cls, sub) => run(14, { cls, sub, lvl: 8 }).sp;
+  let s = sp('fighter', 'Мистический рыцарь');
+  assert.deepEqual(s.schools.map(x => x.name), ['Воплощение', 'Ограждение']); assert.deepEqual(s.freeLvls, [8, 14, 20]);
+  assert.ok(!R.outOfSchools(s, 'Воплощение') && !R.outOfSchools(s, 'Ограждение') && R.outOfSchools(s, 'Прорицание'));
+  s = sp('rogue', 'Мистический ловкач');
+  assert.deepEqual(s.schools.map(x => x.name), ['Иллюзия', 'Очарование']); assert.ok(R.outOfSchools(s, 'Воплощение') && !R.outOfSchools(s, 'Иллюзия'));
+  assert.equal(run(24, { cls: 'fighter', sub: 'Мистический рыцарь', lvl: 8 }).sp.schools, null);        // в 2024 школ нет
+  assert.ok(!R.outOfSchools(run(14, { cls: 'wizard', lvl: 8 }).sp, 'Воплощение'));                      // у класса без школ ничего не помечается
+});
+test('таблицу заклинателя находят только у подклассов, где она есть; у остальных блока заклинаний нет', () => {
+  const found = [];
+  for (const ed of [14, 24]) for (const cls of DATA[ed].classes) for (const s of cls.subclasses || []) if (R.subCasting(s)) found.push(`${ed} ${cls.slug}/${s.name}`);
+  assert.deepEqual(found.sort(), ['14 fighter/Костяной рыцарь', '14 fighter/Мистический рыцарь', '14 rogue/Божественный вестник', '14 rogue/Мистический ловкач', '14 rogue/Тёмный проситель', '24 fighter/Мистический рыцарь', '24 monk/Мистический воин', '24 rogue/Мистический ловкач'].sort());
+  for (const ed of [14, 24]) { assert.ok(!run(ed, { cls: 'fighter', sub: ed === 14 ? 'Чемпион' : 'Чемпион', lvl: 10 }).sp.has); assert.ok(!run(ed, { cls: 'rogue', lvl: 10 }).sp.has); }
+  assert.equal(R.subCasting(null), null);
+});
+test('у класса с собственными ячейками таблица подкласса не подменяет таблицу класса', () => {
+  for (const ed of [14, 24]) { const d = run(ed, { cls: 'wizard', lvl: 5 }); assert.deepEqual(d.sp.rows.map(r => r.n).slice(0, 3), [4, 3, 2]); assert.equal(d.sp.list, 'wizard'); assert.equal(d.sp.via, ''); }
+});

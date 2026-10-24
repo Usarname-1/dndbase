@@ -102,6 +102,74 @@
     return m;
   };
 
+  /* ---------- заклинания, которые даёт подкласс ---------- */
+  // Мистический рыцарь и ловкач, а также неофициальные Костяной рыцарь, Божественный вестник, Тёмный проситель, Мистический воин:
+  // в подклассе лежит своя таблица (уровень → заговоры, известные/подготовленные заклинания, ячейки), а список заклинаний,
+  // заклинательная характеристика и школы названы в тексте умения. Всё разбирается из данных: таблица — по заголовкам столбцов.
+  const subCache = new WeakMap();
+  const nCell = v => { const x = parseInt(String(v == null ? '' : v).replace(/[^\d]/g, ''), 10); return isNaN(x) ? 0 : x; };
+  const NUM_WORD = { один: 1, одно: 1, два: 2, две: 2, три: 3, четыре: 4, пять: 5 };
+  const LIST_STEM = { волшеб: 'wizard', жре: 'cleric', чаро: 'sorcerer', колду: 'warlock', друид: 'druid', бард: 'bard', палад: 'paladin', следоп: 'ranger', изобрет: 'artificer' };
+  const AB_WORD = { интеллект: 'int', мудрост: 'wis', харизм: 'cha' };
+  const SCHOOL_STEM = { воплощ: 'Воплощение', огражд: 'Ограждение', иллюз: 'Иллюзия', очарован: 'Очарование', некроман: 'Некромантия', преобразован: 'Преобразование', прорицан: 'Прорицание', вызов: 'Вызов', призыв: 'Призыв' };
+  const stemOf = (map, w) => { const k = Object.keys(map).find(x => lc(w).startsWith(x)); return k ? map[k] : null; };
+  // Таблица подкласса → { kind: 'prepared'|'known', cantripCol, rows: { уровень: { slots[9], cantrips, n } } } или null
+  function castTable(rows) {
+    if (!rows || rows.length < 4 || !/^уровень/i.test(String(rows[0][0]).trim())) return null;
+    const hd = rows[0].map(x => String(x).trim()), idx = re => hd.findIndex(x => re.test(x));
+    const iKnown = idx(/подготовл|известн\S*\s+заклинан/i), iCan = idx(/заговор/i);
+    if (iKnown < 0) return null;                       // без столбца «подготовленные / известные заклинания» это не таблица заклинателя
+    let slotIdx = [], from = 1;
+    hd.forEach((h, i) => { const m = i > 0 && h.match(/^(?:ячейк\S*\s+)?(\d)(?:-?(?:й|го))?(?:\s+уровн\S*)?$/i); if (m) slotIdx.push([i, +m[1]]); });
+    if (!slotIdx.length) {                             // 2014: столбцов в шапке меньше, чем в строках; уровни ячеек — во второй строке («1 | 2 | 3 | 4»)
+      const sub = rows[1].map(x => String(x).trim());
+      if (!sub.length || !sub.every(x => /^\d(?:-?й)?$/.test(x))) return null;
+      const start = Math.max(iKnown, iCan, 0) + 1; slotIdx = sub.map((x, j) => [start + j, parseInt(x, 10)]); from = 2;
+    }
+    const out = {};
+    rows.slice(from).forEach(r => {
+      const lvl = parseInt(r[0], 10); if (isNaN(lvl)) return;
+      const slots = new Array(9).fill(0); slotIdx.forEach(([i, L]) => { if (L >= 1 && L <= 9) slots[L - 1] = nCell(r[i]); });
+      out[lvl] = { slots, cantrips: iCan >= 0 ? nCell(r[iCan]) : null, n: nCell(r[iKnown]) };
+    });
+    return { kind: /подготовл/i.test(hd[iKnown]) ? 'prepared' : 'known', rows: out };
+  }
+  function subCasting(sub) {
+    if (!sub) return null; if (subCache.has(sub)) return subCache.get(sub);
+    const bl = [...(sub.description || []), ...(sub.features || []).flatMap(f => f.blocks || [])];
+    const tb = bl.filter(b => b.type === 'table').map(b => castTable(b.rows)).find(t => t && Object.values(t.rows).some(r => r.slots.some(x => x > 0)));
+    let out = null;
+    if (tb) {
+      const tx = bl.filter(b => b.type === 'paragraph').map(b => plain(b.text)), all = tx.join('\n');
+      let list = null; for (const t of tx) { const m = lc(t).match(/списк\S*\s+(?:заклинаний\s+)?([а-я]+)/); if (m && (list = stemOf(LIST_STEM, m[1]))) break; }
+      list = list || 'wizard';
+      const am = lc(all).match(/(?:заклинательн\S*|базов\S*)\s+характеристик\S*[\s\S]{0,80}?(интеллект|мудрост|харизм)|(интеллект|мудрост|харизм)\S*\s+является\s+(?:базов|заклинательн)/);
+      const ab = am ? AB_WORD[am[1] || am[2]] : SPELL_AB[list];
+      // заговоры: в таблице 2014 есть столбец, в 2024 — только текст («Вы знаете два заговора…», «на 10-м уровне изучите ещё один»)
+      let can = null;
+      if (!Object.values(tb.rows).some(r => r.cantrips != null)) {
+        const m = lc(all).match(/(?:знаете|изучаете)\s+(\d+|[а-я]+)\s+заговор/), base = m ? (NUM_WORD[m[1]] || +m[1] || 0) : 0;
+        const ex = all.match(/ещ[её]\s+один\s+заговор|дополнительн\S*\s+заговор/i) ? 1 : 0, at = (all.match(/(\d+)-?(?:го|м)\s+уровн\S*\s+(?:воина|плута|монаха|друида|следопыта|[а-яё]+)?[^.]{0,40}(?:ещ[её]\s+один\s+заговор)/i) || all.match(/достигнете\s+(\d+)-?(?:го|м)/i) || [])[1];
+        can = { base, extra: ex, at: at ? +at : 10 };
+      }
+      // школы (2014): «Все эти заклинания должны принадлежать школам Воплощения или Ограждения»; «…на 8-м, 14-м и 20-м уровнях» — любой школы
+      let schools = null, free = [];
+      const sm = all.match(/должны\s+принадлежать\s+(?:к\s+)?школ\S*\s+([^.]+)/i);
+      if (sm) { const st = Object.keys(SCHOOL_STEM).filter(k => lc(sm[1]).includes(k)); if (st.length) schools = st.map(k => ({ stem: k, name: SCHOOL_STEM[k] })); }
+      const fm = all.match(/заклинани\S*,\s+которые\s+вы\s+(?:выучите|узнаёте|изучите)\s+на\s+([^.]*?)\s+уровн/i); if (fm) free = (fm[1].match(/\d+/g) || []).map(Number);
+      out = { kind: tb.kind, rows: tb.rows, list, ab, can, schools, free };
+    }
+    subCache.set(sub, out); return out;
+  }
+  // строка подкласса для этого уровня: { slots, cantrips, prepared | known } или null (уровень ниже первого в таблице)
+  function subCastRow(sc, lvl) {
+    const r = sc && sc.rows[lvl]; if (!r) return null;
+    const cantrips = r.cantrips != null ? r.cantrips : sc.can ? sc.can.base + (sc.can.extra && lvl >= sc.can.at ? 1 : 0) : null;
+    return { slots: r.slots.slice(), cantrips, prepared: sc.kind === 'prepared' ? r.n : null, known: sc.kind === 'known' ? r.n : null };
+  }
+  // школа заклинания не из школ подкласса (2014: у Мистического рыцаря и ловкача, кроме заклинаний 8, 14 и 20 уровней)
+  const outOfSchools = (sp, sc) => !!(sp && sp.schools && sc && !sp.schools.some(x => lc(sc).startsWith(x.stem)));
+
   /* ---------- владение оружием ---------- */
   // основа слова без падежного окончания: «кинжалы» ≈ «Кинжал», «длинные мечи» ≈ «Длинный меч»
   const ENDS = /(ыми|ими|ого|его|ому|ему|ами|ями|ый|ий|ой|ая|яя|ое|ее|ые|ие|ую|юю|ым|им|ом|ем|ых|их|ов|ей|ам|ям|ах|ях|ою|ею|а|я|у|ю|ы|и|е|о|ь|й)$/;
@@ -604,15 +672,18 @@
     if (c.acMode === 'manual' && c.acManual) { ac = c.acManual; acWhy = 'вручную'; }
 
     // заклинания
-    const spAb = ci && ci.spellAb, sp = { has: !!(lr && (lr.slots.some(x => x > 0) || lr.pact)) || !!(c.spellAbManual) };
+    // свои ячейки у класса — берём их; иначе заклинания может давать подкласс (Мистический рыцарь, Мистический ловкач…): тогда свои таблица, список и характеристика
+    const ownCast = !!(lr && (lr.slots.some(x => x > 0) || lr.pact)), subC = ownCast ? null : subCasting(D.sub), subRow = subC ? subCastRow(subC, lvl) : null, lrS = subRow ? Object.assign({}, lr, subRow) : lr;
+    const spAb = (ci && ci.spellAb) || (subRow && subC.ab), sp = { has: !!(lrS && (lrS.slots.some(x => x > 0) || lrS.pact)) || !!(c.spellAbManual) };
     if (sp.has) {
       const ab = spAb || c.spellAbManual || 'int';
+      sp.list = subRow ? subC.list : (D.cls && D.cls.slug) || null; sp.via = subRow ? D.sub.name : ''; sp.schools = subRow && subC.schools; sp.freeLvls = subRow ? subC.free : [];
       sp.ab = ab; sp.dc = 8 + pb + m[ab]; sp.atk = pb + m[ab];
-      sp.slots = (c.slotsManual && !lr) ? c.slotsManual : (lr ? lr.slots : new Array(9).fill(0));
-      sp.pact = lr && lr.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.rows.forEach((r, i) => { const o = c.slotsOv && c.slotsOv[i]; if (o != null && o !== '') { r.base = r.n; r.n = Math.max(0, Math.min(20, intOf(o))); r.ov = true; } }); sp.maxLevel = Math.max(maxSlotLevel(lr) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
-      sp.cantrips = lr ? lr.cantrips : null;
+      sp.slots = (c.slotsManual && !lrS) ? c.slotsManual : (lrS ? lrS.slots : new Array(9).fill(0));
+      sp.pact = lrS && lrS.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.rows.forEach((r, i) => { const o = c.slotsOv && c.slotsOv[i]; if (o != null && o !== '') { r.base = r.n; r.n = Math.max(0, Math.min(20, intOf(o))); r.ov = true; } }); sp.maxLevel = Math.max(maxSlotLevel(lrS) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
+      sp.cantrips = lrS ? lrS.cantrips : null;
       // подготовлено: столбец таблицы (2024) или модификатор + уровень (2014, подготавливающие классы)
-      let prep = lr ? lr.prepared : null, known = lr ? lr.known : null;
+      let prep = lrS ? lrS.prepared : null, known = lrS ? lrS.known : null;
       if (prep == null && known == null && c.ed === 14 && D.cls && ['cleric', 'druid', 'wizard', 'artificer'].includes(D.cls.slug)) prep = Math.max(1, m[ab] + (D.cls.slug === 'artificer' ? Math.floor(lvl / 2) : lvl));
       if (prep == null && known == null && c.ed === 14 && D.cls && D.cls.slug === 'paladin') prep = Math.max(1, m[ab] + Math.floor(lvl / 2));
       sp.prepared = prep; sp.known = known;
@@ -698,6 +769,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
