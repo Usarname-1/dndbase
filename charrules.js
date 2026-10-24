@@ -144,19 +144,25 @@
   // → { opts: ['str','dex'], cap: 20 }; «одной из ваших характеристик» → все шесть; нет такой строки → null
   // Если черта заодно даёт владение спасброском выбранной характеристики («Устойчивый»), save: true;
   // notProf: true — выбирать можно только ту, спасброском которой персонаж ещё не владеет.
+  // «Увеличьте значение Силы или Ловкости на 1…» бывает абзацем с жирным заголовком (2024), пунктом списка (почти все черты 2014)
+  // и «характеристики по вашему выбору» / «выбранной характеристики» (любая из шести).
+  const STEM_AB = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };   // падежи: «Силы», «Ловкости»
   function featAbility(f) {
     const blocks = (f && f.blocks) || [];
     const texts = blocks.flatMap(b => b.type === 'paragraph' ? [String(b.text || '')] : b.type === 'list' ? (b.items || []).map(i => String(typeof i === 'string' ? i : (i && i.text) || '')) : []);
     const flags = { save: texts.some(t => /владени\S*\s+спасброск\S*\s+(?:выбранной|этой)\s+характеристики/i.test(t)), notProf: texts.some(t => /спасброском\s+которой\s+вы\s+не\s+владеете/i.test(t)) };
-    let par = texts.find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
-    // 2014: «Выберите одну характеристику. Вы получаете: • Увеличьте значение выбранной характеристики на 1 при максимуме 20.»
-    if (!par) par = texts.find(t => /увеличьте\s+значение\s+выбранной\s+характеристики\s+на\s+1/i.test(t));
-    if (!par) return null;
-    const body = par.replace(/^\*\*[^*]+\*\*\.?\s*/, ''), cap = (body.match(/(?:не выше|максимум\S*)\s+(\d+)/i) || [])[1];
-    const any = /одн\S*\s+из\s+(?:ваших\s+)?характеристик|выберите\s+одну\s+характеристику|выбранной\s+характеристики/i.test(body);
-    const head = body.replace(/на\s+1.*$/i, ''), STEM = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };   // падежи: «Силы», «Ловкости»
-    const opts = any ? AB.map(a => a.k) : AB.filter(a => lc(head).includes(STEM[a.k])).map(a => a.k);
-    return opts.length ? Object.assign({ opts, cap: cap ? +cap : 20 }, flags.save ? { save: true } : {}, flags.notProf ? { notProf: true } : {}) : null;
+    const parse = body => {
+      const cap = (body.match(/(?:не выше|максимум\S*)\s+(\d+)/i) || [])[1];
+      const any = /одн\S*\s+из\s+(?:ваших\s+)?характеристик|выберите\s+одну\s+характеристику|выбранной\s+характеристики|характеристики\s+по\s+(?:вашему|своему)\s+выбору/i.test(body);
+      const head = body.replace(/на\s+1.*$/i, '');
+      const opts = any ? AB.map(a => a.k) : AB.filter(a => lc(head).includes(STEM_AB[a.k])).map(a => a.k);
+      return opts.length ? { opts, cap: cap ? +cap : 20 } : null;
+    };
+    let res = null;
+    const bold = texts.find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
+    if (bold) res = parse(bold.replace(/^\*\*[^*]+\*\*\.?\s*/, ''));
+    for (let i = 0; !res && i < texts.length; i++) { const m = texts[i].replace(/\*+/g, '').match(/увеличь(?:те)?\s+значение\s+[^.]*?\s+на\s+1[^.]*/i); if (m && !/на\s+2/.test(m[0])) res = parse(m[0]); }   // «на 2 или двух на 1» — это сама черта «Увеличение характеристик», не +1
+    return res ? Object.assign(res, flags.save ? { save: true } : {}, flags.notProf ? { notProf: true } : {}) : null;
   }
   // сколько навыков класс позволяет усилить Экспертностью к этому уровню (2024)
   function expertiseSlots(cls, lvl, ed) {

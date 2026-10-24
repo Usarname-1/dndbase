@@ -429,3 +429,30 @@ test('черта «Устойчивый»: +1 и владение спасбро
   assert.ok(R.featAbility(DATA[24].feats.find(x => x.slug === 'resilient')).notProf);
   assert.ok(!R.featAbility(DATA[14].feats.find(x => x.slug === 'resilient')).notProf);
 });
+
+/* ---------- прибавка к характеристике у черт ---------- */
+test('черты 2014: «Увеличьте значение Силы или Ловкости на 1» из списка и «по вашему выбору» разбираются', () => {
+  const fa = (ed, slug) => R.featAbility(DATA[ed].feats.find(x => x.slug === slug));
+  assert.deepEqual(fa(14, 'athlete').opts, ['str', 'dex']);
+  assert.deepEqual(fa(14, 'actor').opts, ['cha']);
+  assert.deepEqual(fa(14, 'heavy-armor-master').opts, ['str']);
+  assert.deepEqual(fa(14, 'telepathic').opts, ['int', 'wis', 'cha']);
+  assert.deepEqual(fa(14, 'elven-accuracy').opts, ['dex', 'int', 'wis', 'cha']);
+  for (const slug of ['agent-of-order', 'baleful-scion', 'cohort-of-chaos', 'outlands-envoy', 'righteous-heritor', 'skill-expert']) assert.equal(fa(14, slug).opts.length, 6, slug);
+  assert.equal(fa(14, 'athlete').cap, 20);
+  // у каждой черты 2014, где в тексте есть «Увеличьте … на 1», прибавка разобрана; у черт без неё — нет
+  const left = DATA[14].feats.filter(f => !R.featAbility(f) && /[Уу]величь\S*\s+(?:значение\s+)?[^.]{0,60}на\s+\+?1/.test(JSON.stringify(f.blocks || [])));
+  assert.deepEqual(left.map(f => f.name_ru), []);
+  assert.equal(R.featAbility(DATA[14].feats.find(x => x.slug === 'alert')), null);
+});
+test('черта «Увеличение характеристик» 2024 («+2 к одной или +1 к двум») не принимается за «+1»', () => {
+  assert.equal(R.featAbility(DATA[24].feats.find(x => x.slug === 'ability-score-improvement')), null);
+});
+test('черта 2014 вместо увеличения характеристик: +1 к выбранной из списка, потолок 20', () => {
+  const asi = { 4: { m: 'feat', feat: 'athlete', fa: 'dex' } };
+  let d = run(14, { cls: 'fighter', lvl: 4, ab: { dex: 15 }, asi }); assert.equal(d.score.dex, 16); assert.match(d.src.dex.join(), /черта/);
+  d = run(14, { cls: 'fighter', lvl: 4, ab: { dex: 20 }, asi }); assert.equal(d.score.dex, 20);                       // выше 20 не растёт
+  d = run(14, { cls: 'fighter', lvl: 4, ab: { dex: 15 }, asi: { 4: { m: 'feat', feat: 'athlete', fa: 'wis' } } }); assert.equal(d.score.wis, 10);   // не из списка черты — не применяется
+  d = run(14, { cls: 'fighter', lvl: 1, ab: { str: 14 }, set: { feats: [{ slug: 'athlete', fa: 'str' }] } }); assert.equal(d.score.str, 15);   // добавлена вручную (Человек-вариант)
+  d = run(14, { cls: 'fighter', lvl: 1, ab: { str: 14 }, feats: ['athlete'] }); assert.equal(d.score.str, 14);          // без выбора характеристики — как раньше
+});
