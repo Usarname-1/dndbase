@@ -142,15 +142,27 @@
   /* ---------- черты: прибавка к характеристике ---------- */
   // «**Повышение характеристики.** Увеличьте значение вашей Силы или Ловкости на 1, но не выше 20.»
   // → { opts: ['str','dex'], cap: 20 }; «одной из ваших характеристик» → все шесть; нет такой строки → null
+  // Если черта заодно даёт владение спасброском выбранной характеристики («Устойчивый»), save: true;
+  // notProf: true — выбирать можно только ту, спасброском которой персонаж ещё не владеет.
+  // «Увеличьте значение Силы или Ловкости на 1…» бывает абзацем с жирным заголовком (2024), пунктом списка (почти все черты 2014)
+  // и «характеристики по вашему выбору» / «выбранной характеристики» (любая из шести).
+  const STEM_AB = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };   // падежи: «Силы», «Ловкости»
   function featAbility(f) {
-    const par = ((f && f.blocks) || []).filter(b => b.type === 'paragraph').map(b => String(b.text || ''))
-      .find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
-    if (!par) return null;
-    const body = par.replace(/^\*\*[^*]+\*\*\.?\s*/, ''), cap = (body.match(/не выше\s+(\d+)/i) || [])[1];
-    const any = /одн\S*\s+из\s+(?:ваших\s+)?характеристик/i.test(body);
-    const head = body.replace(/на\s+1.*$/i, ''), STEM = { str: 'сил', dex: 'ловк', con: 'телос', int: 'интел', wis: 'мудр', cha: 'хариз' };   // падежи: «Силы», «Ловкости»
-    const opts = any ? AB.map(a => a.k) : AB.filter(a => lc(head).includes(STEM[a.k])).map(a => a.k);
-    return opts.length ? { opts, cap: cap ? +cap : 20 } : null;
+    const blocks = (f && f.blocks) || [];
+    const texts = blocks.flatMap(b => b.type === 'paragraph' ? [String(b.text || '')] : b.type === 'list' ? (b.items || []).map(i => String(typeof i === 'string' ? i : (i && i.text) || '')) : []);
+    const flags = { save: texts.some(t => /владени\S*\s+спасброск\S*\s+(?:выбранной|этой)\s+характеристики/i.test(t)), notProf: texts.some(t => /спасброском\s+которой\s+вы\s+не\s+владеете/i.test(t)) };
+    const parse = body => {
+      const cap = (body.match(/(?:не выше|максимум\S*)\s+(\d+)/i) || [])[1];
+      const any = /одн\S*\s+из\s+(?:ваших\s+)?характеристик|выберите\s+одну\s+характеристику|выбранной\s+характеристики|характеристики\s+по\s+(?:вашему|своему)\s+выбору/i.test(body);
+      const head = body.replace(/на\s+1.*$/i, '');
+      const opts = any ? AB.map(a => a.k) : AB.filter(a => lc(head).includes(STEM_AB[a.k])).map(a => a.k);
+      return opts.length ? { opts, cap: cap ? +cap : 20 } : null;
+    };
+    let res = null;
+    const bold = texts.find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
+    if (bold) res = parse(bold.replace(/^\*\*[^*]+\*\*\.?\s*/, ''));
+    for (let i = 0; !res && i < texts.length; i++) { const m = texts[i].replace(/\*+/g, '').match(/увеличь(?:те)?\s+значение\s+[^.]*?\s+на\s+1[^.]*/i); if (m && !/на\s+2/.test(m[0])) res = parse(m[0]); }   // «на 2 или двух на 1» — это сама черта «Увеличение характеристик», не +1
+    return res ? Object.assign(res, flags.save ? { save: true } : {}, flags.notProf ? { notProf: true } : {}) : null;
   }
   // сколько навыков класс позволяет усилить Экспертностью к этому уровню (2024)
   function expertiseSlots(cls, lvl, ed) {
@@ -372,6 +384,8 @@
     return out;
   }
 
+  const SAVE_PROF = /владени\S*\s+(?:всеми\s+)?спасброск/i, YOU = /(?:^|[^а-яё])(?:вы|вам|вас)(?![а-яё])/i, NOT_YOU = /несущ/i, ALREADY = /(?:^|[^а-яё])уже(?![а-яё])/i;
+
   // Остальные эффекты. X = { lvl, pb, m, score, lr, worn, src }
   function collectFx(c, D, X) {
     const { lvl, pb, m, score, lr, worn, src: S } = X, out = [], seen = new Set(), all = [...S.cf, ...S.sf, ...S.tr, ...S.ft];
@@ -424,6 +438,15 @@
       const vab = abIn(mm[2])[0]; if (!vab) return;
       const tg = abIn(mm[1]), v = /минимум|минимальн/i.test(s) ? Math.max(1, m[vab]) : m[vab];
       put(f, 'save', { v, ab: tg.length ? tg : null, text: 'Спасброски ' + (tg.length ? tg.map(abShort).join(', ') + ' ' : '') + sgn(v) });
+    })));
+
+    /* владение спасбросками: «Вы получаете владение спасбросками Мудрости и Харизмы», «…даруют вам владение всеми спасбросками».
+       Пропускаем «если вы уже владеете…» (там нужен выбор другой характеристики) и то, что получает не персонаж («Камень … несущему его существу») */
+    [...S.cf, ...S.sf].forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      if (!SAVE_PROF.test(s) || !YOU.test(s) || NOT_YOU.test(s) || ALREADY.test(s)) return;
+      const tail = s.slice(s.search(SAVE_PROF)), all = /^владени\S*\s+всеми\s+спасброск/i.test(tail);
+      const lst = tail.match(/спасброск\S*\s+((?:[А-ЯЁ][а-яё]+(?:,\s*|\s+и\s+|\s+или\s+)?)+)/), ab = all ? AB.map(a => a.k) : lst ? abIn(lst[1]) : [];
+      if (ab.length) put(f, 'saveProf', { ab, text: 'Владение спасбросками: ' + (all ? 'все' : ab.map(abShort).join(', ')) });
     })));
 
     /* хиты: «максимум хитов увеличивается на A» + «на 1 за каждый уровень». Крепкий — удвоенный уровень */
@@ -503,19 +526,24 @@
     }
     AB.forEach(a => add(a.k, intOf(c.bonus && c.bonus[a.k]), c.ed === 14 ? 'вид' : 'прочее'));
     const feats = [];
-    const capOf = {}, epic = epicLevel(D.cls);
+    const capOf = {}, epic = epicLevel(D.cls), featSaves = [];
+    // +1 к выбранной характеристике от черты (и владение её спасброском, если черта его даёт: «Устойчивый»)
+    const featPick = (slug, pick) => {
+      const fo = (D.feats || []).find(f => f.slug === slug), fa = featAbility(fo);
+      if (fa && pick && fa.opts.includes(pick)) { add(pick, 1, 'черта'); capOf[pick] = Math.max(capOf[pick] || 0, fa.cap); if (fa.save) featSaves.push({ ab: pick, slug, why: fo.name_ru }); }
+    };
     asiLevels(D.cls).filter(l => l <= lvl).forEach(l => {
       const x = (c.asi || {})[l]; if (!x) return;
       if (x.m === 'feat' || (c.ed === 24 && l === epic)) {
         if (!x.feat) return;
         feats.push({ slug: x.feat, lvl: l });
-        const fa = featAbility((D.feats || []).find(f => f.slug === x.feat));
-        if (fa && x.fa && fa.opts.includes(x.fa)) { add(x.fa, 1, 'черта'); capOf[x.fa] = Math.max(capOf[x.fa] || 0, fa.cap); }
+        featPick(x.feat, x.fa);
       }
       else if (x.m === '11') { add(x.a, 1, 'ур. ' + l); add(x.b, 1, 'ур. ' + l); }
       else if (x.m === '2') add(x.a, 2, 'ур. ' + l);
     });
-    (c.feats || []).forEach(x => feats.push({ slug: x.slug, lvl: 0, extra: true }));
+    // черты, добавленные вручную: выбор характеристики (x.fa) необязателен — без него прибавку вписывают сами, как раньше
+    (c.feats || []).forEach(x => { feats.push({ slug: x.slug, lvl: 0, extra: true }); featPick(x.slug, x.fa); });
     // черты (в том числе черта предыстории 2024) и остальные источники умений
     const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
     if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
@@ -527,10 +555,13 @@
     const m = {}; AB.forEach(a => { m[a.k] = mod(score[a.k]); });
     const pb = lr ? lr.prof : Math.ceil(lvl / 4) + 1;
     const worn = wornGear(c, D);
-    const fx = [...abFx, ...collectFx(c, D, { lvl, pb, m, score, lr, worn, src: S })].map(e => Object.assign(e, { off: !!off[e.id] }));
+    const featSaveFx = featSaves.map(e => ({ id: 'ft:' + e.slug + '#saveProf', k: 'saveProf', ab: [e.ab], why: e.why, src: 'черта', on: true, cond: '', text: 'Владение спасбросками: ' + abShort(e.ab) }));
+    const fx = [...abFx, ...collectFx(c, D, { lvl, pb, m, score, lr, worn, src: S }), ...featSaveFx].map(e => Object.assign(e, { off: !!off[e.id] }));
     const act = k => fx.filter(e => e.k === k && e.on && !e.off), sum = (list, f) => list.reduce((q, e) => q + (f ? f(e) : e.v), 0);
 
-    const saveProf = new Set(ci ? ci.saves : []), saves = {}, saveFx = act('save');
+    const saveProf = new Set(ci ? ci.saves : []), saves = {}, saveFx = act('save'), saveFrom = {};
+    saveProf.forEach(k => { saveFrom[k] = ['класс']; });
+    act('saveProf').forEach(e => e.ab.forEach(k => { if (!saveProf.has(k)) { saveProf.add(k); saveFrom[k] = []; } if (saveFrom[k][0] !== 'класс' && !saveFrom[k].includes(e.why)) saveFrom[k].push(e.why); }));   // владение от умений и черт: откуда оно, видно в листе
     AB.forEach(a => { saves[a.k] = m[a.k] + (saveProf.has(a.k) ? pb : 0) + sum(saveFx.filter(e => !e.ab || e.ab.includes(a.k))); });
 
     const bgi = bgSkillInfo(D.bg), bgSk = bgi.fixed;
@@ -613,7 +644,7 @@
     const whyOf = (base, list) => [base, ...list.map(e => e.why + ' ' + sgn(e.v))].join(', ');
     const res = resources(c, D, { lvl, m, lr });
     return {
-      expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy,
+      expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, saveFrom,
       init, initWhy: whyOf('Лов ' + sgn(m.dex), initFx), initFx, hpFx, hpAuto: !manualHp, passive, passiveFx: psFx,
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,

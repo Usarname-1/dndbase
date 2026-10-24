@@ -366,12 +366,19 @@
           const cur = D.feats.find(f => f.slug === x.feat), fa = R.featAbility(cur);
           box.append(h('span', { class: 'csfeat' }, cur ? link(c.ed, 'feats', cur) : 'не выбрана'),
             btn(cur ? 'Сменить' : 'Выбрать черту', () => featDialog(c, D, f => { x.feat = f.slug; x.fa = ''; upd(); }, null, ep ? 'Черта Эпического дара' : ''), 'dmbtn'));
-          if (fa) box.append(h('label', { class: 'csfa' }, '+1 к ', sel(fa.opts.map(k => [k, R.ABN(k).ru]), x.fa, v => { x.fa = v; upd(); }, '—'), fa.cap > 20 ? ' (до ' + fa.cap + ')' : ''));
+          if (fa) box.append(faPick(fa, x, d));
         }
         p.append(box);
       });
     }
   }
+  // «+1 к [характеристика]» у черты; если черта ещё и даёт владение спасброском («Устойчивый»), он включается сам.
+  // Когда выбирать можно только характеристику без владения спасброском, эти характеристики класса из списка убираем.
+  const faPick = (fa, x, d) => {
+    const skip = fa.notProf && d.ci ? d.ci.saves : [], opts = fa.opts.filter(k => !skip.includes(k) || k === x.fa);
+    return h('label', { class: 'csfa' }, '+1 к ', sel(opts.map(k => [k, R.ABN(k).ru]), x.fa, v => { x.fa = v; upd(); }, '—'),
+      fa.cap > 20 ? ' (до ' + fa.cap + ')' : '', fa.save ? ' и владение её спасброском' : '');
+  };
   const AB_RESET = c => { const arr = R.STD_ARRAY; R.AB.forEach((a, i) => { c.ab[a.k] = arr[i]; }); };
   const lvReq = f => { const m = String(f.prerequisite || f.line || '').match(/(\d+)[-\s]*(?:й|го|ого)?\s*уровн/i); return m ? +m[1] : 0; };
   function featDialog(c, D, pick, skip, onlyCat) {
@@ -403,13 +410,18 @@
       h('div', { class: 'csgrid' }, field('Другие языки (если нет в списке)', textIn(c.story.langs, v => { c.story.langs = v; upd(false); })), field('Другие владения (инструменты и т. п.)', textIn(c.story.tools, v => { c.story.tools = v; upd(false); }))));
   }
   function featsBlock(p, c, D, d) {
-    p.append(h('p', { class: 'mhint' }, c.ed === 24 ? 'Черта Происхождения даётся предысторией. Остальные берутся вместо увеличения характеристик (вкладка «Характеристики») либо добавляются здесь — по виду (Человек) или с позволения Мастера. Если черта даёт +1 к характеристике, впишите его в столбец «Бонусы» на вкладке «Характеристики».' : 'Черты берутся вместо увеличения характеристик (вкладка «Характеристики») или добавляются здесь (например, Человек-вариант). Бонусы к характеристикам впишите на вкладке «Характеристики».'));
+    p.append(h('p', { class: 'mhint' }, c.ed === 24 ? 'Черта Происхождения даётся предысторией. Остальные берутся вместо увеличения характеристик (вкладка «Характеристики») либо добавляются здесь — по виду (Человек) или с позволения Мастера. Если у добавленной здесь черты есть выбор характеристики (+1), выберите её под чертой: прибавка и, например, владение спасброском у «Устойчивого» посчитаются сами. Иначе впишите +1 в столбец «Бонусы».' : 'Черты берутся вместо увеличения характеристик (вкладка «Характеристики») или добавляются здесь (например, Человек-вариант). Если у добавленной здесь черты есть выбор характеристики (+1), выберите её под чертой: прибавка и, например, владение спасброском у «Устойчивого» посчитаются сами. Иначе впишите бонус на вкладке «Характеристики».'));
     const card = (f, tag, extra) => { const dt = h('details', {}, h('summary', {}, f.name_ru || f.name, h('small', {}, ' · ' + tag), extra || null)); let done = false;
       dt.addEventListener('toggle', () => { if (done || !dt.open) return; done = true; const b = blocks(f.blocks || []); dt.append(b); DB().decorate(b, c.ed, null); }); return dt; };
     const list = [];
     if (c.ed === 24 && D.bg && D.bg.feat) { const f = D.feats.find(x => x.name_ru === D.bg.feat.name); list.push(card(f || { name: D.bg.feat.name, blocks: [] }, 'предыстория «' + D.bg.name_ru + '»')); }
     d.feats.filter(x => !x.extra).forEach(x => { const f = D.feats.find(y => y.slug === x.slug); if (f) list.push(card(f, x.lvl + ' ур., вместо увеличения характеристик')); });
-    c.feats.forEach((x, i) => { const f = D.feats.find(y => y.slug === x.slug); if (f) list.push(card(f, 'добавлена вручную', btn('×', ev => { ev.preventDefault(); c.feats.splice(i, 1); upd(); }, 'xx', 'Убрать черту'))); });
+    c.feats.forEach((x, i) => {
+      const f = D.feats.find(y => y.slug === x.slug); if (!f) return;
+      const fa = R.featAbility(f), dt = card(f, 'добавлена вручную', btn('×', ev => { ev.preventDefault(); c.feats.splice(i, 1); upd(); }, 'xx', 'Убрать черту'));
+      // с выбором характеристики +1 и владение спасброском («Устойчивый») считаются сами; не выбирайте её и не вписывайте то же в «Бонусы»
+      list.push(fa ? h('div', { class: 'csfeatpick' }, dt, faPick(fa, x, d)) : dt);
+    });
     p.append(h('h3', { class: 'csh' }, 'Ваши черты (' + list.length + ')'));
     if (!list.length) p.append(h('div', { class: 'none' }, 'Пока нет черт.'));
     list.forEach(x => p.append(x));
@@ -422,7 +434,7 @@
   function skillRows(c, D, d, a) {
     const ci = d.ci, rows = [];
     const sv = d.saveProf.has(a.k);
-    rows.push(h('div', { class: 'skr sv' + (sv ? ' prof' : '') }, h('i', { class: 'skd' + (sv ? ' on' : '') }), h('span', { class: 'skn' }, 'Спасбросок', sv ? h('small', {}, 'класс') : null), h('b', { class: 'skb' }, R.sgn(d.saves[a.k])), h('span', {}), h('span', {})));
+    rows.push(h('div', { class: 'skr sv' + (sv ? ' prof' : '') }, h('i', { class: 'skd' + (sv ? ' on' : '') }), h('span', { class: 'skn' }, 'Спасбросок', sv ? h('small', {}, (d.saveFrom[a.k] || ['класс']).join(', ')) : null), h('b', { class: 'skb' }, R.sgn(d.saves[a.k])), h('span', {}), h('span', {})));
     d.skills.filter(s => s.ab === a.k).forEach(s => {
       const can = ci && ci.pickFrom.includes(s.id), on = (c.skills || []).includes(s.id), bg = d.bgSk.includes(s.id);
       const left = can
@@ -449,7 +461,7 @@
     p.append(h('h3', { class: 'csh' }, 'Ресурсы класса'), h('p', { class: 'mhint' }, 'Значения берутся из таблицы класса и растут с уровнем сами. На печатном листе они выводятся в блоке «Ресурсы».'), t);
   }
   // умения, которые меняют числа листа (скорость, хиты, КД, инициатива, спасброски, навыки, характеристики): включены сами, любое можно отключить
-  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки' };
+  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', saveProf: 'владение спасбросками', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки' };
   function effectsBlock(p, c, D, d) {
     if (!d.fx.length) return;
     const n = d.fx.filter(e => !e.off).length;
