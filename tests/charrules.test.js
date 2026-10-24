@@ -322,7 +322,8 @@ test('каждое правило находит своё умение в дан
     '24 | init | ft:Бдительный#init', '14 | init | ft:Бдительный#init', '14 | init | sp:init:6', '24 | init | sub:Угроза из засады#init',
     '24 | save | cls:Аура защиты#save', '14 | save | cls:Аура защиты#save', '14 | passive | ft:Внимательный#passive',
     '24 | acAlt | cls:Защита без доспехов#acAlt', '14 | acAlt | cls:Защита без доспехов#acAlt', '14 | acAlt | sub:Драконья устойчивость#acAlt', '24 | acAlt | sub:Драконья устойчивость#acAlt',
-    '24 | acCap | ft:Мастер средних доспехов#acCap', '14 | acCap | ft:Мастер средних доспехов#acCap'
+    '24 | acCap | ft:Мастер средних доспехов#acCap', '14 | acCap | ft:Мастер средних доспехов#acCap',
+    '24 | saveProf | cls:Дисциплина сохранения#saveProf', '14 | saveProf | cls:Алмазная душа#saveProf', '24 | saveProf | cls:Скользкий ум#saveProf', '14 | saveProf | cls:Скользкий ум#saveProf'
   ];
   const lacking = must.filter(m => !snap.split('\n').some(l => l.startsWith(m + ' | ')));
   assert.deepEqual(lacking, []);
@@ -376,4 +377,55 @@ test('особенности вида 2014: справочные абзацы (�
   const dw = DATA[14].species.find(x => x.slug === 'dwarf'), names = R.speciesTraits(dw, { opt: 'Горный', lvl: 1 }).map(t => t.name);
   ['Тёмное зрение', 'Дварфийская устойчивость', 'Знание камня', 'Владение доспехами дварфов'].forEach(n => assert.ok(names.includes(n), 'пропала особенность «' + n + '»'));
   assert.ok(!names.includes('Об эльфах') && !names.includes('Мужские имена'));
+});
+
+/* ---------- владение спасбросками от умений и черт ---------- */
+test('монах: «Алмазная душа» (2014) / «Дисциплина сохранения» (2024) — владение всеми спасбросками с 14 уровня', () => {
+  for (const ed of [14, 24]) {
+    const o = { cls: 'monk', ab: { dex: 14, wis: 14, str: 10 } };
+    let d = run(ed, Object.assign({ lvl: 13 }, o)); assert.equal(d.saveProf.size, 2, `ед.${ed} ур.13`);
+    d = run(ed, Object.assign({ lvl: 14 }, o)); assert.equal(d.saveProf.size, 6, `ед.${ed} ур.14`);
+    assert.equal(d.saves.wis, 2 + 5, `ед.${ed}: Мудрость +2 и бонус мастерства +5`);     // у монаха 14 уровня БМ +5
+    assert.deepEqual(d.saveFrom.int, [fxOf(d, 'saveProf')[0].why]);                      // откуда владение видно в листе
+    assert.deepEqual(d.saveFrom.str, ['класс']);
+  }
+});
+test('плут: «Скользкий ум» — Мудрость (2014) и Мудрость с Харизмой (2024) с 15 уровня', () => {
+  const o = { cls: 'rogue', ab: { wis: 12, cha: 14 } };
+  for (const ed of [14, 24]) assert.ok(!run(ed, Object.assign({ lvl: 14 }, o)).saveProf.has('wis'), `ед.${ed} ур.14`);
+  let d = run(14, Object.assign({ lvl: 15 }, o)); assert.ok(d.saveProf.has('wis')); assert.ok(!d.saveProf.has('cha')); assert.equal(d.saves.wis, 1 + 5);
+  d = run(24, Object.assign({ lvl: 15 }, o)); assert.ok(d.saveProf.has('wis') && d.saveProf.has('cha')); assert.equal(d.saves.cha, 2 + 5);
+});
+test('владение спасбросками от подклассов; «Камень преобразования» и «если вы уже владеете» не считаются', () => {
+  assert.ok(run(24, { cls: 'ranger', sub: 'Сумрачный охотник', lvl: 7 }).saveProf.has('wis') === true);
+  assert.ok(run(24, { cls: 'ranger', sub: 'Сумрачный охотник', lvl: 6 }).saveProf.size === 2);
+  assert.ok(run(24, { cls: 'cleric', sub: 'Домен знаний', lvl: 6 }).saveProf.has('int'));
+  assert.ok(run(14, { cls: 'fighter', sub: 'Самурай', lvl: 7 }).saveProf.has('wis'));
+  assert.equal(run(14, { cls: 'fighter', sub: 'Самурай', lvl: 7 }).saveProf.size, 3);       // «Если у вас уже есть …» — не вторая прибавка
+  for (const [ed, sub] of [[14, 'Школа Преобразования'], [24, 'Преобразователь']]) assert.equal(run(ed, { cls: 'wizard', sub, lvl: 14 }).saveProf.size, 2, `камень не даёт владения магу (ед.${ed})`);
+});
+test('черта «Устойчивый»: +1 и владение спасброском выбранной характеристики (2014 и 2024)', () => {
+  for (const ed of [14, 24]) {
+    const f = DATA[ed].feats.find(x => x.slug === 'resilient'), fa = R.featAbility(f);
+    assert.ok(fa && fa.save && fa.opts.length === 6 && fa.cap === 20, `разбор черты (ед.${ed})`);
+    const base = run(ed, { cls: 'fighter', lvl: 4, ab: { dex: 13 } });
+    assert.ok(!base.saveProf.has('dex'));
+    // выбрана при увеличении характеристик на 4 уровне
+    let d = run(ed, { cls: 'fighter', lvl: 4, ab: { dex: 13 }, asi: { 4: { m: 'feat', feat: 'resilient', fa: 'dex' } } });
+    assert.equal(d.score.dex, 14); assert.ok(d.saveProf.has('dex')); assert.deepEqual(d.saveFrom.dex, ['Устойчивый']); assert.equal(d.saves.dex, 2 + 2);
+    // без выбора характеристики ничего не меняется
+    d = run(ed, { cls: 'fighter', lvl: 4, ab: { dex: 13 }, asi: { 4: { m: 'feat', feat: 'resilient', fa: '' } } });
+    assert.equal(d.score.dex, 13); assert.ok(!d.saveProf.has('dex'));
+    // добавлена вручную (вкладка «Основа»)
+    d = run(ed, { cls: 'fighter', lvl: 1, ab: { wis: 14 }, set: { feats: [{ slug: 'resilient', fa: 'wis' }] } });
+    assert.equal(d.score.wis, 15); assert.ok(d.saveProf.has('wis'));
+    // эффект можно отключить: прибавка остаётся, владение пропадает
+    const id = fxOf(d, 'saveProf')[0].id;
+    d = run(ed, { cls: 'fighter', lvl: 1, ab: { wis: 14 }, set: { feats: [{ slug: 'resilient', fa: 'wis' }], fxOff: { [id]: 1 } } });
+    assert.equal(d.score.wis, 15); assert.ok(!d.saveProf.has('wis'));
+    // черты без выбора характеристики по-прежнему не затронуты
+    assert.equal(run(ed, { cls: 'fighter', lvl: 1, feats: ['alert'] }).saveProf.size, 2);
+  }
+  assert.ok(R.featAbility(DATA[24].feats.find(x => x.slug === 'resilient')).notProf);
+  assert.ok(!R.featAbility(DATA[14].feats.find(x => x.slug === 'resilient')).notProf);
 });

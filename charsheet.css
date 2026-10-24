@@ -403,3 +403,4 @@ body.cs #cs{display:block;min-height:100%}
  body.cs #cs{display:block;background:#fff;min-height:0}
  #cs .csbody{display:block;max-width:none;padding:0}.cspane{border:0;padding:0;background:#fff;box-shadow:none;border-radius:0}
 }
+.csfeatpick{margin:0 0 6px}.csfeatpick .csfa{display:block;margin:2px 0 0 14px;font-size:.92em}
