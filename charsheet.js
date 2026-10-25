@@ -32,8 +32,8 @@
     const g = async (k, e) => { try { return await db.load(k, e || ed); } catch (x) { return []; } };
     if (!dataCache[key]) {
       const [classes, species, bgs, feats, spells, items] = await Promise.all([g('class'), g(ed === 14 ? 'race' : 'species'), g('backgrounds'), g('feats'), g('spells'), g('items')]);
-      const gear = await g('equipment', 24);
-      dataCache[key] = { classes: classes.filter(x => !/sidekick/.test(x.slug)), species, bgs, feats, spells, gear, items, itemsBySlug: Object.fromEntries(items.map(x => [x.slug, x])), gearBySlug: Object.fromEntries(gear.map(x => [x.slug, x])) };
+      const gear = await g('equipment', ed), gear24 = ed === 24 ? gear : await g('equipment', 24);
+      dataCache[key] = { classes: classes.filter(x => !/sidekick/.test(x.slug)), species, bgs, feats, spells, gear, items, itemsBySlug: Object.fromEntries(items.map(x => [x.slug, x])), gearBySlug: Object.assign(Object.fromEntries(gear24.map(x => [x.slug, x])), Object.fromEntries(gear.map(x => [x.slug, x]))) };
     }
     const D = dataCache[key];
     const cls = D.classes.find(x => x.slug === c.cls) || null;
@@ -104,7 +104,7 @@
     body.textContent = '';
     if (!c) { body.append(welcome()); return; }
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
-    c.feats = c.feats || []; c.kit = c.kit || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
+    c.feats = c.feats || []; c.picks = c.picks || {}; ['mastery', 'metamagic', 'invocations'].forEach(k => { if (!Array.isArray(c.picks[k])) c.picks[k] = []; }); c.picks.style = c.picks.style || ''; c.kit = c.kit || {}; c.kitSel = c.kitSel || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
     if (seq !== renderSeq) return;   // пока грузились данные, началась более свежая отрисовка: иначе на экране окажется две сводки подряд
     renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
@@ -183,6 +183,7 @@
       if (ci && n > allow) t.push(['abil', 'Навыков больше, чем положено (' + n + ' из ' + allow + (d.extraN ? ': класс ' + ci.pickN + ' + черты и вид ' + d.extraN : '') + ')']);
     }
     if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['abil', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
+    (d.picks || []).forEach(pk => { if (pk.kind === 'text') return; if (pk.chosen.length < pk.n) t.push(['skills', pk.label + ': выбрано ' + pk.chosen.length + ' из ' + pk.n]); });
     if (!c.sp) t.push(['base', 'Выберите вид']);
     if (!c.bg) t.push(['base', 'Выберите предысторию']);
     if (c.ed === 24 && D.bg && c.bg2.m === '21' && (!c.bg2.a || !c.bg2.b || c.bg2.a === c.bg2.b)) t.push(['abil', 'Распределите бонусы предыстории (+2 и +1)']);
@@ -470,7 +471,7 @@
     p.append(h('h3', { class: 'csh' }, 'Ресурсы класса'), h('p', { class: 'mhint' }, 'Значения берутся из таблицы класса и растут с уровнем сами. На печатном листе они выводятся в блоке «Ресурсы».'), t);
   }
   // умения, которые меняют числа листа (скорость, хиты, КД, инициатива, спасброски, навыки, характеристики): включены сами, любое можно отключить
-  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', saveProf: 'владение спасбросками', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки' };
+  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', saveProf: 'владение спасбросками', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки', acPlus: 'КД', atkPlus: 'атака', dmgPlus: 'урон' };
   function effectsBlock(p, c, D, d) {
     if (!d.fx.length) return;
     const n = d.fx.filter(e => !e.off).length;
@@ -484,6 +485,7 @@
       h('span', { class: 'fxt' }, e.text, e.cond ? h('small', { class: 'fxc' }, e.on ? e.cond : 'сейчас не действует: ' + e.cond) : null))));
   }
   async function tabSkills(p, c, D, d) {
+    picksBlock(p, c, D, d);
     resourcesBlock(p, c, D, d);
     effectsBlock(p, c, D, d);
     // умения
@@ -496,6 +498,40 @@
       grp[g].forEach(f => { const dt = h('details', {}, h('summary', {}, f.name, f.level ? h('small', {}, ' · ' + f.level + ' ур.') : null)); let done = false; dt.addEventListener('toggle', () => { if (done || !dt.open) return; done = true; const b = f.blocks ? blocks(f.blocks) : h('div', { class: 'csb' }, f.text || ''); dt.append(b); DB().decorate(b, c.ed, null); }); p.append(dt); });
     });
   }
+  // выбранные боевой стиль, мастерство оружия, метамагия и воззвания — записи для списка умений и листа
+  function pickEntries(c, D, d) {
+    const out = [], src = 'Выбор класса';
+    (d.picks || []).forEach(pk => {
+      if (pk.kind === 'style' && pk.chosen[0]) { const o = pk.options.find(x => x.slug === pk.chosen[0]); if (o) out.push({ name: 'Боевой стиль: ' + o.name, text: o.text, src }); }
+      else if (pk.kind === 'weapons') pk.chosen.forEach(sl => { const g = pk.options.find(x => x.slug === sl), m = g && R.masteryOf(g); if (g) out.push({ name: 'Мастерство: ' + g.name_ru + (m ? ' — ' + m.name : ''), text: m ? m.text.replace(/\*+/g, '') : '', src }); });
+      else if (pk.kind === 'text') pk.chosen.filter(Boolean).forEach(t => out.push({ name: pk.label + ': ' + t, text: '', src }));
+    });
+    return out;
+  }
+  function picksBlock(p, c, D, d) {
+    const pks = d.picks || []; if (!pks.length) return;
+    p.append(h('h3', { class: 'csh' }, 'Выборы класса'));
+    pks.forEach(pk => {
+      const box = h('div', { class: 'cspick' }), cnt = pk.chosen.filter(Boolean).length;
+      box.append(h('h4', { class: 'csh2' }, pk.label, h('small', {}, ' · выбрано ' + cnt + ' из ' + pk.n)));
+      if (pk.kind === 'style') {
+        box.append(field('Вариант', sel(pk.options.map(o => [o.slug, o.name]), c.picks.style, v => { c.picks.style = v; upd(); }, '— выберите —')));
+        const o = pk.options.find(x => x.slug === pk.chosen[0]); if (o) box.append(h('p', { class: 'mhint' }, o.text, d.styleF ? ' Эффекты (КД, атака, урон) учтены автоматически.' : ''));
+      } else if (pk.kind === 'weapons') {
+        const row = h('div', { class: 'csgrid' });
+        for (let i = 0; i < pk.n; i++) {
+          const cur = pk.chosen[i] || '', taken = new Set(pk.chosen.filter((x, k) => k !== i));
+          row.append(field('Оружие ' + (i + 1), sel(pk.options.filter(g => !taken.has(g.slug)).map(g => { const m = R.masteryOf(g); return [g.slug, g.name_ru + (m ? ' — ' + m.name : '')]; }), cur, v => { const a = pk.chosen.slice(); a[i] = v; c.picks.mastery = a.filter(Boolean); upd(); }, '— выберите —')));
+        }
+        box.append(row, h('p', { class: 'mhint' }, 'Выбранное оружие можно менять после каждого Долгого отдыха. Свойство мастерства применяется при атаке этим оружием.'));
+      } else {
+        const list = c.picks[pk.key] = c.picks[pk.key] || [], row = h('div', { class: 'csgrid' });
+        for (let i = 0; i < pk.n; i++) row.append(field(pk.label + ' ' + (i + 1), h('input', { type: 'text', value: list[i] || '', placeholder: 'название', onchange: e => { list[i] = e.target.value.trim(); c.picks[pk.key] = list.slice(0, pk.n); upd(); } })));
+        box.append(row, h('p', { class: 'mhint' }, 'Перечня вариантов в справочнике нет — впишите названия сами. Требования и замену при получении уровня проверяйте по книге класса.'));
+      }
+      p.append(box);
+    });
+  }
   function featureList(c, D, d) {
     const out = [];
     if (D.cls) (D.cls.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Класс: ' + D.cls.name_ru }));
@@ -503,6 +539,7 @@
     if (D.sp) R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl }).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: 'Вид: ' + D.sp.name_ru }));
     if (D.bg && D.bg.feat) { const f = D.feats.find(x => x.name_ru === D.bg.feat.name); out.push({ name: D.bg.feat.name, blocks: f ? f.blocks : null, text: f ? '' : 'Черта предыстории', src: 'Предыстория: ' + D.bg.name_ru }); }
     d.feats.forEach(x => { const f = D.feats.find(y => y.slug === x.slug); if (f) out.push({ name: f.name_ru, level: x.lvl, blocks: f.blocks, src: 'Черты' }); });
+    pickEntries(c, D, d).forEach(e => out.push(e));
     return out;
   }
 
@@ -595,41 +632,51 @@
   function weaponInfo(g) {
     const p = (g.props || []).find(x => /урон/i.test(x.label)); if (!p || !/оружие/i.test(g.line || '')) return null;
     const m = String(p.value).match(/^([\dкКdD+\s]+)[,\s]*(.*)$/); if (!m) return null;
-    return { dice: m[1].replace(/\s+/g, ''), type: (m[2] || '').trim(), ranged: /дальнобой/i.test(g.line), simple: /простое/i.test(g.line), martial: /воинское/i.test(g.line), fin: ['dagger', 'rapier', 'scimitar', 'shortsword', 'whip', 'dart'].includes(g.slug) };
+    return { dice: m[1].replace(/\s+/g, ''), type: (m[2] || '').trim(), ranged: /дальнобой/i.test(g.line), simple: /простое/i.test(g.line), martial: /воинское/i.test(g.line), fin: ['dagger', 'rapier', 'scimitar', 'shortsword', 'whip', 'dart'].includes(g.slug) || (g.props || []).some(x => /свойств/i.test(x.label) && /фехтовальн/i.test(x.value)) };
   }
   // бонус атаки и модификатор урона: один расчёт для вкладки «Снаряжение» и печатного листа
   function attackOf(i, g, wi, d) {
     const auto = wi.ranged ? 'dex' : (wi.fin ? (d.mod.dex > d.mod.str ? 'dex' : 'str') : 'str'), ab = i.ab || auto;
     const prof = i.prof != null ? !!i.prof : R.weaponProf(d.ci ? d.ci.weapons : '', g);
-    return { ab, prof, atk: d.mod[ab] + (prof ? d.pb : 0), dm: d.mod[ab] };
+    const fx = (d.fx || []).filter(e => e.on && !e.off), two = R.weaponProps(g).includes('двуручное');
+    const aPlus = fx.filter(e => e.k === 'atkPlus' && (!e.ranged || wi.ranged)).reduce((q, e) => q + e.v, 0), dPlus = fx.filter(e => e.k === 'dmgPlus' && !wi.ranged && !two).reduce((q, e) => q + e.v, 0);   // Стрельба, Дуэлянт
+    return { ab, prof, atk: d.mod[ab] + (prof ? d.pb : 0) + aPlus, dm: d.mod[ab] + dPlus };
   }
   async function tabGear(p, c, D, d) {
     p.append(h('h3', { class: 'csh' }, 'Монеты'), h('div', { class: 'coins' }, COINS.map(([k, t]) => field(t, numIn(c.coins[k], v => { c.coins[k] = Math.max(0, v); upd(false); }, { min: 0, class: 'num' })))));
     // стартовое снаряжение
     const kits = d.ci ? d.ci.kit : '';
     const opts = parseKit(kits);
-    const bgKit = D.bg && typeof D.bg.equipment === 'string' ? parseKit(D.bg.equipment) : null;
-    if (opts || bgKit || kits) {
-      p.append(h('h3', { class: 'csh' }, 'Стартовое снаряжение'), h('p', { class: 'mhint' }, 'Выберите вариант — предметы и монеты добавятся один раз; другой вариант заменит прежний. Стартовое снаряжение деньги не списывает.'));
+    const bgKit = D.bg && typeof D.bg.equipment === 'string' && c.ed === 24 ? parseKit(D.bg.equipment) : null;
+    const k14 = c.ed === 14 && kits ? R.kitLines14(kits) : null, bg14 = c.ed === 14 && D.bg && typeof D.bg.equipment === 'string' ? R.kitBg14(D.bg.equipment) : null;
+    if (opts || bgKit || kits || bg14) {
+      p.append(h('h3', { class: 'csh' }, 'Стартовое снаряжение'), h('p', { class: 'mhint' }, c.ed === 14
+        ? 'Выберите вариант в каждой строке и нажмите «Добавить» — предметы и монеты добавятся один раз, повторное нажатие заменит прежний набор. Деньги стартовое снаряжение не списывает.'
+        : 'Выберите вариант — предметы и монеты добавятся один раз; другой вариант заменит прежний. Стартовое снаряжение деньги не списывает.'));
       const kitRow = (lbl, os, src) => h('div', { class: 'kit' }, h('b', {}, lbl), os.map(o => btn((c.kit[src] === o.k ? '✓ ' : '') + 'Вариант ' + o.k, () => { if (c.kit[src] === o.k) { root.DM.toast('Этот вариант уже применён'); return; } addKit(c, D, o, src); }, 'dmbtn' + (c.kit[src] === o.k ? ' act' : ''), o.txt)), c.kit[src] ? btn('Убрать комплект', () => { removeKit(c, src); upd(); }, 'dmbtn', 'Удалит предметы и монеты этого комплекта') : null);
       if (opts) p.append(kitRow('Класс: ', opts, 'cls'));
+      else if (k14 && k14.lines.length) p.append(kitBuilder14(c, D, k14));
       else if (kits) p.append(html('<p class="mhint">' + esc(kits).replace(/\n/g, '<br>') + '</p>'));
       if (bgKit) p.append(kitRow('Предыстория: ', bgKit, 'bg'));
+      if (bg14 && (bg14.items.length || Object.keys(bg14.coins).length)) {
+        const on = c.kit.bg === 'all', txt = bg14.items.map(i => (i.n > 1 ? i.n + ' × ' : '') + kitName(i)).concat(Object.keys(bg14.coins).map(k => bg14.coins[k] + ' ' + k.toUpperCase().replace('Z', 'З').replace('S', 'С').replace('M', 'М'))).join(', ');
+        p.append(h('div', { class: 'kit' }, h('b', {}, 'Предыстория: '), btn(on ? '✓ Добавлено' : 'Добавить снаряжение предыстории', () => { if (on) { root.DM.toast('Уже добавлено'); return; } addKitItems(c, D, bg14.items, bg14.coins, 'bg', 'all', 'Снаряжение предыстории добавлено'); }, 'dmbtn' + (on ? ' act' : ''), txt), on ? btn('Убрать комплект', () => { removeKit(c, 'bg'); upd(); }, 'dmbtn') : null), h('p', { class: 'mhint' }, txt + '.'));
+      }
     }
     // инвентарь
     let weight = 0;
     p.append(h('h3', { class: 'csh' }, 'Инвентарь'));
     const t = h('table', { class: 'cstbl inv' }, h('tr', {}, ['Надето', 'Предмет', 'Кол-во', 'Вес', 'Урон / КД', ''].map(x => h('th', {}, x))));
     c.inv.forEach((i, idx) => {
-      const g = invG(D, i), w = g ? (g.weight_lb || 0) * i.q : 0; weight += w;
+      const g = invG(D, i), w = g ? R.unitWeight(g) * i.q : 0; weight += w;
       const wi = g && weaponInfo(g);
       let info = '';
       if (wi) {
         const a = attackOf(i, g, wi, d), dm = a.dm;
         info = 'атака ' + R.sgn(a.atk) + ', урон ' + wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type;
-      } else if (g && i.sec !== 'items' && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + q.value : (g.slug === 'shield' ? '+2 к КД' : ''); }
+      } else if (g && i.sec !== 'items' && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + String(q.value).replace(/^КД\s*/i, '') : (g.slug === 'shield' ? '+2 к КД' : ''); }
       t.append(h('tr', {}, h('td', {}, h('input', { type: 'checkbox', checked: !!i.eq, title: 'Надето / в руках', onchange: e => { i.eq = e.target.checked; upd(); } })),
-        h('td', {}, g ? link(i.sec === 'items' ? c.ed : 24, i.sec === 'items' ? 'items' : 'equipment', g, i.n) : i.n, i.sec === 'items' && g ? h('small', {}, ' ' + [g.rarity, g.attunement ? 'настройка' : ''].filter(Boolean).join(', ')) : null), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
+        h('td', {}, g ? link(c.ed, i.sec === 'items' ? 'items' : 'equipment', g, i.n) : i.n, i.sec === 'items' && g ? h('small', {}, ' ' + [g.rarity, g.attunement ? 'настройка' : ''].filter(Boolean).join(', ')) : null), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
         h('td', {}, btn('×', () => { const back = i.spent || 0; if (back) giveCu(c, back); c.inv.splice(idx, 1); upd(); if (back) root.DM.toast('Возвращено: ' + fmtCu(back)); }, 'xx', i.spent ? 'Убрать предмет: потраченные деньги вернутся' : 'Убрать предмет'))));
     });
     if (!c.inv.length) t.append(h('tr', {}, h('td', { colspan: 6, class: 'none' }, 'Пусто. Добавьте предметы ниже.')));
@@ -646,7 +693,7 @@
     const catalog = (cat === '' ? [...D.gear, ...D.items] : cat === 'magic' ? D.items.filter(g => !UI.gearRar || rarOf(g) === UI.gearRar) : D.gear.filter(g => gearCatOf(g) === cat)).slice().sort((a, b) => (a.section === 'items') - (b.section === 'items') || a.name_ru.localeCompare(b.name_ru, 'ru'));
     const rarChips = cat === 'magic' ? h('div', { class: 'seg csmeth wrapseg' }, RAR.map(([k, t]) => btn(t, () => { UI.gearRar = k; upd(); }, (UI.gearRar || '') === k ? 'act' : ''))) : null;
     const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
-    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : link(24, 'equipment', g)), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
+    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : link(c.ed, 'equipment', g)), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
       cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, key: 'gear:' + cat + (UI.gearRar || ''), q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }
@@ -674,7 +721,8 @@
     const cu = free ? 0 : costCu(g);
     if (cu && !pay(c, cu)) { root.DM.toast('Не хватает денег: нужно ' + fmtCu(cu) + ', у вас ' + fmtCu(wallet(c))); return; }
     const sec = g.section === 'items' ? 'items' : '', ex = c.inv.find(x => x.slug === g.slug && !x.kit && (x.sec || '') === sec);
-    if (ex) { ex.q++; ex.spent = (ex.spent || 0) + cu; } else c.inv.push({ n: g.name_ru, slug: g.slug, sec, q: 1, eq: false, spent: cu });
+    const pk = sec ? 1 : R.packOf(g);   // боеприпасы: цена за пачку, в инвентарь — штуки
+    if (ex) { ex.q += pk; ex.spent = (ex.spent || 0) + cu; } else c.inv.push({ n: g.name_ru, slug: g.slug, sec, q: pk, eq: false, spent: cu });
     upd(); if (cu) root.DM.toast('Куплено: ' + g.name_ru + ' (−' + fmtCu(cu) + ')');
   }
   function removeKit(c, src) {
@@ -712,6 +760,47 @@
     c.kit[src] = o.k; c.kitCoins[src] = got;
     upd(); root.DM.toast('Комплект «' + o.k + '» применён' + (miss.length ? ' (без записи в справочнике: ' + miss.length + ')' : ''));
   }
+
+  // конструктор стартового набора класса 2014: в каждой строке — выбор «а / б / в», а «любое оружие» — список на выбор
+  const kitName = i => i.slot ? (i.slot.kind === 'instrument' ? 'музыкальный инструмент' : (i.slot.cat === 'simple' ? 'простое' : 'воинское') + (i.slot.mode === 'melee' ? ' рукопашное' : i.slot.mode === 'ranged' ? ' дальнобойное' : '') + ' оружие') : i.name;
+  const slotChoices = (D, sl) => D.gear.filter(g => { const l = R.lc(g.line || ''); if (/эпох|современн|футурист|особое/.test(l)) return false;
+    if (sl.kind === 'instrument') return l === 'музыкальный инструмент';
+    return /оружие/.test(l) && l.includes(sl.cat === 'simple' ? 'простое' : 'воинское') && (sl.mode === 'any' || l.includes(sl.mode === 'melee' ? 'рукопашное' : 'дальнобойное')); });
+  const gearByKitName = (D, name) => R.kitGear(D.gear, D.gearBySlug, name);
+  // положить предметы и монеты набора в инвентарь (src: 'cls' | 'bg'); items: [{name, n} | {slot, n, slug}]
+  function addKitItems(c, D, items, coins, src, tag, msg) {
+    removeKit(c, src); const miss = [], got = {};
+    Object.keys(coins || {}).forEach(k => { c.coins[k] += coins[k]; got[k] = (got[k] || 0) + coins[k]; });
+    items.forEach(it => {
+      const g = it.slug ? D.gearBySlug[it.slug] : it.name ? gearByKitName(D, fixLat(it.name)) : null, qty = it.n || 1;
+      if (g) { const ex = c.inv.find(x => x.slug === g.slug && x.kit === src); if (ex) ex.q += qty; else c.inv.push({ n: g.name_ru, slug: g.slug, q: qty, eq: false, kit: src }); }
+      else { miss.push(it); c.inv.push({ n: it.slot ? 'Любое ' + kitName(it) + ' (выберите в каталоге)' : it.name, slug: '', q: qty, eq: false, kit: src }); }
+    });
+    c.kit[src] = tag; c.kitCoins[src] = got;
+    upd(); root.DM.toast((msg || 'Комплект применён') + (miss.length ? ' (без записи в справочнике: ' + miss.length + ')' : ''));
+  }
+  function kitBuilder14(c, D, k) {
+    const sel = c.kitSel.cls = c.kitSel.cls || { pick: [], w: {} }, box = h('div', { class: 'kitb' });
+    const chosen = k.lines.map((ln, li) => ln.opts.length === 1 ? ln.opts[0] : ln.opts[sel.pick[li]] || null), slotKeys = [];
+    k.lines.forEach((ln, li) => {
+      const o = chosen[li], row = h('div', { class: 'kit' });
+      if (ln.opts.length > 1) { row.append(...ln.opts.map((x, oi) => btn((o === x ? '✓ ' : '') + x.k + ') ' + x.txt, () => { sel.pick[li] = oi; upd(false); renderKit(); }, 'dmbtn' + (o === x ? ' act' : ''), x.cond ? 'Если владеете соответствующим доспехом или оружием' : ''))); }
+      else row.append(h('span', { class: 'mhint' }, '• ' + o.txt));
+      if (o) o.items.forEach((it, ii) => { if (!it.slot) return; for (let q = 0; q < (it.n || 1); q++) { const key = li + ':' + ii + ':' + q; slotKeys.push([key, it]);
+        row.append(sel0(slotChoices(D, it.slot), sel.w[key] || '', v => { sel.w[key] = v; upd(false); renderKit(); }, '— ' + kitName(it) + ' —')); } });
+      box.append(row);
+    });
+    function renderKit() { const nb = kitBuilder14(c, D, k); box.replaceWith(nb); }
+    const ready = chosen.every(Boolean), on = c.kit.cls === 'sel';
+    box.append(h('div', { class: 'kit' }, btn(on ? '↻ Заменить набор класса' : 'Добавить набор класса', () => {
+      if (!ready) { root.DM.toast('Выберите вариант в каждой строке'); return; }
+      const items = []; chosen.forEach((o, li) => o.items.forEach((it, ii) => { if (!it.slot) { items.push(it); return; } for (let q = 0; q < (it.n || 1); q++) { const g = sel.w[li + ':' + ii + ':' + q]; items.push(g ? { slug: g, n: 1 } : { slot: it.slot, n: 1 }); } }));
+      addKitItems(c, D, items, {}, 'cls', 'sel', 'Набор класса применён');
+    }, 'dmbtn pri', 'Добавит выбранные предметы в инвентарь'), on ? btn('Убрать комплект', () => { removeKit(c, 'cls'); upd(); }, 'dmbtn') : null,
+      k.gold ? h('span', { class: 'mhint' }, ' Вместо набора и предметов предыстории можно взять ' + k.gold + ' на покупку снаряжения — впишите в «Монеты».') : null));
+    return box;
+  }
+  const sel0 = (opts, val, on, ph) => sel(opts.map(g => [g.slug, g.name_ru]), val, on, ph);
 
   /* ---------- Облики зверей (друид) ---------- */
   async function tabForms(p, c, D, d) {

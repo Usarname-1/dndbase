@@ -536,7 +536,8 @@
   const COND = {
     noArmorShield: { t: 'пока нет доспехов и щита', f: w => !w.anyArmor && !w.anyShield },
     noHeavy: { t: 'пока нет тяжёлого доспеха', f: w => !w.heavy },
-    noArmor: { t: 'пока нет доспехов', f: w => !w.anyArmor }
+    noArmor: { t: 'пока нет доспехов', f: w => !w.anyArmor },
+    armor: { t: 'пока надет доспех', f: w => !!w.anyArmor }
   };
   const srcLabel = f => f.from === 'cls' ? f.label + ', ' + f.level + ' ур.' : f.from === 'sub' ? 'подкласс «' + f.label + '», ' + f.level + ' ур.' : f.from === 'sp' ? 'вид: ' + f.label : 'черта';
   const AC_WORD = /(?:^|[^А-Яа-яЁё])КД(?![А-Яа-яЁё])|Класс\S*\s+(?:Защиты|Доспеха)/;
@@ -594,6 +595,16 @@
     });
     S.ft.forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {              // черты: «Ваша Скорость увеличивается на 10 футов» (Быстрый, Подвижный…)
       const mm = s.match(/^Ваша\s+(?:базовая\s+)?[Сс]корость(?:\s+ходьбы)?\s+увеличивается\s+на\s+(\d+)\s+фут/); if (mm) put(f, 'speed', { v: +mm[1], text: 'Скорость ' + sgn(+mm[1]) + ' фт.' });
+    })));
+
+    /* боевые стили (черта или умение 2014): «бонус +1 к КД» в доспехе, «+2 к броскам атаки дальнобойным оружием», «+2 к урону» одноручным рукопашным */
+    S.ft.forEach(f => f.paras.forEach(p => sentences(p).forEach(s => {
+      let mm = /(?:носите|надет)\S*[^.]*?бонус\s*\+(\d+)\s+к\s+(?:КД|Классу\s+Защиты)/i.exec(s);
+      if (mm) { put(f, 'acPlus', { v: +mm[1], need: 'armor', text: 'КД +' + mm[1] }); return; }
+      mm = /бонус\s*\+(\d+)\s+к\s+броскам?\s+атаки[^.]*дальнобойн/i.exec(s);
+      if (mm) { put(f, 'atkPlus', { v: +mm[1], ranged: true, text: 'Дальнобойные атаки +' + mm[1] }); return; }
+      mm = /(?:в\s+одной\s+руке)[^.]*бонус\s*\+(\d+)\s+к\s+броск\S*\s+урона/i.exec(s);
+      if (mm) put(f, 'dmgPlus', { v: +mm[1], melee: true, oneHand: true, text: 'Урон +' + mm[1] + ' рукопашным оружием в одной руке' });
     })));
 
     /* инициатива: «…вы можете добавить к результату ваш модификатор Мудрости», «бонус +5 к проверкам инициативы», «… бонус мастерства» */
@@ -730,6 +741,8 @@
     // черты (в том числе черта предыстории 2024) и остальные источники умений
     const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
     if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
+    const styleF = styleFeat(c, D, lvl);                                        // боевой стиль: выбранная черта (2024) или умение (2014) действует как черта
+    if (styleF && !featObjs.some(f => f.slug === styleF.slug)) featObjs.push(styleF);
     const S = sourcesOf(c, D, lvl, featObjs), off = c.fxOff || {};
     // умения, повышающие характеристики (Дикий чемпион, Тело и разум): +N с потолком выше обычного
     const abFx = abilityFx(S).map(e => Object.assign(e, { off: !!off[e.id] }));
@@ -773,7 +786,7 @@
     // КД: доспех из справочника, иначе лучший вариант «без доспеха» (10 + Лов, защита без доспехов, драконья чешуя…)
     let ac = 10 + m.dex, acWhy = 'без доспеха';
     if (worn.armor) {
-      const p = worn.armor.props.find(x => /класс защиты/i.test(x.label)), base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост/i.test(p.value), cap0 = (String(p.value).match(/не более\s*(\d)/) || [])[1];
+      const p = worn.armor.props.find(x => /класс защиты/i.test(x.label)), base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост|(?:^|[^а-яё])лов(?![а-яё])/i.test(p.value), cap0 = (String(p.value).match(/(?:не более|макс\.?)\s*(\d)/i) || [])[1];
       let cap = cap0 ? +cap0 : null; if (cap === 2 && act('acCap').length) cap = Math.max(cap, ...act('acCap').map(e => e.v));   // «Мастер средних доспехов»: +3 вместо +2
       ac = base + (dexOk ? (cap != null ? Math.min(m.dex, cap) : m.dex) : 0); acWhy = worn.armor.name_ru;
     } else if (worn.anyArmor) acWhy = 'магический доспех: впишите КД вручную';
@@ -783,6 +796,7 @@
       else { const blocked = alts.find(e => !e.on && e.v > ac); if (blocked) acWhy = 'без доспеха (' + blocked.label + ' не действует со щитом)'; }   // формула сильнее, но со щитом не работает
     }
     if (worn.shield) { ac += 2; acWhy += ' + щит'; }
+    act('acPlus').forEach(e => { ac += e.v; acWhy += ' + ' + e.why; });
     if (c.acBonus) ac += c.acBonus;
     if (c.acMode === 'manual' && c.acManual) { ac = c.acManual; acWhy = 'вручную'; }
 
@@ -837,7 +851,7 @@
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
       speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
-      sp, feats, ws, fx, worn, res, raceAsi: c.ed === 14 ? speciesAsi(D.sp, c.spOpt) : null, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
+      sp, feats, ws, fx, worn, res, picks: classPicks(c, D, lvl, lr, ci), styleF, raceAsi: c.ed === 14 ? speciesAsi(D.sp, c.spOpt) : null, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
     };
   }
 
@@ -883,9 +897,119 @@
       abm: 'std', ab: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }, bg2: { m: '21', a: '', b: '' }, bonus: {}, asi: {},
       skills: [], skillsExtra: [], exp: [], hpMode: 'avg', hpManual: 0, hpBonus: 0, hpCur: null, hpTemp: 0, acMode: 'auto', acManual: 0, acBonus: 0,
       speed: '', fxOff: {}, spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
-      story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
+      story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], picks: { style: '', mastery: [], metamagic: [], invocations: [] }, kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi };
+  /* ---------- выборы класса: боевой стиль, оружейное мастерство, метамагия, воззвания ---------- */
+  const STYLE_LVL = { fighter: 1, paladin: 2, ranger: 2 };
+  // боевые стили 2014 (в данных списка нет): PHB
+  const STYLES14 = [
+    { slug: 'archery', name: 'Стрельба', cls: ['fighter', 'ranger'], text: 'Вы получаете бонус +2 к броскам атаки дальнобойным оружием.' },
+    { slug: 'defense', name: 'Оборона', cls: ['fighter', 'paladin', 'ranger'], text: 'Пока на вас надет доспех, вы получаете бонус +1 к КД.' },
+    { slug: 'dueling', name: 'Дуэли', cls: ['fighter', 'paladin', 'ranger'], text: 'Пока вы держите рукопашное оружие в одной руке и не используете другое оружие, вы получаете бонус +2 к броскам урона этим оружием.' },
+    { slug: 'great-weapon', name: 'Сражение большим оружием', cls: ['fighter', 'paladin'], text: 'Если при броске урона оружия, которым вы атакуете двумя руками, на кости выпало 1 или 2, вы можете перебросить эту кость и должны использовать новый результат. Оружие должно иметь свойство «двуручное» или «универсальное».' },
+    { slug: 'protection', name: 'Защита', cls: ['fighter', 'paladin'], text: 'Когда существо, которое вы видите, атакует не вас, а другую цель в пределах 5 футов от вас, вы можете реакцией наложить помеху на его бросок атаки. Вы должны использовать щит.' },
+    { slug: 'two-weapon', name: 'Сражение двумя оружиями', cls: ['fighter', 'ranger'], text: 'Когда вы сражаетесь двумя оружиями, вы можете добавить модификатор характеристики к урону второй атаки.' }
+  ];
+  const isStyleFeat = f => /боевого\s+стиля/i.test((f && f.line) || '');
+  // варианты боевого стиля для класса: [{ slug, name, text }]
+  function styleOptions(c, D) {
+    const cs = D.cls && D.cls.slug; if (!cs || !STYLE_LVL[cs]) return [];
+    if (c.ed === 14) return STYLES14.filter(x => x.cls.includes(cs));
+    return (D.feats || []).filter(isStyleFeat).map(f => ({ slug: f.slug, name: f.name_ru, text: flatText(f.blocks).join(' ') }));
+  }
+  function styleFeat(c, D, lvl) {
+    const pk = c.picks && c.picks.style, cs = D.cls && D.cls.slug; if (!pk || !cs || !STYLE_LVL[cs] || lvl < STYLE_LVL[cs]) return null;
+    if (c.ed === 14) { const x = STYLES14.find(y => y.slug === pk && y.cls.includes(cs)); return x ? { slug: 'style14-' + x.slug, name_ru: 'Боевой стиль: ' + x.name, blocks: [{ type: 'paragraph', text: x.text }] } : null; }
+    return (D.feats || []).find(f => f.slug === pk && isStyleFeat(f)) || null;
+  }
+  // мастерство оружия 2024 записано в самом оружии: «**Мастерство: Ослабляющее.** Если вы попадаете…»
+  function masteryOf(g) {
+    for (const b of (g && g.blocks) || []) { const m = String(b.text || '').match(/^\*\*Мастерство:\s*([^.*]+?)\.?\*\*\s*(.*)$/s); if (m) return { name: m[1].trim(), text: m[2].trim() }; }
+    return null;
+  }
+  const MASTERY_CLS = ['barbarian', 'fighter', 'paladin', 'ranger', 'rogue'];
+  function masteryCount(cls, lr) {
+    const key = lr && Object.keys(lr.extra).find(k => /оружейное мастерство/i.test(k)); if (key) return intOf(lr.extra[key]);
+    const f = ((cls && cls.features) || []).find(x => /^оружейное мастерство/i.test(x.name)), t = f ? lc(paragraphsOf(f.blocks).join(' ')) : '', m = t.match(/(двух|трёх|трех|четыр\S+)\s+вид/);
+    return m ? (NUMW[m[1]] || (/тр/.test(m[1]) ? 3 : /четыр/.test(m[1]) ? 4 : 2)) : 0;
+  }
+  function masteryOptions(cls, ci, gear) {
+    return (gear || []).filter(g => { const l = lc(g.line || ''); if (!/оружие/.test(l) || /боеприпас|особое|эпох|современн|футурист/.test(l) || !masteryOf(g)) return false;
+      if (cls.slug === 'barbarian') return /рукопашн/.test(l);
+      if (cls.slug === 'fighter') return true;
+      return !!(ci && weaponProf(ci.weapons, g)); });
+  }
+  // что класс даёт выбрать: [{ key, label, n, kind: 'style'|'weapons'|'text', options, chosen }]
+  function classPicks(c, D, lvl, lr, ci) {
+    const cls = D.cls; if (!cls) return [];
+    const pk = c.picks || {}, out = [], cs = cls.slug;
+    if (STYLE_LVL[cs] && lvl >= STYLE_LVL[cs]) { const opts = styleOptions(c, D); out.push({ key: 'style', label: 'Боевой стиль', n: 1, kind: 'style', options: opts, chosen: opts.some(x => x.slug === pk.style) ? [pk.style] : [] }); }
+    if (c.ed === 24 && MASTERY_CLS.includes(cs)) {
+      const n = masteryCount(cls, lr), opts = masteryOptions(cls, ci, D.gear), ok = new Set(opts.map(g => g.slug));
+      if (n) out.push({ key: 'mastery', label: 'Оружейное мастерство', n, kind: 'weapons', options: opts, chosen: (pk.mastery || []).filter(x => ok.has(x)).slice(0, n) });
+    }
+    if (cs === 'sorcerer') {
+      const from = c.ed === 14 ? 3 : 2, step = c.ed === 14 ? 1 : 2, n = lvl < from ? 0 : 2 + (lvl >= 10 ? step : 0) + (lvl >= 17 ? step : 0);
+      if (n) out.push({ key: 'metamagic', label: 'Метамагия', n, kind: 'text', chosen: (pk.metamagic || []).slice(0, n) });
+    }
+    if (cs === 'warlock') {
+      const key = lr && Object.keys(lr.extra).find(k => /воззван/i.test(k)), n = key ? intOf(lr.extra[key]) : 0;
+      if (n) out.push({ key: 'invocations', label: 'Таинственные воззвания', n, kind: 'text', chosen: (pk.invocations || []).slice(0, n) });
+    }
+    return out;
+  }
+
+  /* ---------- стартовое снаряжение 2014 ---------- */
+  // Класс 2014: «• а) секира или б) любое воинское рукопашное оружие» и «• Набор путешественника и четыре метательных копья».
+  // Строка = выбор из вариантов (а, б, в) либо обязательная часть. Предмет — {name, n} или «любое оружие» {slot:{kind,cat,mode}, n}.
+  const KIT_NUM = { один: 1, одна: 1, одно: 1, два: 2, две: 2, три: 3, четыре: 4, пять: 5, шесть: 6, семь: 7, восемь: 8, десять: 10 };
+  const COIN_RE = /(?:(?:поясной\s+)?(?:кошел\S+|кошё\S+|мешочек|мешок|сумк\S+)\s+с\s+)?(\d+)\s*(зм|см|мм|эм|пм)\.?\s*$/i;
+  const COIN_KEY = { зм: 'zm', см: 'sm', мм: 'mm', эм: 'em', пм: 'pm' };
+  function kitItem(raw) {
+    let t = String(raw).replace(/\*+/g, '').replace(/\(\s*если\s+владеете\s*\)/i, '').replace(/\s+на\s+ваш\s+выбор/i, '').replace(/^[\s.;]+|[\s.;]+$/g, '').trim(); if (!t) return [];
+    const q = t.match(/^колчан\s+с\s+(\d+)\s+стрел/i); if (q) return [{ name: 'Колчан', n: 1 }, { name: 'Стрелы', n: +q[1] }];
+    let n = 1; const m = t.match(/^(\d+|один|одна|одно|два|две|три|четыре|пять|шесть|семь|восемь|десять)\s+(.+)$/i);
+    if (m) { n = /^\d/.test(m[1]) ? +m[1] : KIT_NUM[lc(m[1])]; t = m[2]; }
+    const w = lc(t).match(/^(?:любо[ейе]\s+|одн\S+\s+|один\s+)?(?:другой\s+)?(простое|простых|воинск\S+)\s*(рукопашн\S+|дальнобойн\S+)?\s*оружи\S*$/);
+    if (w) return [{ slot: { kind: 'weapon', cat: /прост/.test(w[1]) ? 'simple' : 'martial', mode: !w[2] ? 'any' : /рукоп/.test(w[2]) ? 'melee' : 'ranged' }, n }];
+    if (/^(?:любой\s+)?(?:другой\s+)?музыкальн\S*\s+инструмент/i.test(t)) return [{ slot: { kind: 'instrument' }, n }];
+    return [{ name: t.charAt(0).toUpperCase() + t.slice(1), n }];
+  }
+  const kitItems = txt => String(txt).split(/,\s*(?![^()]*\))|\s+и\s+/).flatMap(kitItem);
+  const KIT_ALIAS = { 'лёгкий арбалет': 'light-crossbow', 'болтов': 'arbaletnye-bolty', 'болты': 'arbaletnye-bolty', 'деревянный щит': 'shield', 'кожаная броня': 'leather-armor', 'проклёпанная кожа': 'studded-leather-armor', 'стрел': 'arrows', 'стрелы': 'arrows', 'дротиков': 'dart', 'метательных копья': 'javelin', 'метательных копий': 'javelin', 'ручных топора': 'handaxe', 'кинжала': 'dagger', 'коротких меча': 'shortsword' };
+  const KIT_ALIAS_LC = Object.fromEntries(Object.keys(KIT_ALIAS).map(k => [lc(k), KIT_ALIAS[k]]));
+  // предмет из текста набора → запись справочника: точное имя, псевдоним, затем совпадение по основам слов (неоднозначное не берём)
+  function kitGear(gear, bySlug, name) {
+    const n = lc(name), exact = gear.find(x => lc(x.name_ru) === n); if (exact) return exact;
+    const a = KIT_ALIAS_LC[n]; if (a && bySlug[a]) return bySlug[a];
+    const key = wstems(name), hit = gear.filter(x => wstems(x.name_ru) === key);
+    return hit.length === 1 ? hit[0] : null;
+  }
+  // боеприпасы продаются пачкой: «1 зм, 1 фнт., количество 20» — вес и цена относятся ко всей пачке, а в инвентаре считаются штуки
+  const packOf = g => { const p = g && (g.props || []).find(x => /^количество$/i.test(x.label)), n = p ? intOf(String(p.value).match(/\d+/)) : 0; return /боеприпас/i.test((g && g.line) || '') && n > 1 ? n : 1; };
+  const unitWeight = g => ((g && g.weight_lb) || 0) / packOf(g);
+  function kitLines14(txt) {
+    const lines = [];
+    String(txt || '').split(/\n/).forEach(raw => {
+      const l = raw.trim(); if (!/^[•·\-–]/.test(l)) return;
+      const body = l.replace(/^[•·\-–]\s*/, ''), marks = [...body.matchAll(/(^|[\s,;]+(?:или\s+)?)([а-г])\)\s*/g)];
+      if (!marks.length) { lines.push({ opts: [{ k: '', txt: body, items: kitItems(body), cond: /если\s+владеете/i.test(body) }] }); return; }
+      lines.push({ opts: marks.map((m, i) => { const from = m.index + m[0].length, to = i + 1 < marks.length ? marks[i + 1].index : body.length, tx = body.slice(from, to).replace(/[\s,;]+$/, '').replace(/\s+или$/i, '');
+        return { k: m[2], txt: tx, items: kitItems(tx), cond: /если\s+владеете/i.test(tx) }; }) });
+    });
+    const gold = String(txt || '').match(/начн[её]те\s+игру\s+с\s+([^.]*?зм)/i);
+    return { lines, gold: gold ? gold[1].replace(/\s+/g, ' ') : '' };
+  }
+  // Предыстория 2014: проза «…, комплект обычной одежды, поясной кошель с 10 зм» → монеты + предметы (свободный текст, если нет в справочнике)
+  function kitBg14(txt) {
+    let t = String(txt || '').replace(/\*+/g, '').replace(/[\s.]+$/, ''); const coins = {}, cm = t.match(COIN_RE);
+    if (cm) { coins[COIN_KEY[lc(cm[2])]] = +cm[1]; t = t.slice(0, cm.index).replace(/[\s,;]+(?:и\s*)?$/i, '').replace(/\s+и$/i, ''); }
+    const parts = []; t.split(/,\s*(?![^()]*\))|;\s*/).forEach(x => { if (parts.length && /^(в\s+котор|котор|что(?![а-яё])|чтобы|где(?![а-яё])|когда|как(?![а-яё])|такой|такие|такая|такое|например)/i.test(x.trim())) parts[parts.length - 1] += ', ' + x; else parts.push(x); });
+    const items = parts.flatMap(x => kitItem(x.replace(/^\s*(?:один\s+)?вид\s+/i, '')));
+    return { items, coins };
+  }
+
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight, classPicks, styleOptions, styleFeat, masteryOf, masteryCount, masteryOptions, STYLES14 };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

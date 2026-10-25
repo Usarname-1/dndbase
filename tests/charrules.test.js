@@ -12,7 +12,9 @@ const load = f => JSON.parse(fs.readFileSync(path.join(root, f), 'utf8').normali
 const FILES = { 24: { cls: 'data/class.json', sp: 'data/species.json', bg: 'data/backgrounds.json', ft: 'data/feats.json' }, 14: { cls: 'data14/class.json', sp: 'data14/race.json', bg: 'data14/backgrounds.json', ft: 'data14/feats.json' } };
 const DATA = {};
 for (const ed of [24, 14]) DATA[ed] = { classes: load(FILES[ed].cls).filter(x => !/sidekick/.test(x.slug)), species: load(FILES[ed].sp), bgs: load(FILES[ed].bg), feats: load(FILES[ed].ft) };
-const gear = load('data/equipment.json'), gearBySlug = Object.fromEntries(gear.map(x => [x.slug, x]));
+const GEAR = { 24: load('data/equipment.json'), 14: load('data14/equipment.json') };
+const gear = GEAR[24], gearBySlug = Object.fromEntries(gear.map(x => [x.slug, x]));
+const gearOf = ed => ({ gear: GEAR[ed], gearBySlug: Object.fromEntries(GEAR[ed].map(x => [x.slug, x])) });
 const SPELLS = { 24: load('data/spells.json'), 14: load('data14/spells.json') };
 
 // персонаж + данные для derive(): o = {cls, lvl, sub (часть названия), sp, opt, ab, feats:[slug], inv:[slug снаряжения], asi}
@@ -29,7 +31,7 @@ function mk(ed, o) {
     feats: (o.feats || []).map(slug => ({ slug })), inv: (o.inv || []).map(slug => ({ slug, n: slug, q: 1, eq: true, sec: 'gear' })), fxOff: o.fxOff || {}
   });
   Object.assign(c, o.set || {});
-  return [c, { cls, sub, sp, bg: null, feats: S.feats, spells: SPELLS[ed], gear, gearBySlug, items: [], itemsBySlug: {} }];
+  return [c, { cls, sub, sp, bg: null, feats: S.feats, spells: SPELLS[ed], ...gearOf(ed), items: [], itemsBySlug: {} }];
 }
 const run = (ed, o) => { const [c, D] = mk(ed, o); return R.derive(c, D); };
 const fxOf = (d, k) => d.fx.filter(e => e.k === k);
@@ -600,4 +602,84 @@ test('2014: derive отдаёт бонусы вида и скорость выб
   const d = run(14, { cls: 'fighter', lvl: 1, sp: 'elf', opt: 'Лесной эльф' });
   assert.deepEqual(d.raceAsi.fixed, { dex: 2, wis: 1 }); assert.equal(d.speed, 35);
   assert.equal(run(24, { cls: 'fighter', lvl: 1, sp: 'elf' }).raceAsi, null);
+});
+
+/* ---------- стартовое снаряжение 2014 ---------- */
+const gearBy14 = gearOf(14);
+test('2014: наборы всех классов разбираются по строкам, предметы находятся в справочнике 2014', () => {
+  let lines = 0;
+  for (const cls of DATA[14].classes) {
+    const k = R.kitLines14(R.trait(cls, /снаряжен/i));
+    assert.ok(k.lines.length >= 3, cls.slug); assert.ok(/зм$/.test(k.gold), cls.slug + ' золото: ' + k.gold);
+    k.lines.forEach(l => l.opts.forEach(o => { lines++; assert.ok(o.items.length, cls.slug + ': ' + o.txt);
+      o.items.forEach(it => { if (!it.slot) assert.ok(R.kitGear(gearBy14.gear, gearBy14.gearBySlug, it.name), `${cls.slug}: «${it.name}» нет в справочнике`); }); }));
+  }
+  assert.ok(lines > 50);
+});
+test('2014: строка набора «а) … или б) …» делится на варианты, «любое оружие» — на выбор', () => {
+  const k = R.kitLines14('Текст\n• а) рапира, б) длинный меч или в) любое простое оружие\n• а) воинское оружие и щит или б) два воинских оружия\n• Кожаный доспех, колчан с 20 стрелами и 2 кинжала\n• а) кольчуга (если владеете) или б) любое воинское рукопашное оружие\nЕсли вы откажетесь…, то вы начнёте игру с 5к4 × 10 зм для покупки снаряжения.');
+  assert.equal(k.lines.length, 4); assert.deepEqual(k.lines[0].opts.map(o => o.k), ['а', 'б', 'в']);
+  assert.deepEqual(k.lines[0].opts[2].items, [{ slot: { kind: 'weapon', cat: 'simple', mode: 'any' }, n: 1 }]);
+  assert.deepEqual(k.lines[1].opts[0].items.map(i => i.slot ? 'слот' : i.name), ['слот', 'Щит']); assert.equal(k.lines[1].opts[1].items[0].n, 2);
+  assert.deepEqual(k.lines[2].opts[0].items.map(i => (i.n || 1) + '×' + i.name), ['1×Кожаный доспех', '1×Колчан', '20×Стрелы', '2×Кинжала']);
+  assert.ok(k.lines[3].opts[0].cond); assert.equal(k.lines[3].opts[1].items[0].slot.mode, 'melee');
+  assert.equal(k.gold, '5к4 × 10 зм');
+});
+test('2014: предыстории — монеты и предметы из прозы', () => {
+  const b = Object.fromEntries(DATA[14].bgs.map(x => [x.slug, x]));
+  let r = R.kitBg14(b.urchin.equipment); assert.deepEqual(r.coins, { zm: 10 });
+  assert.ok(r.items.some(i => /Карта города, в котором вы выросли/.test(i.name)));   // придаточное не оторвано
+  r = R.kitBg14('Лопата, железный горшок и мешочек с 5 зм.'); assert.deepEqual(r.coins, { zm: 5 }); assert.deepEqual(r.items.map(i => i.name), ['Лопата', 'Железный горшок']);
+  assert.deepEqual(R.kitBg14('Нож, 2 факела').items.map(i => i.n), [1, 2]);
+  const withCoins = DATA[14].bgs.filter(x => typeof x.equipment === 'string' && Object.keys(R.kitBg14(x.equipment).coins).length);
+  assert.ok(withCoins.length > 60);
+});
+test('2014: справочник 2014 — КД «ЛОВ», «макс. 2» и фехтовальное оружие считаются', () => {
+  const c = run(14, { cls: 'fighter', lvl: 1, ab: { dex: 16 }, inv: ['studded-leather-armor'] }); assert.equal(c.ac, 15);
+  assert.equal(run(14, { cls: 'fighter', lvl: 1, ab: { dex: 18 }, inv: ['half-plate-armor'] }).ac, 17);   // 15 + не более 2
+  assert.equal(run(14, { cls: 'fighter', lvl: 1, ab: { dex: 10 }, inv: ['chain-mail', 'shield'] }).ac, 18);
+});
+test('боеприпасы: вес и пачка — 20 стрел весят 1 фнт., а не 20', () => {
+  for (const ed of [14, 24]) {
+    const g = gearOf(ed).gear.find(x => /боеприпас/i.test(x.line || '') && /^(Стрелы|Стрела)$/.test(x.name_ru)); assert.ok(g, 'стрелы ' + ed);
+    assert.equal(R.packOf(g), 20); assert.equal(R.unitWeight(g) * 20, 1);
+  }
+  assert.equal(R.packOf(gearOf(14).gear.find(x => x.slug === 'chain-mail')), 1);
+});
+
+/* ---------- выборы класса ---------- */
+const picksOf = (ed, cls, lvl, extra) => run(ed, Object.assign({ cls, lvl }, extra)).picks;
+test('выборы класса: боевой стиль, мастерство оружия, метамагия, воззвания — число по уровням', () => {
+  const n = (ed, cls, lvl, key) => { const p = picksOf(ed, cls, lvl).find(x => x.key === key); return p ? p.n : 0; };
+  assert.equal(n(24, 'fighter', 1, 'style'), 1); assert.equal(n(24, 'paladin', 1, 'style'), 0); assert.equal(n(24, 'paladin', 2, 'style'), 1); assert.equal(n(14, 'ranger', 2, 'style'), 1);
+  assert.deepEqual([1, 4, 10, 17].map(l => n(24, 'fighter', l, 'mastery')), [3, 4, 5, 6]);
+  assert.deepEqual([1, 4, 10].map(l => n(24, 'barbarian', l, 'mastery')), [2, 3, 4]);
+  for (const k of ['paladin', 'ranger', 'rogue']) assert.equal(n(24, k, 1, 'mastery'), 2, k);
+  assert.equal(n(14, 'fighter', 5, 'mastery'), 0);                          // в 2014 мастерства оружия нет
+  assert.deepEqual([1, 2, 10, 17].map(l => n(24, 'sorcerer', l, 'metamagic')), [0, 2, 4, 6]);
+  assert.deepEqual([2, 3, 10, 17].map(l => n(14, 'sorcerer', l, 'metamagic')), [0, 2, 3, 4]);
+  assert.deepEqual([1, 2, 20].map(l => n(24, 'warlock', l, 'invocations')), [1, 3, 10]); assert.deepEqual([1, 2, 20].map(l => n(14, 'warlock', l, 'invocations')), [0, 2, 8]);
+});
+test('оружейное мастерство 2024: свойство берётся из текста оружия, у плута — только оружие, которым он владеет', () => {
+  const m = R.masteryOf(gearBySlug.longsword); assert.equal(m.name, 'Ослабляющее'); assert.ok(/Помех/.test(m.text));
+  const names = (cls, lvl) => picksOf(24, cls, lvl).find(x => x.key === 'mastery').options.map(g => g.slug);
+  const rogue = names('rogue', 1), barb = names('barbarian', 1);
+  assert.ok(rogue.includes('dagger') && rogue.includes('rapier') && !rogue.includes('greatsword'));   // воинское только с Фехтовальным/Лёгким
+  assert.ok(barb.includes('greataxe') && !barb.includes('longbow'));                                  // варвар — только рукопашное
+  assert.ok(names('fighter', 1).includes('longbow'));
+});
+test('боевой стиль: Оборона даёт +1 КД в доспехе (2014 и 2024), выбранный стиль действует как черта', () => {
+  for (const ed of [14, 24]) {
+    const arm = ed === 24 ? 'chain-mail' : 'chain-mail', set = { picks: { style: 'defense', mastery: [], metamagic: [], invocations: [] } };
+    const base = run(ed, { cls: 'fighter', lvl: 1, inv: [arm] }).ac;
+    assert.equal(run(ed, { cls: 'fighter', lvl: 1, inv: [arm], set }).ac, base + 1, 'в доспехе ' + ed);
+    assert.equal(run(ed, { cls: 'fighter', lvl: 1, set }).ac, run(ed, { cls: 'fighter', lvl: 1 }).ac, 'без доспеха ' + ed);
+  }
+  // стиль, недоступный классу, и стиль до нужного уровня не действуют
+  assert.equal(run(14, { cls: 'paladin', lvl: 1, inv: ['chain-mail'], set: { picks: { style: 'defense' } } }).styleF, null);
+  assert.equal(run(14, { cls: 'paladin', lvl: 2, inv: ['chain-mail'], set: { picks: { style: 'archery' } } }).styleF, null);
+  const arch = run(24, { cls: 'fighter', lvl: 1, set: { picks: { style: 'archery' } } });
+  assert.equal(fxOf(arch, 'atkPlus')[0].v, 2); assert.ok(fxOf(arch, 'atkPlus')[0].ranged);
+  assert.equal(fxOf(run(14, { cls: 'ranger', lvl: 2, set: { picks: { style: 'archery' } } }), 'atkPlus')[0].v, 2);
+  assert.equal(fxOf(run(14, { cls: 'fighter', lvl: 1, set: { picks: { style: 'dueling' } } }), 'dmgPlus')[0].v, 2);
 });
