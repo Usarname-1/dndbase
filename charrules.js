@@ -170,6 +170,43 @@
   // школа заклинания не из школ подкласса (2014: у Мистического рыцаря и ловкача, кроме заклинаний 8, 14 и 20 уровней)
   const outOfSchools = (sp, sc) => !!(sp && sp.schools && sc && !sp.schools.some(x => lc(sc).startsWith(x.stem)));
 
+  /* ---------- заклинания, которые выдаёт подкласс ---------- */
+  // В подклассе лежит таблица из двух столбцов «Уровень <класса> | Заклинания» (домены, клятвы, круги, покровители 2024): с указанного уровня
+  // класса эти заклинания у персонажа подготовлены всегда. «Уровень заклинания | Заклинания» (покровители колдуна 2014) — не выдача,
+  // а расширение списка: заклинания можно выбрать как обычные. Названия в тексте разные: «Лечение ран», «лечение ран [cure wounds]»,
+  // две записи у «Возрождения» и «Удержания чудовища» (в справочнике — «Возвращение к жизни», «Удержание монстра»).
+  const SPELL_ALIAS = { 'возрождение': 'raise-dead', 'удержание чудовища': 'hold-monster' };
+  const subSpellCache = new WeakMap();
+  const splitNames = cell => { const out = []; let cur = '', dep = 0; for (const ch of String(cell == null ? '' : cell)) { if (ch === '(' || ch === '[') dep++; if (ch === ')' || ch === ']') dep = Math.max(0, dep - 1); if (ch === ',' && !dep) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map(x => x.trim()).filter(Boolean); };
+  const cleanSpellName = raw => { const t = nfc(raw).replace(/\*+/g, '').trim(), en = (t.match(/\[([^\]]+)\]/) || [])[1] || ''; return { ru: t.replace(/\s*\[.*$/, '').replace(/[.\s]+$/, '').trim(), en: en.replace(/[\]\s]+$/, '').trim() }; };
+  function spellByName(spells, raw) {
+    const n = cleanSpellName(raw), key = lc(n.ru); if (!key || !spells) return null;
+    const alias = SPELL_ALIAS[key];
+    return spells.find(x => lc(x.name_ru) === key) || (alias && spells.find(x => x.slug === alias)) || (n.en && spells.find(x => lc(x.name_en || '') === lc(n.en))) || null;
+  }
+  // { always: [{ lvl (уровень класса), names }], expanded: [{ lvl (круг заклинания), names }] }
+  function subSpellTables(sub) {
+    if (!sub) return { always: [], expanded: [] }; if (subSpellCache.has(sub)) return subSpellCache.get(sub);
+    const out = { always: [], expanded: [] };
+    [...(sub.description || []), ...(sub.features || []).flatMap(f => f.blocks || [])].filter(b => b.type === 'table' && b.rows && b.rows.length > 1 && b.rows[0].length === 2).forEach(b => {
+      const h0 = lc(plain(b.rows[0][0])).trim(), h1 = lc(plain(b.rows[0][1])).trim(); if (h1 !== 'заклинания') return;
+      const kind = /^уровень\s*заклинани/.test(h0) ? 'expanded' : /^уровень\s*[а-я]/.test(h0) ? 'always' : null; if (!kind) return;
+      b.rows.slice(1).forEach(r => { const lvl = parseInt(String(r[0]).replace(/\*/g, ''), 10); if (!isNaN(lvl)) out[kind].push({ lvl, names: splitNames(r[1]) }); });
+    });
+    subSpellCache.set(sub, out); return out;
+  }
+  // что подкласс даёт на этом уровне: autoSpells — всегда подготовлены, extra — slug заклинаний, добавленных в список класса, missing — названия, которых нет в справочнике
+  function subSpells(sub, spells, lvl) {
+    const t = subSpellTables(sub), auto = [], extra = [], missing = [];
+    t.always.filter(r => r.lvl <= lvl).forEach(r => r.names.forEach(raw => {
+      const m = spellByName(spells, raw);
+      if (!m) { const n = cleanSpellName(raw).ru; if (n && !missing.includes(n)) missing.push(n); return; }
+      if (!auto.some(a => a.slug === m.slug)) auto.push({ slug: m.slug, name: m.name_ru, lvl: m.level, from: sub.name, at: r.lvl, auto: true, free: true, prep: true });
+    }));
+    t.expanded.forEach(r => r.names.forEach(raw => { const m = spellByName(spells, raw); if (m && !extra.includes(m.slug)) extra.push(m.slug); }));
+    return { auto, extra, missing };
+  }
+
   /* ---------- владение оружием ---------- */
   // основа слова без падежного окончания: «кинжалы» ≈ «Кинжал», «длинные мечи» ≈ «Длинный меч»
   const ENDS = /(ыми|ими|ого|его|ому|ему|ами|ями|ый|ий|ой|ая|яя|ое|ее|ые|ие|ую|юю|ым|им|ом|ем|ых|их|ов|ей|ам|ям|ах|ях|ою|ею|а|я|у|ю|ы|и|е|о|ь|й)$/;
@@ -688,6 +725,8 @@
       if (prep == null && known == null && c.ed === 14 && D.cls && D.cls.slug === 'paladin') prep = Math.max(1, m[ab] + Math.floor(lvl / 2));
       sp.prepared = prep; sp.known = known;
     }
+    // заклинания подкласса: всегда подготовленные (домены, клятвы…) и расширение списка (покровители колдуна 2014)
+    const subSp = D.sub && D.spells ? subSpells(D.sub, D.spells, lvl) : { auto: [], extra: [], missing: [] };
     // дикий облик (друид)
     const ws = wildShape(D, c, lvl);
     // навыки и владения от черт, вида и подкласса
@@ -720,7 +759,7 @@
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
       speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
-      sp, feats, ws, fx, worn, res
+      sp, feats, ws, fx, worn, res, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
     };
   }
 
@@ -769,6 +808,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

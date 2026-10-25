@@ -142,7 +142,9 @@
   }
 
   /* ============ страницы заклинаний ============ */
-  const spellSorted = (c, D) => c.spells.slice().sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name, 'ru')).map(s => ({ s, m: D.spells.find(x => x.slug === s.slug) }));
+  // выбранные заклинания и те, что выдаёт подкласс (без повторов)
+  const spellsOf = (c, d) => c.spells.concat(((d && d.autoSpells) || []).filter(a => !c.spells.some(x => x.slug === a.slug)));
+  const spellSorted = (c, D, d) => spellsOf(c, d).slice().sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name, 'ru')).map(s => ({ s, m: D.spells.find(x => x.slug === s.slug) }));
   // в таблице — коротко: «Реакция, совершаемая вами, когда…» → «Реакция», «В, С, М (рубин…)» → «В, С, М»; полный текст — на карточке заклинания
   const shortCast = t => { t = String(t || ''); if (t.length <= 26) return t; const k = t.split(/[,;]| когда | в ответ | совершаемая | совершаемое /)[0].trim(); return k.length <= 26 ? k : k.slice(0, 25).replace(/\s+\S*$/, '') + '…'; };
   const shortComp = t => String(t || '').replace(/\s*\(.*$/, '');
@@ -150,7 +152,7 @@
   const slotDia = n => Array.from({ length: n }, () => dia(false));
 
   function spells24(X, c, D, d) {
-    const list = spellSorted(c, D), pages = [], NEXT = 44;
+    const list = spellSorted(c, D, d), pages = [], NEXT = 44;
     // панель ячеек растёт вместе с числом ромбиков (3 в ряд); список на первой странице короче на столько же строк
     const maxN = Math.max(0, ...d.sp.rows.map(r => r.n)), topH = Math.max(34, 25 + Math.ceil(maxN / 3) * 4), FIRST = 34 - Math.ceil((topH - 34) / 5.1);
     const chunks = []; let i = 0;
@@ -181,7 +183,7 @@
 
   function spells14(X, c, D, d) {
     const P = shell('Заклинания', c, 'e14 spg');
-    const by = {}; c.spells.forEach(s => (by[s.lvl] = by[s.lvl] || []).push(s));
+    const by = {}; spellsOf(c, d).forEach(s => (by[s.lvl] = by[s.lvl] || []).push(s));
     Object.values(by).forEach(a => a.sort((x, y) => x.name.localeCompare(y.name, 'ru')));
     const min = [8, 12, 12, 12, 9, 9, 8, 8, 6, 6];
     const lvlBox = l => {
@@ -198,9 +200,9 @@
   }
 
   /* ============ карточки заклинаний (63,5 × 88,9 мм; по 9 на странице) ============ */
-  function buildCards(c, D, host) {
+  function buildCards(c, D, host, d) {
     const DBx = DB(), cards = [];
-    spellSorted(c, D).forEach(({ s, m }) => {
+    spellSorted(c, D, d).forEach(({ s, m }) => {
       if (!m) return;
       const chips = [m.cast_time, m.range, m.duration].filter(Boolean).map(t => el('span', 'schip', t));
       const flags = [m.concentration ? 'К' : '', m.ritual ? 'Р' : ''].filter(Boolean).map(t => el('span', 'schip flag', t));
@@ -224,9 +226,9 @@
     return cards;
   }
   function html(s) { const d = h('div', {}); d.innerHTML = s; return d; }
-  function cardPages(c, D, sh) {
+  function cardPages(c, D, sh, d) {
     const host = el('div', 'cardhost csheet-measure'); sh.append(host);   // измерение: карточки должны быть в документе
-    const cards = buildCards(c, D, host), pages = [];
+    const cards = buildCards(c, D, host, d), pages = [];
     host.remove();
     for (let i = 0; i < cards.length; i += 9) { const P = shell('Заклинания: карточки', c, 'cards'); P.append(el('div', 'cgrid', ...cards.slice(i, i + 9))); pages.push(P); }
     return pages;
@@ -266,7 +268,7 @@
     if (c.featTxt !== 'none') { const fp = featPages(X, c, D, d); if (fp) pages.push(...fp); }
     if (d.sp.has) {
       if (on(c, 'spells')) pages.push(...(e24 ? spells24(X, c, D, d) : spells14(X, c, D, d)));
-      if (c.printSpells && c.spells.length) pages.push(...cardPages(c, D, sh));
+      if (c.printSpells && spellsOf(c, d).length) pages.push(...cardPages(c, D, sh, d));
     }
     if (on(c, 'desc')) pages.push(...descPage(X, c, D, d));
     if (on(c, 'gear')) pages.push(...gearPage(X, c, D, d));
