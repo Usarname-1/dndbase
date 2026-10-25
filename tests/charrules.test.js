@@ -646,3 +646,40 @@ test('боеприпасы: вес и пачка — 20 стрел весят 1 
   }
   assert.equal(R.packOf(gearOf(14).gear.find(x => x.slug === 'chain-mail')), 1);
 });
+
+/* ---------- выборы класса ---------- */
+const picksOf = (ed, cls, lvl, extra) => run(ed, Object.assign({ cls, lvl }, extra)).picks;
+test('выборы класса: боевой стиль, мастерство оружия, метамагия, воззвания — число по уровням', () => {
+  const n = (ed, cls, lvl, key) => { const p = picksOf(ed, cls, lvl).find(x => x.key === key); return p ? p.n : 0; };
+  assert.equal(n(24, 'fighter', 1, 'style'), 1); assert.equal(n(24, 'paladin', 1, 'style'), 0); assert.equal(n(24, 'paladin', 2, 'style'), 1); assert.equal(n(14, 'ranger', 2, 'style'), 1);
+  assert.deepEqual([1, 4, 10, 17].map(l => n(24, 'fighter', l, 'mastery')), [3, 4, 5, 6]);
+  assert.deepEqual([1, 4, 10].map(l => n(24, 'barbarian', l, 'mastery')), [2, 3, 4]);
+  for (const k of ['paladin', 'ranger', 'rogue']) assert.equal(n(24, k, 1, 'mastery'), 2, k);
+  assert.equal(n(14, 'fighter', 5, 'mastery'), 0);                          // в 2014 мастерства оружия нет
+  assert.deepEqual([1, 2, 10, 17].map(l => n(24, 'sorcerer', l, 'metamagic')), [0, 2, 4, 6]);
+  assert.deepEqual([2, 3, 10, 17].map(l => n(14, 'sorcerer', l, 'metamagic')), [0, 2, 3, 4]);
+  assert.deepEqual([1, 2, 20].map(l => n(24, 'warlock', l, 'invocations')), [1, 3, 10]); assert.deepEqual([1, 2, 20].map(l => n(14, 'warlock', l, 'invocations')), [0, 2, 8]);
+});
+test('оружейное мастерство 2024: свойство берётся из текста оружия, у плута — только оружие, которым он владеет', () => {
+  const m = R.masteryOf(gearBySlug.longsword); assert.equal(m.name, 'Ослабляющее'); assert.ok(/Помех/.test(m.text));
+  const names = (cls, lvl) => picksOf(24, cls, lvl).find(x => x.key === 'mastery').options.map(g => g.slug);
+  const rogue = names('rogue', 1), barb = names('barbarian', 1);
+  assert.ok(rogue.includes('dagger') && rogue.includes('rapier') && !rogue.includes('greatsword'));   // воинское только с Фехтовальным/Лёгким
+  assert.ok(barb.includes('greataxe') && !barb.includes('longbow'));                                  // варвар — только рукопашное
+  assert.ok(names('fighter', 1).includes('longbow'));
+});
+test('боевой стиль: Оборона даёт +1 КД в доспехе (2014 и 2024), выбранный стиль действует как черта', () => {
+  for (const ed of [14, 24]) {
+    const arm = ed === 24 ? 'chain-mail' : 'chain-mail', set = { picks: { style: 'defense', mastery: [], metamagic: [], invocations: [] } };
+    const base = run(ed, { cls: 'fighter', lvl: 1, inv: [arm] }).ac;
+    assert.equal(run(ed, { cls: 'fighter', lvl: 1, inv: [arm], set }).ac, base + 1, 'в доспехе ' + ed);
+    assert.equal(run(ed, { cls: 'fighter', lvl: 1, set }).ac, run(ed, { cls: 'fighter', lvl: 1 }).ac, 'без доспеха ' + ed);
+  }
+  // стиль, недоступный классу, и стиль до нужного уровня не действуют
+  assert.equal(run(14, { cls: 'paladin', lvl: 1, inv: ['chain-mail'], set: { picks: { style: 'defense' } } }).styleF, null);
+  assert.equal(run(14, { cls: 'paladin', lvl: 2, inv: ['chain-mail'], set: { picks: { style: 'archery' } } }).styleF, null);
+  const arch = run(24, { cls: 'fighter', lvl: 1, set: { picks: { style: 'archery' } } });
+  assert.equal(fxOf(arch, 'atkPlus')[0].v, 2); assert.ok(fxOf(arch, 'atkPlus')[0].ranged);
+  assert.equal(fxOf(run(14, { cls: 'ranger', lvl: 2, set: { picks: { style: 'archery' } } }), 'atkPlus')[0].v, 2);
+  assert.equal(fxOf(run(14, { cls: 'fighter', lvl: 1, set: { picks: { style: 'dueling' } } }), 'dmgPlus')[0].v, 2);
+});

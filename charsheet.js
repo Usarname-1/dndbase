@@ -104,7 +104,7 @@
     body.textContent = '';
     if (!c) { body.append(welcome()); return; }
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
-    c.feats = c.feats || []; c.kit = c.kit || {}; c.kitSel = c.kitSel || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
+    c.feats = c.feats || []; c.picks = c.picks || {}; ['mastery', 'metamagic', 'invocations'].forEach(k => { if (!Array.isArray(c.picks[k])) c.picks[k] = []; }); c.picks.style = c.picks.style || ''; c.kit = c.kit || {}; c.kitSel = c.kitSel || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
     if (seq !== renderSeq) return;   // пока грузились данные, началась более свежая отрисовка: иначе на экране окажется две сводки подряд
     renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
@@ -183,6 +183,7 @@
       if (ci && n > allow) t.push(['abil', 'Навыков больше, чем положено (' + n + ' из ' + allow + (d.extraN ? ': класс ' + ci.pickN + ' + черты и вид ' + d.extraN : '') + ')']);
     }
     if (d.bgChoice && d.bgChoice.got < d.bgChoice.n) t.push(['abil', 'Навыки предыстории: выберите ' + d.bgChoice.n + ' из ' + bgChoiceNames(d) + ' (кнопка «+» у навыка)']);
+    (d.picks || []).forEach(pk => { if (pk.kind === 'text') return; if (pk.chosen.length < pk.n) t.push(['skills', pk.label + ': выбрано ' + pk.chosen.length + ' из ' + pk.n]); });
     if (!c.sp) t.push(['base', 'Выберите вид']);
     if (!c.bg) t.push(['base', 'Выберите предысторию']);
     if (c.ed === 24 && D.bg && c.bg2.m === '21' && (!c.bg2.a || !c.bg2.b || c.bg2.a === c.bg2.b)) t.push(['abil', 'Распределите бонусы предыстории (+2 и +1)']);
@@ -470,7 +471,7 @@
     p.append(h('h3', { class: 'csh' }, 'Ресурсы класса'), h('p', { class: 'mhint' }, 'Значения берутся из таблицы класса и растут с уровнем сами. На печатном листе они выводятся в блоке «Ресурсы».'), t);
   }
   // умения, которые меняют числа листа (скорость, хиты, КД, инициатива, спасброски, навыки, характеристики): включены сами, любое можно отключить
-  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', saveProf: 'владение спасбросками', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки' };
+  const FX_KIND = { speed: 'скорость', init: 'инициатива', hp: 'хиты', acAlt: 'КД', acCap: 'КД', save: 'спасброски', saveProf: 'владение спасбросками', skill: 'навыки', ability: 'характеристики', passive: 'пассивные проверки', acPlus: 'КД', atkPlus: 'атака', dmgPlus: 'урон' };
   function effectsBlock(p, c, D, d) {
     if (!d.fx.length) return;
     const n = d.fx.filter(e => !e.off).length;
@@ -484,6 +485,7 @@
       h('span', { class: 'fxt' }, e.text, e.cond ? h('small', { class: 'fxc' }, e.on ? e.cond : 'сейчас не действует: ' + e.cond) : null))));
   }
   async function tabSkills(p, c, D, d) {
+    picksBlock(p, c, D, d);
     resourcesBlock(p, c, D, d);
     effectsBlock(p, c, D, d);
     // умения
@@ -496,6 +498,40 @@
       grp[g].forEach(f => { const dt = h('details', {}, h('summary', {}, f.name, f.level ? h('small', {}, ' · ' + f.level + ' ур.') : null)); let done = false; dt.addEventListener('toggle', () => { if (done || !dt.open) return; done = true; const b = f.blocks ? blocks(f.blocks) : h('div', { class: 'csb' }, f.text || ''); dt.append(b); DB().decorate(b, c.ed, null); }); p.append(dt); });
     });
   }
+  // выбранные боевой стиль, мастерство оружия, метамагия и воззвания — записи для списка умений и листа
+  function pickEntries(c, D, d) {
+    const out = [], src = 'Выбор класса';
+    (d.picks || []).forEach(pk => {
+      if (pk.kind === 'style' && pk.chosen[0]) { const o = pk.options.find(x => x.slug === pk.chosen[0]); if (o) out.push({ name: 'Боевой стиль: ' + o.name, text: o.text, src }); }
+      else if (pk.kind === 'weapons') pk.chosen.forEach(sl => { const g = pk.options.find(x => x.slug === sl), m = g && R.masteryOf(g); if (g) out.push({ name: 'Мастерство: ' + g.name_ru + (m ? ' — ' + m.name : ''), text: m ? m.text.replace(/\*+/g, '') : '', src }); });
+      else if (pk.kind === 'text') pk.chosen.filter(Boolean).forEach(t => out.push({ name: pk.label + ': ' + t, text: '', src }));
+    });
+    return out;
+  }
+  function picksBlock(p, c, D, d) {
+    const pks = d.picks || []; if (!pks.length) return;
+    p.append(h('h3', { class: 'csh' }, 'Выборы класса'));
+    pks.forEach(pk => {
+      const box = h('div', { class: 'cspick' }), cnt = pk.chosen.filter(Boolean).length;
+      box.append(h('h4', { class: 'csh2' }, pk.label, h('small', {}, ' · выбрано ' + cnt + ' из ' + pk.n)));
+      if (pk.kind === 'style') {
+        box.append(field('Вариант', sel(pk.options.map(o => [o.slug, o.name]), c.picks.style, v => { c.picks.style = v; upd(); }, '— выберите —')));
+        const o = pk.options.find(x => x.slug === pk.chosen[0]); if (o) box.append(h('p', { class: 'mhint' }, o.text, d.styleF ? ' Эффекты (КД, атака, урон) учтены автоматически.' : ''));
+      } else if (pk.kind === 'weapons') {
+        const row = h('div', { class: 'csgrid' });
+        for (let i = 0; i < pk.n; i++) {
+          const cur = pk.chosen[i] || '', taken = new Set(pk.chosen.filter((x, k) => k !== i));
+          row.append(field('Оружие ' + (i + 1), sel(pk.options.filter(g => !taken.has(g.slug)).map(g => { const m = R.masteryOf(g); return [g.slug, g.name_ru + (m ? ' — ' + m.name : '')]; }), cur, v => { const a = pk.chosen.slice(); a[i] = v; c.picks.mastery = a.filter(Boolean); upd(); }, '— выберите —')));
+        }
+        box.append(row, h('p', { class: 'mhint' }, 'Выбранное оружие можно менять после каждого Долгого отдыха. Свойство мастерства применяется при атаке этим оружием.'));
+      } else {
+        const list = c.picks[pk.key] = c.picks[pk.key] || [], row = h('div', { class: 'csgrid' });
+        for (let i = 0; i < pk.n; i++) row.append(field(pk.label + ' ' + (i + 1), h('input', { type: 'text', value: list[i] || '', placeholder: 'название', onchange: e => { list[i] = e.target.value.trim(); c.picks[pk.key] = list.slice(0, pk.n); upd(); } })));
+        box.append(row, h('p', { class: 'mhint' }, 'Перечня вариантов в справочнике нет — впишите названия сами. Требования и замену при получении уровня проверяйте по книге класса.'));
+      }
+      p.append(box);
+    });
+  }
   function featureList(c, D, d) {
     const out = [];
     if (D.cls) (D.cls.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Класс: ' + D.cls.name_ru }));
@@ -503,6 +539,7 @@
     if (D.sp) R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl }).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: 'Вид: ' + D.sp.name_ru }));
     if (D.bg && D.bg.feat) { const f = D.feats.find(x => x.name_ru === D.bg.feat.name); out.push({ name: D.bg.feat.name, blocks: f ? f.blocks : null, text: f ? '' : 'Черта предыстории', src: 'Предыстория: ' + D.bg.name_ru }); }
     d.feats.forEach(x => { const f = D.feats.find(y => y.slug === x.slug); if (f) out.push({ name: f.name_ru, level: x.lvl, blocks: f.blocks, src: 'Черты' }); });
+    pickEntries(c, D, d).forEach(e => out.push(e));
     return out;
   }
 
@@ -601,7 +638,9 @@
   function attackOf(i, g, wi, d) {
     const auto = wi.ranged ? 'dex' : (wi.fin ? (d.mod.dex > d.mod.str ? 'dex' : 'str') : 'str'), ab = i.ab || auto;
     const prof = i.prof != null ? !!i.prof : R.weaponProf(d.ci ? d.ci.weapons : '', g);
-    return { ab, prof, atk: d.mod[ab] + (prof ? d.pb : 0), dm: d.mod[ab] };
+    const fx = (d.fx || []).filter(e => e.on && !e.off), two = R.weaponProps(g).includes('двуручное');
+    const aPlus = fx.filter(e => e.k === 'atkPlus' && (!e.ranged || wi.ranged)).reduce((q, e) => q + e.v, 0), dPlus = fx.filter(e => e.k === 'dmgPlus' && !wi.ranged && !two).reduce((q, e) => q + e.v, 0);   // Стрельба, Дуэлянт
+    return { ab, prof, atk: d.mod[ab] + (prof ? d.pb : 0) + aPlus, dm: d.mod[ab] + dPlus };
   }
   async function tabGear(p, c, D, d) {
     p.append(h('h3', { class: 'csh' }, 'Монеты'), h('div', { class: 'coins' }, COINS.map(([k, t]) => field(t, numIn(c.coins[k], v => { c.coins[k] = Math.max(0, v); upd(false); }, { min: 0, class: 'num' })))));
