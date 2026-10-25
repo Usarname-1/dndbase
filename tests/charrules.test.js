@@ -13,6 +13,7 @@ const FILES = { 24: { cls: 'data/class.json', sp: 'data/species.json', bg: 'data
 const DATA = {};
 for (const ed of [24, 14]) DATA[ed] = { classes: load(FILES[ed].cls).filter(x => !/sidekick/.test(x.slug)), species: load(FILES[ed].sp), bgs: load(FILES[ed].bg), feats: load(FILES[ed].ft) };
 const gear = load('data/equipment.json'), gearBySlug = Object.fromEntries(gear.map(x => [x.slug, x]));
+const SPELLS = { 24: load('data/spells.json'), 14: load('data14/spells.json') };
 
 // персонаж + данные для derive(): o = {cls, lvl, sub (часть названия), sp, opt, ab, feats:[slug], inv:[slug снаряжения], asi}
 function mk(ed, o) {
@@ -28,7 +29,7 @@ function mk(ed, o) {
     feats: (o.feats || []).map(slug => ({ slug })), inv: (o.inv || []).map(slug => ({ slug, n: slug, q: 1, eq: true, sec: 'gear' })), fxOff: o.fxOff || {}
   });
   Object.assign(c, o.set || {});
-  return [c, { cls, sub, sp, bg: null, feats: S.feats, gear, gearBySlug, items: [], itemsBySlug: {} }];
+  return [c, { cls, sub, sp, bg: null, feats: S.feats, spells: SPELLS[ed], gear, gearBySlug, items: [], itemsBySlug: {} }];
 }
 const run = (ed, o) => { const [c, D] = mk(ed, o); return R.derive(c, D); };
 const fxOf = (d, k) => d.fx.filter(e => e.k === k);
@@ -499,4 +500,58 @@ test('таблицу заклинателя находят только у по�
 });
 test('у класса с собственными ячейками таблица подкласса не подменяет таблицу класса', () => {
   for (const ed of [14, 24]) { const d = run(ed, { cls: 'wizard', lvl: 5 }); assert.deepEqual(d.sp.rows.map(r => r.n).slice(0, 3), [4, 3, 2]); assert.equal(d.sp.list, 'wizard'); assert.equal(d.sp.via, ''); }
+});
+
+/* ---------- заклинания, которые выдаёт подкласс ---------- */
+const names = d => d.autoSpells.map(x => x.name).sort();
+test('домен жизни 2024: заклинания домена появляются с уровней таблицы и не требуют выбора', () => {
+  const at = l => names(run(24, { cls: 'cleric', sub: 'Домен жизни', lvl: l }));
+  assert.deepEqual(at(2), []);
+  assert.deepEqual(at(3), ['Благословение', 'Лечение ран', 'Малое восстановление', 'Подмога']);
+  assert.equal(at(5).length, 6); assert.ok(at(5).includes('Возвращение к жизни'));    // в тексте домена «Возрождение» — это Raise Dead
+  assert.equal(at(9).length, 10);
+  const d = run(24, { cls: 'cleric', sub: 'Домен жизни', lvl: 5 });
+  assert.ok(d.autoSpells.every(x => x.auto && x.free && x.prep && x.at <= 5)); assert.deepEqual(d.autoMissing, []);
+});
+test('2014: домен жизни — заклинания с 1 уровня жреца; расширенный список колдуна не выдаётся, а добавляется в каталог', () => {
+  assert.deepEqual(names(run(14, { cls: 'cleric', sub: 'Домен жизни', lvl: 1 })), ['Благословение', 'Лечение ран']);
+  assert.equal(run(14, { cls: 'cleric', sub: 'Домен жизни', lvl: 3 }).autoSpells.length, 4);
+  const d = run(14, { cls: 'warlock', sub: 'Исчадие', lvl: 5 });
+  assert.deepEqual(d.autoSpells, []); assert.ok(d.extraList.length >= 10); assert.ok(d.extraList.includes('burning-hands'));
+  assert.ok(!run(14, { cls: 'wizard', lvl: 5 }).extraList.length);
+});
+test('подклассы без таблицы заклинаний ничего не выдают; у воина-чемпиона и плута-вора пусто', () => {
+  for (const ed of [14, 24]) { assert.deepEqual(run(ed, { cls: 'fighter', sub: 'Чемпион', lvl: 10 }).autoSpells, []); assert.deepEqual(run(ed, { cls: 'rogue', lvl: 10 }).autoSpells, []); }
+  assert.deepEqual(R.subSpells(null, [], 5), { auto: [], extra: [], missing: [] });
+});
+test('названия заклинаний подклассов: «[en]», лишние знаки, псевдонимы и неизвестные', () => {
+  const sp = SPELLS[14];
+  assert.equal(R.spellByName(sp, 'лечение ран [cure wounds]').slug, 'cure-wounds');
+  assert.equal(R.spellByName(sp, 'Лечение ран').slug, 'cure-wounds');
+  assert.equal(R.spellByName(sp, '*огненные ладони [burning hands]*').slug, 'burning-hands');
+  assert.equal(R.spellByName(SPELLS[24], 'Удержание чудовища').slug, 'hold-monster');
+  assert.equal(R.spellByName(sp, 'маяк надежды [beacon] of hope]').slug, 'beacon-of-hope');   // сломанная скобка в данных: находится по русскому названию
+  assert.equal(R.spellByName(sp, 'заклинание [no such spell]'), null);
+  assert.equal(R.spellByName(sp, 'заклинание которого нет'), null);
+  assert.equal(R.spellByName(null, 'щит'), null);
+  const r = R.subSpells({ features: [{ blocks: [{ type: 'table', rows: [['Уровень Жреца', 'Заклинания'], ['3', 'Щит веры, Придуманное заклинание']] }] }] }, SPELLS[24], 3);
+  assert.deepEqual(r.auto.map(x => x.slug), ['shield-of-faith']); assert.deepEqual(r.missing, ['Придуманное заклинание']);
+});
+test('таблицы подклассов: каждая «Уровень <класса> | Заклинания» даёт автозаклинания, а в 2024 все названия найдены в справочнике', () => {
+  for (const ed of [14, 24]) {
+    let tables = 0;
+    for (const cls of DATA[ed].classes) for (const sub of cls.subclasses || []) {
+      const t = R.subSpellTables(sub); tables += t.always.length + t.expanded.length;
+      const r = R.subSpells(sub, SPELLS[ed], 20);
+      if (t.always.length) assert.ok(r.auto.length + r.missing.length > 0, `${ed} ${cls.slug}/${sub.name}`);
+      if (ed === 24) assert.deepEqual(r.missing, [], `ед.24 ${cls.slug}/${sub.name}: названия не из справочника`);
+    }
+    assert.ok(tables > 0);
+  }
+});
+test('автозаклинания не дублируют выбранные вручную и не меняют лимиты', () => {
+  const [c, D] = mk(24, { cls: 'cleric', sub: 'Домен жизни', lvl: 3 });
+  c.spells = [{ slug: 'bless', name: 'Благословение', lvl: 1, prep: true, free: true }];
+  const d = R.derive(c, D);
+  assert.equal(d.autoSpells.length, 4); assert.equal(d.sp.prepared, run(24, { cls: 'cleric', lvl: 3 }).sp.prepared);   // число подготовленных заклинаний то же
 });
