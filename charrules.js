@@ -300,10 +300,82 @@
     const m = String(text).match(/^\*\*(.+?)\.?\*\*\.?\s*(.*)$/s); if (!m) return null;
     const name = m[1].replace(/\.$/, ''); return LORE_NAME.test(name.trim()) ? null : { name, text: m[2] };
   }
+  // Все особенности вида. Повторы раздела «Особенности …» из другой книги (гоблин, орк, кентавр: те же особенности под тем же заголовком) пропускаются.
   function allTraits(sp) {
-    const out = [];
-    paragraphsOf(sp && sp.blocks).forEach(t => { const tr = traitOf(t); if (tr) out.push(tr); });
+    const out = [], bl = (sp && sp.blocks) || [], ss = speciesSections(sp); let skip = false;
+    bl.forEach((b, i) => {
+      if (b.type === 'heading') { skip = !!(ss && ss.dupAt.has(i)); return; }
+      if (b.type !== 'paragraph' || skip) return;
+      const tr = traitOf(b.text); if (tr) out.push(tr);
+    });
     return out;
+  }
+  /* ---------- подвиды и варианты вида 2014 ---------- */
+  // У многих видов 2014 подрасы лежат под своими заголовками («Высший эльф», «Коренастый», «Аасимар-защитник»), но в поле subraces они не указаны.
+  // Раздел вида — заголовок «Особенности …» (общие особенности), раздел подрасы — заголовок после него, где есть своё «Увеличение характеристик».
+  // Подраса чаще прибавляется (эльф + высший эльф), но бывает и заменой: «следующие особенности заменяют расовые…», «вместо стандартного увеличения»,
+  // а у тифлингов подраса пересказывает все бонусы целиком. Тогда общие «Увеличение характеристик» и названные в тексте особенности отбрасываются.
+  const secCache = new WeakMap(), ASI_NAME = /^увеличение\s+(?:характеристик|значени)/i;
+  const isAsiTrait = t => ASI_NAME.test(String(t.name).trim()) || /заменя\S*\s+особенност\S*\s+[«"]увеличение характеристик/i.test(lc(t.text));
+  const KEEP_ALL = /^(возраст|мировоззрение|размер|скорость)/i;
+  // «Значение вашей Силы увеличивается на 2, а значение Телосложения — на 1», «…всех ваших характеристик… на 1», «двух разных характеристик на ваш выбор… на 1»
+  function parseAsi(text) {
+    const fixed = {}, picks = [], t = lc(plain(text));
+    t.split(/,\s*а\s+|;\s*|\.\s+/).forEach(cl => {
+      const m = cl.match(/(?:увеличива\S*|повыша\S*|—|-)?\s*на\s+(\d)(?!\d)/); if (!m) return;
+      const v = +m[1], head = cl.slice(0, m.index);
+      if (/на ваш выбор|одн\S*\s+друг\S*\s+характеристик|дву\S*\s+(?:разных\s+|друг\S*\s+)?характеристик/.test(cl)) { picks.push({ n: /одн\S*\s+(?:друг\S*\s+)?характеристик/.test(cl) ? 1 : 2, v }); return; }
+      if (/всех\s+(?:ваших\s+)?характеристик/.test(head)) { AB.forEach(a => { fixed[a.k] = (fixed[a.k] || 0) + v; }); return; }
+      abIn(head).forEach(k => { fixed[k] = (fixed[k] || 0) + v; });
+    });
+    return { fixed, picks };
+  }
+  const asiTotal = tr => { const seen = new Set(); let n = 0; tr.filter(isAsiTrait).forEach(t => { if (seen.has(t.text)) return; seen.add(t.text); const a = parseAsi(t.text); n += Object.values(a.fixed).reduce((q, x) => q + x, 0) + a.picks.reduce((q, x) => q + x.n * x.v, 0); }); return n; };
+  function speciesSections(sp) {
+    if (!sp) return null; if (secCache.has(sp)) return secCache.get(sp);
+    const bl = sp.blocks || [], heads = []; bl.forEach((b, i) => { if (b.type === 'heading') heads.push(i); });
+    const secs = heads.map((i, k) => {
+      const to = k + 1 < heads.length ? heads[k + 1] : bl.length, tr = [], sent = [];
+      for (let j = i + 1; j < to; j++) { const b = bl[j]; if (b.type !== 'paragraph') continue; const t = traitOf(b.text); if (t) tr.push(t); sentences(b.text).forEach(x => sent.push(x)); }
+      return { h: String(bl[i].text), i, tr, sent };
+    });
+    const bi = secs.findIndex(x => /^особенност/i.test(x.h) && x.tr.length);
+    let out = null;
+    if (bi >= 0) {
+      const base = secs[bi], key = wstems(base.h), dupAt = new Set(), subs = [], baseTotal = asiTotal(base.tr);
+      secs.slice(bi + 1).forEach(x => {
+        if (!x.tr.length) return;
+        if (/^особенност/i.test(x.h) && wstems(x.h) === key) { dupAt.add(x.i); return; }       // тот же раздел из другой книги
+        if (!x.tr.some(isAsiTrait)) return;                                                     // подраса — только раздел со своим «Увеличением характеристик»
+        const names = new Set(); let all = false;
+        x.sent.forEach(z => { const lz = lc(z); if (!/заменя|вместо/.test(lz)) return;
+          if (/расов\S*\s+особенност/.test(lz)) all = true;
+          [...z.matchAll(/«([^»]+)»/g)].forEach(q => names.add(lc(q[1]).trim()));
+          if (/увеличени\S*\s+характеристик/.test(lz)) names.add('увеличение характеристик'); });
+        const total = asiTotal(x.tr), restates = baseTotal >= 3 && total >= baseTotal;           // тифлинг-подраса пересказывает бонусы целиком
+        if (restates) names.add('увеличение характеристик');
+        subs.push({ label: x.h, tr: x.tr, names, all, replacesAsi: all || names.has('увеличение характеристик') });
+      });
+      out = { base, subs, dupAt, optional: subs.length > 0 && subs.every(x => x.replacesAsi) };
+    }
+    if (!out) out = { base: null, subs: [], dupAt: new Set(), optional: false };
+    secCache.set(sp, out); return out;
+  }
+  // особенности «общая часть + выбранная подраса»: у заменяющей подрасы общие особенности из заменённых отбрасываются
+  function sectionTraits(sp, opt) {
+    const ss = speciesSections(sp), sub = ss.subs.find(x => x.label === opt), base = ss.base.tr;
+    if (!sub) return base.slice();
+    // подраса, пересказывающая свои Возраст/Размер/Скорость (гоблины Данквуда), заменяет одноимённые общие особенности
+    const ownAll = sub.tr.map(t => lc(t.name).trim()), restated = ownAll.some(n => /^(возраст|размер)/.test(n)), own = new Set(restated ? ownAll.concat('разновидности') : ownAll.filter(n => KEEP_ALL.test(n)));
+    const kept = (sub.all ? base.filter(t => KEEP_ALL.test(String(t.name).trim())) : base.filter(t => !sub.names.has(lc(t.name).trim()) && !(sub.names.has('увеличение характеристик') && isAsiTrait(t)))).filter(t => !own.has(lc(t.name).trim()));
+    return kept.concat(sub.tr);
+  }
+  // Бонусы вида к характеристикам по выбранной подрасе: { fixed: {ключ: +N}, picks: [{ n, v }] (на выбор), traits: [названия] }
+  function speciesAsi(sp, opt) {
+    if (!sp) return null;
+    const tr = speciesTraits(sp, { opt, lvl: 1 }).filter(isAsiTrait), seen = new Set(), fixed = {}, picks = [], from = [];
+    tr.forEach(t => { if (seen.has(t.text)) return; seen.add(t.text); const a = parseAsi(t.text); Object.keys(a.fixed).forEach(k => { fixed[k] = (fixed[k] || 0) + a.fixed[k]; }); picks.push(...a.picks); from.push(t.name); });
+    return Object.keys(fixed).length || picks.length ? { fixed, picks, traits: from } : null;
   }
   // Подвид/наследие вида: {kind:'par'|'table'|'groups', label, options:[имена], head, table}
   function speciesChoice(sp) {
@@ -312,7 +384,7 @@
     const subs = (sp.subraces || []).filter(x => typeof x === 'string');
     if (subs.length > 1) { const hs = bl.filter(b => b.type === 'heading').map(b => b.text), opts = subs.filter(n => hs.includes(n)); if (opts.length > 1) return { kind: 'groups', label: 'Подраса', options: opts }; }
     const head = tr.find(t => OPT_HEAD.test(t.name) && /выбер/i.test(t.text));
-    if (!head) return null;
+    if (!head) { const ss = speciesSections(sp); return ss && ss.subs.length ? { kind: 'sections', label: 'Подраса или вариант', options: ss.subs.map(x => x.label), optional: ss.optional } : null; }
     const tb = bl.find(b => b.type === 'table' && b.rows && b.rows.length > 2 && /^(наследие|род|дракон)/i.test(b.rows[0][0]));
     if (tb) return { kind: 'table', label: head.name, head: head.name, table: tb, options: tb.rows.slice(1).map(r => r[0]) };
     const opts = tr.filter(t => /великан\)$|^(Лесной|Скальный) гном$/.test(t.name)).map(t => t.name);
@@ -324,6 +396,7 @@
     const ch = o && speciesChoice(sp);
     if (!ch) return allTraits(sp);
     const opt = o.opt, lvl = o.lvl || 1;
+    if (ch.kind === 'sections') return sectionTraits(sp, opt);
     if (ch.kind === 'groups') {
       const out = []; let cur = null;
       (sp.blocks || []).forEach(b => {
@@ -355,6 +428,11 @@
     if (!sp) return 30;
     if (sp.props) { const p = sp.props.find(x => /скорост/i.test(x.label)); if (p) { const n = intOf(String(p.value).match(/\d+/)); if (n) return n; } }
     const ch = speciesChoice(sp), opt = o && o.opt, groups = ch && ch.kind === 'groups' ? ch.options : [];
+    if (ch && ch.kind === 'sections') {      // базовая скорость — из «Скорость» (у подрасы может быть своя), прибавка — «Быстрые ноги»: «скорость ходьбы увеличивается до 35 футов»
+      const tr = sectionTraits(sp, opt), own = tr.filter(t => /^скорость$/i.test(String(t.name).trim())), walk = own.length ? walkOf(own[own.length - 1].text) : 0;
+      const up = tr.map(t => plain(t.text).match(/скорост\S*(?:\s+ходьбы)?\s+увеличивается\s+до\s+(\d+)\s+фут/i)).filter(Boolean).map(m => +m[1]);
+      return Math.max(walk || 30, ...up);
+    }
     let cur = null; const general = [], mine = [], other = [];
     (sp.blocks || []).forEach(b => {
       if (b.type === 'heading') { cur = b.text; return; }
@@ -759,7 +837,7 @@
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
       speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
-      sp, feats, ws, fx, worn, res, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
+      sp, feats, ws, fx, worn, res, raceAsi: c.ed === 14 ? speciesAsi(D.sp, c.spOpt) : null, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
     };
   }
 
@@ -808,6 +886,6 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

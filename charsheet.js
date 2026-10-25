@@ -174,7 +174,7 @@
   /* ---------- сводка и чек-лист ---------- */
   function todo(c, D, d) {
     const t = [], ci = d.ci;
-    { const sch = D.sp && R.speciesChoice(D.sp); if (sch && !c.spOpt) t.push(['base', 'Выберите: ' + sch.label.toLowerCase() + ' (вид)']); }
+    { const sch = D.sp && R.speciesChoice(D.sp); if (sch && !sch.optional && !c.spOpt) t.push(['base', 'Выберите: ' + sch.label.toLowerCase() + ' (вид)']); }
     if (!c.cls) t.push(['base', 'Выберите класс']);
     else {
       if (D.cls && c.lvl >= subLevel(D.cls) && !c.sub && (D.cls.subclasses || []).length) t.push(['base', 'Выберите подкласс']);
@@ -287,7 +287,16 @@
       if (ch) p.append(h('div', { class: 'csgrid' }, field(ch.label + ' (выбор вида)', sel(ch.options.map(o => [o, o]), c.spOpt, v => { c.spOpt = v; upd(); }, '— выберите —'))));
       const tr = R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl });
       p.append(h('details', { open: '' }, h('summary', {}, 'Особенности вида (' + tr.length + ')'), h('ul', { class: 'cstr' }, tr.map(t => h('li', {}, h('b', {}, t.name + '. '), t.text.replace(/\*+/g, ''))))));
-      if (ed === 14 && D.sp.asi && D.sp.asi.length) p.append(h('p', { class: 'mhint' }, 'Бонусы вида (с учётом всех подрас): ' + D.sp.asi.map(x => x.ability + ' +' + x.value).join(', ') + '. Впишите нужные на вкладке «Характеристики».'));
+      if (ed === 14) {
+        const ra = d.raceAsi, ABN = R.ABN, ks = ra ? Object.keys(ra.fixed) : [];
+        if (ra && (ks.length || ra.picks.length)) {
+          const fixTxt = ks.map(k => ABN(k).ru + ' +' + ra.fixed[k]).join(', '), pickTxt = ra.picks.map(x => 'ещё ' + x.n + ' на выбор (+' + x.v + ')').join(', ');
+          const same = ks.every(k => ((c.bonus || {})[k] || 0) === ra.fixed[k]) && R.AB.every(a => ra.fixed[a.k] != null || !((c.bonus || {})[a.k]));
+          p.append(h('p', { class: 'mhint' }, 'Бонусы вида' + (c.spOpt ? ' («' + c.spOpt + '»)' : '') + ': ' + [fixTxt, pickTxt].filter(Boolean).join(', ') + '. ',
+            same ? '✓ внесены на вкладке «Характеристики».' : btn('Внести бонусы вида', () => { const b = {}; R.AB.forEach(a => { if (ra.fixed[a.k]) b[a.k] = ra.fixed[a.k]; }); c.bonus = b; upd(); }, 'dmbtn'),
+            !same && ra.picks.length ? ' Бонусы «на выбор» впишите сами.' : ''));
+        } else if (D.sp.asi && D.sp.asi.length) p.append(h('p', { class: 'mhint' }, 'Бонусы вида (с учётом всех подрас): ' + D.sp.asi.map(x => x.ability + ' +' + x.value).join(', ') + '. Впишите нужные на вкладке «Характеристики».'));
+      }
     }
     // предыстория
     p.append(h('h3', { class: 'csh' }, 'Предыстория'), h('div', { class: 'csgrid' }, field('Предыстория', sel(D.bgs.map(x => [x.slug, x.name_ru]), c.bg, v => { c.bg = v; c.bg2 = { m: '21', a: '', b: '' }; upd(); }, '— выберите предысторию —'))));

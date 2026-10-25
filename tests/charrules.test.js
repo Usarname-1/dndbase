@@ -555,3 +555,49 @@ test('автозаклинания не дублируют выбранные в
   const d = R.derive(c, D);
   assert.equal(d.autoSpells.length, 4); assert.equal(d.sp.prepared, run(24, { cls: 'cleric', lvl: 3 }).sp.prepared);   // число подготовленных заклинаний то же
 });
+
+/* ---------- подвиды 2014 ---------- */
+const spec14 = slug => DATA[14].species.find(x => x.slug === slug);
+test('2014: подрасы, лежащие под своими заголовками, находятся и дают выбор', () => {
+  for (const slug of ['elf', 'halfling', 'human', 'half-elf', 'tiefling', 'genasi', 'aasimar', 'gith']) {
+    const ch = R.speciesChoice(spec14(slug));
+    assert.ok(ch && ch.options.length > 1, slug);
+  }
+  assert.equal(R.speciesChoice(spec14('elf')).optional, false);
+  assert.equal(R.speciesChoice(spec14('tiefling')).optional, true);   // все подрасы заменяют базовые бонусы — выбор необязателен
+});
+test('2014: бонусы вида складываются из общих и подрасы', () => {
+  const asi = (slug, opt) => R.speciesAsi(spec14(slug), opt);
+  assert.deepEqual(asi('elf', 'Высший эльф').fixed, { dex: 2, int: 1 });
+  assert.deepEqual(asi('elf', 'Лесной эльф').fixed, { dex: 2, wis: 1 });
+  assert.deepEqual(asi('halfling', 'Коренастый').fixed, { dex: 2, con: 1 });
+  assert.deepEqual(asi('elf', undefined).fixed, { dex: 2 });
+  assert.deepEqual(asi('human', undefined).fixed, { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 });
+  assert.deepEqual(asi('half-elf', undefined), { fixed: { cha: 2 }, picks: [{ n: 2, v: 1 }], traits: ['Увеличение характеристик'] });
+  assert.deepEqual(asi('gith', 'Гитъянки').fixed, { int: 1, str: 2 });   // у гитов подраса прибавляется к базе
+  assert.deepEqual(asi('genasi', 'Дженази огня').fixed, { con: 2, int: 1 });
+});
+test('2014: заменяющие подрасы не складываются с общими бонусами', () => {
+  const asi = (slug, opt) => R.speciesAsi(spec14(slug), opt).fixed;
+  assert.deepEqual(asi('tiefling', 'Тифлинг Фаэруна (SCAG)'), { dex: 2, int: 1 });
+  assert.deepEqual(asi('tiefling', 'Левистус (MTF)'), { cha: 2, con: 1 });
+  assert.deepEqual(asi('human', 'Дом Тарашк'), { wis: 2, con: 1 });   // метка дома вместо «+1 ко всем»
+  assert.deepEqual(asi('goblin', 'Особенности гоблинов Данквуда'), { dex: 2, wis: 1 });
+});
+test('2014: скорость и особенности зависят от подрасы', () => {
+  const speed = (slug, opt) => R.speciesSpeed(spec14(slug), 14, { opt });
+  assert.equal(speed('elf', 'Лесной эльф'), 35); assert.equal(speed('elf', 'Высший эльф'), 30);
+  assert.equal(speed('halfling', 'Коренастый'), 25);
+  const names = (slug, opt) => R.speciesTraits(spec14(slug), { opt, lvl: 1 }).map(t => t.name);
+  assert.ok(names('elf', 'Высший эльф').includes('Заговор') || names('elf', 'Высший эльф').some(n => /заговор/i.test(n)));
+  assert.ok(names('elf', 'Лесной эльф').includes('Быстрые ноги'));
+  assert.ok(!names('elf', 'Лесной эльф').includes('Заговор'));
+  const g = names('goblin', 'Особенности гоблинов Данквуда');
+  assert.equal(g.filter(n => n === 'Шустрый побег').length, 1); assert.equal(g.filter(n => /^Тёмное зрение/.test(n)).length, 1);
+  assert.equal(names('goblin', undefined).filter(n => n === 'Шустрый побег').length, 1);   // повтор раздела из другой книги отброшен
+});
+test('2014: derive отдаёт бонусы вида и скорость выбранной подрасы', () => {
+  const d = run(14, { cls: 'fighter', lvl: 1, sp: 'elf', opt: 'Лесной эльф' });
+  assert.deepEqual(d.raceAsi.fixed, { dex: 2, wis: 1 }); assert.equal(d.speed, 35);
+  assert.equal(run(24, { cls: 'fighter', lvl: 1, sp: 'elf' }).raceAsi, null);
+});
