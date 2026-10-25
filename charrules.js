@@ -773,7 +773,7 @@
     // КД: доспех из справочника, иначе лучший вариант «без доспеха» (10 + Лов, защита без доспехов, драконья чешуя…)
     let ac = 10 + m.dex, acWhy = 'без доспеха';
     if (worn.armor) {
-      const p = worn.armor.props.find(x => /класс защиты/i.test(x.label)), base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост/i.test(p.value), cap0 = (String(p.value).match(/не более\s*(\d)/) || [])[1];
+      const p = worn.armor.props.find(x => /класс защиты/i.test(x.label)), base = intOf(String(p.value).match(/\d+/)), dexOk = /ловкост|(?:^|[^а-яё])лов(?![а-яё])/i.test(p.value), cap0 = (String(p.value).match(/(?:не более|макс\.?)\s*(\d)/i) || [])[1];
       let cap = cap0 ? +cap0 : null; if (cap === 2 && act('acCap').length) cap = Math.max(cap, ...act('acCap').map(e => e.v));   // «Мастер средних доспехов»: +3 вместо +2
       ac = base + (dexOk ? (cap != null ? Math.min(m.dex, cap) : m.dex) : 0); acWhy = worn.armor.name_ru;
     } else if (worn.anyArmor) acWhy = 'магический доспех: впишите КД вручную';
@@ -886,6 +886,56 @@
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi };
+  /* ---------- стартовое снаряжение 2014 ---------- */
+  // Класс 2014: «• а) секира или б) любое воинское рукопашное оружие» и «• Набор путешественника и четыре метательных копья».
+  // Строка = выбор из вариантов (а, б, в) либо обязательная часть. Предмет — {name, n} или «любое оружие» {slot:{kind,cat,mode}, n}.
+  const KIT_NUM = { один: 1, одна: 1, одно: 1, два: 2, две: 2, три: 3, четыре: 4, пять: 5, шесть: 6, семь: 7, восемь: 8, десять: 10 };
+  const COIN_RE = /(?:(?:поясной\s+)?(?:кошел\S+|кошё\S+|мешочек|мешок|сумк\S+)\s+с\s+)?(\d+)\s*(зм|см|мм|эм|пм)\.?\s*$/i;
+  const COIN_KEY = { зм: 'zm', см: 'sm', мм: 'mm', эм: 'em', пм: 'pm' };
+  function kitItem(raw) {
+    let t = String(raw).replace(/\*+/g, '').replace(/\(\s*если\s+владеете\s*\)/i, '').replace(/\s+на\s+ваш\s+выбор/i, '').replace(/^[\s.;]+|[\s.;]+$/g, '').trim(); if (!t) return [];
+    const q = t.match(/^колчан\s+с\s+(\d+)\s+стрел/i); if (q) return [{ name: 'Колчан', n: 1 }, { name: 'Стрелы', n: +q[1] }];
+    let n = 1; const m = t.match(/^(\d+|один|одна|одно|два|две|три|четыре|пять|шесть|семь|восемь|десять)\s+(.+)$/i);
+    if (m) { n = /^\d/.test(m[1]) ? +m[1] : KIT_NUM[lc(m[1])]; t = m[2]; }
+    const w = lc(t).match(/^(?:любо[ейе]\s+|одн\S+\s+|один\s+)?(?:другой\s+)?(простое|простых|воинск\S+)\s*(рукопашн\S+|дальнобойн\S+)?\s*оружи\S*$/);
+    if (w) return [{ slot: { kind: 'weapon', cat: /прост/.test(w[1]) ? 'simple' : 'martial', mode: !w[2] ? 'any' : /рукоп/.test(w[2]) ? 'melee' : 'ranged' }, n }];
+    if (/^(?:любой\s+)?(?:другой\s+)?музыкальн\S*\s+инструмент/i.test(t)) return [{ slot: { kind: 'instrument' }, n }];
+    return [{ name: t.charAt(0).toUpperCase() + t.slice(1), n }];
+  }
+  const kitItems = txt => String(txt).split(/,\s*(?![^()]*\))|\s+и\s+/).flatMap(kitItem);
+  const KIT_ALIAS = { 'лёгкий арбалет': 'light-crossbow', 'болтов': 'arbaletnye-bolty', 'болты': 'arbaletnye-bolty', 'деревянный щит': 'shield', 'кожаная броня': 'leather-armor', 'проклёпанная кожа': 'studded-leather-armor', 'стрел': 'arrows', 'стрелы': 'arrows', 'дротиков': 'dart', 'метательных копья': 'javelin', 'метательных копий': 'javelin', 'ручных топора': 'handaxe', 'кинжала': 'dagger', 'коротких меча': 'shortsword' };
+  const KIT_ALIAS_LC = Object.fromEntries(Object.keys(KIT_ALIAS).map(k => [lc(k), KIT_ALIAS[k]]));
+  // предмет из текста набора → запись справочника: точное имя, псевдоним, затем совпадение по основам слов (неоднозначное не берём)
+  function kitGear(gear, bySlug, name) {
+    const n = lc(name), exact = gear.find(x => lc(x.name_ru) === n); if (exact) return exact;
+    const a = KIT_ALIAS_LC[n]; if (a && bySlug[a]) return bySlug[a];
+    const key = wstems(name), hit = gear.filter(x => wstems(x.name_ru) === key);
+    return hit.length === 1 ? hit[0] : null;
+  }
+  // боеприпасы продаются пачкой: «1 зм, 1 фнт., количество 20» — вес и цена относятся ко всей пачке, а в инвентаре считаются штуки
+  const packOf = g => { const p = g && (g.props || []).find(x => /^количество$/i.test(x.label)), n = p ? intOf(String(p.value).match(/\d+/)) : 0; return /боеприпас/i.test((g && g.line) || '') && n > 1 ? n : 1; };
+  const unitWeight = g => ((g && g.weight_lb) || 0) / packOf(g);
+  function kitLines14(txt) {
+    const lines = [];
+    String(txt || '').split(/\n/).forEach(raw => {
+      const l = raw.trim(); if (!/^[•·\-–]/.test(l)) return;
+      const body = l.replace(/^[•·\-–]\s*/, ''), marks = [...body.matchAll(/(^|[\s,;]+(?:или\s+)?)([а-г])\)\s*/g)];
+      if (!marks.length) { lines.push({ opts: [{ k: '', txt: body, items: kitItems(body), cond: /если\s+владеете/i.test(body) }] }); return; }
+      lines.push({ opts: marks.map((m, i) => { const from = m.index + m[0].length, to = i + 1 < marks.length ? marks[i + 1].index : body.length, tx = body.slice(from, to).replace(/[\s,;]+$/, '').replace(/\s+или$/i, '');
+        return { k: m[2], txt: tx, items: kitItems(tx), cond: /если\s+владеете/i.test(tx) }; }) });
+    });
+    const gold = String(txt || '').match(/начн[её]те\s+игру\s+с\s+([^.]*?зм)/i);
+    return { lines, gold: gold ? gold[1].replace(/\s+/g, ' ') : '' };
+  }
+  // Предыстория 2014: проза «…, комплект обычной одежды, поясной кошель с 10 зм» → монеты + предметы (свободный текст, если нет в справочнике)
+  function kitBg14(txt) {
+    let t = String(txt || '').replace(/\*+/g, '').replace(/[\s.]+$/, ''); const coins = {}, cm = t.match(COIN_RE);
+    if (cm) { coins[COIN_KEY[lc(cm[2])]] = +cm[1]; t = t.slice(0, cm.index).replace(/[\s,;]+(?:и\s*)?$/i, '').replace(/\s+и$/i, ''); }
+    const parts = []; t.split(/,\s*(?![^()]*\))|;\s*/).forEach(x => { if (parts.length && /^(в\s+котор|котор|что(?![а-яё])|чтобы|где(?![а-яё])|когда|как(?![а-яё])|такой|такие|такая|такое|например)/i.test(x.trim())) parts[parts.length - 1] += ', ' + x; else parts.push(x); });
+    const items = parts.flatMap(x => kitItem(x.replace(/^\s*(?:один\s+)?вид\s+/i, '')));
+    return { items, coins };
+  }
+
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
