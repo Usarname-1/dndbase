@@ -355,7 +355,7 @@
   // «Значение вашей Силы увеличивается на 2, а значение Телосложения — на 1», «…всех ваших характеристик… на 1», «двух разных характеристик на ваш выбор… на 1»
   function parseAsi(text) {
     const fixed = {}, picks = [], t = lc(plain(text));
-    t.split(/,\s*а\s+|;\s*|\.\s+/).forEach(cl => {
+    t.split(/,\s*а\s+|;\s*|\.\s+|\s+и\s+(?=значени)/).forEach(cl => {
       const m = cl.match(/(?:увеличива\S*|повыша\S*|—|-)?\s*на\s+(\d)(?!\d)/); if (!m) return;
       const v = +m[1], head = cl.slice(0, m.index);
       if (/на ваш выбор|одн\S*\s+друг\S*\s+характеристик|дву\S*\s+(?:разных\s+|друг\S*\s+)?характеристик/.test(cl)) { picks.push({ n: /одн\S*\s+(?:друг\S*\s+)?характеристик/.test(cl) ? 1 : 2, v }); return; }
@@ -442,7 +442,8 @@
       });
       return out;
     }
-    const tr = allTraits(sp);
+    // драконорождённые 2014: после основного раздела лежат «Разновидности» (Драконокровный, Равенит, FTD) со своими бонусами — к выбору наследия они не относятся
+    const ss = ch.kind === 'table' ? speciesSections(sp) : null, tr = ss && ss.base ? ss.base.tr : allTraits(sp);
     if (ch.kind === 'par') return tr.filter(t => !ch.options.includes(t.name) || t.name === opt);
     const out = [];
     tr.forEach(t => {
@@ -509,6 +510,8 @@
     if (plus > 0) {
       const fixed = skillsIn(txt.slice(0, plus)), from = listed.filter(id => !fixed.includes(id));
       if (from.length) return { fixed, choose: 1, from };
+      const abs = abIn(t.slice(plus));       // «…и один из навыков Интеллекта, Мудрости или Харизмы»: список навыков в тексте не назван, только характеристики
+      if (abs.length && /один\s+из\s+навыков/.test(t.slice(plus))) { const any = SKILLS.filter(x => abs.includes(x.ab) && !fixed.includes(x.id)).map(x => x.id); if (any.length) return { fixed, choose: 1, from: any }; }
     }
     return fixedAll;
   }
@@ -586,7 +589,7 @@
     paras.forEach(p => sentences(p).forEach(s => {
       if (!/не\s+носите\s+(?:ни\s+)?(?:доспех|брон)/i.test(s) || !AC_WORD.test(s) || /^(?:Действием|Бонусным|Реакцией)/i.test(s)) return;
       const m = s.match(/(\d+)\s*\+\s*(.+)$/); if (!m) return;
-      out.push({ base: +m[1], abs: abIn(m[2]), pb: /бонус\S*\s+(?:мастерства|владения)/i.test(m[2]), noShield: /щит/i.test(s) });
+      out.push({ base: +m[1], abs: abIn(m[2]), pb: /бонус\S*\s+(?:мастерства|владения)/i.test(m[2]), noShield: /(?:^|[^А-Яа-яЁё])щит/i.test(s) });   // слово «Щит», а не «Защиты» из «Класс Защиты»
     }));
     return out;
   }

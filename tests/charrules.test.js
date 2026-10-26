@@ -722,3 +722,41 @@ test('Могущественная драконья метка: +1 к Инт, М
   assert.ok(!R.officialSrc(DATA[24].classes.find(x => x.slug === 'pugilist').sources));
   assert.ok(DATA[24].classes.filter(x => x.slug !== 'pugilist').every(x => R.officialSrc(x.sources)) && DATA[14].classes.every(x => R.officialSrc(x.sources)));
 });
+
+/* ---------- аудит расчётов листа (правки ошибок) ---------- */
+test('КД: «Защита без доспехов» у варвара работает со щитом, у монаха — нет (в «Класс Защиты» нет слова «Щит»)', () => {
+  const ab = { dex: 14, con: 16 };
+  for (const ed of [24, 14]) {
+    assert.equal(run(ed, { cls: 'barbarian', lvl: 1, ab }).ac, 15, 'варвар без щита: 10 + ЛОВ + ТЕЛ');
+    assert.equal(run(ed, { cls: 'barbarian', lvl: 1, ab, inv: ['shield'] }).ac, 17, 'варвар со щитом: формула сохраняется, +2 за щит');
+    // у монаха формула отключается со щитом: при МДР 18 она дала бы 17, а со щитом должно остаться 10 + ЛОВ + 2
+    assert.equal(run(ed, { cls: 'monk', lvl: 1, ab: { dex: 16, wis: 18 } }).ac, 17);
+    assert.equal(run(ed, { cls: 'monk', lvl: 1, ab: { dex: 16, wis: 18 }, inv: ['shield'] }).ac, 15);
+  }
+});
+test('бонусы видов 2014: драконорождённые (только основной раздел) и гномы (по подрасам)', () => {
+  const asi = (slug, opt) => R.speciesAsi(DATA[14].species.find(x => x.slug === slug), opt).fixed;
+  assert.deepEqual(asi('dragonborn', 'Красный'), { str: 2, cha: 1 });                       // раньше складывались и «Разновидности» из других книг: СИЛ+4 ХАР+2 ИНТ+2 ТЕЛ+1
+  assert.deepEqual(asi('gnome', 'Лесной'), { int: 2, dex: 1 });
+  assert.deepEqual(asi('gnome', 'Скальный'), { int: 2, con: 1 });                           // «на 2 и значение Телосложения на 1» — две прибавки в одном предложении
+  assert.deepEqual(asi('gnome', 'Глубинный (PoA)'), { int: 2, dex: 1 });
+  assert.deepEqual(asi('dwarf', 'Холмовой'), { con: 2, wis: 1 }); assert.deepEqual(asi('dwarf', 'Горный'), { con: 2, str: 2 });
+});
+test('особенности видов 2014: у каждой особенности из trait_names название выделено жирным (иначе её нет в листе)', () => {
+  const lost = [];
+  DATA[14].species.forEach(s => { const names = (s.trait_names || []).map(n => n.replace(/\.$/, '').trim());
+    (s.blocks || []).forEach((b, i) => { if (b.type === 'paragraph' && !/^\*\*/.test(b.text) && names.some(n => b.text.startsWith(n + '. '))) lost.push(s.slug + '#' + i); }); });
+  assert.deepEqual(lost, []);
+  const gnome = DATA[14].species.find(x => x.slug === 'gnome');
+  for (const opt of ['Лесной', 'Скальный', 'Глубинный (PoA)']) {
+    const names = R.speciesTraits(gnome, { opt, lvl: 1 }).map(t => t.name);
+    assert.ok(names.includes('Гномья хитрость') && names.includes('Скорость') && names.some(n => /тёмное зрение/i.test(n)), opt + ': ' + names.join(', '));
+  }
+  assert.equal(R.speciesSpeed(DATA[14].species.find(x => x.slug === 'dwarf'), 14, { opt: 'Дуэргар (MPMM)' }), 30);
+});
+test('предыстория «Представитель фракции» 2014: Проницательность и один навык Интеллекта, Мудрости или Харизмы на выбор', () => {
+  const i = R.bgSkillInfo(DATA[14].bgs.find(x => x.slug === 'faction-agent'));
+  assert.deepEqual(i.fixed, ['insight']); assert.equal(i.choose, 1);
+  const from = new Set(i.from), ab = new Set(['int', 'wis', 'cha']);
+  assert.ok(i.from.every(id => ab.has(R.SKILLS.find(s => s.id === id).ab)) && from.has('history') && from.has('medicine') && from.has('persuasion') && !from.has('insight') && !from.has('athletics'));
+});
