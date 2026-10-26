@@ -207,6 +207,36 @@
     return { auto, extra, missing };
   }
 
+  /* ---------- заклинания, которые даёт вид ---------- */
+  // 2014: «Начиная с 3-го уровня вы можете накладывать заклинание опутывание [entangle] с помощью этой особенности» (название с английским в скобках);
+  // 2024: «Вы знаете заговор Свет», «У вас всегда подготовлены заклинания Маскировка и Сглаз», таблица наследия тифлинга.
+  // Выбор из списка («один заговор из списка волшебника») не разбирается: названия в тексте нет. → [{ slug, name, lvl, from, at, kind, auto, free, prep }]
+  function speciesSpells(sp, opt, lvl, spells, ed) {
+    if (!sp || !spells || !spells.length) return [];
+    const out = [], add = (m, at, trait) => { if (m && at <= lvl && !out.some(a => a.slug === m.slug)) out.push({ slug: m.slug, name: m.name_ru, lvl: m.level, from: sp.name_ru, at, kind: 'sp', trait, auto: true, free: true, prep: true }); };
+    const atOf = z => { const m = lc(z).match(/(?:начиная с|при достижении|на)\s+(\d+)-?\S*\s+уровн/); return m ? +m[1] : 1; };
+    let traits = speciesTraits(sp, { opt, lvl: 20 });
+    const vi = traits.findIndex(t => /^внешний вид$/i.test(String(t.name).trim())); if (vi >= 0) traits = traits.slice(0, vi);   // дальше идут необязательные варианты (SCAG): их заклинания нельзя назначать сразу
+    if (!opt && traits.filter(t => /заклинани|заговор/i.test(t.text) && /\[[A-Za-z]/.test(t.text)).length >= 3) return [];       // сборная статья «все наследия сразу»
+    traits.forEach(t => {
+      sentences(t.text).forEach(z => {
+        if (/из\s+списка/i.test(z) || !/заклинани|заговор/i.test(z)) return;
+        if (ed === 14) { [...z.matchAll(/([А-Яа-яЁё][А-Яа-яЁё’' \/-]*?)\s*\[([A-Za-z’' \/-]+)\]/g)].forEach(m => add(spellByName(spells, m[1].trim() + ' [' + m[2] + ']'), atOf(z), t.name)); return; }
+        const known = z.match(/(?:знаете|изучаете)\s+заговор(?:ы)?\s+([^.]+)/i) || z.match(/всегда\s+подготовлен\S*\s+заклинани\S*\s+([^.]+)/i);
+        if (!known) return;
+        const raw = known[1].replace(/\s+(?:Ваша|Вы|Кроме|Когда|Каждый)\b.*$/, '').trim(), whole = spellByName(spells, raw);
+        (whole ? [raw] : raw.split(/\s+и\s+|,\s*/)).forEach(n => add(spellByName(spells, n), atOf(z), t.name));
+      });
+    });
+    // 2024: наследие тифлинга — таблица «Наследие | 1-й уровень | 3-й уровень | 5-й уровень»
+    if (ed === 24 && opt) (sp.blocks || []).filter(b => b.type === 'table' && b.rows && /наследие/i.test(String(b.rows[0][0]))).forEach(b => {
+      const row = b.rows.find(r => lc(r[0]) === lc(opt)); if (!row) return;
+      const cant = String(row[1]).match(/заговор\s+([^.]+)/i); if (cant) add(spellByName(spells, cant[1]), 1, 'Наследие');
+      [[2, 3], [3, 5]].forEach(([i, at]) => add(spellByName(spells, row[i]), at, 'Наследие'));
+    });
+    return out;
+  }
+
   /* ---------- владение оружием ---------- */
   // основа слова без падежного окончания: «кинжалы» ≈ «Кинжал», «длинные мечи» ≈ «Длинный меч»
   const ENDS = /(ыми|ими|ого|его|ому|ему|ами|ями|ый|ий|ой|ая|яя|ое|ее|ые|ие|ую|юю|ым|им|ом|ем|ых|их|ов|ей|ам|ям|ах|ях|ою|ею|а|я|у|ю|ы|и|е|о|ь|й)$/;
@@ -267,8 +297,12 @@
     const bold = texts.find(t => /^\*\*(?:Повышение|Увеличение)\s+(?:значения\s+)?характеристик/i.test(t));
     if (bold) res = parse(bold.replace(/^\*\*[^*]+\*\*\.?\s*/, ''));
     for (let i = 0; !res && i < texts.length; i++) { const m = texts[i].replace(/\*+/g, '').match(/увеличь(?:те)?\s+значение\s+[^.]*?\s+на\s+1[^.]*/i); if (m && !/на\s+2/.test(m[0])) res = parse(m[0]); }   // «на 2 или двух на 1» — это сама черта «Увеличение характеристик», не +1
+    // «Могущественная драконья метка»: +1 к заклинательной характеристике метки — у всех меток это Интеллект, Мудрость или Харизма
+    if (!res && texts.some(t => /заклинательн\S*\s+для\s+вашей\s+черты\s+Драконьей\s+метки/i.test(t))) res = { opts: ['int', 'wis', 'cha'], cap: 20 };
     return res ? Object.assign(res, flags.save ? { save: true } : {}, flags.notProf ? { notProf: true } : {}) : null;
   }
+  // класс из официальной книги (издание WotC)? «The Pugilist Class» — фанатский материал
+  const officialSrc = src => !src || !src.length || src.some(x => /Handbook|Tasha|Eberron|Xanathar|Dungeon Master|Mordenkainen|Fizban|Sword Coast|Ravnica|Strixhaven|Theros|Wayfinder|Spelljammer|Planescape|Van Richten|Bigby/i.test(x));
   // сколько навыков класс позволяет усилить Экспертностью к этому уровню (2024)
   function expertiseSlots(cls, lvl, ed) {
     if (!cls || ed === 14) return 0;
@@ -367,7 +401,9 @@
     if (!sub) return base.slice();
     // подраса, пересказывающая свои Возраст/Размер/Скорость (гоблины Данквуда), заменяет одноимённые общие особенности
     const ownAll = sub.tr.map(t => lc(t.name).trim()), restated = ownAll.some(n => /^(возраст|размер)/.test(n)), own = new Set(restated ? ownAll.concat('разновидности') : ownAll.filter(n => KEEP_ALL.test(n)));
-    const kept = (sub.all ? base.filter(t => KEEP_ALL.test(String(t.name).trim())) : base.filter(t => !sub.names.has(lc(t.name).trim()) && !(sub.names.has('увеличение характеристик') && isAsiTrait(t)))).filter(t => !own.has(lc(t.name).trim()));
+    // «Наследие Маладомини» (MToF) заменяет общее «Дьявольское наследие»: наследия подрасы вытесняют общее
+    const heritage = sub.tr.some(t => /наследие/i.test(String(t.name).trim()));
+    const kept = (sub.all ? base.filter(t => KEEP_ALL.test(String(t.name).trim())) : base.filter(t => !sub.names.has(lc(t.name).trim()) && !(sub.names.has('увеличение характеристик') && isAsiTrait(t)))).filter(t => !own.has(lc(t.name).trim()) && !(heritage && /наследие/i.test(String(t.name).trim())));
     return kept.concat(sub.tr);
   }
   // Бонусы вида к характеристикам по выбранной подрасе: { fixed: {ключ: +N}, picks: [{ n, v }] (на выбор), traits: [названия] }
@@ -461,11 +497,14 @@
   // У части предысторий 2014 навыки даны на выбор («Выберите два из…», «История, плюс один из…»).
   // Возвращает {fixed — выдаются сразу, choose — сколько выбрать, from — из чего}.
   function bgSkillInfo(bg) {
-    const txt = String((bg && bg.skills_text) || ''), listed = skillsIn(((bg && bg.skills) || []).join(', '));
+    let txt = String((bg && bg.skills_text) || ''), listed = skillsIn(((bg && bg.skills) || []).join(', '));
+    // у части предысторий 2014 (Резчик рун, Хранитель врат…) навыки записаны только абзацем «**Навыки:** Восприятие, История»
+    if (bg && !txt && !listed.length) { const pr = (bg.blocks || []).find(x => x.type === 'paragraph' && /^\*\*Навыки:?\*\*/.test(String(x.text))); if (pr) { txt = plain(pr.text).replace(/^Навыки:?\s*/, '').replace(/[.\s]+$/, ''); listed = skillsIn(txt); } }
     const all = skillsIn(((bg && bg.skills) || []).join(', ') + ' ' + txt), fixedAll = { fixed: all, choose: 0, from: [] };
     if (!bg) return { fixed: [], choose: 0, from: [] };
     const t = lc(txt), pick = t.match(/выберите\s+(один|одно|два|три)(?=\s|$)/);
     if (pick && listed.length > NUMW[pick[1]]) return { fixed: [], choose: NUMW[pick[1]], from: listed };
+    if (/или\s+один\s+навык\s+на\s+ваш\s+выбор/.test(t) && listed.length) { const fx = skillsIn(txt.split(/,\s*навык/i)[0]); return { fixed: fx, choose: 1, from: SKILLS.map(x => x.id).filter(id => !fx.includes(id)) }; }   // «Магия, навык вашей фракции или один навык на выбор»
     const plus = t.search(/(?:,\s*плюс|\sи)\s+(?:один|одно)\s/);
     if (plus > 0) {
       const fixed = skillsIn(txt.slice(0, plus)), from = listed.filter(id => !fixed.includes(id));
@@ -740,7 +779,7 @@
     (c.feats || []).forEach(x => { feats.push({ slug: x.slug, lvl: 0, extra: true }); featPick(x.slug, x.fa); });
     // черты (в том числе черта предыстории 2024) и остальные источники умений
     const featObjs = feats.map(x => (D.feats || []).find(f => f.slug === x.slug)).filter(Boolean);
-    if (c.ed === 24 && D.bg && D.bg.feat) { const bf = (D.feats || []).find(f => f.name_ru === D.bg.feat.name); if (bf) featObjs.push(bf); }
+    const bgFeat = bgFeatOf(c, D); if (bgFeat.feat) featObjs.push(bgFeat.feat);
     const styleF = styleFeat(c, D, lvl);                                        // боевой стиль: выбранная черта (2024) или умение (2014) действует как черта
     if (styleF && !featObjs.some(f => f.slug === styleF.slug)) featObjs.push(styleF);
     const S = sourcesOf(c, D, lvl, featObjs), off = c.fxOff || {};
@@ -809,6 +848,7 @@
       sp.list = subRow ? subC.list : (D.cls && D.cls.slug) || null; sp.via = subRow ? D.sub.name : ''; sp.schools = subRow && subC.schools; sp.freeLvls = subRow ? subC.free : [];
       sp.ab = ab; sp.dc = 8 + pb + m[ab]; sp.atk = pb + m[ab];
       sp.slots = (c.slotsManual && !lrS) ? c.slotsManual : (lrS ? lrS.slots : new Array(9).fill(0));
+      sp.arcanum = D.cls && D.cls.slug === 'warlock' && !subRow ? ARCANUM.map((need, i) => (need && lvl >= need ? i + 1 : 0)).filter(Boolean) : [];   // Таинственный арканум: по одному заклинанию 6–9 уровней, вне общего числа известных/подготовленных
       sp.pact = lrS && lrS.pact; sp.rows = slotRows(sp, D.cls, lvl); sp.rows.forEach((r, i) => { const o = c.slotsOv && c.slotsOv[i]; if (o != null && o !== '') { r.base = r.n; r.n = Math.max(0, Math.min(20, intOf(o))); r.ov = true; } }); sp.maxLevel = Math.max(maxSlotLevel(lrS) || (sp.slots.reduce((q, n, i) => n > 0 ? i + 1 : q, 0)), sp.rows.reduce((q, r, i) => r.n > 0 ? i + 1 : q, 0));
       sp.cantrips = lrS ? lrS.cantrips : null;
       // подготовлено: столбец таблицы (2024) или модификатор + уровень (2014, подготавливающие классы)
@@ -851,7 +891,7 @@
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
       speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
-      sp, feats, ws, fx, worn, res, picks: classPicks(c, D, lvl, lr, ci), styleF, raceAsi: c.ed === 14 ? speciesAsi(D.sp, c.spOpt) : null, autoSpells: subSp.auto, extraList: subSp.extra, autoMissing: subSp.missing
+      sp, feats, ws, fx, worn, res, bgFeat, picks: classPicks(c, D, lvl, lr, ci), styleF, raceAsi: c.ed === 14 ? speciesAsi(D.sp, c.spOpt) : null, autoSpells: subSp.auto.concat(speciesSpells(D.sp, c.spOpt, lvl, D.spells, c.ed).filter(a => !subSp.auto.some(x => x.slug === a.slug))), extraList: subSp.extra, autoMissing: subSp.missing
     };
   }
 
@@ -899,6 +939,16 @@
       speed: '', fxOff: {}, spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], picks: { style: '', mastery: [], metamagic: [], invocations: [] }, kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
+  }
+  // Черта предыстории 2024. «Черта Тёмного дара на ваш выбор» (Медиум, Странник Туманов) — название категории, а не черты: выбирается из списка (c.bgFeat);
+  // у Преследуемого и Следователя черта названа, но по тексту её можно заменить чертой Тёмного дара.
+  const isDarkGift = f => /тёмного\s+дара/i.test((f && f.line) || '');
+  function bgFeatOf(c, D) {
+    const bf = c.ed === 24 && D.bg && D.bg.feat; if (!bf) return { feat: null, options: [], required: false, name: '' };
+    const named = (D.feats || []).find(f => f.name_ru === bf.name), cat = !named && /тёмного\s+дара/i.test(bf.name), alt = !!named && /тёмного\s+дара\s+на\s+ваш\s+выбор/i.test(bf.note || '');
+    if (!cat && !alt) return { feat: named || null, options: [], required: false, name: bf.name };
+    const options = (D.feats || []).filter(isDarkGift), pick = options.find(f => f.slug === c.bgFeat);
+    return { feat: pick || named || null, options, required: cat, name: bf.name, named };
   }
   /* ---------- выборы класса: боевой стиль, оружейное мастерство, метамагия, воззвания ---------- */
   const STYLE_LVL = { fighter: 1, paladin: 2, ranger: 2 };
@@ -1010,6 +1060,6 @@
     return { items, coins };
   }
 
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight, classPicks, styleOptions, styleFeat, masteryOf, masteryCount, masteryOptions, STYLES14 };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesSpells, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight, classPicks, officialSrc, bgFeatOf, styleOptions, styleFeat, masteryOf, masteryCount, masteryOptions, STYLES14 };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);

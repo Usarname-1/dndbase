@@ -270,6 +270,7 @@
       if (on(c, 'spells')) pages.push(...(e24 ? spells24(X, c, D, d) : spells14(X, c, D, d)));
       if (c.printSpells && spellsOf(c, d).length) pages.push(...cardPages(c, D, sh, d));
     }
+    else if (c.printSpells && d.autoSpells && d.autoSpells.length) pages.push(...cardPages(c, D, sh, d));   // заклинания вида у персонажа без ячеек: только карточки
     if (on(c, 'desc')) pages.push(...descPage(X, c, D, d));
     if (on(c, 'gear')) pages.push(...gearPage(X, c, D, d));
     pages.forEach(p => { if (!p.classList.contains('e24') && !p.classList.contains('e14')) p.classList.add(e24 ? 'e24' : 'e14'); });
