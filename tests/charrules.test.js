@@ -683,3 +683,42 @@ test('боевой стиль: Оборона даёт +1 КД в доспехе
   assert.equal(fxOf(run(14, { cls: 'ranger', lvl: 2, set: { picks: { style: 'archery' } } }), 'atkPlus')[0].v, 2);
   assert.equal(fxOf(run(14, { cls: 'fighter', lvl: 1, set: { picks: { style: 'dueling' } } }), 'dmgPlus')[0].v, 2);
 });
+
+/* ---------- мелочи ---------- */
+test('предыстории 2014: навыки берутся и из абзаца «**Навыки:** …»', () => {
+  const bg = slug => DATA[14].bgs.find(x => x.slug === slug), sk = slug => R.bgSkillInfo(bg(slug));
+  assert.deepEqual(sk('rune-carver').fixed.sort(), ['history', 'perception']); assert.deepEqual(sk('gate-warden').fixed.sort(), ['persuasion', 'survival']);
+  const pp = sk('planar-philosopher'); assert.deepEqual(pp.fixed, ['arcana']); assert.equal(pp.choose, 1); assert.ok(pp.from.length > 10 && !pp.from.includes('arcana'));
+  const bad = DATA[14].bgs.filter(b => !/^adaptaciia/.test(b.slug)).filter(b => { const i = R.bgSkillInfo(b); return !i.fixed.length && !i.choose; });
+  assert.deepEqual(bad.map(b => b.slug), []);
+});
+test('черта предыстории 2024: «Черта Тёмного дара на ваш выбор» — выбор из списка', () => {
+  const D = (bg) => ({ bg: DATA[24].bgs.find(x => x.slug === bg), feats: DATA[24].feats });
+  const c = Object.assign(R.newChar(24), { bgFeat: '' });
+  let f = R.bgFeatOf(c, D('spirit-medium')); assert.ok(f.required && !f.feat && f.options.length >= 9);
+  c.bgFeat = 'gathered-whispers'; f = R.bgFeatOf(c, D('spirit-medium')); assert.equal(f.feat.slug, 'gathered-whispers');
+  c.bgFeat = ''; f = R.bgFeatOf(c, D('haunted-one')); assert.ok(!f.required && f.feat && f.feat.name_ru === 'Выживший' && f.options.length);   // можно заменить на Тёмный дар
+  c.bgFeat = 'mist-walker'; assert.equal(R.bgFeatOf(c, D('haunted-one')).feat.slug, 'mist-walker');
+  assert.equal(R.bgFeatOf(c, D('acolyte')).options.length, 0);
+});
+test('колдун: Таинственный арканум — отдельно от известных заклинаний, по одному на уровни 6–9', () => {
+  assert.deepEqual(run(24, { cls: 'warlock', lvl: 10 }).sp.arcanum, []);
+  assert.deepEqual(run(24, { cls: 'warlock', lvl: 13 }).sp.arcanum, [6, 7]); assert.deepEqual(run(14, { cls: 'warlock', lvl: 17 }).sp.arcanum, [6, 7, 8, 9]);
+  assert.deepEqual(run(24, { cls: 'wizard', lvl: 17 }).sp.arcanum, []);
+});
+test('заклинания видов: 2024 (тифлинг, гном, аасимар) и 2014 (с уровнем «Начиная с 3-го»)', () => {
+  const sp = (ed, slug, opt, lvl) => R.speciesSpells(DATA[ed].species.find(x => x.slug === slug), opt, lvl, SPELLS[ed], ed).map(x => x.name + (x.at > 1 ? '@' + x.at : ''));
+  assert.deepEqual(sp(24, 'tiefling', 'Инфернальное наследие', 5), ['Огненный снаряд', 'Чудотворство', 'Адское возмездие@3', 'Тьма@5']);
+  assert.deepEqual(sp(24, 'tiefling', 'Инфернальное наследие', 3), ['Огненный снаряд', 'Чудотворство', 'Адское возмездие@3']);
+  assert.deepEqual(sp(24, 'aasimar', undefined, 1), ['Свет']); assert.deepEqual(sp(24, 'hexblood', undefined, 1), ['Маскировка', 'Сглаз']);
+  assert.deepEqual(sp(24, 'gnome', 'Лесной гном', 1), ['Малая иллюзия', 'Разговор с животными']);
+  assert.deepEqual(sp(14, 'elf', 'Тёмный эльф (дроу)', 2), []); assert.deepEqual(sp(14, 'elf', 'Тёмный эльф (дроу)', 5), ['Огонь фей@3', 'Тьма@5']);
+  assert.deepEqual(sp(14, 'tiefling', 'Вельзевул (MTF)', 5), ['Луч болезни@3', 'Корона безумия@5']);   // наследие Маладомини вытесняет общее
+  assert.deepEqual(sp(14, 'tiefling', 'Тифлинг Фаэруна (SCAG)', 5), []);                               // варианты SCAG — на выбор, сами не назначаются
+  assert.equal(run(24, { cls: 'fighter', lvl: 3, sp: 'tiefling', opt: 'Инфернальное наследие' }).autoSpells.length, 3);
+});
+test('Могущественная драконья метка: +1 к Инт, Мудр или Хар; неофициальные классы отмечены', () => {
+  const f = DATA[24].feats.find(x => x.slug === 'potent-dragonmark'); assert.deepEqual(R.featAbility(f).opts, ['int', 'wis', 'cha']);
+  assert.ok(!R.officialSrc(DATA[24].classes.find(x => x.slug === 'pugilist').sources));
+  assert.ok(DATA[24].classes.filter(x => x.slug !== 'pugilist').every(x => R.officialSrc(x.sources)) && DATA[14].classes.every(x => R.officialSrc(x.sources)));
+});
