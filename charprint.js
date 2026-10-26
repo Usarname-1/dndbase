@@ -251,7 +251,7 @@
     let w = 0;
     const rows = (c.inv || []).map(i => { const g = X.invG(D, i), ww = g && g.weight_lb ? R.unitWeight(g) * i.q : 0; w += ww; return h('tr', {}, h('td', { class: 'c' }, i.eq ? '●' : ''), h('td', {}, i.n), h('td', { class: 'c' }, i.q), h('td', { class: 'c' }, ww ? Math.round(ww * 10) / 10 : '')); });
     while (rows.length < 40) rows.push(h('tr', {}, h('td', { class: 'c' }), h('td', {}), h('td', {}), h('td', {})));
-    const cap = d.score.str * 15, att = (c.inv || []).filter(i => i.eq && i.sec === 'items' && (X.invG(D, i) || {}).attunement).length;
+    const cap = d.carry, att = (c.inv || []).filter(i => i.eq && i.sec === 'items' && (X.invG(D, i) || {}).attunement).length;
     const inv = box('dinv', 'Инвентарь', h('table', { class: 'itab' }, h('tr', {}, h('th', { class: 'c' }, ''), h('th', {}, 'Предмет'), h('th', { class: 'c' }, 'Кол.'), h('th', { class: 'c' }, 'Вес, фнт.')), ...rows),
       el('div', 'cap', el('span', '', 'Вес: ', el('b', '', Math.round(w * 10) / 10 + ' фнт.')), el('span', '', 'Грузоподъёмность: ', el('b', '', cap + ' фнт.'))));
     const side = el('div', 'dcol', box('att', 'Настройка на магические предметы', el('div', 'attn', [0, 1, 2].map(i => dia(i < att)))),

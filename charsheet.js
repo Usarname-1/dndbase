@@ -295,7 +295,7 @@
           const fixTxt = ks.map(k => ABN(k).ru + ' +' + ra.fixed[k]).join(', '), pickTxt = ra.picks.map(x => 'ещё ' + x.n + ' на выбор (+' + x.v + ')').join(', ');
           const same = ks.every(k => ((c.bonus || {})[k] || 0) === ra.fixed[k]) && R.AB.every(a => ra.fixed[a.k] != null || !((c.bonus || {})[a.k]));
           p.append(h('p', { class: 'mhint' }, 'Бонусы вида' + (c.spOpt ? ' («' + c.spOpt + '»)' : '') + ': ' + [fixTxt, pickTxt].filter(Boolean).join(', ') + '. ',
-            same ? '✓ внесены на вкладке «Характеристики».' : btn('Внести бонусы вида', () => { const b = {}; R.AB.forEach(a => { if (ra.fixed[a.k]) b[a.k] = ra.fixed[a.k]; }); c.bonus = b; upd(); }, 'dmbtn'),
+            same ? '✓ внесены на вкладке «Характеристики».' : btn('Внести бонусы вида', () => { const b = {}; R.AB.forEach(a => { if (ra.fixed[a.k]) b[a.k] = ra.fixed[a.k]; }); if (R.AB.some(a => ((c.bonus || {})[a.k] || 0) !== (b[a.k] || 0) && ((c.bonus || {})[a.k] || 0)) && !confirm('В колонке «Бонусы» уже есть другие значения (подраса, черты). Заменить их бонусами вида?')) return; c.bonus = b; upd(); }, 'dmbtn'),
             !same && ra.picks.length ? ' Бонусы «на выбор» впишите сами.' : ''));
         } else if (D.sp.asi && D.sp.asi.length) p.append(h('p', { class: 'mhint' }, 'Бонусы вида (с учётом всех подрас): ' + D.sp.asi.map(x => x.ability + ' +' + x.value).join(', ') + '. Впишите нужные на вкладке «Характеристики».'));
       }
@@ -688,7 +688,7 @@
     });
     if (!c.inv.length) t.append(h('tr', {}, h('td', { colspan: 6, class: 'none' }, 'Пусто. Добавьте предметы ниже.')));
     p.append(t);
-    const cap = d.score.str * 15;
+    const cap = d.carry;   // с учётом размера, как в сводке
     const att = c.inv.filter(i => i.eq && i.sec === 'items' && (invG(D, i) || {}).attunement).length;
     p.append(h('p', { class: 'mhint' }, 'Вес снаряжения: ' + (Math.round(weight * 10) / 10) + ' фнт. Грузоподъёмность: ' + cap + ' фнт. ' + (weight > cap ? '— перегруз!' : '') + (att ? ' Настроено на магические предметы: ' + att + ' из 3' + (att > 3 ? ' — многовато!' : '') + ' (отметка «Надето» у предмета с настройкой).' : '')),
       h('div', { class: 'csgrid' }, field('Бонус к КД (магия и т. п.)', numIn(c.acBonus, v => { c.acBonus = v; upd(); })), field('КД', h('span', {}, h('b', {}, d.ac), ' (' + d.acWhy + ')'))));
