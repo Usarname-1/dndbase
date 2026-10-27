@@ -934,6 +934,13 @@
         h('small', {}, 'Выбор действует и на список в листе, и на страницу с текстами.')), ...glist);
     return h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Страницы для печати'), pages, feats);
   }
+  // печать и PDF: браузер сохраняет PDF через то же окно печати; название вкладки становится именем файла
+  function printSheet(c, pdf) {
+    const was = document.title; document.title = (c.name || 'Персонаж') + ' — D&D ' + (c.ed === 24 ? '2024' : '2014');
+    root.addEventListener('afterprint', () => { document.title = was; }, { once: true });
+    if (pdf) root.DM.toast('В окне печати выберите принтер «Сохранить как PDF» — файл получит имя персонажа');
+    setTimeout(() => root.print(), pdf ? 600 : 50);
+  }
   async function tabSheet(p, c, D, d) {
     const CSP = root.CSP, live = c.sheetEdit !== false;
     // действия прямо на листе: всё, что меняет числа, идёт через upd() (пересчёт), отметки и записи — только сохранение
@@ -981,7 +988,8 @@
       h('div', { class: 'seg csmeth' }, btn('Цветная', () => { delete c.pMono; upd(); }, c.pMono ? '' : 'act'), btn('Чёрно-белая', () => { c.pMono = true; upd(); }, c.pMono ? 'act' : '')),
       h('p', { class: 'mhint' }, c.pMono ? 'Только чёрный и серый: для принтера без цвета или чтобы сэкономить картридж.'
         : 'Заголовки и линии цвета справочника (' + (c.ed === 24 ? 'кирпично-красные' : 'бирюзовые') + '), светлые плашки. Бумага остаётся белой.'));
-    p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'),
+    p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать', () => printSheet(c, false), 'dmbtn pri', 'Открыть окно печати'),
+      btn('Сохранить в PDF', () => printSheet(c, true), 'dmbtn pri', 'Откроется окно печати: выберите «Сохранить как PDF» (имя файла уже подставлено)'),
       h('label', { class: 'sheetedit', title: 'Нажимайте на кружки и ромбики, вписывайте числа и текст прямо в лист. Правка не попадает в печать.' }, h('input', { type: 'checkbox', checked: live, onchange: e => { c.sheetEdit = e.target.checked; upd(); } }), ' Править на листе'),
       live ? btn('Долгий отдых', ops.rest, 'dmbtn', 'Сбросить ячейки, ресурсы, хиты и спасброски от смерти') : null,
       h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. Если цвета не печатаются, в окне печати включите «Фоновая графика» (в Chrome это включается само).')),

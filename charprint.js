@@ -193,10 +193,11 @@
       const i = g.src.indexOf(':'), kind = i < 0 ? g.src : g.src.slice(0, i), what = i < 0 ? '' : g.src.slice(i + 1).trim();
       const grp = el('div', 'pfg g-' + ({ 'Класс': 'cls', 'Подкласс': 'sub', 'Вид': 'sp', 'Раса': 'sp', 'Подвид': 'ssp', 'Предыстория': 'bg', 'Черты': 'ft' }[kind] || 'pk'),
         el('div', 'pfh', el('b', '', kind), what ? el('span', '', what) : null, el('small', '', g.items.length)));
-      g.items.forEach(f => {
+      g.items.forEach((f, k) => {
         const body = el('div', 'ft'); body.innerHTML = (f.blocks ? DBx.B(f.blocks) : esc(f.text || '')).replace(/<\/(p|li|div|h\d)>/g, '$& ');
         if (c.featTxt !== 'full') { const tx = body.textContent.replace(/\s+/g, ' ').trim(); body.textContent = tx.length > 260 ? tx.slice(0, 260).replace(/\s\S*$/, '') + '…' : tx; }
-        grp.append(el('div', 'pfi', el('b', '', f.name), f.level ? el('small', '', ' ' + f.level + ' ур.') : null, body));
+        const it = el('div', 'pfi', el('b', '', f.name), f.level ? el('small', '', ' ' + f.level + ' ур.') : null, body);
+        if (k === 0) { const hd = grp.firstChild; grp.removeChild(hd); grp.append(el('div', 'pfk', hd, it)); } else grp.append(it);   // заголовок раздела всегда вместе с первым умением
       });
       cols.append(grp);
     });
