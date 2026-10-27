@@ -929,17 +929,49 @@
     return h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Страницы для печати'), pages, feats);
   }
   async function tabSheet(p, c, D, d) {
-    const CSP = root.CSP, X = { featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr };
+    const CSP = root.CSP, live = c.sheetEdit !== false;
+    // действия прямо на листе: всё, что меняет числа, идёт через upd() (пересчёт), отметки и записи — только сохранение
+    const ops = {
+      upd: () => upd(), save: () => upd(false),
+      setScore: (k, v) => { v = Math.max(1, Math.min(30, v)); c.ab = c.ab || {}; c.ab[k] = Math.max(1, (R.intOf(c.ab[k]) || 10) + v - d.score[k]); upd(); },
+      setAc: v => { if (v === d.acAuto) { c.acMode = 'auto'; c.acManual = 0; } else { c.acMode = 'manual'; c.acManual = v; } upd(); },
+      setHp: v => { v = Math.max(1, v); if (v === d.hpCalc) { c.hpMode = 'avg'; c.hpManual = 0; } else { c.hpMode = 'manual'; c.hpManual = Math.max(1, v - (c.hpBonus || 0)); } upd(); },
+      setInit: v => { c.initOv = v === d.initAuto ? '' : v; upd(); },
+      setSpeed: v => { c.speed = v === d.speedAuto ? '' : Math.max(0, v); upd(); },
+      shield: () => { const sh = c.inv.find(i => i.slug === 'shield'); if (sh) sh.eq = !sh.eq; else c.inv.push({ n: 'Щит', slug: 'shield', sec: '', q: 1, eq: true }); upd(); },
+      wear: it => { it.eq = !it.eq; upd(); },
+      // навык: нет → владение → экспертность → снова нет (владение от класса и предыстории снимается тоже)
+      prof: t => {
+        if (t.kind === 'save') { c.saveExtra = c.saveExtra || {}; const x = c.saveExtra[t.k], on = d.saveProf.has(t.k); if (on) { if (x === 1) delete c.saveExtra[t.k]; else c.saveExtra[t.k] = -1; } else if (x === -1) delete c.saveExtra[t.k]; else c.saveExtra[t.k] = 1; upd(); return; }
+        const lev = (d.skills.find(x => x.id === t.id) || {}).lev | 0, id = t.id;
+        c.skillsExtra = c.skillsExtra || []; c.exp = c.exp || []; c.skills = c.skills || [];
+        if (lev === 0) c.skillsExtra.push(id);
+        else if (lev === 1) c.exp.push(id);
+        else { c.exp = c.exp.filter(x => x !== id); c.skillsExtra = c.skillsExtra.filter(x => x !== id); c.skills = c.skills.filter(x => x !== id); }
+        upd();
+      },
+      rest: () => {
+        if (!confirm('Долгий отдых: хиты до максимума, ячейки заклинаний, ресурсы и спасброски от смерти сбрасываются, истощение −1, половина костей хитов возвращается. Продолжить?')) return;
+        const t = (c.play = c.play || {}).t = c.play.t || {};
+        Object.keys(t).forEach(k => { if (/^(sl\d|res:|ds[SF]$)/.test(k)) delete t[k]; });
+        if (t.exh) { t.exh--; if (!t.exh) delete t.exh; }
+        if (t.hd) { t.hd = Math.max(0, t.hd - Math.max(1, Math.floor(d.lvl / 2))); if (!t.hd) delete t.hd; }
+        c.hpCur = null; c.hpTemp = 0; upd(); root.DM.toast('Долгий отдых: всё восстановлено');
+      },
+    };
+    const X = { ops: live ? ops : null, featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr };
     // цвет печати: палитра справочника (красная для 2024, бирюзовая для 2014) или чёрно-белый вариант (c.pMono)
     const colorCtl = h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Цвет печати'),
       h('div', { class: 'seg csmeth' }, btn('Цветная', () => { delete c.pMono; upd(); }, c.pMono ? '' : 'act'), btn('Чёрно-белая', () => { c.pMono = true; upd(); }, c.pMono ? 'act' : '')),
       h('p', { class: 'mhint' }, c.pMono ? 'Только чёрный и серый: для принтера без цвета или чтобы сэкономить картридж.'
         : 'Заголовки и линии цвета справочника (' + (c.ed === 24 ? 'кирпично-красные' : 'бирюзовые') + '), светлые плашки. Бумага остаётся белой.'));
     p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать / сохранить в PDF', () => window.print(), 'dmbtn pri', 'В окне печати выберите «Сохранить как PDF»'),
+      h('label', { class: 'sheetedit', title: 'Нажимайте на кружки и ромбики, вписывайте числа и текст прямо в лист. Правка не попадает в печать.' }, h('input', { type: 'checkbox', checked: live, onchange: e => { c.sheetEdit = e.target.checked; upd(); } }), ' Править на листе'),
+      live ? btn('Долгий отдых', ops.rest, 'dmbtn', 'Сбросить ячейки, ресурсы, хиты и спасброски от смерти') : null,
       h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. Если цвета не печатаются, в окне печати включите «Фоновая графика» (в Chrome это включается само).')),
       h('div', { class: 'noprint sheetopt' }, printOptions(c, D, d), h('div', { class: 'cscol' }, colorCtl,
         h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Портрет'), portraitCtl(c), h('p', { class: 'mhint' }, 'Печатается на странице «Описание».')))));
-    const sh = h('div', { class: 'csheet' + (c.pMono ? ' mono' : '') }); p.append(sh);
+    const sh = h('div', { class: 'csheet' + (c.pMono ? ' mono' : '') + (live ? ' live' : '') }); p.append(sh);
     CSP.build(sh, { c, D, d, X });
     // облики зверей
     if (d.ws && c.forms.length && c.printForms !== false) {

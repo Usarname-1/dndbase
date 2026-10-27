@@ -800,6 +800,7 @@
     const saveProf = new Set(ci ? ci.saves : []), saves = {}, saveFx = act('save'), saveFrom = {};
     saveProf.forEach(k => { saveFrom[k] = ['класс']; });
     act('saveProf').forEach(e => e.ab.forEach(k => { if (!saveProf.has(k)) { saveProf.add(k); saveFrom[k] = []; } if (saveFrom[k][0] !== 'класс' && !saveFrom[k].includes(e.why)) saveFrom[k].push(e.why); }));   // владение от умений и черт: откуда оно, видно в листе
+    AB.forEach(a => { const x = c.saveExtra && c.saveExtra[a.k]; if (x === -1) { saveProf.delete(a.k); delete saveFrom[a.k]; } else if (x && !saveProf.has(a.k)) { saveProf.add(a.k); saveFrom[a.k] = ['вручную']; } });   // отметка на листе: владение из другого источника
     AB.forEach(a => { saves[a.k] = m[a.k] + (saveProf.has(a.k) ? pb : 0) + sum(saveFx.filter(e => !e.ab || e.ab.includes(a.k))); });
 
     const bgi = bgSkillInfo(D.bg), bgSk = bgi.fixed;
@@ -822,6 +823,7 @@
     const hpLvl = (L) => Math.max(1, Math.floor(die / 2) + 1 + m.con);
     const hpFx = act('hp'), manualHp = c.hpMode === 'manual' && c.hpManual;
     let hp = die + m.con + (lvl - 1) * hpLvl();
+    const hpCalc = Math.max(lvl, hp + sum(hpFx) + (c.hpBonus || 0));   // по правилам (для листа: видно, что число изменено вручную)
     if (manualHp) hp = c.hpManual; else hp += sum(hpFx);                  // свой итог вводят уже с учётом всего
     hp = Math.max(lvl, hp + (c.hpBonus || 0));
 
@@ -840,6 +842,7 @@
     if (worn.shield) { ac += 2; acWhy += ' + щит'; }
     act('acPlus').forEach(e => { ac += e.v; acWhy += ' + ' + e.why; });
     if (c.acBonus) ac += c.acBonus;
+    const acAuto = ac;
     if (c.acMode === 'manual' && c.acManual) { ac = c.acManual; acWhy = 'вручную'; }
 
     // заклинания
@@ -882,7 +885,7 @@
     const expN = expertiseSlots(D.cls, lvl, c.ed), expUsed = skills.filter(s => s.lev === 2).length;
 
     // инициатива и скорость: база + эффекты умений; свою скорость в листе вводят уже итоговой
-    const initFx = act('init'), init = m.dex + sum(initFx);
+    const initFx = act('init'), initAuto = m.dex + sum(initFx), initOv = c.initOv != null && c.initOv !== '' ? intOf(c.initOv) : null, init = initOv != null ? initOv : initAuto;
     const spdFx = act('speed'), spdBase = speciesSpeed(D.sp, c.ed, { opt: c.spOpt, lvl });
     const spdSet = Math.max(spdBase, ...spdFx.filter(e => e.set).map(e => e.set)), spdAuto = spdSet + sum(spdFx.filter(e => !e.set));
     const spdOv = c.speed != null && c.speed !== '' ? intOf(c.speed) : null, speed = spdOv != null ? spdOv : spdAuto;
@@ -890,7 +893,7 @@
     const res = resources(c, D, { lvl, m, lr });
     return {
       expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, saveFrom,
-      init, initWhy: whyOf('Лов ' + sgn(m.dex), initFx), initFx, hpFx, hpAuto: !manualHp, passive, passiveFx: psFx,
+      init, initAuto, initOv, hpCalc, acAuto, initWhy: whyOf('Лов ' + sgn(m.dex), initFx), initFx, hpFx, hpAuto: !manualHp, passive, passiveFx: psFx,
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
       speed, speedAuto: spdAuto, speedBase: spdSet, speedOv: spdOv, speedFx: spdFx, speedWhy: whyOf('вид ' + spdSet, spdFx.filter(e => !e.set)),
@@ -939,7 +942,7 @@
       id: Math.random().toString(36).slice(2, 9), ed: ed || 24, name: '', player: '', cls: '', sub: '', lvl: 1, sp: '', spOpt: '', bg: '', align: '',
       abm: 'std', ab: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }, bg2: { m: '21', a: '', b: '' }, bonus: {}, asi: {},
       skills: [], skillsExtra: [], exp: [], hpMode: 'avg', hpManual: 0, hpBonus: 0, hpCur: null, hpTemp: 0, acMode: 'auto', acManual: 0, acBonus: 0,
-      speed: '', fxOff: {}, spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
+      speed: '', initOv: '', saveExtra: {}, play: { t: {}, cond: '' }, fxOff: {}, spells: [], spellsAll: false, inv: [], coins: { pm: 0, zm: 0, em: 0, sm: 0, mm: 0 }, forms: [],
       story: { traits: '', ideals: '', bonds: '', flaws: '', look: '', notes: '', langs: '', tools: '' }, printSpells: true, psv: 2, feats: [], picks: { style: '', mastery: [], metamagic: [], invocations: [] }, kit: {}, kitCoins: {}, featTxt: 'short', spellsFree: false
     };
   }
