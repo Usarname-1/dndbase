@@ -315,3 +315,38 @@
 :where(.csheet) .e24 .slg{align-content:start;grid-auto-rows:min-content}
 :where(.csheet) .e24 .slc .dm{margin:.7mm .55mm}
 :where(.csheet) .e24 .spsl .spn{margin-top:auto;padding-top:1mm}
+
+/* ───── правка прямо на листе (переключатель «Править на листе»): на экране — поля и кликабельные значки, в печати — обычный текст ───── */
+#cs .csheet .ie{height:auto;appearance:none;-webkit-appearance:none;font:inherit;color:inherit;background:transparent;border:0;border-radius:.6mm;padding:0;margin:0;width:100%;min-width:0;box-sizing:border-box;text-align:inherit;outline:0;letter-spacing:inherit;text-transform:none;font-variant:inherit}
+#cs .csheet .ie.c{text-align:center}
+#cs .csheet .ie.ta{display:block;height:100%;min-height:100%;resize:none;overflow:hidden;line-height:4.7mm;font:400 9.5pt/4.7mm var(--sans);white-space:pre-wrap;padding:0}
+#cs .csheet .val .ie,#cs .csheet .asc .ie{width:100%;font-weight:700}
+#cs .csheet .si .ie{font:inherit}
+#cs .csheet .hpin,#cs .csheet .hdin{display:flex;align-items:center;justify-content:center;font:700 14pt/1 var(--sans);width:100%}
+#cs .csheet .hpin .ie,#cs .csheet .hdin .ie{font:inherit;text-align:center}
+#cs .csheet td .ie{font:inherit}
+#cs .csheet .fld b .ie{font:inherit;padding:0 .5mm}
+#cs .csheet .sqr.on,#cs .csheet .sqb.on{background:var(--bar)}
+#cs .csheet .eqm.ix{cursor:pointer}
+@media screen{
+  #cs .csheet.live .ie{cursor:text}
+  #cs .csheet.live .ie:hover{background:rgba(255,235,150,.35);box-shadow:0 0 0 .4mm rgba(190,150,0,.45)}
+  #cs .csheet.live .ie:focus,#cs .csheet.live .ie:focus-visible{background:#fff8d6;box-shadow:0 0 0 .5mm #c9a400}
+  #cs .csheet.live .ie.ov{color:#a13a00;text-decoration:underline dotted}
+  .csheet .ix{cursor:pointer;transition:transform .1s,box-shadow .1s}
+  .csheet .ix:hover{box-shadow:0 0 0 .7mm rgba(201,164,0,.55);transform:scale(1.18)}
+  .csheet .dm.ix:hover{transform:rotate(45deg) scale(1.2)}
+  .csheet .eqm.ix::before{content:'';display:inline-block;width:2mm;height:2mm;border:.6pt solid var(--bar);border-radius:50%;margin-right:.3mm;vertical-align:-.2mm;background:#fff}
+  .csheet .eqm.ix{font-size:0}
+  .csheet .eqm.ix:not(:empty)::before{background:var(--bar)}
+  :where(.csheet.live) .e14 .hdb .sp{display:block}
+  .csheet.live .tx.ln:focus-within{background-color:rgba(255,248,214,.5)}
+}
+@media print{
+  #cs .csheet .ie{background:transparent!important;box-shadow:none!important;border:0!important;color:inherit!important;text-decoration:none!important;cursor:auto}
+  .csheet .ix{box-shadow:none!important;transform:none!important}
+  .csheet .eqm.ix{font-size:inherit}.csheet .eqm.ix::before{content:none}
+  #cs .csheet .ie::placeholder{color:transparent}
+}
+.sheetbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
+.sheetbar .sheetedit{display:inline-flex;align-items:center;gap:.3rem;font-weight:600;cursor:pointer}

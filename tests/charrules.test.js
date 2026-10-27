@@ -760,3 +760,20 @@ test('предыстория «Представитель фракции» 2014:
   const from = new Set(i.from), ab = new Set(['int', 'wis', 'cha']);
   assert.ok(i.from.every(id => ab.has(R.SKILLS.find(s => s.id === id).ab)) && from.has('history') && from.has('medicine') && from.has('persuasion') && !from.has('insight') && !from.has('athletics'));
 });
+test('правка на листе: ручные значения КД, хитов, инициативы и спасбросков не ломают расчёт', () => {
+  for (const ed of [24, 14]) {
+    const base = run(ed, { cls: 'fighter', lvl: 3, ab: { dex: 14, con: 14 }, inv: ['shield'] });
+    assert.equal(base.hpCalc, base.hp); assert.equal(base.acAuto, base.ac); assert.equal(base.initOv, null);
+    // КД вручную: расчётное значение остаётся в acAuto, чтобы лист показал «изменено вручную»
+    const man = run(ed, { cls: 'fighter', lvl: 3, ab: { dex: 14, con: 14 }, inv: ['shield'], set: { acMode: 'manual', acManual: 19, initOv: 5, hpMode: 'manual', hpManual: 40, saveExtra: { cha: 1 } } });
+    assert.equal(man.ac, 19); assert.equal(man.acAuto, base.ac);
+    assert.equal(man.init, 5); assert.equal(man.initAuto, base.init); assert.equal(man.initOv, 5);
+    assert.equal(man.hp, 40); assert.equal(man.hpCalc, base.hpCalc);
+    assert.ok(man.saveProf.has('cha') && man.saves.cha === base.saves.cha + base.pb, 'ручное владение спасброском ' + ed);
+    const noSv = run(ed, { cls: 'fighter', lvl: 3, set: { saveExtra: { str: -1 } } });
+    assert.ok(!noSv.saveProf.has('str') && noSv.saveProf.has('con'), 'снятое владение спасброском ' + ed);
+    // снять щит: КД на 2 меньше
+    const [c, D] = mk(ed, { cls: 'fighter', lvl: 3, ab: { dex: 14, con: 14 }, inv: ['shield'] }); c.inv[0].eq = false;
+    assert.equal(R.derive(c, D).ac, base.ac - 2);
+  }
+});
