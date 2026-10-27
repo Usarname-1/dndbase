@@ -544,7 +544,7 @@
     const out = [];
     if (D.cls) (D.cls.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Класс: ' + D.cls.name_ru }));
     if (D.sub) (D.sub.features || []).filter(f => f.level <= c.lvl).forEach(f => out.push({ name: f.name, level: f.level, blocks: f.blocks, src: 'Подкласс: ' + D.sub.name }));
-    if (D.sp) R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl }).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: 'Вид: ' + D.sp.name_ru }));
+    if (D.sp) R.speciesTraits(D.sp, { opt: c.spOpt, lvl: c.lvl }).forEach(t => out.push({ name: t.name, text: t.text.replace(/\*+/g, ''), src: t.sub && c.spOpt ? 'Подвид: ' + c.spOpt : (c.ed === 14 ? 'Раса: ' : 'Вид: ') + D.sp.name_ru }));
     if (D.bg && D.bg.feat) { const f = d.bgFeat && d.bgFeat.feat; out.push({ name: f ? f.name_ru : D.bg.feat.name, blocks: f ? f.blocks : null, text: f ? '' : 'Черта предыстории: выберите на вкладке «Основа»', src: 'Предыстория: ' + D.bg.name_ru }); }
     d.feats.forEach(x => { const f = D.feats.find(y => y.slug === x.slug); if (f) out.push({ name: f.name_ru, level: x.lvl, blocks: f.blocks, src: 'Черты' }); });
     pickEntries(c, D, d).forEach(e => out.push(e));

@@ -404,7 +404,7 @@
     // «Наследие Маладомини» (MToF) заменяет общее «Дьявольское наследие»: наследия подрасы вытесняют общее
     const heritage = sub.tr.some(t => /наследие/i.test(String(t.name).trim()));
     const kept = (sub.all ? base.filter(t => KEEP_ALL.test(String(t.name).trim())) : base.filter(t => !sub.names.has(lc(t.name).trim()) && !(sub.names.has('увеличение характеристик') && isAsiTrait(t)))).filter(t => !own.has(lc(t.name).trim()) && !(heritage && /наследие/i.test(String(t.name).trim())));
-    return kept.concat(sub.tr);
+    return kept.concat(sub.tr.map(t => Object.assign({}, t, { sub: true })));   // sub: особенность подвида (для листа)
   }
   // Бонусы вида к характеристикам по выбранной подрасе: { fixed: {ключ: +N}, picks: [{ n, v }] (на выбор), traits: [названия] }
   function speciesAsi(sp, opt) {
@@ -438,13 +438,13 @@
       (sp.blocks || []).forEach(b => {
         if (b.type === 'heading') { cur = b.text; return; }
         if (b.type !== 'paragraph' || (ch.options.includes(cur) && cur !== opt)) return;
-        const tr = traitOf(b.text); if (tr) out.push(tr);
+        const tr = traitOf(b.text); if (tr) out.push(cur === opt && ch.options.includes(cur) ? Object.assign({}, tr, { sub: true }) : tr);
       });
       return out;
     }
     // драконорождённые 2014: после основного раздела лежат «Разновидности» (Драконокровный, Равенит, FTD) со своими бонусами — к выбору наследия они не относятся
     const ss = ch.kind === 'table' ? speciesSections(sp) : null, tr = ss && ss.base ? ss.base.tr : allTraits(sp);
-    if (ch.kind === 'par') return tr.filter(t => !ch.options.includes(t.name) || t.name === opt);
+    if (ch.kind === 'par') return tr.filter(t => !ch.options.includes(t.name) || t.name === opt).map(t => ch.options.includes(t.name) ? Object.assign({}, t, { sub: true }) : t);
     const out = [];
     tr.forEach(t => {
       out.push(t);
@@ -452,7 +452,7 @@
       const hd = ch.table.rows[0], row = ch.table.rows.find((r, i) => i && r[0] === opt); if (!row) return;
       const parts = [];
       hd.forEach((hn, j) => { if (!j) return; const n = (hn.match(/(\d+)-й/) || [])[1]; if (n) { if (+n <= lvl) parts.push(n + '-й ур.: ' + row[j]); } else parts.push(hn + ': ' + row[j]); });
-      out.push({ name: t.name + ' — ' + opt, text: parts.join(' ') });
+      out.push({ name: t.name + ' — ' + opt, text: parts.join(' '), sub: true });
     });
     return out;
   }
