@@ -106,6 +106,12 @@
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.picks = c.picks || {}; ['mastery', 'metamagic', 'invocations'].forEach(k => { if (!Array.isArray(c.picks[k])) c.picks[k] = []; }); c.picks.style = c.picks.style || ''; c.kit = c.kit || {}; c.kitSel = c.kitSel || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
+    // максимум хитов изменился (уровень, Телосложение, вручную…): текущие хиты растут на столько же, а выше нового максимума не остаются
+    if (D.cls && c.hpCur != null) {
+      const was = c.hpPrev, now = d.hp, cur = was != null && was !== now && now > was ? c.hpCur + now - was : c.hpCur;
+      const fixed = Math.max(0, Math.min(cur, now)); if (fixed !== c.hpCur) { c.hpCur = fixed; save(); }
+    }
+    if (D.cls && c.hpPrev !== d.hp) { c.hpPrev = d.hp; save(); }
     if (seq !== renderSeq) return;   // пока грузились данные, началась более свежая отрисовка: иначе на экране окажется две сводки подряд
     renderBar(bar);   // повторно: теперь данные загружены, и в списке персонажей будет название класса, а не его код
     body.append(h('div', { class: 'csside' }, summary(c, D, d, t), tabsBar(c, D, d, t), todoCard(t)));   // слева (на узком экране — сверху): сводка, шаги, что осталось
