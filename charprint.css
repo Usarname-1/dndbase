@@ -357,3 +357,10 @@
 #cs .csheet .fld b.cl14 select.ie{flex:1 1 0}
 @media screen{#cs .csheet.live select.ie{padding-right:3mm;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E") right center no-repeat}}
 @media print{#cs .csheet select.ie{background-image:none!important;padding:0!important}}
+
+/* умения и особенности: разделы по источнику (класс, подкласс, вид, подвид, предыстория, черты) */
+.csheet .pfg{margin-bottom:3.2mm}
+.csheet .pfh{break-after:avoid;display:flex;align-items:baseline;gap:1.6mm;margin:0 0 1.8mm;padding:.7mm 2mm;background:var(--tint);border-left:1.3mm solid var(--bar);border-bottom:.4pt solid var(--edge);color:var(--red);font-size:7.6pt;line-height:1.2}
+.csheet .pfh b{font:700 7.6pt var(--serif);font-variant:small-caps;letter-spacing:.05em}
+.csheet .pfh span{font:700 8.4pt var(--serif);color:var(--ink,#111);flex:1}
+.csheet .pfh small{margin-left:auto;font-size:6.3pt;color:var(--muted)}

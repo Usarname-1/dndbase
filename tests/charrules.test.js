@@ -777,3 +777,11 @@ test('правка на листе: ручные значения КД, хито
     assert.equal(R.derive(c, D).ac, base.ac - 2);
   }
 });
+test('особенности подвида помечаются (sub), общие особенности вида нет', () => {
+  const cases = [[24, 'gnome', 'Лесной гном'], [14, 'elf', 'Высший эльф'], [14, 'gnome', 'Лесной']];
+  for (const [ed, slug, opt] of cases) {
+    const tr = R.speciesTraits(DATA[ed].species.find(x => x.slug === slug), { opt, lvl: 3 });
+    assert.ok(tr.some(t => t.sub), ed + ' ' + opt + ': нет особенностей подвида');
+    assert.ok(tr.some(t => !t.sub), ed + ' ' + opt + ': нет общих особенностей вида');
+  }
+});

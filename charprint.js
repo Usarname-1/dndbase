@@ -187,10 +187,18 @@
     const P = shell('Умения и особенности', c, 'flow ftxt'), DBx = DB();
     const cols = el('div', 'pfeat'), list = X.featureList(c, D, d);
     if (!list.length) return null;
-    list.forEach(f => {
-      const body = el('div', 'ft'); body.innerHTML = (f.blocks ? DBx.B(f.blocks) : esc(f.text || '')).replace(/<\/(p|li|div|h\d)>/g, '$& ');
-      if (c.featTxt !== 'full') { const tx = body.textContent.replace(/\s+/g, ' ').trim(); body.textContent = tx.length > 260 ? tx.slice(0, 260).replace(/\s\S*$/, '') + '…' : tx; }
-      cols.append(el('div', 'pfi', el('b', '', f.name), el('small', '', ' ' + f.src + (f.level ? ', ' + f.level + ' ур.' : '')), body));
+    // разделы по источнику: класс, подкласс, вид, подвид, предыстория, черты, выборы класса (порядок как в списке умений)
+    const groups = []; list.forEach(f => { let g = groups.find(x => x.src === f.src); if (!g) groups.push(g = { src: f.src, items: [] }); g.items.push(f); });
+    groups.forEach(g => {
+      const i = g.src.indexOf(':'), kind = i < 0 ? g.src : g.src.slice(0, i), what = i < 0 ? '' : g.src.slice(i + 1).trim();
+      const grp = el('div', 'pfg g-' + ({ 'Класс': 'cls', 'Подкласс': 'sub', 'Вид': 'sp', 'Раса': 'sp', 'Подвид': 'ssp', 'Предыстория': 'bg', 'Черты': 'ft' }[kind] || 'pk'),
+        el('div', 'pfh', el('b', '', kind), what ? el('span', '', what) : null, el('small', '', g.items.length)));
+      g.items.forEach(f => {
+        const body = el('div', 'ft'); body.innerHTML = (f.blocks ? DBx.B(f.blocks) : esc(f.text || '')).replace(/<\/(p|li|div|h\d)>/g, '$& ');
+        if (c.featTxt !== 'full') { const tx = body.textContent.replace(/\s+/g, ' ').trim(); body.textContent = tx.length > 260 ? tx.slice(0, 260).replace(/\s\S*$/, '') + '…' : tx; }
+        grp.append(el('div', 'pfi', el('b', '', f.name), f.level ? el('small', '', ' ' + f.level + ' ур.') : null, body));
+      });
+      cols.append(grp);
     });
     P.append(cols);
     return [P];
