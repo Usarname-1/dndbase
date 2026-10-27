@@ -397,6 +397,9 @@ body.cs #cs{display:block;min-height:100%}
 /* ===== печать: скрываем интерфейс, оставляем только страницы листа (их стили — в charprint.css) ===== */
 @media print{
  @page{size:A4;margin:8mm}
+ /* лист персонажа: поля страницы нулевые (отступы заданы у самих страниц) — тогда браузер не печатает в полях своё имя страницы и адрес */
+ @page cspage{size:A4;margin:0}
+ body.cs #cs{page:cspage}
  html,body{height:auto!important;display:block!important;background:#fff!important}
  nav,aside,.col,#dm,.wrap,#tip,#rolls,.dmtoast,.csbar,.csside,.cshead,.cstabs,.cswel,.noprint{display:none!important}
  main{overflow:visible!important;height:auto!important;padding:0!important}

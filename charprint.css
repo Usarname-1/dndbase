@@ -14,7 +14,7 @@
 .csheet .pg{position:relative;width:194mm;height:279mm;margin:0 auto 14px;background:#fff;color:var(--ink);overflow:hidden;zoom:var(--z,1)}
 .csheet .pg.flow{height:auto;min-height:279mm;overflow:visible}
 @media screen{.csheet .pg{box-sizing:content-box;padding:8mm;box-shadow:0 2px 14px rgba(0,0,0,.22)}}
-@media print{.csheet .pg{zoom:1;margin:0;padding:0;box-shadow:none;break-after:page;page-break-after:always}.csheet .pg:last-child{break-after:auto;page-break-after:auto}}
+@media print{.csheet .pg{zoom:1;margin:0;padding:9mm 8mm 8.5mm;box-sizing:content-box;-webkit-box-decoration-break:clone;box-decoration-break:clone;box-shadow:none;break-after:page;page-break-after:always}.csheet .pg:last-child{break-after:auto;page-break-after:auto}}
 .csheet small{display:block;font:400 5.2pt/1.15 var(--sans);text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
 .csheet b{font-weight:700}
 .csheet p{margin:0}
@@ -365,3 +365,10 @@
 .csheet .pfh span{font:700 8.4pt var(--serif);color:var(--ink,#111);flex:1}
 .csheet .pfh small{margin-left:auto;font-size:6.3pt;color:var(--muted)}
 .csheet .pfk{break-inside:avoid}.csheet .pfk .pfi{margin-bottom:2.3mm}
+
+/* разлиновка и клетки: линии-SVG (см. rulings() в charprint.js) */
+.csheet .ln.dv,.csheet .gr.dv{background-image:none;position:relative;isolation:isolate}
+.csheet .rul{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;overflow:hidden;pointer-events:none}
+.csheet .rul-ln line{stroke:var(--ruled);stroke-width:.16mm}
+.csheet .rul-gr line{stroke:var(--grid);stroke-width:.14mm}
+@media screen{#cs .csheet.live .ie.ta:hover,#cs .csheet.live .ie.ta:focus,#cs .csheet.live .ie.ta:focus-visible{background:transparent;box-shadow:none}}
