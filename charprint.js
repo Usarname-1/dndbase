@@ -342,8 +342,19 @@
     pages.forEach(p => { if (!p.classList.contains('e24') && !p.classList.contains('e14')) p.classList.add(e24 ? 'e24' : 'e14'); });
     sh.append(...pages);
     const p1 = pages.find(p => p.classList.contains('p1'));
+    pages.forEach(rulings);
     if (p1) { const trim = () => { fitNames(p1); trimLists(p1); }; trim(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(trim); }
     return pages;
+  }
+  // разлиновка строк (.ln) и клетки (.gr) — настоящие линии (SVG), а не фон-градиент: плитка с дробным размером при печати и масштабировании
+  // местами теряет и двоит линии. Линий берём с запасом, лишнее обрезается рамкой блока.
+  const NS = 'http://www.w3.org/2000/svg';
+  function rulings(P) {
+    const mk = (cls, lines) => { const s = document.createElementNS(NS, 'svg'); s.setAttribute('class', 'rul ' + cls); s.setAttribute('aria-hidden', 'true'); s.setAttribute('preserveAspectRatio', 'none'); lines.forEach(l => { const e = document.createElementNS(NS, 'line'); Object.entries(l).forEach(([k, v]) => e.setAttribute(k, v)); s.append(e); }); return s; };
+    P.querySelectorAll('.ln').forEach(n => { n.classList.add('dv'); n.prepend(mk('rul-ln', Array.from({ length: 70 }, (_, i) => ({ x1: '0', x2: '100%', y1: ((i + 1) * 4.7 - 0.08).toFixed(2) + 'mm', y2: ((i + 1) * 4.7 - 0.08).toFixed(2) + 'mm' })))); });
+    P.querySelectorAll('.gr').forEach(n => { n.classList.add('dv'); n.prepend(mk('rul-gr', [].concat(
+      Array.from({ length: 70 }, (_, i) => ({ x1: '0', x2: '100%', y1: (i * 3.5 + 0.07).toFixed(2) + 'mm', y2: (i * 3.5 + 0.07).toFixed(2) + 'mm' })),
+      Array.from({ length: 60 }, (_, i) => ({ y1: '0', y2: '100%', x1: (i * 3.5 + 0.07).toFixed(2) + 'mm', x2: (i * 3.5 + 0.07).toFixed(2) + 'mm' }))))); });
   }
   // длинное имя персонажа и длинные значения в полях шапки уменьшаем, пока не влезут в строку (не меньше 8 пт для имени, 6,5 пт для остальных)
   function fitNames(P) {
