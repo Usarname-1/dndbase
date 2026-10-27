@@ -777,3 +777,11 @@ test('правка на листе: ручные значения КД, хито
     assert.equal(R.derive(c, D).ac, base.ac - 2);
   }
 });
+test('предел значения характеристики отдаётся в derive (правка на листе не должна уходить выше предела)', () => {
+  for (const ed of [24, 14]) {
+    const d = run(ed, { cls: 'fighter', lvl: 3, ab: { str: 20 } });
+    assert.equal(d.scoreCap.str, 20); assert.equal(d.score.str, 20);
+    assert.equal(run(ed, { cls: 'fighter', lvl: 3, ab: { str: 25 }, set: { cap20: false } }).scoreCap.str, 30);
+    assert.ok(R.AB.every(a => d.scoreCap[a.k] >= d.score[a.k]));
+  }
+});

@@ -943,7 +943,7 @@
       setSub: v => { c.sub = v; upd(); },
       setSp: v => { if (v !== c.sp) { c.sp = v; c.spOpt = ''; } upd(); },
       setSpo: v => { c.spOpt = v; upd(); },
-      setScore: (k, v) => { v = Math.max(1, Math.min(30, v)); c.ab = c.ab || {}; c.ab[k] = Math.max(1, (R.intOf(c.ab[k]) || 10) + v - d.score[k]); upd(); },
+      setScore: (k, v) => { v = Math.max(1, Math.min(d.scoreCap[k] || 20, v)); c.ab = c.ab || {}; c.ab[k] = Math.max(1, (R.intOf(c.ab[k]) || 10) + v - d.score[k]); upd(); },
       setAc: v => { if (v === d.acAuto) { c.acMode = 'auto'; c.acManual = 0; } else { c.acMode = 'manual'; c.acManual = v; } upd(); },
       setHp: v => { v = Math.max(1, v); if (v === d.hpCalc) { c.hpMode = 'avg'; c.hpManual = 0; } else { c.hpMode = 'manual'; c.hpManual = Math.max(1, v - (c.hpBonus || 0)); } upd(); },
       setInit: v => { c.initOv = v === d.initAuto ? '' : v; upd(); },

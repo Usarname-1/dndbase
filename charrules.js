@@ -789,7 +789,7 @@
     // умения, повышающие характеристики (Дикий чемпион, Тело и разум): +N с потолком выше обычного
     const abFx = abilityFx(S).map(e => Object.assign(e, { off: !!off[e.id] }));
     abFx.filter(e => !e.off).forEach(e => e.ab.forEach(k => { add(k, e.v, e.why); capOf[k] = Math.max(capOf[k] || 0, e.cap); }));
-    AB.forEach(a => { score[a.k] = Math.min(score[a.k], capOf[a.k] || (c.cap20 === false ? 30 : 20)); });
+    const scoreCap = {}; AB.forEach(a => { scoreCap[a.k] = capOf[a.k] || (c.cap20 === false ? 30 : 20); score[a.k] = Math.min(score[a.k], scoreCap[a.k]); });   // scoreCap: предел значения (для правки на листе)
     const m = {}; AB.forEach(a => { m[a.k] = mod(score[a.k]); });
     const pb = lr ? lr.prof : Math.ceil(lvl / 4) + 1;
     const worn = wornGear(c, D);
@@ -892,7 +892,7 @@
     const whyOf = (base, list) => [base, ...list.map(e => e.why + ' ' + sgn(e.v))].join(', ');
     const res = resources(c, D, { lvl, m, lr });
     return {
-      expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, saveFrom,
+      expN, expUsed, extraN, grants, lvl, ci: ciX, lr, score, scoreCap, src, mod: m, pb, saves, saveProf, skills, bgSk, bgChoice, hp, die, ac, acWhy, saveFrom,
       init, initAuto, initOv, hpCalc, acAuto, initWhy: whyOf('Лов ' + sgn(m.dex), initFx), initFx, hpFx, hpAuto: !manualHp, passive, passiveFx: psFx,
       size: sizeOf(D.sp, c.size), sizeOpts: speciesSizes(D.sp), carry: Math.round(score.str * 15 * (SIZE_MULT[sizeOf(D.sp, c.size)] || 1)),
       jumpHigh: Math.max(0, 3 + m.str), jumpLong: score.str,
