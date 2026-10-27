@@ -364,3 +364,4 @@
 .csheet .pfh b{font:700 7.6pt var(--serif);font-variant:small-caps;letter-spacing:.05em}
 .csheet .pfh span{font:700 8.4pt var(--serif);color:var(--ink,#111);flex:1}
 .csheet .pfh small{margin-left:auto;font-size:6.3pt;color:var(--muted)}
+.csheet .pfk{break-inside:avoid}.csheet .pfk .pfi{margin-bottom:2.3mm}
