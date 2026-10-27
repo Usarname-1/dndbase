@@ -933,6 +933,16 @@
     // действия прямо на листе: всё, что меняет числа, идёт через upd() (пересчёт), отметки и записи — только сохранение
     const ops = {
       upd: () => upd(), save: () => upd(false),
+      opts: { cls: D.classes.map(x => [x.slug, x.name_ru + (R.officialSrc(x.sources) ? '' : ' (неофиц.)')]), sp: D.species.map(x => [x.slug, x.name_ru]),
+        sub: (D.cls && D.cls.subclasses || []).map(x => [x.name, x.name]) },
+      setLvl: v => { c.lvl = Math.max(1, Math.min(20, v)); upd(); },
+      setCls: v => {
+        if (v !== c.cls && ((c.skills || []).length || (c.spells || []).length || Object.keys(c.asi || {}).length) && !confirm('Смена класса сбросит выбранные навыки класса, заклинания и повышения характеристик. Продолжить?')) { upd(); return; }
+        if (v !== c.cls) { c.cls = v; c.sub = ''; c.skills = []; c.exp = []; c.asi = {}; c.spells = []; c.forms = []; } upd();
+      },
+      setSub: v => { c.sub = v; upd(); },
+      setSp: v => { if (v !== c.sp) { c.sp = v; c.spOpt = ''; } upd(); },
+      setSpo: v => { c.spOpt = v; upd(); },
       setScore: (k, v) => { v = Math.max(1, Math.min(30, v)); c.ab = c.ab || {}; c.ab[k] = Math.max(1, (R.intOf(c.ab[k]) || 10) + v - d.score[k]); upd(); },
       setAc: v => { if (v === d.acAuto) { c.acMode = 'auto'; c.acManual = 0; } else { c.acMode = 'manual'; c.acManual = v; } upd(); },
       setHp: v => { v = Math.max(1, v); if (v === d.hpCalc) { c.hpMode = 'avg'; c.hpManual = 0; } else { c.hpMode = 'manual'; c.hpManual = Math.max(1, v - (c.hpBonus || 0)); } upd(); },

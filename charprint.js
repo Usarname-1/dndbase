@@ -64,6 +64,14 @@
   const SHIELD = '<svg viewBox="0 0 60 70" preserveAspectRatio="none"><path d="M30 2.5 56 9v26c0 17-11 27-26 33C15 62 4 52 4 35V9z"/></svg>';
   const AB_SHORT = { str: 'Сил', dex: 'Лов', con: 'Тел', int: 'Инт', wis: 'Муд', cha: 'Хар' };
   const COIN_ORDER = [['mm', 'ММ'], ['sm', 'СМ'], ['em', 'ЭМ'], ['zm', 'ЗМ'], ['pm', 'ПМ']];
+  // выпадающий список вместо текста (класс, подкласс, вид); без правки — обычный текст
+  const pick = (cur, opts, set, ph) => h('select', { class: 'ie sel', onchange: e => set(e.target.value) },
+    h('option', { value: '' }, ph || '—'), ...(opts || []).map(o => h('option', { value: o[0], selected: o[0] === cur }, o[1])));
+  const fldS = (text, cur, opts, set, label, cls, ph) => el('div', 'fld ' + (cls || ''), el('b', '', LIVE && opts && opts.length ? pick(cur, opts, set, ph) : sp(text)), el('small', '', label));
+  // вид (и подвид, если у вида он есть)
+  const spFld = (c, D, label) => LIVE
+    ? el('div', 'fld', el('b', 'cl14', pick(c.sp, LIVE.opts.sp, v => LIVE.setSp(v), 'выберите'), LIVE.opts.spo ? pick(c.spOpt, LIVE.opts.spo.map(o => [o, o]), v => LIVE.setSpo(v), LIVE.opts.spoL || '—') : null), el('small', '', label))
+    : fld(D.sp && D.sp.name_ru, label);
   const fld = (v, label, cls, set) => el('div', 'fld ' + (cls || ''), el('b', '', set && LIVE ? ie(v, set) : sp(v)), el('small', '', label));
   const box = (cls, title, ...k) => el('div', 'bx ' + cls + (title ? '' : ' nh'), title ? el('div', 'bh', title) : null, ...k);
   const skRow = (lev, bonus, name, cls, extra, tag) => el('div', 'sk' + (lev ? ' prf' : '') + (cls ? ' ' + cls : ''), tog(dot(lev), tag && (() => LIVE.prof(tag)), 'Владение: нажмите, чтобы изменить'), el('b', 'bn', sgn(bonus)), el('span', 'snm', name, extra || null));
@@ -103,8 +111,8 @@
     const P = el('section', 'pg e24 p1'), L = featLists(X, c, D, d), pf = profFlags(d);
     const hd = el('div', 'hd',
       box('hn', null, fld(c.name, 'Имя персонажа', 'snm', v => { c.name = v; LIVE.upd(); }),
-        el('div', 'g2', fld(D.bg && D.bg.name_ru, 'Предыстория'), fld(D.cls && D.cls.name_ru, 'Класс'), fld(D.sp && D.sp.name_ru, 'Вид'), fld(D.sub && D.sub.name, 'Подкласс'))),
-      el('div', 'bx lv', el('b', '', c.lvl), el('small', '', 'Уровень'), el('i', 'xpl', ie(c.xp, v => { c.xp = v; LIVE.save(); }, { c: true })), el('small', '', 'Опыт')),
+        el('div', 'g2', fld(D.bg && D.bg.name_ru, 'Предыстория'), fldS(D.cls && D.cls.name_ru, c.cls, LIVE && LIVE.opts.cls, v => LIVE.setCls(v), 'Класс', '', 'выберите'), spFld(c, D, 'Вид'), fldS(D.sub && D.sub.name, c.sub, LIVE && D.cls && LIVE.opts.sub, v => LIVE.setSub(v), 'Подкласс', '', '—'))),
+      el('div', 'bx lv', el('b', '', ie(c.lvl, v => LIVE.setLvl(v), { num: true, c: true })), el('small', '', 'Уровень'), el('i', 'xpl', ie(c.xp, v => { c.xp = v; LIVE.save(); }, { c: true })), el('small', '', 'Опыт')),
       el('div', 'shield', svg(SHIELD, 'sv'), el('div', 'si', el('small', '', 'Класс защиты'), el('b', '', ie(d.ac, v => LIVE.setAc(v), { num: true, c: true, ov: d.ac !== d.acAuto })), el('small', '', 'Щит'), shieldDia(c))),
       box('hpb', null,
         el('div', 'hpc', el('div', 'hph', 'Хиты'), el('div', 'hpr', el('div', 'hpcur', hpIn(c, 'hpCur'), el('small', '', 'Текущие')), el('div', 'hpmt', el('div', 'hmx', el('b', '', ie(d.hp, v => LIVE.setHp(v), { num: true, c: true, ov: d.hp !== d.hpCalc })), el('small', '', 'Максимум')), el('div', 'htmp', hpIn(c, 'hpTemp'), el('small', '', 'Временные'))))),
@@ -145,8 +153,8 @@
     const clsText = D.cls ? D.cls.name_ru + (D.sub ? ' (' + D.sub.name + ')' : '') : '';
     const hd = el('div', 'hd', el('div', 'hname', el('b', '', LIVE ? ie(c.name, v => { c.name = v; LIVE.upd(); }) : sp(c.name)), el('small', '', 'Имя персонажа')),
       box('hinfo', null, el('div', 'g4',
-        fld(clsText + (clsText ? ' ' : '') + c.lvl, 'Класс и уровень'), fld(D.bg && D.bg.name_ru, 'Предыстория'), fld(c.xp, 'Опыт', '', v => { c.xp = v; LIVE.save(); }),
-        fld(D.sp && D.sp.name_ru, 'Раса'), fld(c.align, 'Мировоззрение', '', v => { c.align = v; LIVE.save(); }), el('div', 'fld'))));
+        LIVE ? el('div', 'fld', el('b', 'cl14', pick(c.cls, LIVE.opts.cls, v => LIVE.setCls(v), 'класс'), ie(c.lvl, v => LIVE.setLvl(v), { num: true, c: true })), el('small', '', 'Класс и уровень')) : fld(clsText + (clsText ? ' ' : '') + c.lvl, 'Класс и уровень'), fld(D.bg && D.bg.name_ru, 'Предыстория'), fld(c.xp, 'Опыт', '', v => { c.xp = v; LIVE.save(); }),
+        spFld(c, D, 'Раса'), fld(c.align, 'Мировоззрение', '', v => { c.align = v; LIVE.save(); }), LIVE && D.cls && LIVE.opts.sub.length ? fldS('', c.sub, LIVE.opts.sub, v => LIVE.setSub(v), 'Подкласс', '', '—') : el('div', 'fld'))));
     const strip = el('div', 'abstrip', R.AB.map(a => el('div', 'ab14', el('div', 'an' + (a.ru.length > 9 ? ' long' : ''), a.ru), el('div', 'amod', sgn(d.mod[a.k])), el('div', 'asc', ie(d.score[a.k], v => LIVE.setScore(a.k, v), { num: true, c: true })))));
     const savesBox = box('sv14', 'Спасброски', ...R.AB.map(a => el('div', 'sk' + (d.saveProf.has(a.k) ? ' prf' : ''), tog(dot(d.saveProf.has(a.k) ? 1 : 0), () => LIVE.prof({ kind: 'save', k: a.k }), 'Владение: нажмите, чтобы изменить'), el('b', 'bn', sgn(d.saves[a.k])), el('span', 'snm big', a.ru))));
     const sk = d.skills.slice().sort((x, y) => x.n.localeCompare(y.n, 'ru'));
@@ -311,7 +319,8 @@
   const on = (c, k) => !(c.pOff && c.pOff[k]);
   function build(sh, ctx) {
     const { c, D, d, X } = ctx, e24 = c.ed === 24, pages = [];
-    LIVE = X.ops ? Object.assign({ c, d }, X.ops) : null;       // правка прямо на листе
+    LIVE = X.ops ? Object.assign({ c, d }, X.ops) : null;
+    if (LIVE) { const ch = D.sp && R.speciesChoice(D.sp); LIVE.opts = Object.assign({}, LIVE.opts, { spo: ch ? ch.options : null, spoL: ch ? ch.label : '' }); }       // правка прямо на листе
     if (on(c, 'main')) pages.push(e24 ? page24(X, c, D, d) : page14(X, c, D, d));
     if (c.featTxt !== 'none') { const fp = featPages(X, c, D, d); if (fp) pages.push(...fp); }
     if (d.sp.has) {

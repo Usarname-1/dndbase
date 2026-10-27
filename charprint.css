@@ -350,3 +350,10 @@
 }
 .sheetbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
 .sheetbar .sheetedit{display:inline-flex;align-items:center;gap:.3rem;font-weight:600;cursor:pointer}
+
+#cs .csheet .fld b.cl14{display:flex;gap:1mm;align-items:center;overflow:visible}
+#cs .csheet .fld b.cl14 .ie:last-child:not(.sel){width:9mm;flex:none}
+#cs .csheet select.ie{text-overflow:ellipsis;font:inherit;cursor:pointer}
+#cs .csheet .fld b.cl14 select.ie{flex:1 1 0}
+@media screen{#cs .csheet.live select.ie{padding-right:3mm;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E") right center no-repeat}}
+@media print{#cs .csheet select.ie{background-image:none!important;padding:0!important}}
