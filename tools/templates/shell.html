@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+{{HEAD}}
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="dice.css">
+<link rel="stylesheet" href="dmscreen.css">
+<link rel="stylesheet" href="charsheet.css">
+<link rel="stylesheet" href="charprint.css">
+<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body{{BODYCLASS}}>
+<nav id="nav">{{NAV}}</nav>
+<aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
+<section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count">{{COUNT}}</div><ul id="list">{{LIST}}</ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
+<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card">{{CARD}}</div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
+<script src="links.js"></script>
+<script src="dice.js"></script>
+<script src="dmscreen.js"></script>
+<script src="dmpanels.js"></script>
+<script src="charrules.js"></script>
+<script src="charprint.js"></script>
+<script src="charsheet.js"></script>
+<script src="translator.js"></script>
+<script src="tdoc.js"></script><script src="gsearch.js"></script>
+<script src="core.js"></script>
+<script src="home.js"></script>
+<script src="app.js"></script>
+</body></html>

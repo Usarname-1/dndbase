@@ -418,7 +418,7 @@
       q.addEventListener('keydown', e => { if (e.key === 'Enter') { const a = res.querySelector('a'); if (a) a.click(); } if (e.key === 'Escape') { q.value = ''; res.textContent = ''; } });
       edSel.addEventListener('change', () => { s.fe = edSel.value; ctx.save(); fill(); search(); });
       secSel.addEventListener('change', () => { s.fs = secSel.value; ctx.save(); search(); });
-      ctx.addBtn('↗', 'Открыть на странице', () => { if (s.slug) location.hash = db.hh(s.e, s.sec, s.slug); });
+      ctx.addBtn('↗', 'Открыть на странице', () => { if (s.slug) db.go(db.hh(s.e, s.sec, s.slug)); });
       ctx.body.append(h('div', { class: 'etools' }, back, edSel, secSel, q), res, card);
       ctx.el._nav = (e, sec, slug) => go(e, sec, slug);
       fill();

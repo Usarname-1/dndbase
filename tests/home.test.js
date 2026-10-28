@@ -5,11 +5,11 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8'), app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const { counts, line } = require(path.join(root, 'tools', 'build_home.js'));
 
 test('числа записей на главной совпадают с данными (иначе запустите node tools/build_home.js)', () => {
-  assert.ok(html.includes(line(counts())));
+  assert.ok(app.includes(line(counts())));
 });
 
 test('каждый пункт оглавления получает число, а ключ есть в данных обеих редакций (кроме «Правил и статей» 2014)', () => {

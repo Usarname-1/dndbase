@@ -151,7 +151,7 @@
   }
 
   /* ---------- DOM ---------- */
-  const SKIP = 'a,h2,h3,h4,b,th,summary,button,.nm,.en,.sub,.meta,.rl,script,style';
+  const SKIP = 'a,h1,h2,h3,h4,b,th,summary,button,.nm,.en,.sub,.meta,.rl,script,style';
   function linkify(el, ix, self, hrefFn) {
     if (!el || !ix) return;
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
@@ -257,7 +257,7 @@
     });
     document.addEventListener('click', ev => { if (!xl(ev)) hideTip(); });
     addEventListener('scroll', hideTip, true);
-    addEventListener('hashchange', hideTip);
+    addEventListener('routechange', hideTip);
   }
 
   const api = { buildIndex, findLinks, linkify, hydrate, bindTips, stem };

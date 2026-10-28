@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="/dndbase/">
+<script>(function(h){if(!/^#[A-Za-z0-9_%.\/-]+$/.test(h))return;var p=h.slice(1).split('/').filter(Boolean);if(p[0]=='24'||p[0]=='home'){p.shift();if(!p.length)try{localStorage.setItem('ed','24')}catch(e){}}if(p.length>3)return;location.replace(document.querySelector('base').href+p.join('/')+(p.length?'/':''))})(location.hash)</script>
+<title>Справочник D&amp;D 5e (редакция 2014) на русском</title>
+<meta name="description" content="Справочник D&amp;D 5e на русском, редакция 2014: бестиарий, заклинания, классы, расы, предыстории, черты, магические предметы, снаряжение, правила и статьи.">
+<link rel="canonical" href="https://usarname-1.github.io/dndbase/14/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="google-site-verification" content="1e65zUSEYGTdwKyuFDFcRXE7Q16jxF0XkGTUvdiJ34Q">
+<meta name="theme-color" content="#922610">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="D&amp;D — русская база">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Справочник D&amp;D 5e (редакция 2014) на русском">
+<meta property="og:description" content="Справочник D&amp;D 5e на русском, редакция 2014: бестиарий, заклинания, классы, расы, предыстории, черты, магические предметы, снаряжение, правила и статьи.">
+<meta property="og:url" content="https://usarname-1.github.io/dndbase/14/">
+<meta property="og:image" content="https://usarname-1.github.io/dndbase/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="D&amp;D 5e, русская база: бестиарий, заклинания, классы, расы, черты, предметы. Редакции 2014 и 2024.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"D&D — русская база","alternateName":["Русская база D&D 5e","D&D Base"],"url":"https://usarname-1.github.io/dndbase/","inLanguage":"ru","description":"Бесплатный справочник D&D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей."}</script>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="dice.css">
+<link rel="stylesheet" href="dmscreen.css">
+<link rel="stylesheet" href="charsheet.css">
+<link rel="stylesheet" href="charprint.css">
+<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body class="land open e14">
+<nav id="nav"><span class="ed"><a data-e="14" href="14/" aria-current="true">2014</a><a data-e="24" href="./" aria-current="false">2024</a></span><a href="14/" data-s="home" aria-current="true">Главная</a><a href="14/bestiary/" data-s="bestiary">Бестиарий</a><a href="14/spells/" data-s="spells">Заклинания</a><a href="14/class/" data-s="class">Классы</a><a href="14/race/" data-s="race">Расы</a><a href="14/backgrounds/" data-s="backgrounds">Предыстории</a><a href="14/feats/" data-s="feats">Черты</a><a href="14/items/" data-s="items">Предметы</a><a href="14/equipment/" data-s="equipment">Снаряжение</a><a href="14/glossary/" data-s="glossary">Глоссарий</a><a href="14/articles/" data-s="articles">Правила и статьи</a><a href="14/dmscreen/" data-s="dmscreen">Экран мастера</a><a href="14/sheet/" data-s="sheet">Листы персонажей</a><a href="14/translator/" data-s="translator">Переводчик</a><button id="gs" type="button" title="Глобальный поиск (Ctrl+K или /)">🔍 Поиск<kbd>/</kbd></button></nav>
+<aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
+<section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
+<main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="home">
+<header class="cover"><div class="in">
+<button id="runes" class="runes f-elvish" type="button" aria-label="Сменить письмо надписи" title="Это название рунами. Нажмите, чтобы сменить письмо"><span aria-hidden="true">Русская база</span></button>
+<h1>Русская база D&amp;D 5e</h1>
+<div class="rule"></div>
+<p class="lead">Справочник мастера и игрока по <b>Dungeons &amp; Dragons</b>: монстры, заклинания, классы, предметы и правила. Английское название всегда рядом.</p>
+<button id="hs" class="find" type="button"><span>Монстр, заклинание, правило…</span><kbd>/</kbd></button>
+<p class="try">Например: <button type="button" data-q="огненный шар">огненный шар</button>, <button type="button" data-q="Fireball">Fireball</button>, <button type="button" data-q="красный дракон">красный дракон</button>, <button type="button" data-q="испуганный">испуганный</button></p>
+<div class="eds" role="group" aria-label="Редакция правил"><a href="./" data-e="24" aria-current="false"><b>2024</b><span>Обновлённые книги игрока, мастера и бестиарий</span></a><a href="14/" data-e="14" aria-current="true"><b>2014</b><span>Классическая пятая редакция с дополнениями</span></a></div>
+</div></header>
+<div class="sheet stat">
+<h2>Оглавление</h2><p class="en" id="tocsub">Редакция 2014: 5 649 записей</p><div class="rule"></div>
+<div class="toc">
+<div><h3>Герой</h3><ul>
+<li><a data-s="class" href="14/class/"><span class="r"><b>Классы</b><i class="dots"></i><em data-n="class">16</em></span><span class="d">Подклассы и таблицы умений по уровням</span></a></li>
+<li><a data-s="species" href="14/race/"><span class="r"><b>Виды и расы</b><i class="dots"></i><em data-n="species">84</em></span><span class="d">Особенности, подрасы и происхождение</span></a></li>
+<li><a data-s="backgrounds" href="14/backgrounds/"><span class="r"><b>Предыстории</b><i class="dots"></i><em data-n="backgrounds">87</em></span><span class="d">Навыки, инструменты и стартовое снаряжение</span></a></li>
+<li><a data-s="feats" href="14/feats/"><span class="r"><b>Черты</b><i class="dots"></i><em data-n="feats">105</em></span><span class="d">Требования и особенности каждой черты</span></a></li>
+<li><a data-s="spells" href="14/spells/"><span class="r"><b>Заклинания</b><i class="dots"></i><em data-n="spells">535</em></span><span class="d">По классу, кругу, школе, ритуалам и концентрации</span></a></li>
+</ul></div>
+<div><h3>Мир и правила</h3><ul>
+<li><a data-s="bestiary" href="14/bestiary/"><span class="r"><b>Бестиарий</b><i class="dots"></i><em data-n="bestiary">3 141</em></span><span class="d">Монстры и существа со статблоками, по опасности, типу и среде</span></a></li>
+<li><a data-s="items" href="14/items/"><span class="r"><b>Магические предметы</b><i class="dots"></i><em data-n="items">934</em></span><span class="d">По редкости, типу и настройке</span></a></li>
+<li><a data-s="equipment" href="14/equipment/"><span class="r"><b>Снаряжение</b><i class="dots"></i><em data-n="equipment">377</em></span><span class="d">Оружие, доспехи, инструменты, транспорт и яды</span></a></li>
+<li><a data-s="glossary" href="14/glossary/"><span class="r"><b>Глоссарий</b><i class="dots"></i><em data-n="glossary">241</em></span><span class="d">Состояния, действия, перемещение, колдовство и другие термины</span></a></li>
+<li class="only14"><a data-s="articles" href="14/articles/"><span class="r"><b>Правила и статьи</b><i class="dots"></i><em data-n="articles">129</em></span><span class="d">Игровые механики, лор и справочные статьи</span></a></li>
+</ul></div>
+</div>
+<h2 class="tl">За игровым столом</h2><div class="rule"></div>
+<div class="tools">
+<a data-s="dmscreen" href="14/dmscreen/"><b>Экран мастера</b><span>Инициатива, кубики и заметки в одном окне.</span></a>
+<a data-s="sheet" href="14/sheet/"><b>Листы персонажей</b><span>Расчёт бонусов и хитов, выбор заклинаний, печать на A4.</span></a>
+<a data-s="translator" href="14/translator/"><b>Переводчик</b><span>Текст драконьим, эльфийским, дварфийским и другими алфавитами D&amp;D.</span></a>
+</div>
+<p class="about">Бесплатный справочник по Dungeons &amp; Dragons (D&amp;D, ДнД) на русском языке: более 7 000 записей. Поиск понимает русские и английские названия, регистрация не нужна. Проект неофициальный и не связан с Wizards of the Coast. <a href="https://github.com/Usarname-1/dndbase" target="_blank" rel="noopener">Исходный код и замечания на GitHub</a>.</p>
+</div>
+</article></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
+<script src="links.js"></script>
+<script src="dice.js"></script>
+<script src="dmscreen.js"></script>
+<script src="dmpanels.js"></script>
+<script src="charrules.js"></script>
+<script src="charprint.js"></script>
+<script src="charsheet.js"></script>
+<script src="translator.js"></script>
+<script src="tdoc.js"></script><script src="gsearch.js"></script>
+<script src="core.js"></script>
+<script src="home.js"></script>
+<script src="app.js"></script>
+</body></html>

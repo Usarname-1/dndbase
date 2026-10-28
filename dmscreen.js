@@ -445,12 +445,12 @@
     root.addEventListener('blur', () => setPanmode(false));
     // ссылки внутри панелей открывают записи в панелях, а не уводят с экрана
     host.addEventListener('click', e => {
-      const a = e.target.closest('a[href^="#"]'); if (!a || a.closest('.dmbar')) return;
-      const m = a.getAttribute('href').match(/^#(14\/)?([a-z]+)\/(.+)$/);
-      if (!m) return;
+      const a = e.target.closest('a[href]'); if (!a || a.closest('.dmbar')) return;
+      const m = DB().parseHref(a.getAttribute('href'));
+      if (!m || !m.slug || !DB().ORDERS[m.e].includes(m.k)) return;
       e.preventDefault();
       const pe = a.closest('.dmp'), info = pe && els.get(pe.dataset.id);
-      const ed = m[1] ? 14 : 24, sec = m[2], slug = decodeURIComponent(m[3]);
+      const ed = m.e, sec = m.k, slug = m.slug;
       if (info && info.ctx.p.t === 'entity' && !(e.ctrlKey || e.metaKey) && pe._nav) pe._nav(ed, sec, slug);
       else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && (info.ctx.p.t === 'init' || info.ctx.p.t === 'conds')));
     });
@@ -487,7 +487,7 @@
   function cardActions(m, e, sec) {
     const card = document.getElementById('card'); if (!card || card.querySelector('.acts')) return;
     const bar = h('div', { class: 'acts' },
-      h('button', { type: 'button', onclick: () => { ensure(); const pn = addPanel('entity', { s: { e, sec, slug: m.slug, hist: [] } }); toast('Добавлено на экран мастера', 'Открыть', () => { location.hash = DB().hh(DB().ed, 'dmscreen'); }); void pn; } }, 'На экран мастера'));
+      h('button', { type: 'button', onclick: () => { ensure(); const pn = addPanel('entity', { s: { e, sec, slug: m.slug, hist: [] } }); toast('Добавлено на экран мастера', 'Открыть', () => { DB().go(DB().hh(DB().ed, 'dmscreen')); }); void pn; } }, 'На экран мастера'));
     if (sec === 'bestiary') bar.append(h('button', { type: 'button', onclick: () => addCombatants(e, m.slug, 1, true) }, 'В инициативу'));
     card.append(bar);
   }
@@ -501,7 +501,7 @@
     const m = data.find(x => x.slug === slug); if (!m) return;
     INIT.addMonster(pn.s, m, e, qty);
     refresh(pn); persist();
-    if (notify) toast('Добавлено в инициативу: ' + m.name_ru, 'Открыть', () => { location.hash = DB().hh(DB().ed, 'dmscreen'); });
+    if (notify) toast('Добавлено в инициативу: ' + m.name_ru, 'Открыть', () => { DB().go(DB().hh(DB().ed, 'dmscreen')); });
   }
 
   let toastEl, toastT;

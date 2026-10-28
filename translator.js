@@ -209,7 +209,7 @@
   const copyPng = () => { if (!needText()) root.TDoc.copy(quickSpec()); };
   function toDoc() {                                     // перевод → конструктор документов
     if (docSpec) { docSpec.mode = mode; docSpec.text = el.input.value; ls.set(KEY + '.doc', JSON.stringify(docSpec)); if (doc) doc.sync(); }
-    location.hash = DB().hh(DB().ed, 'translator', 'doc');
+    DB().go(DB().hh(DB().ed, 'translator', 'doc'));
   }
   const DB = () => root.DB;
   function toScreen(spec) {                              // записка → панель на экране мастера
@@ -217,7 +217,7 @@
     if (!(spec.text || '').trim()) { toast('Сначала введите текст'); return; }
     if (!root.DM || !root.DM.addPanel) { toast('Экран мастера недоступен'); return; }
     root.DM.ensure(); root.DM.addPanel('note', { s: JSON.parse(JSON.stringify(spec)) });
-    root.DM.toast('Записка добавлена на экран мастера', 'Открыть', () => { location.hash = DB().hh(DB().ed, 'dmscreen'); });
+    root.DM.toast('Записка добавлена на экран мастера', 'Открыть', () => { DB().go(DB().hh(DB().ed, 'dmscreen')); });
   }
   function clearAll() { el.input.value = ''; convert(); el.input.focus(); }
 
