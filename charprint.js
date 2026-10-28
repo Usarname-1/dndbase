@@ -111,7 +111,7 @@
     const P = el('section', 'pg e24 p1'), L = featLists(X, c, D, d), pf = profFlags(d);
     const hd = el('div', 'hd',
       box('hn', null, fld(c.name, 'Имя персонажа', 'snm', v => { c.name = v; LIVE.upd(); }),
-        el('div', 'g2', fld(D.bg && D.bg.name_ru, 'Предыстория'), fldS(D.cls && D.cls.name_ru, c.cls, LIVE && LIVE.opts.cls, v => LIVE.setCls(v), 'Класс', '', 'выберите'), spFld(c, D, 'Вид'), fldS(D.sub && D.sub.name, c.sub, LIVE && D.cls && LIVE.opts.sub, v => LIVE.setSub(v), 'Подкласс', '', '—'))),
+        el('div', 'g2', fldS(D.bg && D.bg.name_ru, c.bg, LIVE && LIVE.opts.bg, v => LIVE.setBg(v), 'Предыстория', '', 'выберите'), fldS(D.cls && D.cls.name_ru, c.cls, LIVE && LIVE.opts.cls, v => LIVE.setCls(v), 'Класс', '', 'выберите'), spFld(c, D, 'Вид'), fldS(D.sub && D.sub.name, c.sub, LIVE && D.cls && LIVE.opts.sub, v => LIVE.setSub(v), 'Подкласс', '', '—'))),
       el('div', 'bx lv', el('b', '', ie(c.lvl, v => LIVE.setLvl(v), { num: true, c: true })), el('small', '', 'Уровень'), el('i', 'xpl', ie(c.xp, v => { c.xp = v; LIVE.save(); }, { c: true })), el('small', '', 'Опыт')),
       el('div', 'shield', svg(SHIELD, 'sv'), el('div', 'si', el('small', '', 'Класс защиты'), el('b', '', ie(d.ac, v => LIVE.setAc(v), { num: true, c: true, ov: d.ac !== d.acAuto })), el('small', '', 'Щит'), shieldDia(c))),
       box('hpb', null,
@@ -153,7 +153,7 @@
     const clsText = D.cls ? D.cls.name_ru + (D.sub ? ' (' + D.sub.name + ')' : '') : '';
     const hd = el('div', 'hd', el('div', 'hname', el('b', '', LIVE ? ie(c.name, v => { c.name = v; LIVE.upd(); }) : sp(c.name)), el('small', '', 'Имя персонажа')),
       box('hinfo', null, el('div', 'g4',
-        LIVE ? el('div', 'fld', el('b', 'cl14', pick(c.cls, LIVE.opts.cls, v => LIVE.setCls(v), 'класс'), ie(c.lvl, v => LIVE.setLvl(v), { num: true, c: true })), el('small', '', 'Класс и уровень')) : fld(clsText + (clsText ? ' ' : '') + c.lvl, 'Класс и уровень'), fld(D.bg && D.bg.name_ru, 'Предыстория'), fld(c.xp, 'Опыт', '', v => { c.xp = v; LIVE.save(); }),
+        LIVE ? el('div', 'fld', el('b', 'cl14', pick(c.cls, LIVE.opts.cls, v => LIVE.setCls(v), 'класс'), ie(c.lvl, v => LIVE.setLvl(v), { num: true, c: true })), el('small', '', 'Класс и уровень')) : fld(clsText + (clsText ? ' ' : '') + c.lvl, 'Класс и уровень'), fldS(D.bg && D.bg.name_ru, c.bg, LIVE && LIVE.opts.bg, v => LIVE.setBg(v), 'Предыстория', '', 'выберите'), fld(c.xp, 'Опыт', '', v => { c.xp = v; LIVE.save(); }),
         spFld(c, D, 'Раса'), fld(c.align, 'Мировоззрение', '', v => { c.align = v; LIVE.save(); }), LIVE && D.cls && LIVE.opts.sub.length ? fldS('', c.sub, LIVE.opts.sub, v => LIVE.setSub(v), 'Подкласс', '', '—') : el('div', 'fld'))));
     const strip = el('div', 'abstrip', R.AB.map(a => el('div', 'ab14', el('div', 'an' + (a.ru.length > 9 ? ' long' : ''), a.ru), el('div', 'amod', sgn(d.mod[a.k])), el('div', 'asc', ie(d.score[a.k], v => LIVE.setScore(a.k, v), { num: true, c: true })))));
     const savesBox = box('sv14', 'Спасброски', ...R.AB.map(a => el('div', 'sk' + (d.saveProf.has(a.k) ? ' prf' : ''), tog(dot(d.saveProf.has(a.k) ? 1 : 0), () => LIVE.prof({ kind: 'save', k: a.k }), 'Владение: нажмите, чтобы изменить'), el('b', 'bn', sgn(d.saves[a.k])), el('span', 'snm big', a.ru))));

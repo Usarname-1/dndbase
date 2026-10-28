@@ -946,7 +946,7 @@
     // действия прямо на листе: всё, что меняет числа, идёт через upd() (пересчёт), отметки и записи — только сохранение
     const ops = {
       upd: () => upd(), save: () => upd(false),
-      opts: { cls: D.classes.map(x => [x.slug, x.name_ru + (R.officialSrc(x.sources) ? '' : ' (неофиц.)')]), sp: D.species.map(x => [x.slug, x.name_ru]),
+      opts: { bg: D.bgs.map(x => [x.slug, x.name_ru]), cls: D.classes.map(x => [x.slug, x.name_ru + (R.officialSrc(x.sources) ? '' : ' (неофиц.)')]), sp: D.species.map(x => [x.slug, x.name_ru]),
         sub: (D.cls && D.cls.subclasses || []).map(x => [x.name, x.name]) },
       setLvl: v => { c.lvl = Math.max(1, Math.min(20, v)); upd(); },
       setCls: v => {
@@ -954,6 +954,10 @@
         if (v !== c.cls) { c.cls = v; c.sub = ''; c.skills = []; c.exp = []; c.asi = {}; c.spells = []; c.forms = []; } upd();
       },
       setSub: v => { c.sub = v; upd(); },
+      setBg: v => {
+        const b2 = c.bg2 || {}; if (v !== c.bg && (c.bgFeat || b2.a || b2.b) && !confirm('Смена предыстории сбросит выбранные для неё бонусы характеристик и черту. Продолжить?')) { upd(); return; }
+        if (v !== c.bg) { c.bg = v; c.bg2 = { m: '21', a: '', b: '' }; c.bgFeat = ''; } upd();
+      },
       setSp: v => { if (v !== c.sp) { c.sp = v; c.spOpt = ''; } upd(); },
       setSpo: v => { c.spOpt = v; upd(); },
       setScore: (k, v) => { v = Math.max(1, Math.min(30, v)); c.ab = c.ab || {}; c.ab[k] = Math.max(1, (R.intOf(c.ab[k]) || 10) + v - d.score[k]); upd(); },
