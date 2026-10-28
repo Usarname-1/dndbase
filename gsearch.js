@@ -160,7 +160,7 @@
       if (e.key == 'Escape') { e.preventDefault(); close(); }
       else if (e.key == 'ArrowDown') { e.preventDefault(); pick(sel + 1); }
       else if (e.key == 'ArrowUp') { e.preventDefault(); pick(sel - 1); }
-      else if (e.key == 'Enter' && e.target === inp) { const a = list.querySelectorAll('a')[sel]; if (a) { e.preventDefault(); location.hash = a.getAttribute('href'); close(); } }
+      else if (e.key == 'Enter' && e.target === inp) { const a = list.querySelectorAll('a')[sel]; if (a) { e.preventDefault(); DB.go(a.getAttribute('href')); close(); } }
     });
     list.addEventListener('mousemove', e => { const a = e.target.closest('a'); if (a && +a.dataset.i !== sel) pick(+a.dataset.i); });
   }
@@ -185,6 +185,6 @@
     else if (e.key == '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); open(); }
   });
   // переход по ссылке — закрыть окно
-  addEventListener('hashchange', () => close());
+  addEventListener('routechange', () => close());
   window.GSearch = { open, close };
 })();

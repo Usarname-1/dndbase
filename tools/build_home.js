@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Пересобирает числа записей на главной (HOMEN в index.html) из data/*.json и data14/*.json.
+/* Пересобирает числа записей на главной (HOMEN в app.js) из data/*.json и data14/*.json.
    Запуск после правки данных: node tools/build_home.js  (tests/home.test.js проверяет, что числа не устарели) */
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -11,7 +11,7 @@ const counts = () => Object.fromEntries(Object.entries(KEYS).map(([ed, ks]) => [
 const line = c => 'const HOMEN=' + JSON.stringify(c) + ';/*home-counts*/';
 module.exports = { counts, line };
 if (require.main === module) {
-  const f = path.join(root, 'index.html'), html = fs.readFileSync(f, 'utf8');
+  const f = path.join(root, 'app.js'), html = fs.readFileSync(f, 'utf8');
   const out = html.replace(/const HOMEN=.*;\/\*home-counts\*\//, line(counts()));
-  if (out !== html) { fs.writeFileSync(f, out); console.log('index.html: числа на главной обновлены'); } else console.log('index.html: числа на главной актуальны');
+  if (out !== html) { fs.writeFileSync(f, out); console.log('app.js: числа на главной обновлены (теперь запустите node tools/build_pages.js)'); } else console.log('app.js: числа на главной актуальны');
 }

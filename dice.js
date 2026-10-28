@@ -129,7 +129,7 @@
     return;
   }
 
-  const SKIP = 'a,h2,h3,h4,th,summary,button,textarea,input,select,.nm,.en,.sub,.meta,.rl,script,style,#tip,#rolls,[contenteditable]';
+  const SKIP = 'a,h1,h2,h3,h4,th,summary,button,textarea,input,select,.nm,.en,.sub,.meta,.rl,script,style,#tip,#rolls,[contenteditable]';
   const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   function mk(text, f, kind, label) {
     const s = document.createElement('span');
@@ -238,7 +238,7 @@
   function srcOf(el) {
     const p = el.closest('.dmp');
     if (p) return (p.querySelector('.dmt') || {}).textContent || '';
-    const h = document.querySelector('#card h2');
+    const h = document.querySelector('#card h1,#card h2');
     return h ? h.textContent : '';
   }
   function fromEl(el, ev) {

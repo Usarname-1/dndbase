@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<!--seo:begin-->
+<base href="/dndbase/">
+<script>(function(h){if(!/^#[A-Za-z0-9_%.\/-]+$/.test(h))return;var p=h.slice(1).split('/').filter(Boolean);if(p[0]=='24'||p[0]=='home'){p.shift();if(!p.length)try{localStorage.setItem('ed','24')}catch(e){}}if(p.length>3)return;location.replace(document.querySelector('base').href+p.join('/')+(p.length?'/':''))})(location.hash)</script>
 <title>Справочник D&amp;D 5e на русском — бестиарий, заклинания, классы</title>
 <meta name="description" content="Бесплатный справочник D&amp;D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей.">
 <link rel="canonical" href="https://usarname-1.github.io/dndbase/">
@@ -22,7 +23,7 @@
 <meta property="og:image:alt" content="D&amp;D 5e, русская база: бестиарий, заклинания, классы, расы, черты, предметы. Редакции 2014 и 2024.">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"D&D — русская база","alternateName":["Русская база D&D 5e","D&D Base"],"url":"https://usarname-1.github.io/dndbase/","inLanguage":"ru","description":"Бесплатный справочник D&D 5e (ДнД) на русском: бестиарий, заклинания, классы, расы, черты, магические предметы. Редакции 2014 и 2024, экран мастера, листы персонажей."}</script>
-<!--seo:end-->
+<link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
 <link rel="stylesheet" href="dmscreen.css">
 <link rel="stylesheet" href="charsheet.css">
@@ -31,150 +32,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<style>
-:root{--cf:240px;--cl:340px;--bg:#e9e1d0;--paper:#fdf1dc;--ink:#1d1a16;--red:#7a200d;--bar:#922610;--line:#d9c7a3;--muted:#6b5f4d;--panel:#f5ecd9}
-@media(prefers-color-scheme:dark){:root{--bg:#1b1713;--panel:#2a241d;--line:#4a3f31;--muted:#b8a98f}}
-*{box-sizing:border-box}html,body{margin:0;height:100%}
-body{font:16px/1.45 'PT Serif',Georgia,serif;background:var(--bg);color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"nav" "main"}
-@media(prefers-color-scheme:dark){.col,nav{color:#eadfc9}}
-nav{grid-area:nav;display:flex;gap:2px;overflow-x:auto;background:var(--bar);padding:0 8px}
-nav a{color:#f6e3c8;text-decoration:none;padding:10px 12px;font:700 15px 'PT Sans',sans-serif;white-space:nowrap}
-nav a[aria-current=true]{background:var(--paper);color:var(--red)}
-.col{display:flex;flex-direction:column;min-height:0;background:var(--panel);border-right:1px solid var(--line)}main{min-width:0}
-.col header{padding:12px 12px 6px}.qr{display:flex;gap:6px}
-input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16}
-.fh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font:700 15px 'PT Sans',sans-serif}
-.fh button,#ftoggle,#fdone{font:13px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:4px 9px;cursor:pointer;white-space:nowrap}.fh button:hover{border-color:var(--bar);color:var(--bar)}
-#ftoggle,#fdone{display:none}
-.cb{font:700 15px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:2px 9px;cursor:pointer}.cb:hover{border-color:var(--bar);color:var(--bar)}
-.strip{display:none;flex:1;border:0;background:transparent;color:inherit;font:700 14px 'PT Sans',sans-serif;cursor:pointer;writing-mode:vertical-rl;padding:14px 0;text-align:left;white-space:nowrap}.strip:hover{color:var(--bar)}
-@media(min-width:781px){body.nof{--cf:38px}body.nol{--cl:38px}
-body.nof #fcol>:not(.strip),body.nol #lcol>:not(.strip){display:none}body.nof #fcol .strip,body.nol #lcol .strip{display:block}
-body:not(.dm) main{padding-left:calc(var(--cf) + var(--cl) + 18px)}
-#fcol,#lcol{grid-area:main;z-index:3;justify-self:start;box-shadow:3px 0 12px rgba(0,0,0,.25)}#fcol{width:var(--cf)}#lcol{width:var(--cl);margin-left:var(--cf)}}
-.sr{margin-top:6px}.sr select{flex:1;min-width:0}#dir{width:40px;flex:none;font:700 16px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;cursor:pointer}#dir:hover{border-color:var(--bar);color:var(--bar)}
-#fl{flex:1;overflow:auto;padding-bottom:20px;font:14px 'PT Sans',sans-serif}
-.g{padding:8px 12px;border-bottom:1px solid var(--line)}
-.gh{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.gn{display:inline-block;min-width:18px;padding:0 6px;border-radius:9px;background:var(--bar);color:#fff;font-size:12px;text-align:center}.gn:empty{display:none}
-.go{max-height:230px;overflow:auto}
-.o,.md{display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer}.md{font-size:12px;color:var(--muted);border-bottom:1px dashed var(--line);margin-bottom:3px;padding-bottom:4px}
-.o input,.md input{width:auto;margin:0;padding:0;flex:none}.o span{flex:1}.o em{font-style:normal;font-size:12px;opacity:.6}.o.z{opacity:.4}
-#count{font:13px 'PT Sans',sans-serif;color:var(--muted);padding:0 12px 6px}
-#list{flex:1;overflow:auto;margin:0;padding:0;list-style:none}
-#list a{display:block;padding:7px 12px;color:inherit;text-decoration:none;border-top:1px solid var(--line);font-family:'PT Sans',sans-serif}
-#list a:hover{background:rgba(146,38,16,.1)}#list a[aria-current=true]{background:var(--bar);color:#fff}
-#list .t{display:flex;justify-content:space-between;gap:8px}#list small{opacity:.7;white-space:nowrap;font-size:12px;padding-top:3px}#list .s{display:block;font-size:12.5px;line-height:1.35;opacity:.75;margin-top:2px}
-main{grid-area:main;overflow:auto;padding:26px 18px 60px}.wrap{max-width:780px;margin:0 auto}
-.stat{background:var(--paper);padding:16px 20px 18px;border:1px solid #c9b48a;border-top:4px solid var(--bar);border-bottom:4px solid var(--bar);box-shadow:0 3px 14px rgba(40,25,5,.35);color:#1d1a16;font-size:15px;line-height:1.4}
-.stat h2{font:700 27px/1.1 'PT Serif',serif;color:var(--red);margin:0;font-variant:small-caps}
-.en{font:italic 13px 'PT Sans',sans-serif;color:#7b6a52;margin:2px 0 0}.sub{font-style:italic;margin:4px 0 0}
-.rule{height:5px;margin:8px 0;background:var(--bar);clip-path:polygon(0 50%,100% 0,100% 100%)}
-.stat p{margin:0 0 5px}.pr b{color:var(--red)}
-.stat h3{font:400 21px/1.2 'PT Serif',serif;color:var(--red);border-bottom:1px solid var(--red);margin:14px 0 6px;font-variant:small-caps}
-.stat h4{font:700 16px 'PT Serif',serif;color:var(--red);margin:10px 0 3px}
-.stat ul{margin:0 0 6px;padding-left:20px}.stat blockquote{margin:6px 0;padding-left:10px;border-left:3px solid var(--bar);font-style:italic}
-.sc{overflow-x:auto;margin:6px 0 10px}
-.tb{border-collapse:collapse;font:14px 'PT Sans',sans-serif;width:100%}
-.tb td,.tb th{padding:3px 7px;text-align:left;vertical-align:top}.tb tr:nth-child(odd) td{background:#f0dfbf}.tb th{color:var(--red);border-bottom:2px solid var(--bar)}.tb tr.h td{font-weight:700;color:var(--red)}
-.abil{display:flex;gap:10px;flex-wrap:wrap}.abil table{flex:1 1 230px;border-collapse:collapse;font:14px 'PT Sans',sans-serif}
-.abil th{color:var(--red);font-size:12px}.abil td{text-align:center;padding:1px 4px}.abil td:first-child{text-align:left;font-weight:700;color:var(--red)}
-.it .nm{font-weight:700;font-style:italic}.ind{margin-left:1.2em}.intro{font-style:italic}
-.stat a{color:var(--red)}.stat details{margin:6px 0;border-top:1px solid var(--line);padding-top:4px}.stat summary{cursor:pointer;font:700 17px 'PT Serif',serif;color:var(--red)}
-.meta{margin-top:12px;font:13px/1.5 'PT Sans',sans-serif;color:var(--muted)}.meta a{color:var(--bar)}
-.empty{text-align:center;margin-top:18vh;color:var(--muted);font-family:'PT Sans',sans-serif}
-.ttl{margin:0 0 8px;font:700 13px/1.2 'PT Sans',sans-serif;letter-spacing:.02em;color:var(--muted)}
-.home .muted{margin-top:10px;font:14px/1.4 'PT Sans',sans-serif;color:#6b5f4d}.home li{margin-bottom:3px}
-#back{display:none}
-@media(max-width:780px){body{display:block;height:auto}nav{position:sticky;top:0;z-index:2}.col{height:calc(100vh - 42px);border:0}#fcol{display:none}body.fshow #fcol{display:flex}body.fshow #lcol{display:none}main{display:none;padding:10px 6px 40px}
-body.open .col{display:none}body.open main{display:block}#ftoggle,#fdone{display:inline-block}
-#fcol .strip,#lcol .strip,.cb{display:none!important}
-#back{display:inline-block;margin:0 0 10px;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:4px;font:14px 'PT Sans',sans-serif;cursor:pointer}}
-.ed{display:flex;align-items:center;margin:0 8px 0 0;padding:6px 0;flex:none}
-nav .ed a{padding:4px 11px;border:1px solid rgba(246,227,200,.5);font:700 13px 'PT Sans',sans-serif}
-nav .ed a:first-child{border-radius:4px 0 0 4px}nav .ed a:last-child{border-radius:0 4px 4px 0;border-left:0}
-body.e14{--red:#1f5560;--bar:#2b6a75;--line:#bcd0c9}
-@media(prefers-color-scheme:dark){body.e14{--line:#3d4f4b;--bg:#141b1b;--panel:#1f2a29}}
-body.e14 .tb tr:nth-child(odd) td{background:#dfeae4}
-/* картинки */
-figure.pic{margin:6px 0 10px;text-align:center}figure.pic img{max-width:100%;max-height:340px;border-radius:3px;cursor:zoom-in;background:rgba(0,0,0,.04)}figure.pic.big img{max-height:none;cursor:zoom-out}figure.pic.tok img{max-height:200px;background:none}figure.pic.tok.big img{max-height:400px}
-/* автоссылки-подсказки */
-a.xl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--red);cursor:help}a.xl:hover,a.xl:focus{color:var(--red);border-bottom-style:solid;outline:0}
-#tip{display:none;position:fixed;z-index:20;max-width:340px;padding:10px 12px;background:#fdf1dc;color:#1d1a16;border:1px solid #c9b48a;border-top:3px solid var(--bar);border-radius:3px;box-shadow:0 6px 20px rgba(0,0,0,.4);font:13.5px/1.4 'PT Sans',sans-serif;pointer-events:none}
-#tip .tk{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-bottom:2px}#tip i{font-size:12px;color:#7b6a52}#tip .th{font-size:12px;color:#6b5f4d;margin:2px 0 4px}#tip p{margin:0}
-/* главная: обложка и оглавление */
-@font-face{font-family:'dnd-dwarvish';src:url(fonts/DnDBase-DwarvishRunes.woff2) format('woff2');font-display:swap}
-@font-face{font-family:'dnd-elvish';src:url(fonts/DnDBase-Elvish.woff2) format('woff2');font-display:swap}
-@font-face{font-family:'dnd-draconic';src:url(fonts/DnDBase-Draconic.woff2) format('woff2');font-display:swap}
-@font-face{font-family:'dnd-infernal';src:url(fonts/DnDBase-InfernalGothic.woff2) format('woff2');font-display:swap}
-body.land .col,body.land #back{display:none!important}
-body.land:not(.dm) main{padding:0}
-body.land .wrap{max-width:none;margin:0}
-.home{--cov:#3d1209;--gold:#d6b36a;display:block}
-body.e14 .home{--cov:#0e2f35}
-.home .cover{position:relative;background:var(--cov);color:#f6e3c8;padding:clamp(34px,6vw,64px) 22px clamp(84px,11vw,130px)}
-.home .cover::before,.home .cover::after{content:'';position:absolute;pointer-events:none;border:1px solid var(--gold)}
-.home .cover::before{inset:10px;opacity:.5}.home .cover::after{inset:15px;opacity:.2}
-.home .in{max-width:1000px;margin:0 auto;position:relative}
-.home .runes{display:block;max-width:100%;margin:0 0 clamp(10px,2vw,20px);padding:0;border:0;background:none;color:var(--gold);font:400 clamp(22px,3.4vw,34px)/1.2 'dnd-dwarvish','PT Serif',serif;letter-spacing:.14em;text-align:left;cursor:pointer;overflow-wrap:anywhere;animation:inscribe 1.1s steps(18,end) .15s both}
-.home .runes.f-elvish{font-family:'dnd-elvish','PT Serif',serif;letter-spacing:.08em}
-.home .runes.f-draconic{font-family:'dnd-draconic','PT Serif',serif;letter-spacing:.1em}
-.home .runes.f-infernal{font-family:'dnd-infernal','PT Serif',serif;letter-spacing:.06em}
-.home .runes:hover,.home .runes:focus-visible{color:#f0d38f}
-@keyframes inscribe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
-.home h1{margin:0;font:700 clamp(2.6rem,7.4vw,5.6rem)/1 'PT Serif',Georgia,serif;font-variant:small-caps;letter-spacing:.005em;color:#fdf1dc;text-wrap:balance}
-.home .cover .rule{width:min(100%,520px);height:7px;margin:clamp(14px,2.4vw,24px) 0;background:var(--gold)}
-.home .lead{text-wrap:pretty;max-width:36em;margin:0 0 clamp(20px,3vw,32px);font-size:clamp(17px,1.9vw,20px);line-height:1.55;color:#ecd9ba}
-.home .lead b{color:#fdf1dc}
-.home .find{display:flex;align-items:center;justify-content:space-between;gap:14px;width:min(100%,720px);height:60px;padding:0 20px;border:0;border-bottom:4px solid var(--gold);background:#fdf1dc;color:#6b5f4d;font:400 18px 'PT Sans',sans-serif;text-align:left;cursor:text;box-shadow:0 6px 22px rgba(0,0,0,.35)}
-.home .find span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.home .find kbd{flex:none;min-width:28px;padding:2px 8px;border:1px solid #c9b48a;border-radius:3px;background:#f5ecd9;font:700 14px 'PT Sans',sans-serif;text-align:center;color:#6b5f4d}
-.home .find:hover{background:#fff8ea}
-.home .try{margin:12px 0 0;font:15px/1.7 'PT Sans',sans-serif;color:#d9c4a0}
-.home .try button{padding:0;border:0;border-bottom:1px dotted currentColor;background:none;color:#f6e3c8;font:inherit;cursor:pointer}
-.home .try button:hover{color:#fff;border-bottom-style:solid}
-.home .eds{display:flex;flex-wrap:wrap;gap:0;margin-top:clamp(26px,4vw,42px)}
-.home .eds a{flex:1 1 250px;max-width:380px;padding:12px 20px 13px;border:1px solid rgba(214,179,106,.55);color:#f6e3c8;text-decoration:none}
-.home .eds a+a{border-left:0}
-.home .eds b{display:block;font:700 36px/1 'PT Serif',serif}
-.home .eds span{display:block;margin-top:5px;font:13.5px/1.35 'PT Sans',sans-serif;opacity:.85}
-.home .eds a:hover{background:rgba(214,179,106,.14)}
-.home .eds a[aria-current=true]{background:#fdf1dc;color:var(--red);border-color:#fdf1dc}
-.home .eds a[aria-current=true] span{opacity:.8;color:#4a3f31}
-.home :focus-visible{outline:3px solid #f0d38f;outline-offset:3px}
-.home .sheet :focus-visible{outline-color:var(--red)}
-.home .sheet{position:relative;max-width:1000px;margin:clamp(-96px,-8vw,-60px) auto 0;padding:clamp(20px,3.4vw,36px) clamp(18px,3.4vw,38px) clamp(22px,3vw,32px)}
-.home .sheet{--muted:#6b5f4d;--line:#d9c7a3}body.e14 .home .sheet{--line:#bcd0c9}
-.home .sheet h2{font-size:clamp(26px,3.2vw,32px)}
-.home .sheet h2.tl{margin-top:clamp(26px,4vw,40px)}
-.home .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:0 clamp(24px,4vw,52px);align-items:start;margin-top:4px}
-.home .toc h3{margin:12px 0 2px}
-.home .toc ul{margin:0;padding:0;list-style:none}
-.home .only14{display:none}body.e14 .home .only14{display:block}
-.home .toc li,.home .tools a{margin:0}
-.home .toc a{display:block;padding:9px 2px 9px;border-bottom:1px solid var(--line);color:#1d1a16;text-decoration:none}
-.home .toc .r{display:flex;align-items:baseline;gap:8px}
-.home .toc b{font:700 18px/1.25 'PT Serif',serif}
-.home .toc .dots{flex:1;min-width:16px;border-bottom:2px dotted var(--red);opacity:.45;transform:translateY(-4px)}
-.home .toc em{font:700 14px 'PT Sans',sans-serif;font-style:normal;color:var(--red);font-variant-numeric:tabular-nums;white-space:nowrap}
-.home .toc em:empty{display:none}.home .toc em:empty+*,.home .toc .r:has(em:empty) .dots{display:none}
-.home .toc .d{display:block;margin-top:1px;font:13.5px/1.4 'PT Sans',sans-serif;color:var(--muted)}
-.home .toc a:hover b,.home .toc a:focus-visible b{color:var(--red)}
-.home .toc a:hover .dots{opacity:.9;border-bottom-style:solid}
-.home .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px;margin-top:6px}
-.home .tools a{display:block;padding:12px 16px 14px;border:1px solid var(--line);border-top:3px solid var(--bar);background:rgba(255,255,255,.35);color:#1d1a16;text-decoration:none}
-.home .tools b{display:block;font:700 18px/1.25 'PT Serif',serif;color:var(--red)}
-.home .tools span{display:block;margin-top:3px;font:14px/1.45 'PT Sans',sans-serif;color:#4a3f31}
-.home .tools a:hover{background:#fff8ea;border-top-color:var(--red)}
-.home .about{margin:clamp(22px,3vw,32px) 0 0;padding-top:12px;border-top:1px solid var(--line);font:13.5px/1.55 'PT Sans',sans-serif;color:var(--muted)}
-.home .about a{color:var(--bar)}
-@media(prefers-reduced-motion:reduce){.home .runes{animation:none}}
-@media(max-width:780px){.home .cover{padding-left:18px;padding-right:18px}.home .cover::before{inset:6px}.home .cover::after{inset:10px}.home .eds a{max-width:none}.home .eds a+a{border-left:1px solid rgba(214,179,106,.55);border-top:0}.home .sheet{margin-left:10px;margin-right:10px}}
-</style></head>
-<body>
-<nav id="nav"></nav>
+</head>
+<body class="land open">
+<nav id="nav"><span class="ed"><a data-e="14" href="14/" aria-current="false">2014</a><a data-e="24" href="./" aria-current="true">2024</a></span><a href="./" data-s="home" aria-current="true">Главная</a><a href="bestiary/" data-s="bestiary">Бестиарий</a><a href="spells/" data-s="spells">Заклинания</a><a href="class/" data-s="class">Классы</a><a href="species/" data-s="species">Виды</a><a href="backgrounds/" data-s="backgrounds">Предыстории</a><a href="feats/" data-s="feats">Черты</a><a href="items/" data-s="items">Предметы</a><a href="equipment/" data-s="equipment">Снаряжение</a><a href="glossary/" data-s="glossary">Глоссарий</a><a href="dmscreen/" data-s="dmscreen">Экран мастера</a><a href="sheet/" data-s="sheet">Листы персонажей</a><a href="translator/" data-s="translator">Переводчик</a><button id="gs" type="button" title="Глобальный поиск (Ctrl+K или /)">🔍 Поиск<kbd>/</kbd></button></nav>
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
-<section class="col" id="lcol"><header><p class="ttl" role="heading" aria-level="1">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
+<section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="home">
 <header class="cover"><div class="in">
 <button id="runes" class="runes" type="button" aria-label="Сменить письмо надписи" title="Это название рунами. Нажмите, чтобы сменить письмо"><span aria-hidden="true">Русская база</span></button>
@@ -183,35 +45,35 @@ body.e14 .home{--cov:#0e2f35}
 <p class="lead">Справочник мастера и игрока по <b>Dungeons &amp; Dragons</b>: монстры, заклинания, классы, предметы и правила. Английское название всегда рядом.</p>
 <button id="hs" class="find" type="button"><span>Монстр, заклинание, правило…</span><kbd>/</kbd></button>
 <p class="try">Например: <button type="button" data-q="огненный шар">огненный шар</button>, <button type="button" data-q="Fireball">Fireball</button>, <button type="button" data-q="красный дракон">красный дракон</button>, <button type="button" data-q="испуганный">испуганный</button></p>
-<div class="eds" role="group" aria-label="Редакция правил"><a href="#24" data-e="24"><b>2024</b><span>Обновлённые книги игрока, мастера и бестиарий</span></a><a href="#14" data-e="14"><b>2014</b><span>Классическая пятая редакция с дополнениями</span></a></div>
+<div class="eds" role="group" aria-label="Редакция правил"><a href="./" data-e="24" aria-current="true"><b>2024</b><span>Обновлённые книги игрока, мастера и бестиарий</span></a><a href="14/" data-e="14" aria-current="false"><b>2014</b><span>Классическая пятая редакция с дополнениями</span></a></div>
 </div></header>
 <div class="sheet stat">
-<h2>Оглавление</h2><p class="en" id="tocsub">Редакции 2014 и 2024</p><div class="rule"></div>
+<h2>Оглавление</h2><p class="en" id="tocsub">Редакция 2024: 2 188 записей</p><div class="rule"></div>
 <div class="toc">
 <div><h3>Герой</h3><ul>
-<li><a data-s="class" href="#class"><span class="r"><b>Классы</b><i class="dots"></i><em data-n="class"></em></span><span class="d">Подклассы и таблицы умений по уровням</span></a></li>
-<li><a data-s="species" href="#species"><span class="r"><b>Виды и расы</b><i class="dots"></i><em data-n="species"></em></span><span class="d">Особенности, подрасы и происхождение</span></a></li>
-<li><a data-s="backgrounds" href="#backgrounds"><span class="r"><b>Предыстории</b><i class="dots"></i><em data-n="backgrounds"></em></span><span class="d">Навыки, инструменты и стартовое снаряжение</span></a></li>
-<li><a data-s="feats" href="#feats"><span class="r"><b>Черты</b><i class="dots"></i><em data-n="feats"></em></span><span class="d">Требования и особенности каждой черты</span></a></li>
-<li><a data-s="spells" href="#spells"><span class="r"><b>Заклинания</b><i class="dots"></i><em data-n="spells"></em></span><span class="d">По классу, кругу, школе, ритуалам и концентрации</span></a></li>
+<li><a data-s="class" href="class/"><span class="r"><b>Классы</b><i class="dots"></i><em data-n="class">14</em></span><span class="d">Подклассы и таблицы умений по уровням</span></a></li>
+<li><a data-s="species" href="species/"><span class="r"><b>Виды и расы</b><i class="dots"></i><em data-n="species">19</em></span><span class="d">Особенности, подрасы и происхождение</span></a></li>
+<li><a data-s="backgrounds" href="backgrounds/"><span class="r"><b>Предыстории</b><i class="dots"></i><em data-n="backgrounds">70</em></span><span class="d">Навыки, инструменты и стартовое снаряжение</span></a></li>
+<li><a data-s="feats" href="feats/"><span class="r"><b>Черты</b><i class="dots"></i><em data-n="feats">195</em></span><span class="d">Требования и особенности каждой черты</span></a></li>
+<li><a data-s="spells" href="spells/"><span class="r"><b>Заклинания</b><i class="dots"></i><em data-n="spells">444</em></span><span class="d">По классу, кругу, школе, ритуалам и концентрации</span></a></li>
 </ul></div>
 <div><h3>Мир и правила</h3><ul>
-<li><a data-s="bestiary" href="#bestiary"><span class="r"><b>Бестиарий</b><i class="dots"></i><em data-n="bestiary"></em></span><span class="d">Монстры и существа со статблоками, по опасности, типу и среде</span></a></li>
-<li><a data-s="items" href="#items"><span class="r"><b>Магические предметы</b><i class="dots"></i><em data-n="items"></em></span><span class="d">По редкости, типу и настройке</span></a></li>
-<li><a data-s="equipment" href="#equipment"><span class="r"><b>Снаряжение</b><i class="dots"></i><em data-n="equipment"></em></span><span class="d">Оружие, доспехи, инструменты, транспорт и яды</span></a></li>
-<li><a data-s="glossary" href="#glossary"><span class="r"><b>Глоссарий</b><i class="dots"></i><em data-n="glossary"></em></span><span class="d">Состояния, действия, перемещение, колдовство и другие термины</span></a></li>
-<li class="only14"><a data-s="articles" href="#articles"><span class="r"><b>Правила и статьи</b><i class="dots"></i><em data-n="articles"></em></span><span class="d">Игровые механики, лор и справочные статьи</span></a></li>
+<li><a data-s="bestiary" href="bestiary/"><span class="r"><b>Бестиарий</b><i class="dots"></i><em data-n="bestiary">657</em></span><span class="d">Монстры и существа со статблоками, по опасности, типу и среде</span></a></li>
+<li><a data-s="items" href="items/"><span class="r"><b>Магические предметы</b><i class="dots"></i><em data-n="items">437</em></span><span class="d">По редкости, типу и настройке</span></a></li>
+<li><a data-s="equipment" href="equipment/"><span class="r"><b>Снаряжение</b><i class="dots"></i><em data-n="equipment">197</em></span><span class="d">Оружие, доспехи, инструменты, транспорт и яды</span></a></li>
+<li><a data-s="glossary" href="glossary/"><span class="r"><b>Глоссарий</b><i class="dots"></i><em data-n="glossary">155</em></span><span class="d">Состояния, действия, перемещение, колдовство и другие термины</span></a></li>
+<li class="only14"><a data-s="articles" href="glossary/"><span class="r"><b>Правила и статьи</b><i class="dots"></i><em data-n="articles"></em></span><span class="d">Игровые механики, лор и справочные статьи</span></a></li>
 </ul></div>
 </div>
 <h2 class="tl">За игровым столом</h2><div class="rule"></div>
 <div class="tools">
-<a data-s="dmscreen" href="#dmscreen"><b>Экран мастера</b><span>Инициатива, кубики и заметки в одном окне.</span></a>
-<a data-s="sheet" href="#sheet"><b>Листы персонажей</b><span>Расчёт бонусов и хитов, выбор заклинаний, печать на A4.</span></a>
-<a data-s="translator" href="#translator"><b>Переводчик</b><span>Текст драконьим, эльфийским, дварфийским и другими алфавитами D&amp;D.</span></a>
+<a data-s="dmscreen" href="dmscreen/"><b>Экран мастера</b><span>Инициатива, кубики и заметки в одном окне.</span></a>
+<a data-s="sheet" href="sheet/"><b>Листы персонажей</b><span>Расчёт бонусов и хитов, выбор заклинаний, печать на A4.</span></a>
+<a data-s="translator" href="translator/"><b>Переводчик</b><span>Текст драконьим, эльфийским, дварфийским и другими алфавитами D&amp;D.</span></a>
 </div>
 <p class="about">Бесплатный справочник по Dungeons &amp; Dragons (D&amp;D, ДнД) на русском языке: более 7 000 записей. Поиск понимает русские и английские названия, регистрация не нужна. Проект неофициальный и не связан с Wizards of the Coast. <a href="https://github.com/Usarname-1/dndbase" target="_blank" rel="noopener">Исходный код и замечания на GitHub</a>.</p>
 </div>
-</article></article></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
+</article></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
 <script src="links.js"></script>
 <script src="dice.js"></script>
 <script src="dmscreen.js"></script>
@@ -221,447 +83,7 @@ body.e14 .home{--cov:#0e2f35}
 <script src="charsheet.js"></script>
 <script src="translator.js"></script>
 <script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script>
-const HOME=document.getElementById('card').innerHTML;   // вводный текст из разметки: он же нужен поисковым роботам без JavaScript
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');
-const sg=n=>(n<0?'\u2212':'+')+Math.abs(n),pr=(l,v)=>v?`<p class="pr"><b>${l}</b> ${fmt(v)}</p>`:'';
-const T=(rows,h)=>`<div class="sc"><table class="tb">${rows.map((r,i)=>`<tr${h&&!i?' class="h"':''}>${r.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-const B=bl=>(bl||[]).map(b=>b.type=='heading'||b.type=='subheader'?`<h4>${fmt(b.text)}</h4>`:b.type=='list'?`<ul>${b.items.map((i,k)=>{const r=b.refs&&b.refs[k];return r?`<li><a class="ref" href="${hh(ed,...r.split('/'))}">${fmt(i)}</a></li>`:`<li>${fmt(i)}</li>`}).join('')}</ul>`:b.type=='table'?T(b.rows,b.header):b.type=='quote'?`<blockquote>${fmt(b.text)}</blockquote>`:b.type=='embed'?(b.name?`<p class="en">См. также: ${esc(b.name)}</p>`:''):`<p>${fmt(b.text)}</p>`).join('');
-const head=(m,sub)=>`<h2>${esc(m.name_ru)}</h2>${m.name_en?`<p class="en">${esc(m.name_en)}</p>`:''}${sub?`<p class="sub">${esc(sub)}</p>`:''}<div class="rule"></div>`;
-const foot=m=>`</article><p class="meta">${m.sources?.length?'Источники: '+esc(m.sources.join(', '))+'. ':''}<a href="${esc(m.url)}" target="_blank" rel="noopener"></a><span id="xref"></span></p>`;
-const props=m=>(m.props||[]).map(p=>pr(esc(p.label),p.value)).join('');
-const num=(a,b)=>parseFloat(a)-parseFloat(b),CR=['0','1/8','1/4','1/2',...Array.from({length:30},(_,i)=>''+(i+1))];
-const lvl=m=>m.level?m.level+' уровень':'Заговор',rar=m=>(m.rarity||'—');
-const ABIL=[['str','СИЛ'],['dex','ЛОВ'],['con','ТЕЛ'],['int','ИНТ'],['wis','МДР'],['cha','ХАР']];
-const at=(k,m)=>`<table><tr><th></th><th></th><th>мод</th><th>спас</th></tr>${k.map(([a,r])=>{const x=m.abilities[a];return`<tr><td>${r}</td><td>${x.score}</td><td>${sg(x.mod)}</td><td>${sg(x.save)}</td></tr>`}).join('')}</table>`;
-const spRef=u=>{const p=String(u||'').replace(/\/$/,'').split('/'),k=p[3]=='spells'?'s':p[3]=='glossary'?'g':'';return k?k+'/'+p.pop().replace(/^\d+-/,''):''};
-const ent=e=>`<p class="it${e.indent||e.n?' ind':''}">${e.n?`<b>${e.n}.</b> `:''}${e.name?`<span class="nm">${esc(e.name)}.</span> `:''}${fmt(e.text)}${(e.rows||[]).map(r=>`<br><i>${esc(r.label)}:</i> `+r.spells.map(s=>`<a href="${esc(s.url)}" data-r="${esc(spRef(s.url))}" target="_blank" rel="noopener"><i>${esc(s.name)}</i></a>`).join(', ')).join('')}</p>`;
-const loreBl=l=>(Array.isArray(l)?l:(l&&l.blocks)||[]).map(b=>b.type=='table'&&b.header===undefined?{...b,header:true}:b),
- lore=l=>l&&loreBl(l).length?`<details open><summary>${esc((!Array.isArray(l)&&l.title)||'Описание')}</summary>${!Array.isArray(l)&&l.subtitle?`<p class="sub">${esc(l.subtitle)}</p>`:''}${B(loreBl(l))}</details>`:'',
- loreView=l=>l&&loreBl(l).length?`<div class="rule"></div><div class="lore"><h3>${esc((!Array.isArray(l)&&l.title)||'Описание')}</h3>${!Array.isArray(l)&&l.subtitle?`<p class="sub">${esc(l.subtitle)}</p>`:''}${B(loreBl(l))}</div>`:'';
-const S={
-bestiary:{t:'Бестиарий',sub:m=>'БО '+m.cr,
- card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type}`)+(m.tags.length?` (${m.tags.join(', ')})`:'')+`, ${m.alignment_text}`+(m.named_npc?', именной НИП':'');
- return `<article class="stat">${head(m,sl)}<p class="pr"><b>Класс Защиты</b> ${m.ac} &nbsp; <b>Инициатива</b> ${sg(m.initiative.mod)} (${m.initiative.score})</p><p class="pr"><b>Хиты</b> ${m.hp.avg}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>${pr('Скорость',m.speed_text)}<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div><div class="rule"></div>`
- +pr('Навыки',(m.skills||[]).map(s=>`${s.name} ${sg(s.bonus)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитеты',m.immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)+`<p class="pr"><b>Опасность</b> ${esc(m.cr)} (${esc(m.xp_text)})</p>`
- +m.sections.map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent).join('')}`).join('')+`<div class="rule"></div>`+pr('Бонус мастерства',sg(m.pb))+pr('Среда обитания',m.habitat)+pr('Сокровища',m.treasure)+loreView(m.lore)+foot(m)}},
-spells:{t:'Заклинания',sub:m=>m.level?m.level+' ур.':'загов.',
- card:m=>`<article class="stat">${head(m,m.line)}${pr('Время сотворения',m.cast_time)}${pr('Дистанция',m.range)}${pr('Компоненты',m.components)}${pr('Длительность',m.duration)}${pr('Классы',(m.classes||[]).map(c=>c.name).join(', '))}${pr('Подклассы',m.subclasses)}<div class="rule"></div>${B(m.blocks)}${m.higher?`<p>${fmt(m.higher)}</p>`:''}${m.circle?`<p>${fmt(m.circle)}</p>`:''}${foot(m)}`},
-items:{t:'Предметы',sub:rar,
- card:m=>`<article class="stat">${head(m,m.line)}${pr('Рекомендованная стоимость',m.price)}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
-equipment:{t:'Снаряжение',sub:m=>m.cost||'',
- card:m=>`<article class="stat">${head(m,m.line)}${props(m)}${m.blocks?.length?`<div class="rule"></div>${B(m.blocks)}`:''}${foot(m)}`},
-feats:{t:'Черты',sub:m=>(m.category||'').replace(' черта','').replace('Черта ',''),
- card:m=>`<article class="stat">${head(m,m.line)}${B(m.blocks)}${foot(m)}`},
-backgrounds:{t:'Предыстории',sub:()=>'',
- card:m=>{const f=m.feat,fs=f&&f.url?f.url.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):null;
- return `<article class="stat">${head(m,'')}${pr('Характеристики',(m.abilities||[]).join(', '))}${f?`<p class="pr"><b>Черта</b> ${fs?`<a href="#feats/${esc(fs)}">${esc(f.name)}</a>`:esc(f.name)}</p>`:''}${pr('Навыки',(m.skills||[]).join(', '))}${pr('Инструменты',m.tools)}${pr('Снаряжение',m.equipment)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`}},
-species:{t:'Виды',sub:()=>'',card:m=>`<article class="stat">${head(m,'')}${props(m)}<div class="rule"></div>${B(m.blocks)}${foot(m)}`},
-class:{t:'Классы',sub:()=>'',card:m=>{const tb=m.table;
- return `<article class="stat">${head(m,'')}${(m.core_traits||[]).map(c=>pr(esc(c.label),c.value)).join('')}${tb?`<div class="sc"><table class="tb"><tr>${tb.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${tb.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:''}`
- +(m.becoming?m.becoming.parts.map(p=>`<details><summary>${esc(p.title)}</summary>${B(p.blocks)}</details>`).join(''):'')
- +(m.features||[]).map(f=>`<h3>Уровень ${f.level}: ${esc(f.name)}</h3>${B(f.blocks)}`).join('')+`<h3>Подклассы</h3>`
- +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}</summary>${B(s.description)}${s.features.map(f=>`<h4>Уровень ${f.level}: ${esc(f.name)}</h4>${B(f.blocks)}`).join('')}</details>`).join('')+loreView(m.lore)+foot(m)}},
-glossary:{t:'Глоссарий',sub:()=>'',card:m=>`<article class="stat">${head(m,m.group||'')}${B(m.blocks)}${foot(m)}`}
-};
-/* ---- фильтры ---- */
-/* ===== фильтры: [название, значения(m)=>[...], сортировка?, multi?] ===== */
-const ru=(a,b)=>String(a).localeCompare(b,'ru'),
- ord=l=>(a,b)=>{const x=l.indexOf(a),y=l.indexOf(b);return(x<0?999:x)-(y<0?999:y)||ru(a,b)},
- yn=v=>[v?'Да':'Нет'],
- tx=m=>(m.blocks||[]).map(b=>b.text||(b.items||[]).join(' ')||(b.rows||[]).flat().join(' ')).join(' '),
- rx=(m,list)=>{const t=tx(m);return list.filter(([,r])=>r.test(t)).map(([n])=>n)},
- SRC=m=>[...new Set((m.sources||[]).map(s=>/^Также/.test(s)?'SRD 5.2.1':s))],
- bucket=(n,b)=>{if(n==null||isNaN(n))return null;for(const[l,max]of b)if(n<=max)return l;return b.at(-1)[0]},
- GP=[['до 1 зм',1],['1–10 зм',10],['10–100 зм',100],['более 100 зм',1/0]],
- GPL=GP.map(x=>x[0]),
- PRICE=n=>n==null?'Без цены':bucket(n,[['до 100 зм',100],['100–1 000 зм',1000],['1 000–10 000 зм',1e4],['более 10 000 зм',1/0]]),
- PRICEL=['до 100 зм','100–1 000 зм','1 000–10 000 зм','более 10 000 зм','Без цены'],
- SIZES=['Крошечный','Маленький','Средний','Большой','Огромный','Громадный'],
- DMGT=['Дробящий','Колющий','Рубящий','Кислота','Огонь','Холод','Электричество','Звук','Яд','Излучение','Некротический','Психический','Силовое поле'],
- CONDS=['Бессознательный','Истощение','Испуганный','Окаменевший','Опрокинутый','Опутанный','Оглохший','Ослеплённый','Отравленный','Очарованный','Парализованный','Схваченный','Недееспособный','Ошеломлённый'],
- items_=s=>(s||'').split(/[;,]/).map(t=>t.replace(/\(.*?\)/g,'').trim().replace(/^Силовой$/,'Силовое поле')).filter(Boolean),
- dmg=s=>items_(s).filter(t=>DMGT.includes(t)),cnd=s=>items_(s).filter(t=>CONDS.includes(t)),
- ALIGN={LG:'Принципиальный добрый',NG:'Нейтральный добрый',CG:'Хаотичный добрый',LN:'Принципиальный нейтральный',N:'Нейтральный',CN:'Хаотичный нейтральный',LE:'Принципиальный злой',NE:'Нейтральный злой',CE:'Хаотичный злой',U:'Без мировоззрения'},
- ABIL_RU=['Сила','Ловкость','Телосложение','Интеллект','Мудрость','Харизма'],
- abil=s=>ABIL_RU.filter(a=>new RegExp(a.slice(0,-1)).test(s||'')),
- /* заклинания */
- castT=m=>{const b=(m.cast_time||'').split(/,| или /)[0].replace(/\s*\(.*\)/,'').trim();return /^Бонус/i.test(b)?'Бонусное действие':/^Реакц/i.test(b)?'Реакция':b},
- SEC={'раунд':6,'мин':60,'час':3600,'ч':3600,'дн':86400,'день':86400},
- durT=m=>{const s=m.duration||'';if(/мгнов/i.test(s))return'Мгновенная';if(/пока не рассеяно/i.test(s))return'Пока не рассеяно';
-  const r=s.match(/(\d+)\s*(раунд|минут|час|дн|день)/i);if(!r)return'Особая';const u={раунд:'раунд.',минут:'мин',час:'ч',дн:'дн',день:'дн'}[r[2].toLowerCase()];return r[1]+' '+u},
- durSec=l=>{const r=l.match(/^(\d+) (раунд\.|мин|ч|дн)/);return r?r[1]*{'раунд.':6,'мин':60,'ч':3600,'дн':86400}[r[2]]:l=='Мгновенная'?0:1e12},
- rangeT=m=>{const s=(m.range||'').split(' (')[0].trim(),r=s.match(/^(\d+)\s*(фут|миль)/i);return r?(/миль/i.test(r[2])?r[1]+' '+(r[1]==1?'миля':'миль'):r[1]+' фт'):s},
- rangeSec=l=>{const r=l.match(/^(\d+) (фт|миля|миль)/);return l=='На себя'?-2:l=='Касание'?-1:r?r[1]*(r[2]=='фт'?1:5280):1e9},
- SDMG=[['Излучение',/урон[а-яё]*\s+Излучением|Излучения\s+урон/i],['Огонь',/урон[а-яё]*\s+Огнём/i],['Звук',/урон[а-яё]*\s+Звуком/i],['Холод',/урон[а-яё]*\s+Холодом/i],['Электричество',/урон[а-яё]*\s+Электричеством/i],['Кислота',/урон[а-яё]*\s+Кислотой/i],['Яд',/урон[а-яё]*\s+Ядом/i],
-  ['Некротический',/Некротическ[а-яё]*\s+урон|урон[а-яё]*\s+Некротическ/i],['Психический',/Психическ[а-яё]*\s+урон|урон[а-яё]*\s+Психическ/i],['Силовое поле',/Силов[а-яё]*\s+урон|урон[а-яё]*\s+Силов/i],['Дробящий',/Дробящ[а-яё]*\s+урон/i],['Колющий',/Колющ[а-яё]*\s+урон/i],['Рубящий',/Рубящ[а-яё]*\s+урон/i]],
- SSAVE=ABIL_RU.map(a=>[a,new RegExp('спасбросок\\s+'+({Сила:'Силы',Ловкость:'Ловкости',Телосложение:'Телосложения',Интеллект:'Интеллекта',Мудрость:'Мудрости',Харизма:'Харизмы'}[a]),'i')]),
- /* предметы */
- RAR=['Обычный','Необычный','Редкий','Очень редкий','Легендарный','Артефакт','Редкость варьируется'],
- rarT=m=>{const r=(m.rarity||'').toLowerCase();return !r?'—':/очень редк/.test(r)?'Очень редкий':/необычн/.test(r)?'Необычный':/обычн/.test(r)?'Обычный':/редкость/.test(r)?'Редкость варьируется':/редк/.test(r)?'Редкий':/легенд/.test(r)?'Легендарный':/артефакт/.test(r)?'Артефакт':r},
- /* снаряжение */
- pv=(m,l)=>((m.props||[]).find(p=>p.label==l)||{}).value||'',
- eqCat=m=>{const l=m.line||'';return !l?'Прочее':/оружие/.test(l)?'Оружие':/доспех|Щит/.test(l)?'Доспех и щиты':/фокусировка/.test(l)?'Заклинательная фокусировка':/Ремесленный/.test(l)?'Ремесленный инструмент':/Инструмент/.test(l)?'Инструмент':/Набор/.test(l)?'Набор снаряжения':/Боеприпас/.test(l)?'Боеприпасы':'Предмет снаряжения'},
- /* черты */
- fprereq=m=>{const p=m.prerequisite||'';return p?rx({blocks:[{text:p}]},[['Эберрон',/Эберрон/],['Равенлофт',/Равенлофт/],['Заклинатель',/Сотворение заклинаний|Магия договора|Посвящённый в магию|Искра/],['Боевой стиль',/Боевой стиль/],['Другая черта',/черт[аы]\s/],['Доспехи / оружие',/тренированность|владение/i]]):['Нет требований']},
- /* виды */
- spText=m=>tx(m);
-
-const FILTERS={
-bestiary:[
- ['Опасность',m=>[m.cr],(a,b)=>CR.indexOf(a)-CR.indexOf(b)],
- ['Тип',m=>[m.type].filter(Boolean).flatMap(t=>t.split(' или '))],
- ['Теги',m=>m.tags||[],null,1],
- ['Размер',m=>m.sizes,ord(SIZES),1],
- ['Мировоззрение',m=>[ALIGN[m.alignment]||m.alignment_text],ord(Object.values(ALIGN))],
- ['Среда обитания',m=>m.habitat?m.habitat.split(/,\s*/):[],null,1],
- ['Скорость',m=>Object.keys(m.speed||{}).map(k=>({fly:'Полёт',swim:'Плавание',climb:'Лазание',burrow:'Копание'})[k]).filter(Boolean),null,1],
- ['Чувства',m=>rx({blocks:[{text:m.senses||''}]},[['Тёмное зрение',/Тёмное зрение/],['Слепое зрение',/Слепое зрение/],['Истинное зрение',/Истинное зрение/],['Чувство вибрации',/Чувство вибрации/]]),null,1],
- ['Телепатия',m=>/Телепат/i.test(m.languages||'')?['Есть']:['Нет']],
- ['Класс Защиты',m=>[bucket(m.ac,[['до 11',11],['12–14',14],['15–17',17],['18 и выше',1/0]])],ord(['до 11','12–14','15–17','18 и выше'])],
- ['Хиты',m=>[bucket(m.hp.avg,[['до 20',20],['21–50',50],['51–100',100],['101–200',200],['более 200',1/0]])],ord(['до 20','21–50','51–100','101–200','более 200'])],
- ['Иммунитет к урону',m=>dmg(m.immunities),ord(DMGT),1],
- ['Сопротивление урону',m=>dmg(m.resistances),ord(DMGT),1],
- ['Уязвимость к урону',m=>dmg(m.vulnerabilities),ord(DMGT),1],
- ['Иммунитет к состояниям',m=>cnd(m.immunities),null,1],
- ['Особенности',m=>[...(m.sections||[]).map(s=>({legendary_actions:'Легендарные действия',reactions:'Реакции',bonus_actions:'Бонусные действия'})[s.key]).filter(Boolean),...(m.swarm?['Рой']:[]),...(m.named_npc?['Именной НИП']:[])],null,1],
- ['Источник',SRC,null,1]],
-spells:[
- ['Уровень',m=>[lvl(m)],(a,b)=>num(a=='Заговор'?0:a,b=='Заговор'?0:b)],
- ['Школа',m=>[m.school]],
- ['Класс',m=>(m.classes||[]).map(c=>c.name),null,1],
- ['Время сотворения',m=>[castT(m)],ord(['Действие','Бонусное действие','Реакция','1 минута','10 минут','1 час'])],
- ['Ритуал',m=>yn(m.ritual)],
- ['Концентрация',m=>yn(m.concentration)],
- ['Длительность',m=>[durT(m)],(a,b)=>durSec(a)-durSec(b)],
- ['Дистанция',m=>[rangeT(m)],(a,b)=>rangeSec(a)-rangeSec(b)],
- ['Компоненты',m=>m.comp||[],null,1],
- ['Материал',m=>m.material?[...(/\d+\s*зм/i.test(m.material)?['Указана стоимость']:[]),...(/поглощ|расходу|уничтож/i.test(m.material)?['Расходуется']:[])]:[],null,1],
- ['Тип урона',m=>rx(m,SDMG),ord(DMGT),1],
- ['Спасбросок',m=>rx(m,SSAVE),ord(ABIL_RU),1],
- ['Атака заклинанием',m=>/(рукопашн|дальнобойн)[а-яё]*\s+атак[а-яё]*\s+заклинанием|бросок атаки заклинанием/i.test(tx(m))?['Да']:['Нет']],
- ['Источник',SRC,null,1]],
-items:[
- ['Редкость',m=>[rarT(m)],ord(RAR)],
- ['Тип',m=>[(m.type||'—').split(' (')[0]]],
- ['Настройка',m=>[m.attunement?'Требуется':'Не требуется']],
- ['Цена',m=>[PRICE(m.price_gp)],ord(PRICEL)],
- ['Источник',SRC,null,1]],
-equipment:[
- ['Категория',m=>[eqCat(m)]],
- ['Класс',m=>[(m.line||'').match(/^(Простое|Воинское|Лёгкий|Средний|Тяжёлый)/)?.[1]].filter(Boolean),ord(['Простое','Воинское','Лёгкий','Средний','Тяжёлый'])],
- ['Дистанция оружия',m=>[(m.line||'').match(/(Рукопашное|Дальнобойное)/)?.[1]].filter(Boolean)],
- ['Тип урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ').pop()]:[],ord(DMGT)],
- ['Кость урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ')[0]]:[]],
- ['Фокусировка для',m=>/фокусировка/.test(m.line||'')?((m.line.match(/\((.*)\)/)||[])[1]||'').split(/,\s*/).filter(Boolean):[],null,1],
- ['Стоимость',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,GP)],ord([...GPL,'Без цены'])],
- ['Источник',SRC,null,1]],
-feats:[
- ['Категория',m=>[m.category]],
- ['Требования',fprereq,null,1],
- ['Мин. уровень',m=>[(m.prerequisite||'').match(/(\d+)\s*уровень/)?.[1]].filter(Boolean).map(x=>x+' уровень'),(a,b)=>num(a,b)],
- ['Мин. характеристика',m=>abil(((m.prerequisite||'').match(/[^,]*13\+/g)||[]).join(' ')),ord(ABIL_RU),1],
- ['Источник',SRC,null,1]],
-backgrounds:[
- ['Характеристика',m=>m.abilities||[],null,1],
- ['Навык',m=>m.skills||[],null,1],
- ['Черта',m=>m.feat?[m.feat.name]:[]],
- ['Инструмент',m=>m.tools?m.tools.split(/,\s*/).map(t=>t.replace(/^Выберите один (вид|тип) Ремесленных инструментов$/,'Ремесленные инструменты')):[],null,1],
- ['Источник',SRC,null,1]],
-species:[
- ['Тип существа',m=>[pv(m,'Тип существа')].filter(Boolean)],
- ['Размер',m=>SIZES.filter(s=>pv(m,'Размер').includes(s)),ord(SIZES),1],
- ['Скорость',m=>[(pv(m,'Скорость').match(/\d+/)||[])[0]].filter(Boolean).map(x=>x+' футов'),(a,b)=>num(a,b)],
- ['Особенности',m=>rx(m,[['Тёмное зрение',/Тёмное зрение/i],['Полёт',/полёт|летать/i],['Сопротивление урону',/Сопротивление/],['Заклинания',/заклинани|заговор/i],['Плавание',/плавани/i],['Лазание',/лазани/i]]),null,1],
- ['Источник',SRC,null,1]],
-class:[
- ['Основная характеристика',m=>abil(cv(m,'Основная характеристика')),ord(ABIL_RU),1],
- ['Кость хитов',m=>[(cv(m,'Кость хитов').match(/к(\d+)/i)||[])[1]].filter(Boolean).map(x=>'К'+x),ord(['К6','К8','К10','К12'])],
- ['Заклинательство',m=>[(m.table?.columns||[]).some(c=>/Заговор|Подготовленные заклинания|Ячейки/.test(c))?'Заклинатель':'Не заклинатель']],
- ['Спасброски',m=>abil(cv(m,'Владение спасбросками')),ord(ABIL_RU),1],
- ['Доспехи',m=>[['Лёгкие',/Лёгк/],['Средние',/Средн/],['Тяжёлые',/Тяжёл/],['Щиты',/Щит/]].filter(([,r])=>r.test(cv(m,'Тренированность с доспехами'))).map(x=>x[0]),null,1],
- ['Оружие',m=>[['Простое',/Простое/],['Воинское',/Воинское/]].filter(([,r])=>r.test(cv(m,'Владение оружием'))).map(x=>x[0]),null,1],
- ['Источник',SRC,null,1]],
-glossary:[['Группа',m=>[m.group||'—']]]
-};
-const cv=(m,l)=>((m.core_traits||[]).find(c=>c.label==l)||{}).value||'';
-
-for(const k in S)S[k].F=FILTERS[k]||[];
-const cut=(s,n)=>{s=String(s||'').replace(/\*+/g,'');return s.length>n?s.slice(0,n).replace(/\s\S*$/,'')+'…':s},
- L=(l,v)=>v&&v.length?l+' '+(Array.isArray(v)?v.join(', '):v):'';
-const SUM={
-bestiary:m=>[[m.swarm?`${m.size_text} рой`:`${m.size_text} ${m.type}`,`КД ${m.ac}`,`ХП ${m.hp.avg}`],[m.speed_text]],
-spells:m=>[[m.school,castT(m),rangeT(m)],[(m.concentration?'Конц. ':'')+durT(m),(m.comp||[]).join(' '),m.ritual?'Ритуал':''],[(m.classes||[]).map(c=>c.name).join(', ')]],
-items:m=>[[m.type,m.attunement?'Настройка':'',m.price]],
-equipment:m=>[[m.line,pv(m,'Урон'),pv(m,'Класс защиты')&&'КЗ '+pv(m,'Класс защиты'),pv(m,'Вес')]],
-feats:m=>[[m.prerequisite?'Треб.: '+m.prerequisite:'Без требований']],
-backgrounds:m=>[[L('Хар.:',m.abilities),m.feat&&m.feat.name],[L('Навыки:',m.skills)]],
-species:m=>[[pv(m,'Тип существа'),SIZES.filter(s=>pv(m,'Размер').includes(s)).join(' / '),pv(m,'Скорость')],[FILTERS.species[3][1](m).join(', ')]],
-class:m=>[[L('Осн.:',cv(m,'Основная характеристика')),'Хиты '+(FILTERS.class[1][1](m)[0]||'—'),FILTERS.class[2][1](m)[0]],[L('Спасброски:',cv(m,'Владение спасбросками'))]],
-glossary:m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]]};
-for(const k in S)S[k].sum=SUM[k];
-const A=['По алфавиту'],mi=(l,v)=>{const i=l.indexOf(v);return i<0?null:i};
-const SORT={
-bestiary:[A,['Опасность',m=>mi(CR,m.cr)],['Класс Защиты',m=>m.ac],['Хиты',m=>m.hp.avg],['Размер',m=>mi(SIZES,(m.sizes||[])[0])],['Тип',m=>m.type]],
-spells:[A,['Уровень',m=>m.level||0],['Школа',m=>m.school],['Время сотворения',m=>mi(['Действие','Бонусное действие','Реакция','1 минута','10 минут','1 час'],castT(m))??99],['Дистанция',m=>rangeSec(rangeT(m))],['Длительность',m=>durSec(durT(m))]],
-items:[A,['Редкость',m=>mi(RAR,rarT(m))],['Цена',m=>m.price_gp],['Тип',m=>(m.type||'').split(' (')[0]]],
-equipment:[A,['Стоимость',m=>m.cost_gp],['Вес',m=>m.weight_lb],['Категория',m=>eqCat(m)]],
-feats:[A,['Категория',m=>m.category]],
-backgrounds:[A],
-species:[A,['Тип существа',m=>pv(m,'Тип существа')]],
-class:[A,['Кость хитов',m=>parseInt((FILTERS.class[1][1](m)[0]||'').slice(1))||null]],
-glossary:[A,['Группа',m=>m.group]]};
-for(const k in S)S[k].SORT=SORT[k]||[A];
-/* ================= РЕДАКЦИЯ 2014 ================= */
-const capf=s=>s?s[0].toUpperCase()+s.slice(1):s,
- ALIGN14={...ALIGN,A:'Любое мировоззрение'},
- CAST14=['Действие','Бонусное действие','Реакция','1 минута','10 минут','1 час','8 часов','12 часов','24 часа'],
- castT14=m=>{const b=(m.cast_time||'').toLowerCase();return /бонусн/.test(b)?'Бонусное действие':/реакц/.test(b)?'Реакция':/^1 действие/.test(b)?'Действие':capf((b.split(/,| или /)[0]||'').trim())},
- durT14=m=>{const s=m.duration||'';if(/мгнов/i.test(s))return'Мгновенная';if(/рассея/i.test(s))return'Пока не рассеяно';const r=s.match(/(\d+)\s*(раунд|минут|час|дн|ден|сут)/i);return r?r[1]+' '+({раунд:'раунд.',минут:'мин',час:'ч',дн:'дн',ден:'дн',сут:'дн'})[r[2].toLowerCase()]:'Особая'},
- SDW=[['Излучение','излучени'],['Огонь','огн[её]м'],['Звук','звуком'],['Холод','холодом'],['Электричество','электричеством'],['Кислота','кислотой'],['Яд','ядом'],['Некротический','некротическ'],['Психический','психическ'],['Силовое поле','силов'],['Дробящий','дробящ'],['Колющий','колющ'],['Рубящий','рубящ']],
- sdmg14=m=>{const t=tx(m).toLowerCase();return SDW.filter(([,w])=>new RegExp('урон[а-яё]*\\s+(?:от\\s+)?'+w).test(t)||new RegExp(w+'[а-яё]*\\s+урон').test(t)).map(x=>x[0])},
- DW=[['Дробящий',/дробящ/],['Колющий',/колющ/],['Рубящий',/рубящ/],['Кислота',/кислот/],['Огонь',/огон|огн/],['Холод',/холод/],['Электричество',/электричеств|молни/],['Звук',/звук/],['Яд',/(?<![а-яё])яд(?![а-яё])/],['Излучение',/излучени/],['Некротический',/некротическ/],['Психический',/психическ/],['Силовое поле',/силов/]],
- dmg14=s=>{const t=(s||'').toLowerCase();return[...DW.filter(([,r])=>r.test(t)).map(x=>x[0]),...(/немагическ|не магическ/.test(t)?['Немагические атаки']:[])]},
- CW=[['Отравленный',/отравлен/],['Очарованный',/очарован/],['Испуганный',/испуг/],['Истощение',/истощен/],['Парализованный',/паралич/],['Окаменевший',/окаменен/],['Опрокинутый',/сбивани/],['Ослеплённый',/ослеплен/],['Опутанный',/опутан/],['Оглохший',/глухот/],['Схваченный',/захват/],['Ошеломлённый',/ошеломлен/],['Бессознательный',/бессознательн/],['Недееспособный',/недееспособн/]],
- cnd14=s=>CW.filter(([,r])=>r.test((s||'').toLowerCase())).map(x=>x[0]),
- RAR14=[...RAR,'Не указана'],rarT14=m=>m.rarity?rarT(m):'Не указана',
- SKILLS14=ABIL_RU,
- cv14=(m,l)=>((m.core_traits||[]).find(c=>c.label.toLowerCase()==l.toLowerCase())||{}).value||'',
- secKeys14={legendary_actions:'Легендарные действия',reactions:'Реакции',bonus_actions:'Бонусные действия',lair_actions:'Действия логова',lair:'Логово',regional_effects:'Региональные эффекты',mythic_actions:'Мифические действия'},
- ent14=e=>e.kind=='table'?T(e.rows,true):`<p class="it">${e.name?`<span class="nm">${esc(e.name)}.</span> `:''}${fmt(e.text)}${e.source?` <i>(${esc(e.source)})</i>`:''}</p>`,
- sub14=(t,x)=>`<${x}>${t}</${x}>`,
- classTable=tb=>tb?`<div class="sc"><table class="tb"><tr>${tb.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${tb.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:'',
- cf14=(f,t)=>`<${f.sub?'h4':t}>${f.level?`Уровень ${f.level}: `:''}${esc(f.name)}${f.optional?' <small>(опционально)</small>':''}</${f.sub?'h4':t}>${B(f.blocks)}`,
- asiTxt=m=>(m.asi||[]).map(a=>a.ability+' +'+a.value).join(', ');
-const S14={
-bestiary:{t:'Бестиарий',sub:m=>m.cr?'БО '+m.cr:'',
- card:m=>{const sl=(m.swarm?`${m.size_text} рой ${m.swarm_of}`:`${m.size_text} ${m.type||''}`)+(m.tags&&m.tags.length?` (${m.tags.join(', ')})`:'')+(m.alignment_text?`, ${m.alignment_text}`:'')+(m.named_npc?', именной НИП':'');
- const ab=m.abilities&&m.abilities.str;
- return `<article class="stat">${head(m,sl)}${pr('Класс Доспеха',m.ac_text||m.ac)}${m.hp_text?pr('Хиты',m.hp_text):m.hp?`<p class="pr"><b>Хиты</b> ${m.hp.avg??''}${m.hp.formula?` (${esc(m.hp.formula)})`:''}</p>`:''}${pr('Скорость',m.speed_text)}`
- +(ab?`<div class="rule"></div><div class="abil">${at(ABIL.slice(0,3),m)}${at(ABIL.slice(3),m)}</div>`:'')+`<div class="rule"></div>`
- +pr('Навыки',Object.entries(m.skills||{}).map(([k,v])=>`${k} ${sg(v)}`).join(', '))+pr('Уязвимость к урону',m.vulnerabilities)+pr('Сопротивление урону',m.resistances)+pr('Иммунитет к урону',m.immunities)+pr('Иммунитет к состояниям',m.condition_immunities)+pr('Чувства',m.senses)+pr('Языки',m.languages)
- +`<p class="pr"><b>Опасность</b> ${m.cr?esc(m.cr)+(m.xp!=null?` (${m.xp} опыта)`:''):'—'}</p>`+(m.pb!=null?pr('Бонус мастерства',sg(m.pb)):'')+pr('Среда обитания',m.habitat?m.habitat.split(/,\s*/).map(capf).join(', '):'')
- +(m.sections||[]).map(s=>`<h3>${esc(s.title||'')}</h3>${s.intro?`<p class="intro">${fmt(s.intro)}</p>`:''}${s.items.map(ent14).join('')}`).join('')
- +loreView(m.lore)+foot(m)}},
-spells:{t:'Заклинания',sub:S.spells.sub,card:S.spells.card},
-items:{t:'Предметы',sub:m=>m.rarity?rarT(m):'',card:S.items.card},
-feats:{t:'Черты',sub:m=>m.prerequisite?'треб.':'',card:S.feats.card},
-backgrounds:{t:'Предыстории',sub:()=>'',card:m=>`<article class="stat">${head(m,'')}${B(m.blocks)}${foot(m)}`},
-race:{t:'Расы',sub:m=>(m.sizes||[]).join(' / '),card:m=>`<article class="stat">${head(m,'')}${B(m.blocks)}${foot(m)}`},
-class:{t:'Классы',sub:m=>m.sidekick?'напарник':'',card:m=>`<article class="stat">${head(m,m.sidekick?'Класс напарника':'')}${(m.core_traits||[]).map(c=>pr(esc(c.label),c.value)).join('')}${classTable(m.table)}`
- +lore(m.lore)+(m.creation&&m.creation.length?`<details><summary>Создание персонажа</summary>${B(m.creation)}</details>`:'')
- +(m.extra||[]).map(x=>`<details><summary>${esc(x.title)}</summary>${B(x.blocks)}</details>`).join('')
- +(m.multiclassing&&m.multiclassing.length?`<details><summary>Мультиклассирование</summary>${B(m.multiclassing)}</details>`:'')
- +(m.features||[]).map(f=>cf14(f,'h3')).join('')+((m.subclasses||[]).length?'<h3>Подклассы</h3>':'')
- +(m.subclasses||[]).map(s=>`<details><summary>${esc(s.name)}${s.official?'':' — неофициальный'}</summary>${s.source?`<p class="en">${esc(s.source)}</p>`:''}${B(s.description)}${s.features.map(f=>cf14(f,'h4')).join('')}</details>`).join('')+foot(m)}
-};
-const FILTERS14={
-bestiary:[
- ['Опасность',m=>[m.cr].filter(Boolean),(a,b)=>CR.indexOf(a)-CR.indexOf(b)],
- ['Тип',m=>[m.type].filter(Boolean)],
- ['Теги',m=>m.tags||[],null,1],
- ['Размер',m=>m.sizes||[],ord(SIZES),1],
- ['Мировоззрение',m=>[ALIGN14[m.alignment]].filter(Boolean),ord(Object.values(ALIGN14))],
- ['Среда обитания',m=>m.habitat?m.habitat.split(/,\s*/).map(capf):[],null,1],
- ['Скорость',m=>Object.keys(m.speed||{}).map(k=>({fly:'Полёт',swim:'Плавание',climb:'Лазание',burrow:'Копание'})[k]).filter(Boolean),null,1],
- ['Чувства',m=>[['Тёмное зрение',/тёмное зрение/i],['Слепое зрение',/слепое зрение/i],['Истинное зрение',/истинное зрение/i],['Чувство вибрации',/вибраци/i]].filter(([,r])=>r.test(m.senses||'')).map(x=>x[0]),null,1],
- ['Телепатия',m=>/телепат/i.test(m.languages||'')?['Есть']:['Нет']],
- ['Класс Доспеха',m=>[bucket(m.ac,[['до 11',11],['12–14',14],['15–17',17],['18 и выше',1/0]])].filter(Boolean),ord(['до 11','12–14','15–17','18 и выше'])],
- ['Хиты',m=>[bucket(m.hp&&m.hp.avg,[['до 20',20],['21–50',50],['51–100',100],['101–200',200],['более 200',1/0]])].filter(Boolean),ord(['до 20','21–50','51–100','101–200','более 200'])],
- ['Иммунитет к урону',m=>dmg14(m.immunities),ord([...DMGT,'Немагические атаки']),1],
- ['Сопротивление урону',m=>dmg14(m.resistances),ord([...DMGT,'Немагические атаки']),1],
- ['Уязвимость к урону',m=>dmg14(m.vulnerabilities),ord(DMGT),1],
- ['Иммунитет к состояниям',m=>cnd14(m.condition_immunities),null,1],
- ['Особенности',m=>[...(m.sections||[]).map(s=>secKeys14[s.key]).filter(Boolean),...((m.sections||[]).some(s=>s.items.some(i=>i.kind=='spellcasting'))?['Заклинатель']:[]),...(m.swarm?['Рой']:[]),...(m.named_npc?['Именной НИП']:[]),...((m.sections||[]).some(s=>s.key=='optional')?['Опциональные правила']:[])],null,1],
- ['Источник',SRC,null,1]],
-spells:[
- ['Уровень',m=>[lvl(m)],(a,b)=>num(a=='Заговор'?0:a,b=='Заговор'?0:b)],
- ['Школа',m=>[m.school].filter(Boolean)],
- ['Класс',m=>(m.classes||[]).map(c=>c.name),null,1],
- ['Подкласс',m=>m.subclass_list||[],null,1],
- ['Время накладывания',m=>[castT14(m)],ord(CAST14)],
- ['Ритуал',m=>yn(m.ritual)],
- ['Концентрация',m=>yn(m.concentration)],
- ['Длительность',m=>[durT14(m)],(a,b)=>durSec(a)-durSec(b)],
- ['Дистанция',m=>[rangeT(m)],(a,b)=>rangeSec(a)-rangeSec(b)],
- ['Компоненты',m=>m.comp||[],null,1],
- ['Материал',m=>m.material?[...(/\d+\s*зм/i.test(m.material)?['Указана стоимость']:[]),...(/поглощ|расходу|уничтож|потреб/i.test(m.material)?['Расходуется']:[])]:[],null,1],
- ['Тип урона',sdmg14,ord(DMGT),1],
- ['Спасбросок',m=>rx(m,SSAVE),ord(ABIL_RU),1],
- ['Атака заклинанием',m=>/(рукопашн|дальнобойн)[а-яё]*\s+атак[а-яё]*\s+заклинанием/i.test(tx(m))?['Да']:['Нет']],
- ['Источник',SRC,null,1]],
-items:[
- ['Редкость',m=>[rarT14(m)],ord(RAR14)],
- ['Тип',m=>[(m.type||'—').split(' (')[0]]],
- ['Настройка',m=>[m.attunement?'Требуется':'Не требуется']],
- ['Настройка для',m=>m.attunement_by||[],null,1],
- ['Цена',m=>[PRICE(m.price_min_gp)],ord(PRICEL)],
- ['Источник',SRC,null,1]],
-feats:[
- ['Требования',m=>m.prereq_tags||[],null,1],
- ['Мин. уровень',m=>[(m.prerequisite||'').match(/(\d+)\s*уровень/)?.[1]].filter(Boolean).map(x=>x+' уровень'),(a,b)=>num(a,b)],
- ['Мин. характеристика',m=>m.prereq_abilities||[],ord(ABIL_RU),1],
- ['Повышает характеристику',m=>[...new Set((m.asi||[]).map(a=>a.ability))],ord([...ABIL_RU,'Все','На выбор']),1],
- ['Источник',SRC,null,1]],
-backgrounds:[
- ['Навык',m=>m.skills||[],null,1],
- ['Инструмент',m=>m.tool_tags||[],null,1],
- ['Языки',m=>[m.languages_n==null?'Особые':m.languages_n==0?'Нет':m.languages_n==1?'Один':m.languages_n==2?'Два':'Три'],ord(['Нет','Один','Два','Три','Особые'])],
- ['Источник',SRC,null,1]],
-race:[
- ['Увеличение характеристик',m=>[...new Set((m.asi||[]).map(a=>a.ability))],ord([...ABIL_RU,'Все','На выбор']),1],
- ['Размер',m=>m.sizes||[],ord(SIZES),1],
- ['Скорость',m=>(m.speeds||[]).map(x=>x+' футов'),(a,b)=>num(a,b),1],
- ['Подрасы',m=>yn((m.subraces||[]).length)],
- ['Особенности',m=>rx(m,[['Тёмное зрение',/тёмное зрение/i],['Полёт',/полёт|летать/i],['Плавание',/плавани/i],['Лазание',/лазани/i],['Сопротивление урону',/сопротивлени/i],['Заклинания',/заклинани|заговор/i],['Владение навыками',/владение навык|владеете навык|навык[а-я]* на ваш выбор/i],['Владение оружием',/владение .{0,40}оружи|владеете .{0,40}оружи/i],['Языки на выбор',/язык[а-я]* на ваш выбор/i]]),null,1],
- ['Источник',SRC,null,1]],
-class:[
- ['Тип',m=>[m.sidekick?'Напарник':'Класс']],
- ['Кость хитов',m=>[(cv14(m,'Кость Хитов').match(/к(\d+)/i)||[])[1]].filter(Boolean).map(x=>'К'+x),ord(['К6','К8','К10','К12'])],
- ['Заклинательство',m=>[(m.table?.columns||[]).some(c=>/Заговор|Ячейки|Известные заклинания|Подготовленные/.test(c))?'Заклинатель':'Не заклинатель']],
- ['Спасброски',m=>abil(cv14(m,'Спасброски')),ord(ABIL_RU),1],
- ['Доспехи',m=>[['Лёгкие',/лёгк/i],['Средние',/средн/i],['Тяжёлые',/тяжёл|все виды/i],['Щиты',/щит/i]].filter(([,r])=>r.test(cv14(m,'Доспехи'))).map(x=>x[0]),null,1],
- ['Оружие',m=>[['Простое',/простое/i],['Воинское',/воинское/i]].filter(([,r])=>r.test(cv14(m,'Оружие'))).map(x=>x[0]),null,1],
- ['Инструменты',m=>[/^(нет|—)?\.?$/i.test(cv14(m,'Инструменты').trim())?'Нет':'Есть']],
- ['Источник',SRC,null,1]]
-};
-const SUM14={
-bestiary:m=>[[m.swarm?`${m.size_text} рой`:`${m.size_text} ${m.type||''}`,m.ac!=null?`КД ${m.ac}`:'',m.hp?`ХП ${m.hp.avg}`:''],[m.speed_text]],
-spells:m=>[[m.school,castT14(m),rangeT(m)],[(m.concentration?'Конц. ':'')+durT14(m),(m.comp||[]).join(' '),m.ritual?'Ритуал':''],[(m.classes||[]).map(c=>c.name).join(', ')]],
-items:m=>[[m.type,m.attunement?'Настройка':'',m.price]],
-feats:m=>[[m.prerequisite?'Треб.: '+m.prerequisite:'Без требований',asiTxt(m)]],
-backgrounds:m=>[[L('Навыки:',m.skills),L('Инстр.:',m.tool_tags)]],
-race:m=>[[(m.sizes||[]).join(' / '),(m.speeds||[]).length?m.speeds.join('/')+' фт':'',m.subraces&&m.subraces.length?m.subraces.length+' подр.':'']],
-class:m=>[[L('Спасб.:',cv14(m,'Спасброски')),'Хиты '+((cv14(m,'Кость Хитов').match(/к\d+/i)||['—'])[0]),FILTERS14.class[2][1](m)[0]]]};
-const SORT14={
-bestiary:[A,['Опасность',m=>mi(CR,m.cr)],['Класс Доспеха',m=>m.ac],['Хиты',m=>m.hp&&m.hp.avg],['Размер',m=>mi(SIZES,(m.sizes||[])[0])],['Тип',m=>m.type]],
-spells:[A,['Уровень',m=>m.level||0],['Школа',m=>m.school],['Время накладывания',m=>mi(CAST14,castT14(m))??99],['Дистанция',m=>rangeSec(rangeT(m))],['Длительность',m=>durSec(durT14(m))]],
-items:[A,['Редкость',m=>mi(RAR14,rarT14(m))],['Цена',m=>m.price_min_gp],['Тип',m=>(m.type||'').split(' (')[0]]],
-feats:[A],backgrounds:[A],race:[A],
-class:[A,['Кость хитов',m=>parseInt((FILTERS14.class[1][1](m)[0]||'').slice(1))||null]]};
-const ABBR={"Player's Handbook 2014":'PHB',"Dungeon Master's Guide 2014":'DMG',"Monster Manual 2014":'MM',"Mordenkainen's Tome of Foes":'MToF',"Volo's guide to monsters":'VGtM',"Mordenkainen Presents: Monsters of the Multiverse":'MPMM',"Xanathar's Guide to Everything":'XGtE',"Tasha's Cauldron of Everything":'TCoE'},
- abbr=s=>ABBR[s]||(s||'').split(/[\s:]+/).filter(w=>/^[A-Z]/.test(w)&&!['The','Of'].includes(w)).map(w=>w[0]).join('')||s;
-S14.articles={t:'Правила и статьи',sub:m=>m.category_ru,card:m=>`<article class="stat">${head(m,m.category_ru)}${B(m.blocks)}${foot(m)}`};
-FILTERS14.articles=[['Рубрика',m=>[m.category_ru]],['Источник',SRC,null,1]];
-SUM14.articles=m=>[[m.category_ru,(m.sources||[]).map(abbr).join(', ')]];
-SORT14.articles=[A];
-/* разделы, выделенные из статей 2014: снаряжение (data14/equipment.json) и глоссарий (data14/glossary.json) */
-S14.equipment={t:'Снаряжение',sub:m=>m.cost||'',card:S.equipment.card};
-FILTERS14.equipment=[
- ['Категория',m=>[m.category_ru||'Прочее']],
- ['Класс',m=>[(m.line||'').match(/^(Простое|Воинское|Лёгкий|Средний|Тяжёлый)/)?.[1]].filter(Boolean),ord(['Простое','Воинское','Лёгкий','Средний','Тяжёлый'])],
- ['Дистанция оружия',m=>[(m.line||'').match(/(Рукопашное|Дальнобойное)/)?.[1]].filter(Boolean)],
- ['Тип урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ').pop()]:[],ord(DMGT)],
- ['Кость урона',m=>pv(m,'Урон')?[pv(m,'Урон').split(', ')[0]]:[]],
- ['Вид яда',m=>m.category_ru=='Яды'?((m.line.match(/\((.*)\)/)||[])[1]||'').split(/\s+или\s+/).map(capf).filter(Boolean):[],null,1],
- ['Стоимость',m=>[m.cost_gp==null?'Без цены':bucket(m.cost_gp,GP)],ord([...GPL,'Без цены'])],
- ['Источник',SRC,null,1]];
-SUM14.equipment=m=>[[m.line,pv(m,'Урон'),pv(m,'Класс защиты')&&'КЗ '+pv(m,'Класс защиты'),pv(m,'Вес')]];
-SORT14.equipment=[A,['Стоимость',m=>m.cost_gp],['Вес',m=>m.weight_lb],['Категория',m=>m.category_ru]];
-S14.glossary={t:'Глоссарий',sub:()=>'',card:S.glossary.card};
-FILTERS14.glossary=[['Группа',m=>[m.group||'Общие термины']],['Источник',SRC,null,1]];
-SUM14.glossary=m=>[[cut(((m.blocks||[]).find(b=>b.text)||{}).text,110)]];
-SORT14.glossary=[A,['Группа',m=>m.group]];
-FILTERS14.spells.splice(FILTERS14.spells.length-1,0,['Статус',m=>[m.homebrew?'Homebrew / UA':'Официальное']]);
-SUM14.bestiary=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.bestiary);
-SUM14.race=(f=>m=>[...f(m),[(m.sources||[]).slice(0,2).map(abbr).join(', ')]])(SUM14.race);
-for(const k in S14){S14[k].F=FILTERS14[k]||[];S14[k].sum=SUM14[k];S14[k].SORT=SORT14[k]||[A]}
-const ORDERS={24:['bestiary','spells','class','species','backgrounds','feats','items','equipment','glossary'],14:['bestiary','spells','class','race','backgrounds','feats','items','equipment','glossary','articles']},
- SXS={24:S,14:S14},cache={},SWAP={species:'race',race:'species',articles:'glossary',glossary:'articles'};
-let ed=24,SX=S;
-const HOMEN={"14":{"bestiary":3141,"spells":535,"class":16,"race":84,"backgrounds":87,"feats":105,"items":934,"equipment":377,"glossary":241,"articles":129},"24":{"bestiary":657,"spells":444,"class":14,"species":19,"backgrounds":70,"feats":195,"items":437,"equipment":197,"glossary":155}};/*home-counts*/
-const hh=(e,k,slug)=>'#'+(e==14?'14/':'')+k+(slug?'/'+slug:''),
- EDK=e=>({24:'2024',14:'2014'})[e];
-
-let curKey='',sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false;
-const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е');
-async function load(k,e=ed,quiet){const key=e+k;if(!cache[key]){if(!quiet)$('#count').textContent='Загрузка…';const dir=e==14?'data14':'data';try{cache[key]=(await(await fetch(`${dir}/${k}.json`)).json()).sort((a,b)=>a.slug=='intro'?-1:b.slug=='intro'?1:a.name_ru.localeCompare(b.name_ru,'ru'))}catch(x){if(!quiet)$('#count').textContent=`Не удалось загрузить ${dir}/${k}.json (открывайте через сервер, не файлом)`;return[]}}return cache[key]}
-const ok=(k,skip)=>flt.every((o,i)=>i===skip||!o.s.size||(o.all?[...o.s].every(v=>V[k][i].includes(v)):[...o.s].some(v=>V[k][i].includes(v))));
-function filters(){const F=SX[sec].F;
- V=data.map(m=>F.map(([,f])=>{try{return f(m)||[]}catch(e){return[]}}));
- NM=data.map(m=>norm(m.name_ru+' '+(m.name_en||'')));
- opts=F.map(([,,so],i)=>[...new Set(V.flatMap(v=>v[i]))].filter(Boolean).sort(so||ru));
- flt=F.map(()=>({s:new Set(),all:false}));
- sortI=0;desc=false;$('#dir').textContent='↑';$('#sort').innerHTML=SX[sec].SORT.map((s,i)=>`<option value="${i}">${i?'Сортировка: ':''}${esc(s[0])}</option>`).join('');
- $('#fl').innerHTML=F.map(([n,,,mu],i)=>`<section class="g" data-g="${i}"><div class="gh"><span>${esc(n)}</span><span class="gn"></span></div><div class="go">${mu?`<label class="md"><input type="checkbox" data-all="${i}"> должны подходить все (И)</label>`:''}${opts[i].map((v,j)=>`<label class="o"><input type="checkbox" data-i="${i}" data-j="${j}"><span>${esc(v)}</span><em></em></label>`).join('')}</div></section>`).join('');
- cells=F.map((_,i)=>[...document.querySelectorAll(`.o input[data-i="${i}"]`)].map(x=>x.parentNode))}
-const lines=(c,m)=>c.sum?c.sum(m).map(l=>l.filter(Boolean).join(' · ')).filter(Boolean).map(t=>`<span class="s">${esc(t)}</span>`).join(''):'';
-function render(){const c=SX[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].includes(q);
- const idx=[];data.forEach((m,k)=>{if(hit(k)&&ok(k))idx.push(k)});
- const kf=(c.SORT[sortI]||[])[1],K=data.map((m,k)=>kf?kf(m):k),pin=k=>data[k].slug=='intro';
- idx.sort((a,b)=>{if(pin(a)!=pin(b))return pin(a)?-1:1;const x=K[a],y=K[b];if(x==null||y==null)return x==null&&y==null?a-b:x==null?1:-1;const r=(typeof x=='number'&&typeof y=='number'?x-y:String(x).localeCompare(String(y),'ru'))*(desc?-1:1);return r||a-b});
- view=idx.map(k=>data[k]);
- $('#count').textContent=`Найдено: ${view.length} из ${data.length}`;
- $('#list').innerHTML=view.map(m=>`<li><a href="${hh(ed,sec,m.slug)}" data-slug="${m.slug}"><span class="t"><b>${esc(m.name_ru)}</b><small>${esc(c.sub(m))}</small></span>${lines(c,m)}</a></li>`).join('');
- c.F.forEach((_,i)=>{const cnt={};data.forEach((m,k)=>{if(hit(k)&&ok(k,i))new Set(V[k][i]).forEach(v=>cnt[v]=(cnt[v]||0)+1)});
-  cells[i].forEach((lab,j)=>{const n=cnt[opts[i][j]]||0;lab.lastChild.textContent=n;lab.classList.toggle('z',!n)});
-  const g=document.querySelector(`.g[data-g="${i}"]`),n=flt[i].s.size;if(g)g.querySelector('.gn').textContent=n||''});
- const n=flt.filter(o=>o.s.size).length;$('#fn').textContent=n||'';$('#ftoggle').textContent='Фильтры'+(n?` (${n})`:'')}
-const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-function parseHash(){const h=location.hash.slice(1);let p=h.split('/'),e=ls.get('ed')=='14'?14:24;if(p[0]=='14'){e=14;p=p.slice(1)}else if(h)e=24;return{e,k:p[0],slug:p[1]}}
-function navHTML(){return `<span class="ed"><a data-e="14" href="#14">2014</a><a data-e="24" href="#24">2024</a></span><a href="${ed==14?'#14':'#24'}" data-s="home">Главная</a>`+ORDERS[ed].map(k=>`<a href="${hh(ed,k)}" data-s="${k}">${SX[k].t}</a>`).join('')+`<a href="${hh(ed,'dmscreen')}" data-s="dmscreen">Экран мастера</a><a href="${hh(ed,'sheet')}" data-s="sheet">Листы персонажей</a><a href="${hh(ed,'translator')}" data-s="translator">Переводчик</a><button id="gs" type="button" title="Глобальный поиск (Ctrl+K или /)">🔍 Поиск<kbd>/</kbd></button>`}
-function edLinks(){const dm=document.body.classList.contains('dm')||document.body.classList.contains('cs')||document.body.classList.contains('tr');document.querySelectorAll('.ed a').forEach(a=>{const e=+a.dataset.e;let k=sec;if(document.body.classList.contains('land')){a.href=e==14?'#14':'#24';a.setAttribute('aria-current',e==ed);return}if(dm){a.href=hh(e,document.body.classList.contains('tr')?'translator':document.body.classList.contains('cs')?'sheet':'dmscreen');a.setAttribute('aria-current',e==ed);return}if(e!=ed){if(!SXS[e][k])k=SWAP[k]||k;if(!SXS[e][k])k='bestiary'}a.href=hh(e,k);a.setAttribute('aria-current',e==ed)})}
-async function xref(m,h){if(!$('#xref'))return;const o=ed==14?24:14;let k2=SXS[o][sec]?sec:SWAP[sec];if(!k2||!SXS[o][k2])return;
- const s2=ed==14&&m.url_2024?m.url_2024.replace(/\/$/,'').split('/').pop().replace(/^\d+-/,''):m.slug;
- const d=await load(k2,o,true);if(location.hash!==h)return;
- let t=d.find(x=>x.slug===s2);
- // slug может отличаться («enlargereduce» ↔ «enlarge-reduce»): тогда ищем по английскому названию, но только если оно одно
- if(!t&&m.name_en){const n=norm(m.name_en),c=d.filter(x=>norm(x.name_en)===n);if(c.length===1)t=c[0]}
- if(!t)return;const el=$('#xref');if(el)el.innerHTML=` · <a href="${hh(o,k2,t.slug)}">Версия ${EDK(o)}</a>`}
-const LK={s:'spells',g:'glossary',c:'class',e:'equipment',m:'bestiary',i:'items',f:'feats',a:'articles'},SELFK={spells:'s',glossary:'g',class:'c',equipment:'e',bestiary:'m',items:'i',feats:'f',articles:'a'},lix={};
-function linkIndex(e){return lix[e]||(lix[e]=fetch((e==14?'data14':'data')+'/links.json').then(r=>r.json()).then(r=>AutoLinks.buildIndex(r,{bracketOnlySingle:e==14})).catch(()=>null))}
-async function autolink(m,h){const e=ed,k=sec,ix=await linkIndex(e);if(!ix||location.hash!==h||ed!==e||sec!==k)return;const href=x=>hh(e,LK[x.k],x.slug);AutoLinks.hydrate($('#card'),ix,href);AutoLinks.linkify($('#card'),ix,{k:SELFK[k],slug:m.slug},href)}
-let IMGM;const imgManifest=()=>IMGM||(IMGM=fetch('img/manifest.json').then(r=>r.json()).then(j=>{for(const e in j)for(const s in j[e])j[e][s]=new Set(j[e][s]);return j}).catch(()=>({})));
-function placePic(root,e,k,m,ok){const ms=(IMGM_V||{})[e]||{},art=ms[k]&&ms[k].has(m.slug),tk=!art&&ms[k+'~t']&&ms[k+'~t'].has(m.slug);if((!art&&!tk)||root.querySelector('figure.pic'))return;const rule=root.querySelector('.rule');if(!rule)return;
- const fig=document.createElement('figure'),im=new Image();fig.className='pic'+(tk?' tok':'');im.alt=m.name_ru;im.loading='lazy';im.decoding='async';im.onerror=()=>fig.remove();im.onclick=()=>fig.classList.toggle('big');im.src=`img/${e}/${tk?k+'-token':k}/${encodeURIComponent(m.slug)}.webp`;fig.append(im);rule.after(fig)}
-let IMGM_V;
-async function addPic(m,h){IMGM_V=await imgManifest();const e=ed,k=sec;if(location.hash!==h||ed!==e||sec!==k)return;placePic($('#card'),e,k,m)}
-async function decorate(root,e,self){Dice.linkify(root);const ix=await linkIndex(e);if(!ix||!root.isConnected)return;const href=x=>hh(e,LK[x.k],x.slug);AutoLinks.hydrate(root,ix,href);AutoLinks.linkify(root,ix,self,href)}
-window.DB={get ed(){return ed},SXS,ORDERS,load:(k,e)=>load(k,e,true),hh,esc,norm,B:typeof B!=='undefined'?B:null,EDK,decorate,LK,SELFK,ls,
- placePic:async(root,e,k,m)=>{IMGM_V=await imgManifest();placePic(root,e,k,m)}};
-// ссылки вводного текста ведут в разделы выбранной редакции; разделов, которых в ней нет (например, снаряжения в 2014), — без ссылки
-function homeLinks(){document.querySelectorAll('#card a[data-s]').forEach(a=>{let k=a.dataset.s;if(k!='dmscreen'&&k!='sheet'&&k!='translator'){if(!SX[k])k=SWAP[k];if(!SX[k]){a.replaceWith(...a.childNodes);return}}a.href=hh(ed,k)})}
-async function route(){const P=parseHash(),k=P.k,slug=P.slug;document.body.classList.remove('land');if($('#card .home')){$('#card').innerHTML='';document.body.classList.remove('open')}
- if(P.e!==ed){ed=P.e;SX=SXS[ed]}
- if(k=='translator'){document.body.classList.remove('dm','cs');document.body.classList.add('tr','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='translator'));edLinks();document.title='Переводчик — D&D';TR.show(slug);return}
- if(k=='dmscreen'){document.body.classList.remove('cs','tr');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();document.title='Экран мастера — D&D '+EDK(ed);DM.show();return}
- if(k=='sheet'){document.body.classList.add('cs','open');document.body.classList.remove('dm','tr');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='sheet'));edLinks();document.title='Листы персонажей — D&D';CS.show();return}
-
- document.body.classList.remove('dm','cs','tr');
- if(!k||k=='24'||k=='home'){land();return}
- const s=SX[k]?k:(SX[SWAP[k]]?SWAP[k]:'bestiary'),key=ed+s;
- document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);
- if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML();$('#q').value='';$('#list').innerHTML='';$('#fl').innerHTML='';$('#fn').textContent='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
- edLinks();
- const m=slug&&data.find(x=>x.slug===decodeURIComponent(slug));
- document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
- if(!m){$('#card').innerHTML='<p class="empty">Выберите запись в списке.</p>';document.title=SX[sec].t+' — D&D '+EDK(ed);document.body.classList.remove('open');return}
- $('#card').innerHTML=SX[sec].card(m);Dice.linkify($('#card'));document.title=m.name_ru+' — D&D '+EDK(ed);document.body.classList.add('open');$('main').scrollTop=0;
- const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'});xref(m,location.hash);addPic(m,location.hash);autolink(m,location.hash);DM.cardActions&&DM.cardActions(m,ed,sec)}
-
-const RUNES=['dwarvish','elvish','draconic','infernal'];let runeI=0;
-function land(){const b=document.body;b.classList.add('land','open');b.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';
- $('#nav').innerHTML=navHTML();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='home'));
- $('#card').innerHTML=HOME;homeLinks();edLinks();
- const N=HOMEN[ed],fmtN=n=>n.toLocaleString('ru-RU');
- $('#card').querySelectorAll('[data-n]').forEach(x=>{const n=N[ed==14&&x.dataset.n=='species'?'race':x.dataset.n];x.textContent=n==null?'':fmtN(n)});
- const tot=Object.values(N).reduce((a,c)=>a+c,0);$('#tocsub').textContent='Редакция '+EDK(ed)+': '+fmtN(tot)+' записей';
- $('#card').querySelectorAll('.eds a').forEach(a=>a.setAttribute('aria-current',+a.dataset.e==ed));
- runeI=ed==14?1:0;const r=$('#runes');r.className='runes'+(runeI?' f-'+RUNES[runeI]:'');
- document.title='D&D '+EDK(ed)+' — русская база';$('main').scrollTop=0}
-$('#card').addEventListener('click',e=>{const t=e.target.closest('#runes,#hs,[data-q]');if(!t)return;
- if(t.id=='runes'){runeI=(runeI+1)%RUNES.length;t.className='runes'+(runeI?' f-'+RUNES[runeI]:'');t.style.animation='none'}
- else window.GSearch&&GSearch.open(t.dataset.q||'')});
-['nof','nol'].forEach(c=>ls.get(c)=='1'&&document.body.classList.add(c));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-col]');if(!b)return;const c='no'+b.dataset.col,on=document.body.classList.toggle(c);ls.set(c,on?'1':'0')});
-$('#q').addEventListener('input',render);
-$('#sort').addEventListener('change',e=>{sortI=+e.target.value;$('#list').scrollTop=0;render()});
-$('#dir').addEventListener('click',()=>{desc=!desc;$('#dir').textContent=desc?'↓':'↑';$('#list').scrollTop=0;render()});
-$('#fl').addEventListener('change',e=>{const t=e.target,d=t.dataset;if(d.all!==undefined)flt[d.all].all=t.checked;else if(d.j!==undefined){const i=+d.i,v=opts[i][+d.j];t.checked?flt[i].s.add(v):flt[i].s.delete(v)}else return;render()});
-$('#reset').addEventListener('click',()=>{flt.forEach(o=>{o.s.clear();o.all=false});$('#fl').querySelectorAll('input').forEach(x=>x.checked=false);render()});
-$('#ftoggle').addEventListener('click',()=>document.body.classList.add('fshow'));$('#fdone').addEventListener('click',()=>document.body.classList.remove('fshow'));
-AutoLinks.bindTips($('#card'));
-addEventListener('hashchange',route);route();
-$('#back').addEventListener('click',()=>{document.body.classList.remove('open');history.replaceState(null,'',hh(ed,sec))});
-</script></body></html>
+<script src="core.js"></script>
+<script src="home.js"></script>
+<script src="app.js"></script>
+</body></html>
