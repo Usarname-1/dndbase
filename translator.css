@@ -91,9 +91,6 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
 body.e14 .tdd :is(input,textarea,select,button):focus-visible{box-shadow:0 0 0 3px rgba(31,85,96,.3)}
 .tdd .tddn{display:block;text-align:right;color:var(--muted);font-size:12px;margin-top:2px}
 .tdd .tddc{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:14px;cursor:pointer}.tdd .tddc input{width:18px;height:18px;accent-color:var(--bar);margin:0}
-.tdd .tddr{display:flex;align-items:center;gap:10px}.tdd .tddr input{flex:1;accent-color:var(--bar)}.tdd .tddr .tddn{width:30px;margin:0}
-.tdd .tddink{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
-.tdd .tddink[aria-pressed=true]{border-color:var(--bar);box-shadow:0 0 0 2px #fffaf0,0 0 0 4px var(--bar)}
 .tdd .tddk{margin:10px 0 0;font-size:14px}.tdd .tddk summary{cursor:pointer;font:700 15px 'PT Serif',serif;color:var(--red)}.tdd .tddk p{margin:6px 0 0;padding:8px 10px;background:#fffaf0;border:1px solid var(--line);border-radius:4px}
 .tdd .trbtns{align-items:center}
 @media(max-width:560px){.tdd .tddc2 .tddtr{margin-top:6px}.tdd .tddtop{padding:10px}.tdd .tddc2{grid-template-columns:minmax(0,1fr)}}
@@ -149,21 +146,15 @@ body.e14 .tded .ql-container.ql-snow:focus-within{box-shadow:0 0 0 3px rgba(31,8
 .tded .ql-editor.ql-blank::before{color:#7b6a52;font:italic 15px 'PT Sans',sans-serif;left:11px}
 .tded .ql-editor h1,.tded .ql-editor h2,.tded .ql-editor h3{font-weight:700;line-height:1.25;margin:0}
 .tded .ql-editor h1{font-size:1.7em}.tded .ql-editor h2{font-size:1.35em}.tded .ql-editor h3{font-size:1.15em}
-.tded .ql-editor .ql-size-small{font-size:.75em}.tded .ql-editor .ql-size-large{font-size:1.4em}.tded .ql-editor .ql-size-huge{font-size:2em}   /* те же множители, что в tdoc.js */
 .tded .ql-editor .ql-font-serif{font-family:"PT Serif",Georgia,serif}.tded .ql-editor .ql-font-marck{font-family:"Marck Script",cursive}.tded .ql-editor .ql-font-caveat{font-family:"Caveat",cursive}
 .tded .ql-editor .ql-font-uncial{font-family:"Cormorant Unicial","PT Serif",serif}.tded .ql-editor .ql-font-ruslan{font-family:"Ruslan Display","PT Serif",serif}.tded .ql-editor .ql-font-neucha{font-family:"Neucha",cursive}
 /* подписи списков Quill — по-русски */
-.tded .ql-snow .ql-picker.ql-header{width:118px}.tded .ql-snow .ql-picker.ql-font{width:120px}.tded .ql-snow .ql-picker.ql-size{width:92px}
+.tded .ql-snow .ql-picker.ql-header{width:118px}.tded .ql-snow .ql-picker.ql-font{width:120px}
 .tded .ql-snow .ql-picker.ql-header .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item::before{content:'Обычный'}
 .tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before{content:'Заголовок 1'}
 .tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before{content:'Заголовок 2'}
 .tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before{content:'Заголовок 3'}
 .tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before{font-size:1.45em;font-weight:700}.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before{font-size:1.25em;font-weight:700}.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before{font-size:1.1em;font-weight:700}
-.tded .ql-snow .ql-picker.ql-size .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item::before{content:'Обычный'}
-.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before{content:'Мелкий'}
-.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before{content:'Крупный'}
-.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before{content:'Огромный'}
-.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before{font-size:.85em}.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before{font-size:1.2em}.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before{font-size:1.5em}
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item::before{content:'Шрифт документа'}
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=serif]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=serif]::before{content:'Книжный';font-family:"PT Serif",serif}
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=marck]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=marck]::before{content:'Перо';font-family:"Marck Script",cursive}
@@ -171,9 +162,37 @@ body.e14 .tded .ql-container.ql-snow:focus-within{box-shadow:0 0 0 3px rgba(31,8
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=uncial]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=uncial]::before{content:'Унциал';font-family:"Cormorant Unicial","PT Serif",serif}
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=ruslan]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=ruslan]::before{content:'Декоративный';font-family:"Ruslan Display","PT Serif",serif}
 .tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=neucha]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=neucha]::before{content:'Печатный от руки';font-family:"Neucha",cursive}
-/* «Цвет документа» — пункт без цвета: свой вид вместо пустого квадрата */
-.tded .ql-snow .ql-color-picker .ql-picker-item:not([data-value]){background:linear-gradient(135deg,#fffaf0 46%,#c0392b 46% 54%,#fffaf0 54%);border:1px solid var(--line)}
-.tded .ql-snow .ql-color-picker .ql-picker-options{width:152px;padding:4px}
-.tded .ql-snow .ql-color-picker .ql-picker-item{width:20px;height:20px;margin:2px;border-radius:3px}
 .tded .ql-snow .ql-picker-label{white-space:nowrap;overflow:hidden}
 @media(max-width:560px){.tded .ql-toolbar.ql-snow .ql-formats{margin-right:4px}.tded .ql-snow .ql-picker.ql-header{width:108px}}
+
+/* числовой размер, цвет текста, чернила и палитра */
+.tded .ql-editor .ql-align-left{text-align:left}
+.tded .tdsz{display:inline-flex;align-items:center;gap:2px;margin:0 6px 0 4px}
+.tded .ql-toolbar.ql-snow button.tdszb{width:22px;height:26px;padding:0;border:1px solid var(--line);background:#fffaf0;border-radius:3px;font:700 15px/1 'PT Sans',sans-serif;color:#1d1a16}
+.tded .tdszi{width:48px;height:26px;box-sizing:border-box;padding:0 2px;text-align:center;border:1px solid var(--line);border-radius:3px;background:#fffaf0;color:#1d1a16;font:14px 'PT Sans',sans-serif;-moz-appearance:textfield;appearance:textfield}
+.tded .tdszi::-webkit-inner-spin-button,.tded .tdszi::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.tded .tdszi:focus-visible{outline:0;border-color:var(--bar);box-shadow:0 0 0 3px rgba(146,38,16,.25)}
+.tded .ql-toolbar.ql-snow button.tdcb{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.tded .tdcA{font:700 15px/1 'PT Serif',serif}
+.tded .tdcbar{display:block;width:16px;height:4px;border-radius:1px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.tdd .tdinkbtn{display:inline-flex;align-items:center;gap:9px;padding:5px 12px 5px 6px;border:1px solid var(--line);border-radius:4px;background:#fffaf0;color:#1d1a16;font:14px 'PT Sans',sans-serif;cursor:pointer}
+.tdd .tdinkbtn:hover{border-color:var(--bar)}
+.tdd .tdinkbtn .tdsw.cur{width:24px;height:24px;cursor:inherit}
+.tdinkv{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.tdpal{position:fixed;z-index:60;width:292px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:10px;background:#fffaf0;color:#1d1a16;border:1px solid #c9b48a;border-radius:6px;box-shadow:0 8px 28px rgba(30,18,4,.4);font:14px/1.3 'PT Sans',sans-serif;max-height:calc(100vh - 16px);overflow:auto}
+.tdpal .tdpl{margin:9px 0 4px;font:700 11px 'PT Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#7b6a52}
+.tdpal .tdpl:first-child,.tdpal .tdpreset+.tdpl{margin-top:2px}
+.tdpal .tdpr{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:3px}
+.tdpal .tdpr.gray{margin-bottom:6px}
+.tdsw{display:block;width:100%;aspect-ratio:1;min-width:0;padding:0;border:1px solid rgba(0,0,0,.22);border-radius:3px;cursor:pointer;box-sizing:border-box}
+.tdpal .tdsw:hover,.tdpal .tdsw:focus-visible{outline:0;transform:scale(1.18);position:relative;z-index:1;box-shadow:0 0 0 2px #fffaf0,0 0 0 3px #1d1a16}
+.tdpal .tdsw.on{box-shadow:0 0 0 2px #fffaf0,0 0 0 4px var(--bar,#922610)}
+.tdpal .tdpreset{display:block;width:100%;margin:0 0 8px;padding:6px 10px;text-align:left;border:1px solid #c9b48a;border-radius:4px;background:transparent;color:#1d1a16;font:700 13px 'PT Sans',sans-serif;cursor:pointer}
+.tdpal .tdpreset:hover{border-color:var(--bar,#922610);color:var(--bar,#922610)}
+.tdpal .tdpc{display:flex;gap:6px;align-items:center}
+.tdpal .tdpc input[type=color]{width:34px;height:32px;padding:1px;border:1px solid #c9b48a;border-radius:4px;background:#fffaf0;cursor:pointer;flex:none}
+.tdpal .tdpc input[type=text]{flex:1;min-width:0;width:auto;height:32px;box-sizing:border-box;padding:0 8px;border:1px solid #c9b48a;border-radius:4px;background:#fff;color:#1d1a16;font:14px 'PT Sans',sans-serif}
+.tdpal .tdpc input[type=text].bad{border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.25)}
+.tdpal .tdpc input:focus-visible{outline:0;border-color:var(--bar,#922610)}
+.tdpal .tdpc .trbtn{font:700 13px 'PT Sans',sans-serif;border:1px solid var(--bar,#922610);background:var(--bar,#922610);color:#fff;border-radius:4px;padding:0 10px;height:32px;cursor:pointer}
+@media print{.tdpal{display:none}}
