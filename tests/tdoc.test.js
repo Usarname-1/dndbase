@@ -1,0 +1,73 @@
+/* Проверки текста документа: разбор Delta редактора на абзацы и привязка перевода к исходному тексту (стили кусков переносятся на перевод).
+   Запуск: node --test tests/*.test.js. Рисование на canvas здесь не проверяется — это делается в браузере. */
+'use strict';
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs'), path = require('path'), vm = require('vm');
+const root = path.join(__dirname, '..');
+const win = {}; win.window = win;
+const ctx = vm.createContext(win);
+for (const f of ['translator.js', 'tdoc.js']) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx);
+const { TR, TDoc } = win;
+const plain = x => JSON.parse(JSON.stringify(x));      // значения из vm-контекста имеют чужой Array.prototype, deepEqual их не примет
+
+const flat = segs => segs.map(s => s.n.map(n => n.br ? '\n' : n.sp ? ' ' : n.set ? '[' + n.l + ']' : n.t).join('')).join('');
+const parts = (mode, text, read) => plain(TR.segs(mode, text, read).map(s => [text.slice(s.a, s.b), flat([s])]));
+
+test('segs: куски покрывают весь исходный текст подряд, без пропусков и наложений', () => {
+  const text = 'Скрыть оружие и украсть золото!\nЁжик, Hello 123';
+  for (const mode of Object.keys(TR.MODES)) {
+    let pos = 0;
+    for (const s of TR.segs(mode, text, false)) { assert.equal(s.a, pos, mode); assert.ok(s.b > s.a, mode); pos = s.b; }
+    assert.equal(pos, text.length, mode);
+  }
+});
+
+test('segs: перевод совпадает с TR.run (знаки алфавита и воровской жаргон)', () => {
+  const text = 'Скрыть оружие и украсть золото, магический предмет! Привет\nмир';
+  for (const mode of ['elf', 'dragon', 'infernal', 'dwarf', 'celestial', 'druidic', 'thief']) assert.equal(flat(TR.segs(mode, text, false)), TR.run(mode, text).text, mode);
+});
+
+test('segs: воровской жаргон меняет длину, но кусок остаётся привязан к фразе', () => {
+  assert.deepEqual(parts('thief', 'Мы скрыть оружие и всё'), [['М', 'М'], ['ы', 'ы'], [' ', ' '], ['скрыть оружие', 'принаряжаемся ⌵'], [' ', ' '], ['и', 'и'], [' ', ' '], ['в', 'в'], ['с', 'с'], ['ё', 'ё']]);
+});
+
+test('segs: картинки-глифы — буква становится картинкой, пробел фиксированной ширины, прочие знаки остаются текстом', () => {
+  const s = TR.segs('dragon-original', 'а, б\nв', false);
+  assert.deepEqual(plain(s.map(x => x.n[0].set || (x.n[0].br ? 'br' : x.n[0].sp ? 'sp' : x.n[0].t))), ['dragon', ',', 'sp', 'dragon', 'br', 'dragon']);
+  assert.equal(s[2].n[0].f, 1);
+});
+
+test('segs: глубинная речь — со read слова заменяются звучанием, без read остаются как есть', () => {
+  assert.equal(flat(TR.segs('deep', 'да нет', true)).replace(/ /g, ''), TR.run('deep', 'да нет').read.replace(/^Звучание: /, '').replace(/ /g, ''));
+  assert.equal(flat(TR.segs('deep', 'да нет', false)), 'да нет');
+});
+
+test('paragraphs: без delta каждая строка — абзац, завершающий перевод строки пустого абзаца не даёт', () => {
+  const p = TDoc.paragraphs({ text: 'один\n\nтри\n' });
+  assert.deepEqual(plain(p.map(x => x.text)), ['один', '', 'три']);
+  assert.deepEqual(plain(TDoc.paragraphs({ text: '' }).map(x => x.text)), ['']);
+});
+
+test('paragraphs: Delta — куски с атрибутами, а атрибуты абзаца берутся с перевода строки', () => {
+  const p = TDoc.paragraphs({ delta: [
+    { insert: 'Указ' }, { insert: '\n', attributes: { header: 1 } },
+    { insert: 'жирно', attributes: { bold: true } }, { insert: ' и ' }, { insert: 'красно', attributes: { color: '#8a1c12' } }, { insert: '\n' },
+    { insert: 'пункт' }, { insert: '\n', attributes: { list: 'bullet' } }] });
+  assert.deepEqual(plain(p.map(x => x.text)), ['Указ', 'жирно и красно', 'пункт']);
+  assert.equal(p[0].blk.header, 1); assert.equal(p[2].blk.list, 'bullet'); assert.deepEqual(plain(p[1].blk), {});
+  assert.deepEqual(plain(p[1].runs.map(r => [r.a, r.b, !!r.at.bold, r.at.color || null])), [[0, 5, true, null], [5, 8, false, null], [8, 14, false, '#8a1c12']]);
+});
+
+test('paragraphs: пустые абзацы сохраняются, мусорные операции пропускаются, длина ограничена 3000 знаков', () => {
+  assert.deepEqual(plain(TDoc.paragraphs({ delta: [{ insert: 'а\n\nб\n' }, { insert: 5 }, null, { retain: 3 }] }).map(x => x.text)), ['а', '', 'б']);
+  const long = TDoc.paragraphs({ delta: [{ insert: 'я'.repeat(5000) + '\n' }] });
+  assert.equal(long.reduce((n, x) => n + x.text.length, 0), 3000);
+});
+
+test('normalize: испорченный delta отбрасывается, setPlain возвращает обычный текст', () => {
+  const s = TDoc.normalize({ delta: 'не массив', text: 'т' });
+  assert.equal(s.delta, undefined);
+  const d = TDoc.setPlain({ delta: [{ insert: 'x\n' }], text: 'x' }, 'новый');
+  assert.equal(d.text, 'новый'); assert.equal(d.delta, undefined);
+});

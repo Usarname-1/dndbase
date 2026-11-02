@@ -122,3 +122,52 @@ body.e14 .tdd :is(input,textarea,select,button):focus-visible{box-shadow:0 0 0 3
 
 /* список качества PNG — в одном ряду с кнопками, той же высоты и вида */
 .tdd .trbtns select.tddq,.tdmodal .trbtns select.tddq{width:auto;height:32px;box-sizing:border-box;padding:0 28px 0 12px;margin:0;font:700 14px 'PT Sans',sans-serif;color:#1d1a16;background-color:transparent;cursor:pointer}
+
+/* ===== редактор текста документа (Quill, lib/quill) ===== */
+.tdd .tded{margin:0}.tdd .tdload{text-align:left;margin:4px 0}
+.tded .ql-toolbar.ql-snow{display:flex;flex-wrap:wrap;gap:2px 0;padding:6px 6px 4px;border:1px solid var(--line);border-bottom:0;border-radius:4px 4px 0 0;background:#f6ecd8;font-family:'PT Sans',sans-serif}
+.tded .ql-toolbar.ql-snow .ql-formats{margin-right:8px;display:inline-flex;align-items:center;vertical-align:middle}
+.tded .ql-toolbar.ql-snow button{width:28px;height:26px;padding:3px 4px;border-radius:3px;color:#1d1a16}
+.tded .ql-toolbar.ql-snow button:hover,.tded .ql-toolbar.ql-snow button:focus-visible,.tded .ql-snow .ql-picker-label:hover{background:#fff3de;color:var(--bar)}
+.tded .ql-toolbar.ql-snow button:hover .ql-stroke,.tded .ql-toolbar.ql-snow button.ql-active .ql-stroke,.tded .ql-snow .ql-picker-label:hover .ql-stroke{stroke:var(--bar)}
+.tded .ql-toolbar.ql-snow button:hover .ql-fill,.tded .ql-toolbar.ql-snow button.ql-active .ql-fill{fill:var(--bar)}
+.tded .ql-toolbar.ql-snow button.ql-active,.tded .ql-snow .ql-picker-label.ql-active,.tded .ql-snow .ql-picker-item.ql-selected{color:var(--bar)}
+.tded .ql-toolbar.ql-snow button:focus-visible,.tded .ql-toolbar.ql-snow .ql-picker-label:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(146,38,16,.25)}
+body.e14 .tded .ql-toolbar.ql-snow button:focus-visible,body.e14 .tded .ql-toolbar.ql-snow .ql-picker-label:focus-visible{box-shadow:0 0 0 3px rgba(31,85,96,.3)}
+.tded .ql-snow .ql-picker{font:14px 'PT Sans',sans-serif;color:#1d1a16}
+.tded .ql-snow .ql-picker-label{padding-left:6px;padding-right:2px;border-radius:3px}
+.tded .ql-snow .ql-picker-options{background:#fffaf0;border-color:var(--line);box-shadow:0 4px 14px rgba(40,25,5,.25);z-index:5;max-height:260px;overflow:auto}
+.tded .ql-container.ql-snow{border:1px solid var(--line);border-radius:0 0 4px 4px;background:#fffaf0;font:16px/1.45 'PT Sans',sans-serif;color:#1d1a16}
+.tded .ql-container.ql-snow:focus-within{border-color:var(--bar);box-shadow:0 0 0 3px rgba(146,38,16,.25)}
+body.e14 .tded .ql-container.ql-snow:focus-within{box-shadow:0 0 0 3px rgba(31,85,96,.3)}
+.tded .ql-editor{min-height:170px;max-height:420px;overflow:auto;padding:9px 11px;line-height:1.45}
+.tded .ql-editor.ql-blank::before{color:#7b6a52;font:italic 15px 'PT Sans',sans-serif;left:11px}
+.tded .ql-editor h1,.tded .ql-editor h2,.tded .ql-editor h3{font-weight:700;line-height:1.25;margin:0}
+.tded .ql-editor h1{font-size:1.7em}.tded .ql-editor h2{font-size:1.35em}.tded .ql-editor h3{font-size:1.15em}
+.tded .ql-editor .ql-size-small{font-size:.75em}.tded .ql-editor .ql-size-large{font-size:1.4em}.tded .ql-editor .ql-size-huge{font-size:2em}   /* те же множители, что в tdoc.js */
+.tded .ql-editor .ql-font-serif{font-family:"PT Serif",Georgia,serif}.tded .ql-editor .ql-font-marck{font-family:"Marck Script",cursive}.tded .ql-editor .ql-font-caveat{font-family:"Caveat",cursive}
+.tded .ql-editor .ql-font-uncial{font-family:"Cormorant Unicial","PT Serif",serif}.tded .ql-editor .ql-font-ruslan{font-family:"Ruslan Display","PT Serif",serif}.tded .ql-editor .ql-font-neucha{font-family:"Neucha",cursive}
+/* подписи списков Quill — по-русски */
+.tded .ql-snow .ql-picker.ql-header{width:118px}.tded .ql-snow .ql-picker.ql-font{width:148px}.tded .ql-snow .ql-picker.ql-size{width:92px}
+.tded .ql-snow .ql-picker.ql-header .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item::before{content:'Обычный'}
+.tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before{content:'Заголовок 1'}
+.tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before{content:'Заголовок 2'}
+.tded .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before{content:'Заголовок 3'}
+.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before{font-size:1.45em;font-weight:700}.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before{font-size:1.25em;font-weight:700}.tded .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before{font-size:1.1em;font-weight:700}
+.tded .ql-snow .ql-picker.ql-size .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item::before{content:'Обычный'}
+.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before{content:'Мелкий'}
+.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before{content:'Крупный'}
+.tded .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before{content:'Огромный'}
+.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before{font-size:.85em}.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before{font-size:1.2em}.tded .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before{font-size:1.5em}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item::before{content:'Шрифт документа'}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=serif]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=serif]::before{content:'Книжный';font-family:"PT Serif",serif}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=marck]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=marck]::before{content:'Перо';font-family:"Marck Script",cursive}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=caveat]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=caveat]::before{content:'Быстрый почерк';font-family:"Caveat",cursive}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=uncial]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=uncial]::before{content:'Унциал';font-family:"Cormorant Unicial","PT Serif",serif}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=ruslan]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=ruslan]::before{content:'Декоративный';font-family:"Ruslan Display","PT Serif",serif}
+.tded .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=neucha]::before,.tded .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=neucha]::before{content:'Печатный от руки';font-family:"Neucha",cursive}
+/* «Цвет документа» — пункт без цвета: свой вид вместо пустого квадрата */
+.tded .ql-snow .ql-color-picker .ql-picker-item:not([data-value]){background:linear-gradient(135deg,#fffaf0 46%,#c0392b 46% 54%,#fffaf0 54%);border:1px solid var(--line)}
+.tded .ql-snow .ql-color-picker .ql-picker-options{width:152px;padding:4px}
+.tded .ql-snow .ql-color-picker .ql-picker-item{width:20px;height:20px;margin:2px;border-radius:3px}
+@media(max-width:560px){.tded .ql-toolbar.ql-snow .ql-formats{margin-right:4px}.tded .ql-snow .ql-picker.ql-font{width:120px}}

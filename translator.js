@@ -132,6 +132,55 @@
     }
     return { text, read: text.trim() ? 'Звучание: ' + reading(text, m.s) : '' };   // глубинная речь: письменности нет
   }
+  // То же, что run, но с привязкой к исходному тексту: список кусков {a, b, n}. [a, b) — позиции исходных знаков (в единицах UTF-16),
+  // n — что из них получилось: {br}, {sp} ({sp, f} — пробел фиксированной ширины), {set, l} (картинка-глиф) или {t} (знак).
+  // По этим позициям конструктор документов переносит жирность, цвет и размер на перевод, даже когда перевод меняет длину (воровской жаргон, звучание).
+  // read — для глубинной речи вместо слов взять их звучание (так выводится основной текст документа)
+  function segs(mode, text, read) {
+    const m = M[mode], out = [], put = (a, b, n) => out.push({ a, b, n });
+    const atoms = s => { const n = []; for (const c of s) n.push(c === '\n' ? { br: 1 } : (c === ' ' || c === '\t') ? { sp: 1 } : { t: c }); return n; };
+    const plain = (a, b) => { let i = a; for (const c of text.slice(a, b)) { put(i, i + c.length, atoms(c)); i += c.length; } };
+    if (mode === 'thief') {
+      let last = 0;
+      text.replace(TRX, (mt, off) => {
+        plain(last, off);
+        const k = mt.toLowerCase(), t = TGL.get(mt) || TBY.get(k) || TBY.get(k.replace(/\s+\S+$/u, ''));
+        put(off, off + mt.length, atoms(t ? t.cant + ' ' + t.glyph : mt));
+        last = off + mt.length; return mt;
+      });
+      plain(last, text.length); return out;
+    }
+    if (mode === 'deep') {
+      if (!read) { plain(0, text.length); return out; }
+      const re = /[^ \n]+/g; let w, prev = -1;
+      while ((w = re.exec(text))) {                      // слова независимы: каждое сжимается так же, как в squash
+        const s = dedupe([...w[0].toLowerCase()].map(c => tab(S.deep, c) || '').join('')).slice(0, 6);
+        if (!s) continue;
+        if (prev >= 0) put(prev, w.index, [{ sp: 1 }]);
+        put(w.index, w.index + w[0].length, atoms(s)); prev = w.index + w[0].length;
+      }
+      return out;
+    }
+    let i = 0;
+    if (m.img) {
+      for (const c of text) {
+        const l = c.toLowerCase();
+        put(i, i + c.length, [c === '\n' ? { br: 1 } : c === ' ' ? { sp: 1, f: 1 } : L.includes(l) ? { set: m.img, l } : { t: c }]);
+        i += c.length;
+      }
+      return out;
+    }
+    if (m.g) {
+      for (const c of text) {
+        let o;
+        if (c === ' ' || c === '\n' || REV[m.g][c]) o = c;   // пробел и знаки алфавита (обратный перевод) остаются как есть
+        else { const l = c.toLowerCase(); o = tab(G[m.g], l) || l; }
+        put(i, i + c.length, atoms(o)); i += c.length;
+      }
+      return out;
+    }
+    plain(0, text.length); return out;
+  }
   function convert() {
     const text = el.input.value, r = run(mode, text);
     ls.set(KEY + '.text', text);
@@ -208,7 +257,7 @@
   const savePng = () => { if (!needText()) root.TDoc.download(quickSpec()); };
   const copyPng = () => { if (!needText()) root.TDoc.copy(quickSpec()); };
   function toDoc() {                                     // перевод → конструктор документов
-    if (docSpec) { docSpec.mode = mode; docSpec.text = el.input.value; ls.set(KEY + '.doc', JSON.stringify(docSpec)); if (doc) doc.sync(); }
+    if (docSpec) { docSpec.mode = mode; root.TDoc.setPlain(docSpec, el.input.value); ls.set(KEY + '.doc', JSON.stringify(docSpec)); if (doc) doc.sync(); }
     DB().go(DB().hh(DB().ed, 'translator', 'doc'));
   }
   const DB = () => root.DB;
@@ -276,7 +325,7 @@
     if (d && !doc) {
       try { docSpec = JSON.parse(ls.get(KEY + '.doc') || 'null'); } catch (e) { docSpec = null; }
       docSpec = docSpec && typeof docSpec === 'object' ? docSpec : root.TDoc.defaults();
-      if (!docSpec.text) { docSpec.mode = mode; docSpec.text = el.input.value; }
+      if (!docSpec.text) { docSpec.mode = mode; root.TDoc.setPlain(docSpec, el.input.value); }
       doc = root.TDoc.designer(docSpec, { onChange: s => ls.set(KEY + '.doc', JSON.stringify(s)), actions: [['На экран мастера', toScreen]] });
       el.viewD.append(doc.el);
     }
@@ -288,5 +337,5 @@
     view(v === 'doc' ? 'doc' : 'tr');
   }
 
-  root.TR = { show, run, MODES: M, FAMILIES: FAM, G, L, loadGlyphs, glyph, glyphSet: set => GL && GL[set] || null };
+  root.TR = { show, run, segs, MODES: M, FAMILIES: FAM, G, L, loadGlyphs, glyph, glyphSet: set => GL && GL[set] || null };
 })(window);
