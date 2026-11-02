@@ -71,3 +71,24 @@ test('normalize: испорченный delta отбрасывается, setPla
   const d = TDoc.setPlain({ delta: [{ insert: 'x\n' }], text: 'x' }, 'новый');
   assert.equal(d.text, 'новый'); assert.equal(d.delta, undefined);
 });
+
+test('styleOf: числовой размер — абсолютный (px листа / база), главнее заголовка; старые small/large/huge работают', () => {
+  assert.equal(TDoc.styleOf({ size: '42px' }, 1, 0, 28).z, 1.5);
+  assert.equal(TDoc.styleOf({ size: '42px' }, 1.7, 1, 28).z, 1.5);          // у заголовка явный размер важнее его кегля
+  assert.equal(TDoc.styleOf({}, 1.7, 1, 28).z, 1.7);
+  assert.equal(TDoc.styleOf({ size: '1px' }, 1, 0, 28).z, 8 / 28);          // слишком мелкий и слишком крупный размеры ограничены
+  assert.equal(TDoc.styleOf({ size: '900' }, 1, 0, 28).z, 160 / 28);
+  assert.equal(TDoc.styleOf({ size: 'large' }, 1, 0, 28).z, 1.4);
+  assert.equal(TDoc.styleOf({ size: 'мусор' }, 1, 0, 28).z, 1);
+});
+
+test('чернила: ключ типа документа или любой цвет #rrggbb, normalize приводит значение к допустимому', () => {
+  assert.equal(TDoc.inkOf('brown'), '#4a2c14');
+  assert.equal(TDoc.inkOf('#1F7A4D'), '#1f7a4d');
+  assert.equal(TDoc.inkOf('#abc'), '#aabbcc');
+  assert.equal(TDoc.inkOf('rgb(10, 20, 30)'), '#0a141e');
+  assert.equal(TDoc.inkOf('мусор'), '#1c1610');
+  assert.equal(TDoc.normalize({ ink: '#ABC' }).ink, '#aabbcc');
+  assert.equal(TDoc.normalize({ ink: 'blue' }).ink, 'blue');
+  assert.equal(TDoc.normalize({ ink: 'мусор' }).ink, 'black');
+});

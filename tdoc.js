@@ -43,7 +43,7 @@
 
   function defaults() { return applyKind({ v: 1, mode: 'elf', text: '', title: '', sign: '', tr: true, kind: 'note', seed: 1 + Math.floor(Math.random() * 99999), q: 2 }, 'note'); }
   function applyKind(s, k) { const d = KINDS[k] || KINDS.note; s.kind = k; for (const f of ['paper', 'font', 'frame', 'seal', 'ink', 'size', 'align', 'fmt']) s[f] = d[f]; return s; }
-  function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); if (s.delta && !Array.isArray(s.delta)) delete s.delta; return s; }
+  function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); if (s.delta && !Array.isArray(s.delta)) delete s.delta; s.ink = hexOf(s.ink) || (INKS.some(i => i[0] === s.ink) ? s.ink : 'black'); return s; }
   const setPlain = (s, text) => { s.text = text; delete s.delta; return s; };       // подставить обычный текст вместо форматированного
 
   /* ---------- форматированный текст ----------
@@ -58,6 +58,7 @@
     if ((m = c.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i))) return '#' + [m[1], m[2], m[3]].map(v => clamp(+v, 0, 255).toString(16).padStart(2, '0')).join('');
     return null;
   }
+  const inkOf = k => hexOf(k) || (INKS.find(i => i[0] === k) || INKS[0])[2];      // чернила документа: ключ типа («brown») или любой #rrggbb
   // Абзацы документа: [{ text, runs: [{ a, b, at }], blk }]. [a, b) — позиция куска в тексте абзаца, at — его атрибуты, blk — атрибуты абзаца.
   // Без delta каждая строка текста — абзац; завершающий перевод строки пустого абзаца не добавляет (как в textarea)
   function paragraphs(spec) {
@@ -79,9 +80,9 @@
   }
   // Стиль куска: кегль считается как база × z. bz — множитель абзаца (заголовок), hb — заголовок (жирный шрифт, но не картинка-глиф)
   const STYLES = new Map();
-  function styleOf(at, bz, hb) {
+  function styleOf(at, bz, hb, base) {
     at = at || {};
-    const z = bz * (SIZEZ[at.size] || 1), f = FONTS.some(x => x[0] === at.font) ? at.font : '', c = hexOf(at.color);
+    const px = parseFloat(at.size), z = px > 0 ? clamp(px, 8, 160) / base : bz * (SIZEZ[at.size] || 1), f = FONTS.some(x => x[0] === at.font) ? at.font : '', c = hexOf(at.color);
     const key = [z, f, at.bold, at.italic, at.underline, at.strike, c, hb].join('|');
     let s = STYLES.get(key); if (!s) STYLES.set(key, s = { z, f, b: !!at.bold, i: !!at.italic, u: !!at.underline, s: !!at.strike, c, hb: !!hb });
     return s;
@@ -183,7 +184,7 @@
   async function render(spec, opts) {
     opts = opts || {}; spec = normalize(Object.assign({}, spec));
     const tr = T(), m = tr.MODES[spec.mode], K = KINDS[spec.kind] || KINDS.note, scale = opts.scale || 2;
-    const ink = (INKS.find(i => i[0] === spec.ink) || INKS[0])[2];
+    const ink = inkOf(spec.ink);
     const size = spec.size, frameK = spec.frame, tight = spec.fmt === 'tight';      // tight — компактный лист вплотную к тексту (быстрый экспорт из переводчика)
     const mx = tight ? 36 : frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = tight ? 32 : frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
     // абзацы и перевод: основной текст — из редактора (paragraphs), заголовок и подпись — одна строка.
@@ -224,15 +225,15 @@
         const lt = blk.list === 'ordered' || blk.list === 'bullet' ? blk.list : null, lv = clamp(Math.floor(+blk.indent) || 0, 0, 5);
         const ind = (lt ? lv + 1 : lv) * U, avail = Math.max(U, cw - ind), al = ALIGNS.includes(blk.align) ? blk.align : defAlign;
         if (lt) { ctr.length = Math.min(ctr.length, lv + 1); if (!ctr[lv] || ctr[lv].t !== lt) ctr[lv] = { t: lt, n: 0 }; ctr[lv].n++; } else ctr.length = 0;
-        const st0 = styleOf({}, bz, hb), items = [];
+        const st0 = styleOf({}, bz, hb, base), items = [];
         let ri = 0;
         for (const sg of P.segs) {
           while (ri < P.runs.length - 1 && P.runs[ri].b <= sg.a) ri++;
-          const st = P.runs.length ? styleOf(P.runs[ri].at, bz, hb) : st0;
+          const st = P.runs.length ? styleOf(P.runs[ri].at, bz, hb, base) : st0;
           for (const n of sg.n) items.push(item(n, st, base));
         }
         let mk = null;
-        if (lt) { const ms = P.runs.length ? styleOf(P.runs[0].at, bz, hb) : st0, s = marker(lt, lv, ctr[lv].n); mk = { s, st: ms, w: wid(fontOf(ms, base), s) }; }
+        if (lt) { const ms = P.runs.length ? styleOf(P.runs[0].at, bz, hb, base) : st0, s = marker(lt, lv, ctr[lv].n); mk = { s, st: ms, w: wid(fontOf(ms, base), s) }; }
         const ls = []; let cur = [], cwid = 0, word = [], ww = 0;
         const push = () => { while (cur.length && cur[cur.length - 1].k === 'sp') cwid -= cur.pop().w; ls.push({ items: cur, w: Math.max(0, cwid) }); cur = []; cwid = 0; };
         const flush = () => {
@@ -358,11 +359,72 @@
   function setupQuill(Q) {                               // шрифты и выравнивание — как в конструкторе; делается один раз
     if (Q.tdoc) return; Q.tdoc = 1;
     const Font = Q.import('formats/font'); Font.whitelist = FONTS.map(f => f[0]); Q.register(Font, true);
+    const Size = Q.import('attributors/style/size'); Size.whitelist = null; Q.register(Size, true);      // размер — любое число в px (font-size: 36px), без списка «мелкий/крупный»
     const Align = Q.import('formats/align'); Align.whitelist = ['left', 'center', 'right', 'justify']; Q.register(Align, true);   // «слева» — явное значение: у типов «Указ» и «Розыск» текст по умолчанию по центру
   }
   const UNDO = '<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>';
   const REDO = '<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"/></svg>';
-  const PALETTE = [['#1c1610', 'Чёрные чернила'], ['#4a2c14', 'Коричневые чернила'], ['#8a1c12', 'Красные чернила'], ['#1f3a6e', 'Синие чернила'], ['#2f5d2a', 'Зелёные чернила'], ['#5a2a6e', 'Пурпурные чернила'], ['#8a6a14', 'Золотая краска'], ['#6b6358', 'Серый графит']];
+  // Палитра: серые, 7 рядов оттенков по 10 цветов, чернила и краски документа, недавние, любой свой цвет.
+  // Окно рисуется поверх страницы (position: fixed), чтобы его не обрезали ни окно правки, ни панель редактора.
+  const GRAYS = ['#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef', '#f3f3f3', '#ffffff'];
+  const SHADES = [
+    ['#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff'],
+    ['#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc'],
+    ['#dd7e6b', '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#9fc5e8', '#b4a7d6', '#d5a6bd'],
+    ['#cc4125', '#e06666', '#f6b26b', '#ffd966', '#93c47d', '#76a5af', '#6d9eeb', '#6fa8dc', '#8e7cc3', '#c27ba0'],
+    ['#a61c00', '#cc0000', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3c78d8', '#3d85c6', '#674ea7', '#a64d79'],
+    ['#85200c', '#990000', '#b45f06', '#bf9000', '#38761d', '#134f5c', '#1155cc', '#0b5394', '#351c75', '#741b47'],
+    ['#5b0f00', '#660000', '#783f04', '#7f6000', '#274e13', '#0c343d', '#1c4587', '#073763', '#20124d', '#4c1130']];
+  const INKROW = [['#1c1610', 'Чёрные чернила'], ['#4a2c14', 'Коричневые чернила'], ['#8a1c12', 'Красные чернила'], ['#1f3a6e', 'Синие чернила'], ['#2f5d2a', 'Зелёные чернила'], ['#5a2a6e', 'Пурпурные чернила'], ['#8a6a14', 'Золотая краска'], ['#6b6358', 'Серый графит'], ['#7a3b1d', 'Ржавчина'], ['#c9a227', 'Сусальное золото']];
+  const RKEY = 'tr.v1.colors';
+  const recent = () => { try { const a = JSON.parse(localStorage.getItem(RKEY) || '[]'); return Array.isArray(a) ? a.map(hexOf).filter(Boolean).slice(0, 10) : []; } catch (e) { return []; } };
+  const remember = c => { try { localStorage.setItem(RKEY, JSON.stringify([c, ...recent().filter(x => x !== c)].slice(0, 10))); } catch (e) { } };
+  let palClose = null, palAnchor = null;
+  // o: value — выбранный сейчас цвет, onPick(#rrggbb), reset — подпись кнопки «сбросить» (если нужна) и onReset
+  function openPalette(anchor, o, byKey) {
+    const same = palClose && palAnchor === anchor;
+    if (palClose) palClose();
+    if (same) return;
+    const cur = hexOf(o.value);
+    const done = c => { close(); const x = hexOf(c); if (x) { remember(x); o.onPick(x); } };
+    const sw = (c, title) => h('button', { type: 'button', class: 'tdsw' + (c === cur ? ' on' : ''), style: 'background:' + c, title: title || c, 'aria-label': title || c, onclick: () => done(c) });
+    const row = (list, cls) => h('div', { class: 'tdpr ' + (cls || '') }, list.map(c => Array.isArray(c) ? sw(c[0], c[1]) : sw(c)));
+    const lbl = t => h('div', { class: 'tdpl' }, t);
+    const nat = h('input', { type: 'color', value: cur || '#000000', 'aria-label': 'Выбрать любой цвет', title: 'Выбрать любой цвет' });
+    const hex = h('input', { type: 'text', maxlength: 7, value: cur || '', placeholder: '#rrggbb', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Код цвета' });
+    const norm = v => hexOf(/^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(v.trim()) ? '#' + v.trim() : v);
+    const apply = () => { const c = norm(hex.value); if (c) done(c); else { hex.classList.add('bad'); hex.focus(); } };
+    nat.addEventListener('input', () => { hex.value = nat.value; hex.classList.remove('bad'); });
+    nat.addEventListener('change', () => done(nat.value));
+    hex.addEventListener('input', () => { hex.classList.remove('bad'); const c = norm(hex.value); if (c) nat.value = c; });
+    hex.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
+    const rec = recent();
+    const pop = h('div', { class: 'tdpal', role: 'dialog', 'aria-label': 'Палитра цветов' },
+      o.reset ? h('button', { type: 'button', class: 'tdpreset', onclick: () => { close(); o.onReset && o.onReset(); } }, o.reset) : null,
+      lbl('Оттенки'), row(GRAYS, 'gray'), SHADES.map(r => row(r)),
+      lbl('Чернила и краски'), row(INKROW),
+      rec.length ? [lbl('Недавние'), row(rec)] : null,
+      lbl('Свой цвет'), h('div', { class: 'tdpc' }, nat, hex, h('button', { type: 'button', class: 'trbtn main', onclick: apply }, 'Применить')));
+    const place = () => {
+      const r = anchor.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      let y = r.bottom + 6; if (y + ph > innerHeight - 8) y = Math.max(8, r.top - ph - 6);
+      pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pw - 8)) + 'px'; pop.style.top = y + 'px';
+    };
+    const onDown = e => { if (!pop.contains(e.target) && !anchor.contains(e.target)) close(); };
+    const onKey = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); anchor.focus(); } };   // Esc закрывает только палитру, не окно правки под ней
+    const onScroll = e => { if (!pop.contains(e.target)) close(); };
+    function close() {
+      pop.remove(); palClose = palAnchor = null; anchor.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('pointerdown', onDown, true); document.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('scroll', onScroll, true); removeEventListener('resize', close);
+    }
+    document.body.append(pop); place();
+    palClose = close; palAnchor = anchor; anchor.setAttribute('aria-expanded', 'true');
+    document.addEventListener('pointerdown', onDown, true); document.addEventListener('keydown', onKey, true);
+    document.addEventListener('scroll', onScroll, true); addEventListener('resize', close);
+    if (byKey) (pop.querySelector('.tdsw.on') || pop.querySelector('.tdsw')).focus();
+  }
+  const sizeBtn = (d, t) => h('button', { type: 'button', class: 'tdszb', 'data-d': d, title: t, 'aria-label': t }, d > 0 ? '+' : '−');
   function toolbar(Q) {
     const btn = (cls, title, value, svg) => { const b = h('button', { type: 'button', class: cls, title, 'aria-label': title, value }); if (svg) b.innerHTML = svg; return b; };
     const sel = (cls, title, opts) => h('select', { class: cls, title, 'aria-label': title }, opts.map(([v, t, on]) => h('option', { value: v, selected: on }, t)));
@@ -370,9 +432,10 @@
     return h('div', { class: 'tdtb' },
       grp(btn('ql-undo', 'Отменить (Ctrl+Z)', null, UNDO), btn('ql-redo', 'Повторить (Ctrl+Shift+Z)', null, REDO)),
       grp(sel('ql-header', 'Стиль абзаца', [[1, 'Заголовок 1'], [2, 'Заголовок 2'], [3, 'Заголовок 3'], [null, 'Обычный', true]])),
-      grp(sel('ql-font', 'Шрифт', [[null, 'Шрифт', true], ...FONTS.map(f => [f[0], f[1]])]), sel('ql-size', 'Размер', [['small', 'Мелкий'], [null, 'Обычный', true], ['large', 'Крупный'], ['huge', 'Огромный']])),
+      grp(sel('ql-font', 'Шрифт', [[null, 'Шрифт', true], ...FONTS.map(f => [f[0], f[1]])]),
+        h('span', { class: 'tdsz' }, sizeBtn(-1, 'Уменьшить размер'), h('input', { type: 'number', class: 'tdszi', min: 8, max: 160, step: 1, title: 'Размер текста', 'aria-label': 'Размер текста' }), sizeBtn(1, 'Увеличить размер'))),
       grp(btn('ql-bold', 'Жирный (Ctrl+B)'), btn('ql-italic', 'Курсив (Ctrl+I)'), btn('ql-underline', 'Подчёркнутый (Ctrl+U)'), btn('ql-strike', 'Зачёркнутый'),
-        sel('ql-color', 'Цвет текста', [[null, 'Цвет документа', true], ...PALETTE.map(c => [c[0], c[1]])])),
+        h('button', { type: 'button', class: 'tdcb', title: 'Цвет текста', 'aria-label': 'Цвет текста', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }, h('span', { class: 'tdcA' }, 'A'), h('span', { class: 'tdcbar' }))),
       grp(btn('ql-align', 'По левому краю', 'left', Q.import('ui/icons').align['']), btn('ql-align', 'По центру', 'center'), btn('ql-align', 'По правому краю', 'right'), btn('ql-align', 'По ширине', 'justify')),
       grp(btn('ql-list', 'Нумерованный список', 'ordered'), btn('ql-list', 'Маркированный список', 'bullet'), btn('ql-indent', 'Уменьшить отступ', '-1'), btn('ql-indent', 'Увеличить отступ', '+1')),
       grp(btn('ql-clean', 'Убрать форматирование')));
@@ -404,11 +467,35 @@
         }
       });
       q.root.setAttribute('spellcheck', 'false'); q.root.setAttribute('aria-label', 'Текст документа');
-      tb.querySelectorAll('.ql-color .ql-picker-item').forEach(i => { const c = PALETTE.find(p => p[0] === i.dataset.value); i.title = c ? c[1] : 'Цвет документа'; });
       const aligns = [...tb.querySelectorAll('button.ql-align')];
-      const mark = () => { const r = q.getSelection(), eff = (r && q.getFormat(r).align) || spec.align || 'left'; aligns.forEach(b => { const on = b.value === eff; b.classList.toggle('ql-active', on); b.setAttribute('aria-pressed', String(on)); }); };   // без явного выравнивания абзаца действует выравнивание документа
+      const szIn = tb.querySelector('.tdszi'), cBtn = tb.querySelector('.tdcb'), cBar = cBtn.querySelector('.tdcbar');
+      const fmtNow = () => { const r = q.getSelection(); return r ? q.getFormat(r) : null; };
+      const colorNow = f => f && typeof f.color === 'string' ? hexOf(f.color) : null;
+      // текст в редакторе — тем же шрифтом, размером, цветом и выравниванием, что и на листе (по типу документа и чернилам)
+      const base = () => { const r = q.root.style; r.fontFamily = fontCss(spec); r.fontSize = spec.size + 'px'; r.color = inkOf(spec.ink); r.textAlign = spec.align === 'center' ? 'center' : ''; };
+      const mark = () => {
+        const f = fmtNow(), eff = (f && f.align) || spec.align || 'left';
+        aligns.forEach(b => { const on = b.value === eff; b.classList.toggle('ql-active', on); b.setAttribute('aria-pressed', String(on)); });   // без явного выравнивания абзаца действует выравнивание документа
+        if (f && document.activeElement !== szIn) { const v = Array.isArray(f.size) ? '' : parseFloat(f.size) || Math.round(spec.size * (HZ[f.header] || 1)); szIn.value = v; }
+        cBar.style.background = colorNow(f) || inkOf(spec.ink);
+      };
+      const restore = r => { if (r) q.setSelection(r.index, r.length, 'silent'); else q.getSelection(true); };
+      const setSize = n => { if (!(n > 0)) return; q.getSelection(true); q.format('size', clamp(Math.round(n), 8, 160) + 'px', 'user'); };
+      tb.querySelectorAll('.tdszb').forEach(b => {
+        b.addEventListener('mousedown', e => e.preventDefault());       // фокус остаётся в тексте, выделение не теряется
+        b.addEventListener('click', () => setSize((+szIn.value || spec.size) + 2 * b.dataset.d));
+      });
+      szIn.addEventListener('change', () => { if (szIn.value === '') { q.getSelection(true); q.format('size', false, 'user'); } else setSize(+szIn.value); });
+      szIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); szIn.dispatchEvent(new Event('change')); q.focus(); } });
+      cBtn.addEventListener('mousedown', e => e.preventDefault());
+      cBtn.addEventListener('click', e => {
+        const r = q.getSelection();
+        openPalette(cBtn, { value: colorNow(fmtNow()) || inkOf(spec.ink), reset: 'Цвет документа',
+          onPick: c => { restore(r); q.format('color', c, 'user'); q.focus(); }, onReset: () => { restore(r); q.format('color', false, 'user'); q.focus(); } }, e.detail === 0);
+      });
       q.on('editor-change', mark);
       pull = () => {                                     // spec → редактор (только если spec изменили не отсюда)
+        base();
         const now = spec.delta || spec.text || '';
         if (now !== last) {
           last = now;
@@ -462,11 +549,10 @@
     modeSel.addEventListener('change', () => { spec.mode = modeSel.value; changed(); });
     syncs.push(() => { modeSel.value = spec.mode; });
     const trBox = h('input', { type: 'checkbox' }); trBox.addEventListener('change', () => { spec.tr = trBox.checked; changed(); }); syncs.push(() => { trBox.checked = spec.tr !== false; });
-    const inkBox = h('div', { class: 'trchips' }), inkBs = INKS.map(([v, n, c]) => h('button', { type: 'button', class: 'tddink', title: n, 'aria-label': n, style: 'background:' + c, onclick: () => { spec.ink = v; sync(); changed(); } }));
-    inkBox.append(...inkBs); syncs.push(() => inkBs.forEach((b, i) => b.setAttribute('aria-pressed', String(spec.ink === INKS[i][0]))));
-    const fontSel = h('select', { 'aria-label': 'Шрифт' }, FONTS.map(f => h('option', { value: f[0] }, f[1]))); fontSel.addEventListener('change', () => { spec.font = fontSel.value; changed(); }); syncs.push(() => { fontSel.value = spec.font; });
-    const size = h('input', { type: 'range', min: 14, max: 48, step: 1, 'aria-label': 'Размер текста' }), sizeV = h('small', { class: 'tddn' });
-    size.addEventListener('input', () => { spec.size = +size.value; sizeV.textContent = size.value; changed(); }); syncs.push(() => { size.value = spec.size; sizeV.textContent = spec.size; });
+    const inkSw = h('span', { class: 'tdsw cur' }), inkTx = h('span', { class: 'tdinkv' });
+    const inkBtn = h('button', { type: 'button', class: 'tdinkbtn', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', title: 'Выбрать цвет чернил' }, inkSw, inkTx);
+    inkBtn.addEventListener('click', e => openPalette(inkBtn, { value: inkOf(spec.ink), onPick: c => { spec.ink = c; sync(); changed(); } }, e.detail === 0));
+    syncs.push(() => { const c = inkOf(spec.ink); inkSw.style.background = c; inkTx.textContent = c.toUpperCase(); });
     const qSel = h('select', { 'aria-label': 'Качество PNG', title: 'Качество PNG', class: 'trbtn tddq' }, [[1, 'Обычное, 720 px'], [2, 'Хорошее, 1440 px'], [3, 'Для печати, 2160 px']].map(([v, n]) => h('option', { value: v }, n))); qSel.addEventListener('change', () => { spec.q = +qSel.value; opts.onChange && opts.onChange(spec); }); syncs.push(() => { qSel.value = spec.q || 2; });
     const sync = () => syncs.forEach(f => f());
     const src = opts.source === false ? null : [fld('Язык', modeSel), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc tddtr' }, trBox, ' Переводить заголовок и подпись'), fld('Текст (по-русски)', richField(spec, changed, syncs), 'wide')];
@@ -474,8 +560,7 @@
       fld('Тип документа', chips('kind', Object.entries(KINDS).map(([k, d]) => [k, d.n]), k => applyKind(spec, k))),
       fld('Бумага', chips('paper', Object.entries(PAPERS).map(([k, d]) => [k, d.n]))),
       fld('Рамка', chips('frame', FRAMES)), fld('Печать', chips('seal', SEALS)),
-      fld('Чернила', inkBox), fld('Шрифт (для обычных слов)', fontSel),
-      fld('Размер текста', h('div', { class: 'tddr' }, size, sizeV)), fld('Выравнивание', chips('align', [['left', 'Слева'], ['center', 'По центру']])),
+      fld('Чернила (основной цвет)', inkBtn),
       fld('Формат листа', chips('fmt', [['note', 'По тексту'], ['page', 'Страница']])));
     const acts = h('div', { class: 'trbtns tddacts' },
       h('button', { type: 'button', class: 'trbtn main', onclick: () => download(spec) }, 'Скачать PNG'),
@@ -519,5 +604,5 @@
   }
   registerPanel();
 
-  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, setPlain, paragraphs, KINDS, PAPERS };
+  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, setPlain, paragraphs, styleOf, inkOf, hexOf, KINDS, PAPERS };
 })(window);
