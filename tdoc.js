@@ -43,7 +43,53 @@
 
   function defaults() { return applyKind({ v: 1, mode: 'elf', text: '', title: '', sign: '', tr: true, kind: 'note', seed: 1 + Math.floor(Math.random() * 99999), q: 2 }, 'note'); }
   function applyKind(s, k) { const d = KINDS[k] || KINDS.note; s.kind = k; for (const f of ['paper', 'font', 'frame', 'seal', 'ink', 'size', 'align', 'fmt']) s[f] = d[f]; return s; }
-  function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); return s; }
+  function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); if (s.delta && !Array.isArray(s.delta)) delete s.delta; return s; }
+  const setPlain = (s, text) => { s.text = text; delete s.delta; return s; };       // подставить обычный текст вместо форматированного
+
+  /* ---------- форматированный текст ----------
+     Текст документа — Delta редактора Quill (spec.delta): куски текста с атрибутами и перевод строки, который несёт атрибуты абзаца.
+     Без delta (старые документы, текст из переводчика) берётся обычный spec.text; spec.text всегда хранит ту же запись без форматирования. */
+  const MAXTXT = 3000;
+  const SIZEZ = { small: .75, large: 1.4, huge: 2 }, HZ = [1, 1.7, 1.35, 1.15];   // множители кегля: размер куска и заголовок 1–3
+  function hexOf(c) {                                    // цвет из вставленного текста бывает и rgb(), и #abc; нужен ровно #rrggbb
+    if (typeof c !== 'string') return null; c = c.trim();
+    let m = c.match(/^#([0-9a-f]{6})$/i); if (m) return '#' + m[1].toLowerCase();
+    if ((m = c.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i))) return ('#' + m[1] + m[1] + m[2] + m[2] + m[3] + m[3]).toLowerCase();
+    if ((m = c.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i))) return '#' + [m[1], m[2], m[3]].map(v => clamp(+v, 0, 255).toString(16).padStart(2, '0')).join('');
+    return null;
+  }
+  // Абзацы документа: [{ text, runs: [{ a, b, at }], blk }]. [a, b) — позиция куска в тексте абзаца, at — его атрибуты, blk — атрибуты абзаца.
+  // Без delta каждая строка текста — абзац; завершающий перевод строки пустого абзаца не добавляет (как в textarea)
+  function paragraphs(spec) {
+    const ops = Array.isArray(spec.delta) ? spec.delta : null, out = [];
+    let cur = { text: '', runs: [] }, left = MAXTXT;
+    const end = at => { cur.blk = at || {}; out.push(cur); cur = { text: '', runs: [] }; left--; };
+    for (const op of ops || [{ insert: spec.text || '' }]) {
+      if (left <= 0) break;
+      if (!op || typeof op.insert !== 'string') continue;
+      const at = op.attributes || {}, parts = op.insert.split('\n');
+      parts.forEach((s, k) => {
+        if (left <= 0) return;
+        if (s) { s = s.slice(0, left); cur.runs.push({ a: cur.text.length, b: cur.text.length + s.length, at }); cur.text += s; left -= s.length; }
+        if (k < parts.length - 1 && left > 0) end(at);
+      });
+    }
+    if (cur.text || !out.length) { cur.blk = {}; out.push(cur); }
+    return out;
+  }
+  // Стиль куска: кегль считается как база × z. bz — множитель абзаца (заголовок), hb — заголовок (жирный шрифт, но не картинка-глиф)
+  const STYLES = new Map();
+  function styleOf(at, bz, hb) {
+    at = at || {};
+    const z = bz * (SIZEZ[at.size] || 1), f = FONTS.some(x => x[0] === at.font) ? at.font : '', c = hexOf(at.color);
+    const key = [z, f, at.bold, at.italic, at.underline, at.strike, c, hb].join('|');
+    let s = STYLES.get(key); if (!s) STYLES.set(key, s = { z, f, b: !!at.bold, i: !!at.italic, u: !!at.underline, s: !!at.strike, c, hb: !!hb });
+    return s;
+  }
+  const alpha = n => { let s = ''; for (; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(97 + (n - 1) % 26) + s; return s; };
+  const roman = n => { let s = ''; for (const [v, r] of [[1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']]) while (n >= v) { s += r; n -= v; } return s; };
+  const bullet = lv => ['•', '◦', '▪'][lv % 3];
+  const marker = (type, lv, n) => type === 'bullet' ? bullet(lv) : [String(n), alpha(n), roman(n)][lv % 3] + '.';
 
   /* ---------- векторные глифы ---------- */
   const PATHS = new Map();                               // Path2D кэшируем: один и тот же контур рисуется много раз
@@ -138,46 +184,83 @@
     opts = opts || {}; spec = normalize(Object.assign({}, spec));
     const tr = T(), m = tr.MODES[spec.mode], K = KINDS[spec.kind] || KINDS.note, scale = opts.scale || 2;
     const ink = (INKS.find(i => i[0] === spec.ink) || INKS[0])[2];
-    const body = (spec.text || '').slice(0, 3000), meta = s => (spec.tr === false ? { text: s } : tr.run(spec.mode, s));
-    const res = s => { const r = (spec.mode === 'deep' && s === body) ? { text: (tr.run('deep', s).read || '').replace(/^Звучание:\s*/, '') } : meta(s); return r; };
-    const rb = res(body.trim() ? body : 'Текст записки'), rt = res((spec.title || '').trim() ? spec.title : ''), rs = res((spec.sign || '').trim() ? spec.sign : '');
-    const bodyFont = sz => `${sz}px ${m.g ? SYM : fontCss(spec)}`, titleFont = sz => `${m.g ? '' : 'bold '}${sz}px ${m.g ? SYM : fontCss(spec)}`;
-    // шрифты и картинки
-    const allText = (rb.text || '') + (rt.text || '') + (rs.text || '') + 'АаБб';
-    const first = ((spec.sign || spec.title || spec.text || '').toLowerCase().match(/[а-яё]/) || ['а'])[0], sealIdx = tr.L.indexOf(first);   // буква для печати
-    if (m.img) await withTimeout(tr.loadGlyphs(), 5000);
-    await withTimeout(Promise.all([document.fonts.load(bodyFont(28), allText), document.fonts.load(titleFont(28), allText)].map(p => p.catch(() => null))), 3000);
-    const GS = m.img ? tr.glyphSet(m.img) : null;
-    const mc = document.createElement('canvas').getContext('2d');
     const size = spec.size, frameK = spec.frame, tight = spec.fmt === 'tight';      // tight — компактный лист вплотную к тексту (быстрый экспорт из переводчика)
     const mx = tight ? 36 : frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = tight ? 32 : frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
-    // блок: переносы строк
-    function block(r, sz, font, align) {
-      const ih = sz * 1.45, items = [];
-      if (r.nodes) r.nodes.forEach(n => { if (n.br) items.push({ k: 'br' }); else if (n.sp) items.push({ k: 'sp', w: sz * .55 }); else if (n.set) { const g = GS && GS.glyphs[n.l]; items.push({ k: 'i', g, w: g ? glyphBox(GS, g, ih).w + 3 : 0 }); } else for (const ch of n.t) items.push({ k: 'c', s: ch }); });
-      else for (const ch of (r.text || '')) items.push(ch === '\n' ? { k: 'br' } : (ch === ' ' || ch === '\t') ? { k: 'sp' } : { k: 'c', s: ch });
-      mc.font = font; const spw = mc.measureText(' ').width || sz * .3;
-      items.forEach(it => { if (it.k === 'c') it.w = mc.measureText(it.s).width; else if (it.k === 'sp' && !it.w) it.w = spw; });
-      const lines = []; let cur = [], cwid = 0, word = [], ww = 0;
-      const push = () => { while (cur.length && cur[cur.length - 1].k === 'sp') cwid -= cur.pop().w; lines.push({ items: cur, w: Math.max(0, cwid) }); cur = []; cwid = 0; };
-      const flush = () => {
-        if (!word.length) return;
-        if (cwid + ww > cw && cur.length) push();
-        if (ww > cw) for (const it of word) { if (cwid + it.w > cw && cur.length) push(); cur.push(it); cwid += it.w; } else { cur.push(...word); cwid += ww; }
-        word = []; ww = 0;
-      };
-      for (const it of items) {
-        if (it.k === 'br') { flush(); push(); } else if (it.k === 'sp') { flush(); if (cur.length) { cur.push(it); cwid += it.w; } } else { word.push(it); ww += it.w; }
+    // абзацы и перевод: основной текст — из редактора (paragraphs), заголовок и подпись — одна строка.
+    // tr.segs помнит, из какого знака исходника получился знак перевода, поэтому стиль куска переносится на его перевод
+    const ident = s => { const o = []; let i = 0; for (const c of s) { o.push({ a: i, b: i + c.length, n: [c === ' ' || c === '\t' ? { sp: 1 } : { t: c }] }); i += c.length; } return o; };
+    const trans = (s, isBody) => isBody && spec.mode === 'deep' ? tr.segs('deep', s, true) : spec.tr === false ? ident(s) : tr.segs(spec.mode, s, false);   // у глубинной речи основной текст — это звучание
+    let paras = paragraphs(spec);
+    if (!paras.some(p => p.text.trim())) paras = [{ text: 'Текст записки', runs: [], blk: {}, ph: 1 }];
+    const hasT = !!(spec.title || '').trim(), hasS = !!(spec.sign || '').trim();
+    const tparas = hasT ? [{ text: spec.title, runs: [], blk: { align: 'center' }, bz: K.ts, hb: 1 }] : null, sparas = hasS ? [{ text: spec.sign, runs: [], blk: { align: 'right' }, bz: 1, hb: 0 }] : null;
+    for (const [list, isBody] of [[paras, 1], [tparas, 0], [sparas, 0]]) for (const P of list || []) P.segs = trans(P.text, isBody && !P.ph);
+    // шрифты и картинки
+    const allText = [...paras, ...(tparas || []), ...(sparas || [])].map(P => P.segs.map(s => s.n.map(n => n.t || '').join('')).join('')).join('') + 'АаБб';
+    const first = ((spec.sign || spec.title || spec.text || '').toLowerCase().match(/[а-яё]/) || ['а'])[0], sealIdx = tr.L.indexOf(first);   // буква для печати
+    const used = new Set([spec.font]); let slanted = false;
+    for (const P of paras) for (const r of P.runs) { if (FONTS.some(f => f[0] === r.at.font)) used.add(r.at.font); if (r.at.italic) slanted = true; }
+    const family = f => m.g ? SYM : fontCss({ font: f });
+    if (m.img) await withTimeout(tr.loadGlyphs(), 5000);
+    await withTimeout(Promise.all([...used].flatMap(f => ['', 'bold ', ...(slanted ? ['italic ', 'italic bold '] : [])].map(w => document.fonts.load(`${w}28px ${family(f)}`, allText).catch(() => null)))), 3000);
+    const GS = m.img ? tr.glyphSet(m.img) : null;
+    const mc = document.createElement('canvas').getContext('2d');
+    // знаки: кегль — база блока × z стиля; ширина измеряется один раз на пару «шрифт + знак»
+    const WID = new Map(), wid = (font, ch) => { const k = font + '|' + ch; let w = WID.get(k); if (w === undefined) { mc.font = font; WID.set(k, w = mc.measureText(ch).width); } return w; };
+    const fontOf = (st, base) => `${st.b || (st.hb && !m.g) ? 'bold ' : ''}${st.i ? 'italic ' : ''}${base * st.z}px ${family(st.f || spec.font)}`;
+    const item = (n, st, base) => {
+      const px = base * st.z;
+      if (n.br) return { k: 'br' };
+      if (n.sp) return { k: 'sp', st, w: n.f ? px * .55 : wid(fontOf(st, base), ' ') || px * .3 };
+      if (n.set) { const g = GS && GS.glyphs[n.l]; return { k: 'i', st, g, w: g ? glyphBox(GS, g, px * 1.45).w + 3 : 0 }; }
+      return { k: 'c', st, s: n.t, w: wid(fontOf(st, base), n.t) };
+    };
+    // блок: абзацы → строки (переносы по словам, отступы, списки, выравнивание)
+    const ALIGNS = ['left', 'center', 'right', 'justify'];
+    function block(list, base, defAlign) {
+      const lines = [], ctr = [], U = base * 1.5;       // U — один уровень отступа
+      for (const P of list) {
+        const blk = P.blk || {}, hd = blk.header ? Math.min(3, Math.max(1, +blk.header || 1)) : 0, bz = P.bz != null ? P.bz : HZ[hd], hb = P.hb != null ? P.hb : hd ? 1 : 0;
+        const lt = blk.list === 'ordered' || blk.list === 'bullet' ? blk.list : null, lv = clamp(Math.floor(+blk.indent) || 0, 0, 5);
+        const ind = (lt ? lv + 1 : lv) * U, avail = Math.max(U, cw - ind), al = ALIGNS.includes(blk.align) ? blk.align : defAlign;
+        if (lt) { ctr.length = Math.min(ctr.length, lv + 1); if (!ctr[lv] || ctr[lv].t !== lt) ctr[lv] = { t: lt, n: 0 }; ctr[lv].n++; } else ctr.length = 0;
+        const st0 = styleOf({}, bz, hb), items = [];
+        let ri = 0;
+        for (const sg of P.segs) {
+          while (ri < P.runs.length - 1 && P.runs[ri].b <= sg.a) ri++;
+          const st = P.runs.length ? styleOf(P.runs[ri].at, bz, hb) : st0;
+          for (const n of sg.n) items.push(item(n, st, base));
+        }
+        let mk = null;
+        if (lt) { const ms = P.runs.length ? styleOf(P.runs[0].at, bz, hb) : st0, s = marker(lt, lv, ctr[lv].n); mk = { s, st: ms, w: wid(fontOf(ms, base), s) }; }
+        const ls = []; let cur = [], cwid = 0, word = [], ww = 0;
+        const push = () => { while (cur.length && cur[cur.length - 1].k === 'sp') cwid -= cur.pop().w; ls.push({ items: cur, w: Math.max(0, cwid) }); cur = []; cwid = 0; };
+        const flush = () => {
+          if (!word.length) return;
+          if (cwid + ww > avail && cur.length) push();
+          if (ww > avail) for (const it of word) { if (cwid + it.w > avail && cur.length) push(); cur.push(it); cwid += it.w; } else { cur.push(...word); cwid += ww; }
+          word = []; ww = 0;
+        };
+        for (const it of items) {
+          if (it.k === 'br') { flush(); push(); } else if (it.k === 'sp') { flush(); if (cur.length) { cur.push(it); cwid += it.w; } } else { word.push(it); ww += it.w; }
+        }
+        flush(); if (cur.length) push();
+        if (!ls.length) ls.push({ items: [], w: 0 });     // пустой абзац — пустая строка
+        ls.forEach((ln, i) => {
+          ln.h = ln.items.length ? Math.max(...ln.items.map(it => base * it.st.z * 1.6)) : base * st0.z * 1.6;   // высота строки — по самому крупному знаку
+          ln.left = mx + ind; ln.avail = avail; ln.al = al; ln.last = i === ls.length - 1; ln.mk = i ? null : mk;
+        });
+        lines.push(...ls);
       }
-      flush(); if (cur.length) push();
-      return { lines, sz, ih, lh: sz * 1.6, font, align, empty: !items.length };
+      const uni = lines.every(l => l.h === lines[0].h); let acc = 0;      // у ровных строк высота — n × h, как раньше
+      lines.forEach((l, i) => { l.y = uni ? i * l.h : acc; acc += l.h; });
+      return { lines, base, H: uni ? lines.length * lines[0].h : acc };
     }
-    const tB = block(rb, size, bodyFont(size), spec.align), hasT = !!(spec.title || '').trim(), hasS = !!(spec.sign || '').trim();
-    const tT = hasT ? block(rt, size * K.ts, titleFont(size * K.ts), 'center') : null;
+    const tB = block(paras, size, spec.align), tT = hasT ? block(tparas, size, 'center') : null;
     const sealOn = !!spec.seal, sgSize = size * 1.05;
-    const tS = hasS ? block(rs, sgSize, bodyFont(sgSize), 'right') : null;
-    const titleH = tT ? tT.lines.length * tT.lh + size * .9 : 0, bodyH = tB.lines.length * tB.lh;
-    const signH = tS ? tS.lines.length * tS.lh + (K.line ? 10 : 0) : 0, botH = Math.max(signH, sealOn ? 96 : 0), gap = (tS || sealOn) ? size * .9 : 0;
+    const tS = hasS ? block(sparas, sgSize, 'right') : null;
+    const titleH = tT ? tT.H + size * .9 : 0, bodyH = tB.H;
+    const signH = tS ? tS.H + (K.line ? 10 : 0) : 0, botH = Math.max(signH, sealOn ? 96 : 0), gap = (tS || sealOn) ? size * .9 : 0;
     let H = Math.ceil(my + titleH + bodyH + gap + botH + my);
     H = spec.fmt === 'page' ? Math.max(H, Math.round(W * 1.414)) : tight ? Math.max(H, 90) : Math.max(H, 250);
     const torn = !!PAPERS[spec.paper].torn, pad = torn ? 20 : 0;
@@ -188,17 +271,37 @@
     if (frameK === 'scroll') rods(ctx, W, H); else if (frameK !== 'none') frame(ctx, W, H, frameK, ink);
     // текст
     const drawBlock = (b, y0, xr) => {
-      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = ink; ctx.font = b.font; ctx.textBaseline = 'alphabetic';
-      ctx.shadowColor = ink + '55'; ctx.shadowBlur = 1.3;
+      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.textBaseline = 'alphabetic'; ctx.shadowBlur = 1.3;
+      let font = '', col = '';
+      const setCol = c => { if (c !== col) { ctx.fillStyle = ctx.strokeStyle = c; ctx.shadowColor = c + '55'; col = c; } };
+      const paint = st => { const f = fontOf(st, b.base); if (f !== font) { ctx.font = f; font = f; } setCol(st.c || ink); };   // шрифт и цвет меняем только когда они меняются
       const right = xr == null ? W - mx : xr;
-      b.lines.forEach((ln, i) => {
-        let x = b.align === 'center' ? mx + (cw - ln.w) / 2 : b.align === 'right' ? right - ln.w : mx; const top = y0 + i * b.lh, base = top + b.lh * .68;
+      for (const ln of b.lines) {
+        const top = y0 + ln.y, base = top + ln.h * .68;
+        let x = ln.al === 'center' ? ln.left + (ln.avail - ln.w) / 2 : ln.al === 'right' ? right - ln.w : ln.left, extra = 0;
+        if (ln.al === 'justify' && !ln.last) { const gaps = ln.items.filter(it => it.k === 'sp').length; if (gaps) extra = Math.max(0, ln.avail - ln.w) / gaps; }
+        if (ln.mk) { paint(ln.mk.st); ctx.fillText(ln.mk.s, ln.left - b.base * .3 - ln.mk.w, base); }
+        const decor = [];                                // подчёркивание и зачёркивание: соседние знаки одного стиля сливаются в одну линию
         for (const it of ln.items) {
+          const st = it.st, w = it.w + (it.k === 'sp' ? extra : 0), s = b.base * st.z;
+          paint(st);
           if (it.k === 'c') ctx.fillText(it.s, x, base);
-          else if (it.k === 'i' && it.g) { const bx = glyphBox(GS, it.g, b.ih); ctx.save(); ctx.translate(x + 1.5, top + b.lh / 2 + bx.top); ctx.scale(bx.k, bx.k); ctx.fill(pathOf(it.g), 'evenodd'); ctx.restore(); }
-          x += it.w;
+          else if (it.k === 'i' && it.g) {
+            const bx = glyphBox(GS, it.g, s * 1.45), cy = top + ln.h / 2 + (ln.h - s * 1.6) * .18;
+            ctx.save(); ctx.translate(x + 1.5, cy + bx.top); ctx.scale(bx.k, bx.k);
+            if (st.i) ctx.transform(1, 0, -.2, 1, .2 * it.g.y0, 0);          // курсив: наклон вокруг базовой линии глифа
+            ctx.fill(pathOf(it.g), 'evenodd');
+            if (st.b) { ctx.lineWidth = s * .04 / bx.k; ctx.lineJoin = 'round'; ctx.stroke(pathOf(it.g)); }   // жирный: обводка того же цвета
+            ctx.restore();
+          }
+          for (const [on, dy] of [[st.u, s * .12], [st.s, -s * .28]]) if (on) {
+            const y = base + dy, c = st.c || ink, d = decor.find(q => q.y === y && q.c === c && q.x1 === x);
+            if (d) d.x1 = x + w; else decor.push({ x0: x, x1: x + w, y, th: Math.max(1, s * .055), c });
+          }
+          x += w;
         }
-      });
+        for (const d of decor) { setCol(d.c); ctx.fillRect(d.x0, d.y, d.x1 - d.x0, d.th); }
+      }
       ctx.restore();
     };
     let y = my; if (tT) { drawBlock(tT, y); y += titleH; }
@@ -240,6 +343,96 @@
     } catch (e) { toast('Не получилось скопировать: ' + (e.message || e)); }
   }
 
+  /* ---------- редактор текста ----------
+     Quill лежит в lib/quill и подгружается при первом показе конструктора: в страницы сайта он не входит.
+     Не загрузился (нет сети) — остаётся обычное поле ввода без форматирования. */
+  let quillP = null;
+  function loadQuill() {
+    if (root.Quill) return Promise.resolve(root.Quill);
+    return quillP || (quillP = new Promise((ok, no) => {
+      if (!document.getElementById('tdq-css')) document.head.append(h('link', { id: 'tdq-css', rel: 'stylesheet', href: 'lib/quill/quill.snow.css' }));
+      const s = h('script', { src: 'lib/quill/quill.js', onload: () => root.Quill ? ok(root.Quill) : no(new Error('Quill')), onerror: () => { quillP = null; s.remove(); no(new Error('Quill')); } });
+      document.head.append(s);
+    }));
+  }
+  function setupQuill(Q) {                               // шрифты и выравнивание — как в конструкторе; делается один раз
+    if (Q.tdoc) return; Q.tdoc = 1;
+    const Font = Q.import('formats/font'); Font.whitelist = FONTS.map(f => f[0]); Q.register(Font, true);
+    const Align = Q.import('formats/align'); Align.whitelist = ['left', 'center', 'right', 'justify']; Q.register(Align, true);   // «слева» — явное значение: у типов «Указ» и «Розыск» текст по умолчанию по центру
+  }
+  const UNDO = '<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"/><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"/></svg>';
+  const REDO = '<svg viewBox="0 0 18 18"><polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"/><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"/></svg>';
+  const PALETTE = [['#1c1610', 'Чёрные чернила'], ['#4a2c14', 'Коричневые чернила'], ['#8a1c12', 'Красные чернила'], ['#1f3a6e', 'Синие чернила'], ['#2f5d2a', 'Зелёные чернила'], ['#5a2a6e', 'Пурпурные чернила'], ['#8a6a14', 'Золотая краска'], ['#6b6358', 'Серый графит']];
+  function toolbar(Q) {
+    const btn = (cls, title, value, svg) => { const b = h('button', { type: 'button', class: cls, title, 'aria-label': title, value }); if (svg) b.innerHTML = svg; return b; };
+    const sel = (cls, title, opts) => h('select', { class: cls, title, 'aria-label': title }, opts.map(([v, t, on]) => h('option', { value: v, selected: on }, t)));
+    const grp = (...k) => h('span', { class: 'ql-formats' }, k);
+    return h('div', { class: 'tdtb' },
+      grp(btn('ql-undo', 'Отменить (Ctrl+Z)', null, UNDO), btn('ql-redo', 'Повторить (Ctrl+Shift+Z)', null, REDO)),
+      grp(sel('ql-header', 'Стиль абзаца', [[1, 'Заголовок 1'], [2, 'Заголовок 2'], [3, 'Заголовок 3'], [null, 'Обычный', true]])),
+      grp(sel('ql-font', 'Шрифт', [[null, 'Шрифт документа', true], ...FONTS.map(f => [f[0], f[1]])]), sel('ql-size', 'Размер', [['small', 'Мелкий'], [null, 'Обычный', true], ['large', 'Крупный'], ['huge', 'Огромный']])),
+      grp(btn('ql-bold', 'Жирный (Ctrl+B)'), btn('ql-italic', 'Курсив (Ctrl+I)'), btn('ql-underline', 'Подчёркнутый (Ctrl+U)'), btn('ql-strike', 'Зачёркнутый'),
+        sel('ql-color', 'Цвет текста', [[null, 'Цвет документа', true], ...PALETTE.map(c => [c[0], c[1]])])),
+      grp(btn('ql-align', 'По левому краю', 'left', Q.import('ui/icons').align['']), btn('ql-align', 'По центру', 'center'), btn('ql-align', 'По правому краю', 'right'), btn('ql-align', 'По ширине', 'justify')),
+      grp(btn('ql-list', 'Нумерованный список', 'ordered'), btn('ql-list', 'Маркированный список', 'bullet'), btn('ql-indent', 'Уменьшить отступ', '-1'), btn('ql-indent', 'Увеличить отступ', '+1')),
+      grp(btn('ql-clean', 'Убрать форматирование')));
+  }
+  // Поле «Текст»: пишет в spec.delta (если есть форматирование) и всегда в spec.text; следит за spec через syncs (смена документа извне)
+  function richField(spec, changed, syncs) {
+    const wrap = h('div', { class: 'tded' }, h('p', { class: 'tddn tdload' }, 'Загружаю редактор…')), cnt = h('small', { class: 'tddn' });
+    let q = null, last = null, pull = () => { };
+    const count = n => { cnt.textContent = n + ' / ' + MAXTXT; };
+    count((spec.text || '').length);
+    syncs.push(() => pull());
+    const fallback = () => {                             // без редактора: обычное поле, форматирование недоступно
+      const ta = h('textarea', { rows: 6, maxlength: MAXTXT, spellcheck: 'false', 'aria-label': 'Текст документа' });
+      ta.addEventListener('input', () => { setPlain(spec, ta.value); count(ta.value.length); changed(); });
+      pull = () => { if (ta.value !== (spec.text || '')) ta.value = spec.text || ''; count(ta.value.length); };
+      wrap.replaceChildren(h('p', { class: 'tddn tdload' }, 'Редактор с форматированием не загрузился, доступен простой ввод.'), ta); pull();
+    };
+    const mount = Q => {
+      setupQuill(Q);
+      const tb = toolbar(Q), host = h('div');
+      wrap.replaceChildren(tb, host);
+      q = new Q(host, {
+        theme: 'snow', placeholder: 'Начните печатать…',
+        formats: ['bold', 'italic', 'underline', 'strike', 'color', 'font', 'size', 'header', 'list', 'indent', 'align'],
+        modules: {
+          toolbar: { container: tb, handlers: { undo() { this.quill.history.undo(); }, redo() { this.quill.history.redo(); } } },
+          history: { delay: 600, userOnly: true },
+          keyboard: { bindings: { tab: false } }         // Tab в обычном тексте уводит фокус дальше (в списках по-прежнему меняет отступ)
+        }
+      });
+      q.root.setAttribute('spellcheck', 'false'); q.root.setAttribute('aria-label', 'Текст документа');
+      tb.querySelectorAll('.ql-color .ql-picker-item').forEach(i => { const c = PALETTE.find(p => p[0] === i.dataset.value); i.title = c ? c[1] : 'Цвет документа'; });
+      const aligns = [...tb.querySelectorAll('button.ql-align')];
+      const mark = () => { const r = q.getSelection(), eff = (r && q.getFormat(r).align) || spec.align || 'left'; aligns.forEach(b => { const on = b.value === eff; b.classList.toggle('ql-active', on); b.setAttribute('aria-pressed', String(on)); }); };   // без явного выравнивания абзаца действует выравнивание документа
+      q.on('editor-change', mark);
+      pull = () => {                                     // spec → редактор (только если spec изменили не отсюда)
+        const now = spec.delta || spec.text || '';
+        if (now !== last) {
+          last = now;
+          const ops = spec.delta ? spec.delta.slice() : [{ insert: (spec.text || '') + '\n' }], tail = ops[ops.length - 1];
+          if (!tail || typeof tail.insert !== 'string' || !tail.insert.endsWith('\n')) ops.push({ insert: '\n' });
+          q.setContents(ops, 'silent'); q.history.clear(); count(Math.max(0, q.getLength() - 1));
+        }
+        mark();
+      };
+      q.on('text-change', (d, o, src) => {               // редактор → spec
+        if (src === 'silent') return;
+        const len = q.getLength() - 1;
+        if (len > MAXTXT) { q.deleteText(MAXTXT, len - MAXTXT, 'api'); return; }
+        const ops = q.getContents().ops;
+        spec.text = q.getText().replace(/\n$/, '');
+        if (ops.some(op => op.attributes && Object.keys(op.attributes).length)) spec.delta = ops; else delete spec.delta;
+        last = spec.delta || spec.text; count(len); changed();
+      });
+      pull();
+    };
+    loadQuill().then(mount, fallback);
+    return h('div', {}, wrap, cnt);
+  }
+
   /* ---------- конструктор ---------- */
   function designer(spec, opts) {
     opts = opts || {}; normalize(spec);
@@ -276,7 +469,7 @@
     size.addEventListener('input', () => { spec.size = +size.value; sizeV.textContent = size.value; changed(); }); syncs.push(() => { size.value = spec.size; sizeV.textContent = spec.size; });
     const qSel = h('select', { 'aria-label': 'Качество PNG', title: 'Качество PNG', class: 'trbtn tddq' }, [[1, 'Обычное, 720 px'], [2, 'Хорошее, 1440 px'], [3, 'Для печати, 2160 px']].map(([v, n]) => h('option', { value: v }, n))); qSel.addEventListener('change', () => { spec.q = +qSel.value; opts.onChange && opts.onChange(spec); }); syncs.push(() => { qSel.value = spec.q || 2; });
     const sync = () => syncs.forEach(f => f());
-    const src = opts.source === false ? null : [fld('Язык', modeSel), text('text', 'Текст (по-русски)', 3000, true), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc' }, trBox, ' Переводить заголовок и подпись')];
+    const src = opts.source === false ? null : [fld('Язык', modeSel), fld('Текст (по-русски)', richField(spec, changed, syncs)), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc' }, trBox, ' Переводить заголовок и подпись')];
     const ctl = h('div', { class: 'tddc2' }, src,
       fld('Тип документа', chips('kind', Object.entries(KINDS).map(([k, d]) => [k, d.n]), k => applyKind(spec, k))),
       fld('Бумага', chips('paper', Object.entries(PAPERS).map(([k, d]) => [k, d.n]))),
@@ -297,7 +490,7 @@
   /* ---------- окно правки ---------- */
   function edit(spec, onSave) {
     const copyS = JSON.parse(JSON.stringify(spec)), d = designer(copyS);
-    const close = () => { ov.remove(); document.removeEventListener('keydown', esc); }, esc = e => { if (e.key === 'Escape') close(); };
+    const close = () => { ov.remove(); document.removeEventListener('keydown', esc); }, esc = e => { if (e.key === 'Escape' && !e.defaultPrevented) close(); };   // Escape, который закрыл список в редакторе, окно не закрывает
     const ov = h('div', { class: 'tdmodal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Правка записки' }, h('div', { class: 'tdbox' },
       h('div', { class: 'tdhd' }, h('b', {}, 'Правка документа'), h('button', { type: 'button', class: 'trbtn', onclick: close }, 'Отмена'), h('button', { type: 'button', class: 'trbtn main', onclick: () => { Object.assign(spec, copyS); close(); onSave && onSave(spec); } }, 'Сохранить')), d.el));
     document.body.append(ov); document.addEventListener('keydown', esc);
@@ -326,5 +519,5 @@
   }
   registerPanel();
 
-  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, KINDS, PAPERS };
+  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, setPlain, paragraphs, KINDS, PAPERS };
 })(window);
