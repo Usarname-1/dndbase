@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Превращает растровые глифы (tools/glyph-src/<набор>-NN.png) в векторные.
-Для каждого алфавита выравнивает толщину штриха (в исходниках часть букв нарисована в другом масштабе или в низком разрешении)
+Для каждого алфавита приводит все буквы к одной высоте и ставит их на одну строку, выравнивает толщину штриха (в исходниках часть букв нарисована в другом масштабе или в низком разрешении)
 и пишет:
   translator/glyphs.json        — контуры для сайта (canvas Path2D и inline-SVG)
   translator/svg/<набор>-<буква>.svg — те же глифы отдельными файлами, их можно открыть и править в Inkscape / Figma
@@ -43,9 +43,9 @@ def baseline(name, ch, h, m, u):
         return ys.max() / u - 3 + 1
     return h
 
-def trace(m, u, k):                                      # k — множитель нормализации; координаты выходят в «единицах нормализованного холста»
+def trace(m, u, k, ox=0.0, oy=0.0):                                      # k — множитель нормализации; координаты выходят в «единицах нормализованного холста»
     pl = potrace.Bitmap(~m).trace(turdsize=int(4 * u), alphamax=1.0, opticurve=True, opttolerance=0.35)
-    f = lambda p: f'{(p.x / u - 3) * k:.2f} {(p.y / u - 3) * k:.2f}'
+    f = lambda p: f'{(p.x / u - 3) * k + ox:.2f} {(p.y / u - 3) * k + oy:.2f}'
     out = []
     for c in pl:
         out.append('M' + f(c.start_point))
@@ -76,12 +76,39 @@ for name in SETS:
             for i in g: ks[i] = kg
     em = statistics.median(x[4] * k for x, k in zip(items, ks))
     print(name, 'групп по высоте холста:', len(groups), [(len(g), round(ks[g[0]], 2)) for g in groups])
+    # Выравнивание по строке. В исходниках буквы нарисованы как в книге: разной высоты и на разном расстоянии от низа холста,
+    # поэтому в тексте они «пляшут» вверх-вниз и выглядят то крупнее, то мельче. Здесь у каждой буквы:
+    #  1) высота чернил становится одинаковой (медиана по алфавиту), пропорции сохраняются;
+    #  2) нижний край ставится на общую базовую линию, а линия выбрана так, чтобы строка осталась на прежней высоте в холсте;
+    #  3) боковые поля одинаковы, поэтому расстояние между буквами ровное.
+    # При растяжении штрих тоже толстеет (у мелкой драконьей «а» в 2,4 раза), поэтому перед трассировкой маска утончается
+    # или утолщается ровно настолько, чтобы толщина штриха осталась прежней.
+    inks = []
+    for (ch, m, u, w, h, sw_), k in zip(items, ks):
+        ys, xs = np.where(m)
+        inks.append(((ys.max() - ys.min()) / u * k, (xs.max() - xs.min()) / u * k, ((ys.min() + ys.max()) / 2 / u - 3) * k, w * k))
+    T = statistics.median(i[0] for i in inks)                # общая высота букв
+    pad = max(statistics.median((i[3] - i[1]) / 2 for i in inks), .1 * T)   # боковое поле
+    by_new = min(max(statistics.median(i[2] for i in inks) + T / 2, T + 2), em)   # базовая линия: низ чернил в холсте высотой em
+    assert by_new >= T, (name, by_new, T)
+    print(name, f'высота букв {T:.1f}, базовая линия {by_new:.1f} из {em:.1f}, поле {pad:.1f}')
     gl = {}
-    for (ch, m, u, w, h, s), k in zip(items, ks):
-        d = trace(m, u, k)
-        ys, xs = np.where(m)                                 # границы самой буквы без полей холста (нужны, например, для печати)
-        bb = [round((xs.min() / u - 3) * k, 2), round((ys.min() / u - 3) * k, 2), round((xs.max() / u - 3) * k, 2), round((ys.max() / u - 3) * k, 2)]
-        gl[ch] = {'w': round(w * k, 2), 'h': round(h * k, 2), 'y0': round(baseline(name, ch, h, m, u) * k, 2), 'bb': bb, 'd': d}
+    for (ch, m, u, w, h, sw_), k, ink in zip(items, ks, inks):
+        sigma = sw_ * k                                      # толщина штриха этой буквы сейчас (в нормализованных единицах)
+        sc = (T - sigma) / (ink[0] - sigma) if ink[0] > 1.5 * sigma else T / ink[0]   # высота после правки штриха станет ровно T
+        sc = min(max(sc, .35), 3.0); k2 = k * sc
+        r = sigma * (1 - sc) * u / k2 / 2                    # на сколько пикселей маски сдвинуть каждый край штриха (+ толще, − тоньше)
+        m2 = m
+        if abs(r) >= .5:
+            ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * int(round(abs(r))) + 1,) * 2)
+            m2 = (cv2.dilate if r > 0 else cv2.erode)(m.astype(np.uint8), ker).astype(bool)
+        ys, xs = np.where(m2)
+        x0, x1 = (xs.min() / u - 3) * k2, (xs.max() / u - 3) * k2
+        y0, y1 = (ys.min() / u - 3) * k2, (ys.max() / u - 3) * k2
+        ox, oy = pad - x0, by_new - y1                       # левый край чернил на поле, низ — на базовую линию
+        d = trace(m2, u, k2, ox, oy)
+        bb = [round(pad, 2), round(y0 + oy, 2), round(x1 + ox, 2), round(by_new, 2)]
+        gl[ch] = {'w': round(x1 - x0 + 2 * pad, 2), 'h': round(em, 2), 'y0': round(by_new, 2), 'bb': bb, 'd': d}
         svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {gl[ch]["w"]} {gl[ch]["h"]}" width="{gl[ch]["w"]}" height="{gl[ch]["h"]}"><path fill="currentColor" fill-rule="evenodd" d="{d}"/></svg>\n'
         open(os.path.join(root, 'translator', 'svg', f'{name}-{ch}.svg'), 'w', encoding='utf-8').write(svg)
     by = statistics.median(g['y0'] for g in gl.values())     # типичная высота строки в холсте: по ней глиф ставится в строку

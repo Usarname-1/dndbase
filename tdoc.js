@@ -288,8 +288,8 @@
           paint(st);
           if (it.k === 'c') ctx.fillText(it.s, x, base);
           else if (it.k === 'i' && it.g) {
-            const bx = glyphBox(GS, it.g, s * 1.45), cy = top + ln.h / 2 + (ln.h - s * 1.6) * .18;
-            ctx.save(); ctx.translate(x + 1.5, cy + bx.top); ctx.scale(bx.k, bx.k);
+            const bx = glyphBox(GS, it.g, s * 1.45);
+            ctx.save(); ctx.translate(x + 1.5, base - it.g.y0 * bx.k); ctx.scale(bx.k, bx.k);      // базовая линия глифа (у всех букв одна) совпадает с линией обычного текста: запятые и кавычки стоят вровень
             if (st.i) ctx.transform(1, 0, -.2, 1, .2 * it.g.y0, 0);          // курсив: наклон вокруг базовой линии глифа
             ctx.fill(pathOf(it.g), 'evenodd');
             if (st.b) { ctx.lineWidth = s * .04 / bx.k; ctx.lineJoin = 'round'; ctx.stroke(pathOf(it.g)); }   // жирный: обводка того же цвета
