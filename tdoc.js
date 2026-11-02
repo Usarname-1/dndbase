@@ -370,7 +370,7 @@
     return h('div', { class: 'tdtb' },
       grp(btn('ql-undo', 'Отменить (Ctrl+Z)', null, UNDO), btn('ql-redo', 'Повторить (Ctrl+Shift+Z)', null, REDO)),
       grp(sel('ql-header', 'Стиль абзаца', [[1, 'Заголовок 1'], [2, 'Заголовок 2'], [3, 'Заголовок 3'], [null, 'Обычный', true]])),
-      grp(sel('ql-font', 'Шрифт', [[null, 'Шрифт документа', true], ...FONTS.map(f => [f[0], f[1]])]), sel('ql-size', 'Размер', [['small', 'Мелкий'], [null, 'Обычный', true], ['large', 'Крупный'], ['huge', 'Огромный']])),
+      grp(sel('ql-font', 'Шрифт', [[null, 'Шрифт', true], ...FONTS.map(f => [f[0], f[1]])]), sel('ql-size', 'Размер', [['small', 'Мелкий'], [null, 'Обычный', true], ['large', 'Крупный'], ['huge', 'Огромный']])),
       grp(btn('ql-bold', 'Жирный (Ctrl+B)'), btn('ql-italic', 'Курсив (Ctrl+I)'), btn('ql-underline', 'Подчёркнутый (Ctrl+U)'), btn('ql-strike', 'Зачёркнутый'),
         sel('ql-color', 'Цвет текста', [[null, 'Цвет документа', true], ...PALETTE.map(c => [c[0], c[1]])])),
       grp(btn('ql-align', 'По левому краю', 'left', Q.import('ui/icons').align['']), btn('ql-align', 'По центру', 'center'), btn('ql-align', 'По правому краю', 'right'), btn('ql-align', 'По ширине', 'justify')),
@@ -469,20 +469,20 @@
     size.addEventListener('input', () => { spec.size = +size.value; sizeV.textContent = size.value; changed(); }); syncs.push(() => { size.value = spec.size; sizeV.textContent = spec.size; });
     const qSel = h('select', { 'aria-label': 'Качество PNG', title: 'Качество PNG', class: 'trbtn tddq' }, [[1, 'Обычное, 720 px'], [2, 'Хорошее, 1440 px'], [3, 'Для печати, 2160 px']].map(([v, n]) => h('option', { value: v }, n))); qSel.addEventListener('change', () => { spec.q = +qSel.value; opts.onChange && opts.onChange(spec); }); syncs.push(() => { qSel.value = spec.q || 2; });
     const sync = () => syncs.forEach(f => f());
-    const src = opts.source === false ? null : [fld('Язык', modeSel), fld('Текст (по-русски)', richField(spec, changed, syncs)), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc' }, trBox, ' Переводить заголовок и подпись')];
+    const src = opts.source === false ? null : [fld('Язык', modeSel), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc tddtr' }, trBox, ' Переводить заголовок и подпись'), fld('Текст (по-русски)', richField(spec, changed, syncs), 'wide')];
     const ctl = h('div', { class: 'tddc2' }, src,
       fld('Тип документа', chips('kind', Object.entries(KINDS).map(([k, d]) => [k, d.n]), k => applyKind(spec, k))),
       fld('Бумага', chips('paper', Object.entries(PAPERS).map(([k, d]) => [k, d.n]))),
       fld('Рамка', chips('frame', FRAMES)), fld('Печать', chips('seal', SEALS)),
       fld('Чернила', inkBox), fld('Шрифт (для обычных слов)', fontSel),
       fld('Размер текста', h('div', { class: 'tddr' }, size, sizeV)), fld('Выравнивание', chips('align', [['left', 'Слева'], ['center', 'По центру']])),
-      fld('Формат листа', chips('fmt', [['note', 'По тексту'], ['page', 'Страница']])),
-      h('div', { class: 'trbtns' }, h('button', { type: 'button', class: 'trbtn', onclick: () => { spec.seed = 1 + Math.floor(Math.random() * 99999); changed(); } }, 'Другой узор бумаги')));
-    const acts = h('div', { class: 'trbtns' },
+      fld('Формат листа', chips('fmt', [['note', 'По тексту'], ['page', 'Страница']])));
+    const acts = h('div', { class: 'trbtns tddacts' },
       h('button', { type: 'button', class: 'trbtn main', onclick: () => download(spec) }, 'Скачать PNG'),
       h('button', { type: 'button', class: 'trbtn', onclick: () => copy(spec) }, 'Копировать PNG'),
+      h('button', { type: 'button', class: 'trbtn', onclick: () => { spec.seed = 1 + Math.floor(Math.random() * 99999); changed(); } }, 'Другой узор бумаги'),
       (opts.actions || []).map(([n, f]) => h('button', { type: 'button', class: 'trbtn', onclick: () => f(spec) }, n)), qSel);
-    const el = h('div', { class: 'tdd' }, ctl, h('div', { class: 'tddp' }, prev, acts));
+    const el = h('div', { class: 'tdd' }, h('div', { class: 'tddtop' }, acts, ctl), h('div', { class: 'tddp' }, prev));
     sync(); draw();
     return { el, spec, sync: () => { normalize(spec); sync(); draw(); }, redraw: draw };
   }
