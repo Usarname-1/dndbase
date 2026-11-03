@@ -191,7 +191,7 @@
     const mx = tight ? 36 : frameK === 'none' ? 56 : frameK === 'scroll' ? 66 : 74, my = tight ? 32 : frameK === 'none' ? 54 : frameK === 'scroll' ? 78 : 72, cw = W - mx * 2;
     // абзацы и перевод: основной текст — из редактора (paragraphs), заголовок и подпись — одна строка.
     // tr.segs помнит, из какого знака исходника получился знак перевода, поэтому стиль куска переносится на его перевод
-    const ident = s => { const o = []; let i = 0; for (const c of s) { o.push({ a: i, b: i + c.length, n: [c === ' ' || c === '\t' ? { sp: 1 } : { t: c }] }); i += c.length; } return o; };
+    const ident = s => { const o = []; let i = 0; for (const c of s) { o.push({ a: i, b: i + c.length, n: [c === '\t' ? { sp: 1, tab: 1 } : c === ' ' ? { sp: 1 } : { t: c }] }); i += c.length; } return o; };
     const trans = (s, isBody) => isBody && spec.mode === 'deep' ? tr.segs('deep', s, true) : spec.tr === false ? ident(s) : tr.segs(spec.mode, s, false);   // у глубинной речи основной текст — это звучание
     let paras = paragraphs(spec);
     if (!paras.some(p => p.text.trim())) paras = [{ text: 'Текст записки', runs: [], blk: {}, ph: 1 }];
@@ -215,7 +215,7 @@
       if (n.cap) st = capOf(st);
       const px = base * st.z;
       if (n.br) return { k: 'br' };
-      if (n.sp) return { k: 'sp', st, w: n.f ? px * .55 : wid(fontOf(st, base), ' ') || px * .3 };
+      if (n.sp) { const sw = n.f ? px * .55 : wid(fontOf(st, base), ' ') || px * .3; return { k: 'sp', st, w: n.tab ? Math.max(sw * 4, px * 2) : sw }; }      // таб — отступ примерно в два символа
       if (n.set) { const g = GS && GS.glyphs[n.l]; return { k: 'i', st, g, w: g ? glyphBox(GS, g, px * 1.45).w + 3 : 0 }; }
       return { k: 'c', st, s: n.t, w: wid(fontOf(st, base), n.t) };
     };
@@ -237,16 +237,19 @@
         }
         let mk = null;
         if (lt) { const ms = P.runs.length ? styleOf(P.runs[0].at, bz, hb, base) : st0, s = marker(lt, lv, ctr[lv].n); mk = { s, st: ms, w: wid(fontOf(ms, base), s) }; }
-        const ls = []; let cur = [], cwid = 0, word = [], ww = 0;
+        const ls = []; let cur = [], cwid = 0, word = [], ww = 0, lead = true;     // lead: пробелы и табы в начале абзаца (и после перевода строки) — это отступ, он сохраняется
         const push = () => { while (cur.length && cur[cur.length - 1].k === 'sp') cwid -= cur.pop().w; ls.push({ items: cur, w: Math.max(0, cwid) }); cur = []; cwid = 0; };
         const flush = () => {
           if (!word.length) return;
-          if (cwid + ww > avail && cur.length) push();
-          if (ww > avail) for (const it of word) { if (cwid + it.w > avail && cur.length) push(); cur.push(it); cwid += it.w; } else { cur.push(...word); cwid += ww; }
+          const hasW = () => cur.some(it => it.k !== 'sp');       // строка из одного отступа не считается занятой — слово не переносим
+          if (cwid + ww > avail && hasW()) push();
+          if (ww > avail) for (const it of word) { if (cwid + it.w > avail && hasW()) push(); cur.push(it); cwid += it.w; } else { cur.push(...word); cwid += ww; }
           word = []; ww = 0;
         };
         for (const it of items) {
-          if (it.k === 'br') { flush(); push(); } else if (it.k === 'sp') { flush(); if (cur.length) { cur.push(it); cwid += it.w; } } else { word.push(it); ww += it.w; }
+          if (it.k === 'br') { flush(); push(); lead = true; }
+          else if (it.k === 'sp') { flush(); if (cur.length || lead) { if (lead) it.ind = 1; cur.push(it); cwid += it.w; } }
+          else { if (lead && !word.length) lead = false; word.push(it); ww += it.w; }
         }
         flush(); if (cur.length) push();
         if (!ls.length) ls.push({ items: [], w: 0 });     // пустой абзац — пустая строка
@@ -283,11 +286,11 @@
       for (const ln of b.lines) {
         const top = y0 + ln.y, base = top + ln.h * .68;
         let x = ln.al === 'center' ? ln.left + (ln.avail - ln.w) / 2 : ln.al === 'right' ? right - ln.w : ln.left, extra = 0;
-        if (ln.al === 'justify' && !ln.last) { const gaps = ln.items.filter(it => it.k === 'sp').length; if (gaps) extra = Math.max(0, ln.avail - ln.w) / gaps; }
+        if (ln.al === 'justify' && !ln.last) { const gaps = ln.items.filter(it => it.k === 'sp' && !it.ind).length; if (gaps) extra = Math.max(0, ln.avail - ln.w) / gaps; }
         if (ln.mk) { paint(ln.mk.st); ctx.fillText(ln.mk.s, ln.left - b.base * .3 - ln.mk.w, base); }
         const decor = [];                                // подчёркивание и зачёркивание: соседние знаки одного стиля сливаются в одну линию
         for (const it of ln.items) {
-          const st = it.st, w = it.w + (it.k === 'sp' ? extra : 0), s = b.base * st.z;
+          const st = it.st, w = it.w + (it.k === 'sp' && !it.ind ? extra : 0), s = b.base * st.z;
           paint(st);
           if (it.k === 'c') ctx.fillText(it.s, x, base);
           else if (it.k === 'i' && it.g) {
@@ -465,10 +468,11 @@
         formats: ['bold', 'italic', 'underline', 'strike', 'color', 'font', 'size', 'header', 'list', 'indent', 'align'],
         modules: {
           toolbar: { container: tb, handlers: { undo() { this.quill.history.undo(); }, redo() { this.quill.history.redo(); } } },
-          history: { delay: 600, userOnly: true },
-          keyboard: { bindings: { tab: false } }         // Tab в обычном тексте уводит фокус дальше (в списках по-прежнему меняет отступ)
+          history: { delay: 600, userOnly: true }     // Tab вставляет отступ в обычном тексте, а в списках меняет уровень (стандартное поведение Quill)
         }
       });
+      const listTab = out => ({ key: 'Tab', shiftKey: out, format: ['list'], handler() { q.format('indent', out ? '-1' : '+1', 'user'); } });
+      (q.keyboard.bindings.Tab = q.keyboard.bindings.Tab || []).unshift(listTab(true), listTab(false));        // в пункте списка Tab меняет уровень в любом месте строки, а не только в её начале
       q.root.setAttribute('spellcheck', 'false'); q.root.setAttribute('aria-label', 'Текст документа');
       const aligns = [...tb.querySelectorAll('button.ql-align')];
       const szIn = tb.querySelector('.tdszi'), cBtn = tb.querySelector('.tdcb'), cBar = cBtn.querySelector('.tdcbar');

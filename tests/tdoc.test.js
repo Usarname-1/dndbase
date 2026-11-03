@@ -122,3 +122,13 @@ test('лист: по умолчанию простой белый без рам�
   assert.deepEqual(plain([dec.paper, dec.frame, dec.seal]), ['parchment', 'ornate', 'red']);
   assert.ok(Object.keys(TDoc.PAPERS).length >= 6);
 });
+
+test('отступы: пробелы и табы сохраняются в переводе, таб помечен признаком tab', () => {
+  const kinds = (mode, text, read) => plain(TR.segs(mode, text, read).map(s => s.n.map(n => n.tab ? 'T' : n.sp ? 'S' : n.br ? 'N' : 'x').join('')).join(''));
+  assert.equal(kinds('elf', '\tа  б', false), 'TxSSx');
+  assert.equal(kinds('dragon-original', '\tа  б', false), 'TxSSx');
+  assert.equal(kinds('dwarf', '  а\tб', false), 'SSxTx');
+  assert.equal(kinds('thief', '\tа', false), 'Tx');
+  assert.equal(kinds('deep', '  \tда  нет', true).replace(/x+/g, 'x'), 'SSTxSSx');          // у глубинной речи отступ в начале и пробелы между словами не пропадают
+  assert.equal(TR.run('dragon-original', '\tа').nodes[0].tab, 1);
+});
