@@ -120,6 +120,7 @@
       for (const c of text) {
         const l = c.toLowerCase();
         if (c === '\n') nodes.push({ br: 1 });
+        else if (c === '\t') nodes.push({ sp: 1, tab: 1 });
         else if (c === ' ') nodes.push({ sp: 1 });
         else if (L.includes(l)) nodes.push(isCap(c) ? { set: m.img, l, cap: 1 } : { set: m.img, l });
         else nodes.push({ t: c });
@@ -145,7 +146,7 @@
   // read — для глубинной речи вместо слов взять их звучание (так выводится основной текст документа)
   function segs(mode, text, read) {
     const m = M[mode], out = [], put = (a, b, n) => out.push({ a, b, n });
-    const atoms = (s, cap) => { const n = []; for (const c of s) n.push(c === '\n' ? { br: 1 } : (c === ' ' || c === '\t') ? { sp: 1 } : cap ? { t: c, cap: 1 } : { t: c }); return n; };
+    const atoms = (s, cap) => { const n = []; for (const c of s) n.push(c === '\n' ? { br: 1 } : c === '\t' ? { sp: 1, tab: 1 } : c === ' ' ? { sp: 1 } : cap ? { t: c, cap: 1 } : { t: c }); return n; };
     const plain = (a, b) => { let i = a; for (const c of text.slice(a, b)) { put(i, i + c.length, atoms(c)); i += c.length; } };
     if (mode === 'thief') {
       let last = 0;
@@ -158,11 +159,11 @@
     }
     if (mode === 'deep') {
       if (!read) { plain(0, text.length); return out; }
-      const re = /[^ \n]+/g; let w, prev = -1;
+      const re = /[^ \t\n]+/g; let w, prev = 0;
       while ((w = re.exec(text))) {                      // слова независимы: каждое сжимается так же, как в squash
         const s = sound(w[0], 'deep');
         if (!s) continue;
-        if (prev >= 0) put(prev, w.index, [{ sp: 1 }]);
+        if (w.index > prev && (prev > 0 || /^[ \t]/.test(text))) put(prev, w.index, atoms(text.slice(prev, w.index)));   // пробелы и табы между словами и отступ в начале сохраняются
         put(w.index, w.index + w[0].length, atoms(s)); prev = w.index + w[0].length;
       }
       return out;
@@ -171,7 +172,7 @@
     if (m.img) {
       for (const c of text) {
         const l = c.toLowerCase();
-        put(i, i + c.length, [c === '\n' ? { br: 1 } : c === ' ' ? { sp: 1, f: 1 } : L.includes(l) ? (isCap(c) ? { set: m.img, l, cap: 1 } : { set: m.img, l }) : { t: c }]);
+        put(i, i + c.length, [c === '\n' ? { br: 1 } : c === '\t' ? { sp: 1, f: 1, tab: 1 } : c === ' ' ? { sp: 1, f: 1 } : L.includes(l) ? (isCap(c) ? { set: m.img, l, cap: 1 } : { set: m.img, l }) : { t: c }]);
         i += c.length;
       }
       return out;
@@ -179,7 +180,7 @@
     if (m.g) {
       for (const c of text) {
         let o, cap = false;
-        if (c === ' ' || c === '\n' || REV[m.g][c]) o = c;   // пробел и знаки алфавита (обратный перевод) остаются как есть
+        if (c === ' ' || c === '\t' || c === '\n' || REV[m.g][c]) o = c;   // пробел и знаки алфавита (обратный перевод) остаются как есть
         else { const g = tab(G[m.g], c.toLowerCase()); o = g || c; cap = !!g && isCap(c); }
         put(i, i + c.length, atoms(o, cap)); i += c.length;
       }
@@ -194,7 +195,7 @@
     el.out.replaceChildren();
     if (r.nodes) {
       if (!GL) loadGlyphs().then(() => { if (GL) { convert(); table(); } });
-      r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: 'sp' }, ' ') : n.set ? (glyphSvg(n.set, n.l, 1.65, 'em', n.cap ? CAPZ : 1) || '') : n.t));
+      r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: n.tab ? 'sp tab' : 'sp' }, ' ') : n.set ? (glyphSvg(n.set, n.l, 1.65, 'em', n.cap ? CAPZ : 1) || '') : n.t));
     }
     else if (r.parts) {                                  // знаки: заглавные — крупнее (span.cap), остальное сплошным текстом
       let buf = ''; const flush = () => { if (buf) { el.out.append(buf); buf = ''; } };
