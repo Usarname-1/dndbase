@@ -30,6 +30,7 @@ body.e14 #tr textarea:focus-visible,body.e14 #tr .chip:focus-visible,body.e14 #t
 #tr .trout:empty::before{content:attr(data-ph);font:italic 15px 'PT Sans',sans-serif;letter-spacing:0;color:#7b6a52}
 #tr .trout svg{margin:0 .06em;overflow:visible}
 #tr .trout .sp{display:inline-block;width:.6em}
+#tr .trout .cap{font-size:1.35em;line-height:0}
 #tr .trread{margin:10px 0 0;font:italic 16px/1.4 'PT Serif',serif;color:#5a4a33;min-height:1.4em;overflow-wrap:anywhere}
 #tr .trinfo{margin:4px 0 0;font:13px/1.4 'PT Sans',sans-serif;color:var(--muted);min-height:1.4em}
 #tr .trinfo b{color:var(--red)}

@@ -23,7 +23,7 @@
   const SEALS = [['', 'Нет'], ['red', 'Красная'], ['black', 'Чёрная'], ['blue', 'Синяя'], ['green', 'Зелёная']];
   const SEALC = { red: ['#c0392b', '#8e1b12', '#5a0d08'], black: ['#6a6a6a', '#2e2e2e', '#111'], blue: ['#3b6db3', '#1f406f', '#0e2040'], green: ['#4a9a58', '#28622f', '#103018'] };
   const KINDS = {
-    note: { n: 'Записка', paper: 'torn', font: 'marck', frame: 'none', seal: '', ink: 'brown', size: 28, align: 'left', fmt: 'note', ts: 1.3 },
+    note: { n: 'Лист', paper: 'white', font: 'serif', frame: 'none', seal: '', ink: 'black', size: 28, align: 'left', fmt: 'page', ts: 1.3 },     // простой белый лист; остальные типы остались только для старых записок на экране мастера
     letter: { n: 'Письмо', paper: 'parchment', font: 'marck', frame: 'none', seal: 'red', ink: 'brown', size: 28, align: 'left', fmt: 'page', ts: 1.4 },
     scroll: { n: 'Свиток', paper: 'parchment', font: 'uncial', frame: 'scroll', seal: '', ink: 'black', size: 28, align: 'left', fmt: 'page', ts: 1.5 },
     decree: { n: 'Указ', paper: 'parchment', font: 'uncial', frame: 'ornate', seal: 'red', ink: 'black', size: 28, align: 'center', fmt: 'page', ts: 1.7 },
@@ -84,9 +84,11 @@
     at = at || {};
     const px = parseFloat(at.size), z = px > 0 ? clamp(px, 8, 160) / base : bz * (SIZEZ[at.size] || 1), f = FONTS.some(x => x[0] === at.font) ? at.font : '', c = hexOf(at.color);
     const key = [z, f, at.bold, at.italic, at.underline, at.strike, c, hb].join('|');
-    let s = STYLES.get(key); if (!s) STYLES.set(key, s = { z, f, b: !!at.bold, i: !!at.italic, u: !!at.underline, s: !!at.strike, c, hb: !!hb });
+    let s = STYLES.get(key); if (!s) STYLES.set(key, s = { z, lz: z, f, b: !!at.bold, i: !!at.italic, u: !!at.underline, s: !!at.strike, c, hb: !!hb });
     return s;
   }
+  const CAPZ = 1.35, CAPS = new Map();                   // заглавная крупнее строчной во столько раз; высота строки остаётся по строчным (lz)
+  const capOf = st => { let c = CAPS.get(st); if (!c) CAPS.set(st, c = Object.assign({}, st, { z: st.z * CAPZ, lz: st.z })); return c; };
   const alpha = n => { let s = ''; for (; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(97 + (n - 1) % 26) + s; return s; };
   const roman = n => { let s = ''; for (const [v, r] of [[1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']]) while (n >= v) { s += r; n -= v; } return s; };
   const bullet = lv => ['•', '◦', '▪'][lv % 3];
@@ -210,6 +212,7 @@
     const WID = new Map(), wid = (font, ch) => { const k = font + '|' + ch; let w = WID.get(k); if (w === undefined) { mc.font = font; WID.set(k, w = mc.measureText(ch).width); } return w; };
     const fontOf = (st, base) => `${st.b || (st.hb && !m.g) ? 'bold ' : ''}${st.i ? 'italic ' : ''}${base * st.z}px ${family(st.f || spec.font)}`;
     const item = (n, st, base) => {
+      if (n.cap) st = capOf(st);
       const px = base * st.z;
       if (n.br) return { k: 'br' };
       if (n.sp) return { k: 'sp', st, w: n.f ? px * .55 : wid(fontOf(st, base), ' ') || px * .3 };
@@ -248,7 +251,7 @@
         flush(); if (cur.length) push();
         if (!ls.length) ls.push({ items: [], w: 0 });     // пустой абзац — пустая строка
         ls.forEach((ln, i) => {
-          ln.h = ln.items.length ? Math.max(...ln.items.map(it => base * it.st.z * 1.6)) : base * st0.z * 1.6;   // высота строки — по самому крупному знаку
+          ln.h = ln.items.length ? Math.max(...ln.items.map(it => base * (it.st.lz || it.st.z) * 1.6)) : base * st0.z * 1.6;   // высота строки — по самому крупному знаку
           ln.left = mx + ind; ln.avail = avail; ln.al = al; ln.last = i === ls.length - 1; ln.mk = i ? null : mk;
         });
         lines.push(...ls);
@@ -476,7 +479,7 @@
       const mark = () => {
         const f = fmtNow(), eff = (f && f.align) || spec.align || 'left';
         aligns.forEach(b => { const on = b.value === eff; b.classList.toggle('ql-active', on); b.setAttribute('aria-pressed', String(on)); });   // без явного выравнивания абзаца действует выравнивание документа
-        if (f && document.activeElement !== szIn) { const v = Array.isArray(f.size) ? '' : parseFloat(f.size) || Math.round(spec.size * (HZ[f.header] || 1)); szIn.value = v; }
+        if (document.activeElement !== szIn) szIn.value = !f ? spec.size : Array.isArray(f.size) ? '' : parseFloat(f.size) || Math.round(spec.size * (HZ[f.header] || 1));   // без выделения — размер основного текста листа
         cBar.style.background = colorNow(f) || inkOf(spec.ink);
       };
       const restore = r => { if (r) q.setSelection(r.index, r.length, 'silent'); else q.getSelection(true); };
