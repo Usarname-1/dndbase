@@ -92,3 +92,32 @@ test('чернила: ключ типа документа или любой ц�
   assert.equal(TDoc.normalize({ ink: 'blue' }).ink, 'blue');
   assert.equal(TDoc.normalize({ ink: 'мусор' }).ink, 'black');
 });
+
+test('заглавные: у знаков и картинок-глифов стоит признак cap, у звучания и жаргона — заглавная буква в начале слова', () => {
+  const caps = (mode, text) => plain(TR.segs(mode, text, false).map(s => s.n.some(n => n.cap) ? 1 : 0)).join('');
+  assert.equal(caps('elf', 'Привет Мир'), '1000000100');
+  assert.equal(caps('elf', 'аБв'), '010');
+  assert.equal(caps('dragon-original', 'аБв'), '010');
+  assert.equal(caps('elf', 'абв'), '000');
+  assert.equal(caps('elf', 'Hello'), '00000');                               // латиница не переводится — крупнее не становится
+  assert.equal(TR.run('elf', 'аБ').parts[1].cap, 1);
+  assert.equal(TR.run('elf', 'аб').parts[1].cap, undefined);
+  assert.equal(TR.run('dragon-original', 'аБ').nodes[1].cap, 1);
+  assert.match(TR.run('elf', 'Привет мир').read, /^Звучание: [A-Z][a-z]* [a-z]/);
+  assert.match(TR.run('deep', 'Привет мир').read, /^Звучание: [A-Z][a-z]* [a-z]/);
+  assert.equal(flat(TR.segs('deep', 'Да нет', true)).replace(/ /g, '')[0], flat(TR.segs('deep', 'Да нет', true))[0].toUpperCase());
+  assert.equal(TR.run('thief', 'Скрыть оружие').text, 'Принаряжаемся ⌵');
+  assert.equal(TR.run('thief', 'скрыть оружие').text, 'принаряжаемся ⌵');
+});
+
+test('регистр не теряется: латиница и знаки без перевода остаются как были', () => {
+  assert.equal(TR.run('elf', 'Hello, World!').text, 'Hello, World!');
+  assert.equal(flat(TR.segs('dwarf', 'Hello 5', false)), 'Hello 5');
+});
+
+test('лист: по умолчанию простой белый, старый документ приводится к нему', () => {
+  const d = TDoc.defaults();
+  assert.deepEqual(plain([d.paper, d.frame, d.seal, d.font, d.ink]), ['white', 'none', '', 'serif', 'black']);
+  const old = TDoc.plain({ kind: 'decree', paper: 'parchment', frame: 'ornate', seal: 'red', ink: 'red', font: 'uncial', align: 'center', text: 'т' });
+  assert.deepEqual(plain([old.paper, old.frame, old.seal, old.font, old.ink, old.align, old.sheet, old.text]), ['white', 'none', '', 'serif', 'black', 'left', 1, 'т']);
+});

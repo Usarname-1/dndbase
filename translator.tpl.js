@@ -57,8 +57,11 @@
     }
     return out;
   }
-  const squash = t => t.split(/\s+/).filter(Boolean).map(w => dedupe(w).slice(0, 6)).join(' ');
-  const reading = (text, sn) => { let r = ''; for (const c of text.toLowerCase()) r += (c === ' ' || c === '\n') ? ' ' : (tab(S[sn], c) || ''); return squash(r); };
+  // Заглавная буква: письменности D&D регистра не знают, поэтому заглавная показывается крупнее строчной (в документе и в переводе),
+  // у звучания и воровского жаргона — заглавной буквой в начале слова.
+  const isCap = c => !!c && c !== c.toLowerCase();
+  const sound = (w, sn) => { const r = dedupe([...w.toLowerCase()].map(c => tab(S[sn], c) || '').join('')).slice(0, 6); return r && isCap(w[0]) ? r[0].toUpperCase() + r.slice(1) : r; };   // слово: слипшиеся слоги схлопываются, не больше 6 знаков
+  const reading = (text, sn) => text.split(/\s+/).filter(Boolean).map(w => sound(w, sn)).filter(Boolean).join(' ');
 
   // воровской жаргон: русское слово, воровское слово и значок понимаются как одно и то же, на выходе всегда «воровское слово + значок».
   // \b в JS не видит кириллицу, поэтому границы слов задаём через свойства Юникода
@@ -71,10 +74,11 @@
     { w: t.cant.length + 2, p: edge(t.cant, '(?:\\s*' + esc(t.glyph) + ')?') },   // «железо ⌘» не удваивается при повторном переводе
     { w: 1, p: esc(t.glyph) }
   ]).sort((a, b) => b.w - a.w).map(x => x.p).join('|'), 'giu');
-  const thief = text => text.replace(TRX, m => {
+  const thiefOf = m => {
     const k = m.toLowerCase(), t = TGL.get(m) || TBY.get(k) || TBY.get(k.replace(/\s+\S+$/u, ''));
-    return t ? t.cant + ' ' + t.glyph : m;
-  });
+    return t ? (isCap(m[0]) ? t.cant[0].toUpperCase() + t.cant.slice(1) : t.cant) + ' ' + t.glyph : m;
+  };
+  const thief = text => text.replace(TRX, thiefOf);
 
   const h = (tag, attrs, ...kids) => {
     const e = document.createElement(tag);
@@ -92,11 +96,13 @@
   const glyph = (set, l) => GL && GL[set] && GL[set].glyphs[l] || null;
   const SVGNS = 'http://www.w3.org/2000/svg';
   // Глиф как inline-SVG высотой ih (в em шрифта вывода или в px). Строка письма у всех глифов одна: нижний край svg опускается под базовую линию на (h − y0).
-  function glyphSvg(set, l, ih, unit) {
+  const CAPZ = 1.35;                                     // во сколько раз заглавная крупнее строчной
+  function glyphSvg(set, l, ih, unit, z) {
     const S = GL && GL[set], g = S && S.glyphs[l]; if (!g) return null;
-    const k = ih / S.em, e = document.createElementNS(SVGNS, 'svg'), u = unit || 'px', p = document.createElementNS(SVGNS, 'path');
+    const k = ih * (z || 1) / S.em, e = document.createElementNS(SVGNS, 'svg'), u = unit || 'px', p = document.createElementNS(SVGNS, 'path');
     e.setAttribute('viewBox', '0 0 ' + g.w + ' ' + g.h); e.setAttribute('aria-hidden', 'true');
     e.style.width = (g.w * k).toFixed(3) + u; e.style.height = (g.h * k).toFixed(3) + u; e.style.verticalAlign = (-(g.h - g.y0) * k).toFixed(3) + u;
+    if (z > 1) { const x = ih * (z - 1); e.style.marginTop = (-x * S.by / S.em).toFixed(3) + u; e.style.marginBottom = (-x * (S.em - S.by) / S.em).toFixed(3) + u; }   // крупная заглавная не раздвигает строки: лишнее вычитаем из полей
     p.setAttribute('d', g.d); p.setAttribute('fill', 'currentColor'); p.setAttribute('fill-rule', 'evenodd'); e.append(p); return e;
   }
 
@@ -113,37 +119,37 @@
         const l = c.toLowerCase();
         if (c === '\n') nodes.push({ br: 1 });
         else if (c === ' ') nodes.push({ sp: 1 });
-        else if (L.includes(l)) nodes.push({ set: m.img, l });
+        else if (L.includes(l)) nodes.push(isCap(c) ? { set: m.img, l, cap: 1 } : { set: m.img, l });
         else nodes.push({ t: c });
       }
       return { nodes, read: text.trim() ? 'Звучание: ' + reading(text, m.s) : '' };
     }
     if (m.g) {
-      let out = '', ru = '', rd = '', fromGlyph = false;
+      let out = '', ru = '', fromGlyph = false;
+      const parts = [];                                  // то же, что out, но с пометкой заглавных (cap) — по ней вывод рисует их крупнее
       for (const c of text) {
-        if (c === ' ' || c === '\n') { out += c; ru += c; rd += c; continue; }
+        if (c === ' ' || c === '\n') { out += c; ru += c; parts.push({ t: c }); continue; }
         const r = REV[m.g][c];
-        if (r) { fromGlyph = true; ru += r; out += c; rd += tab(S[m.s], r) || ''; }
-        else { const l = c.toLowerCase(); ru += l; out += tab(G[m.g], l) || l; rd += tab(S[m.s], l) || ''; }
+        if (r) { fromGlyph = true; ru += r; out += c; parts.push({ t: c }); }
+        else { const l = c.toLowerCase(), g = tab(G[m.g], l), o = g || c; ru += l; out += o; parts.push(g && isCap(c) ? { t: o, cap: 1 } : { t: o }); }
       }
-      return { text: out, read: !text.trim() ? '' : fromGlyph ? 'Перевод на русский: ' + ru : 'Звучание: ' + squash(rd) };
+      return { text: out, parts, read: !text.trim() ? '' : fromGlyph ? 'Перевод на русский: ' + ru : 'Звучание: ' + reading(text, m.s) };
     }
     return { text, read: text.trim() ? 'Звучание: ' + reading(text, m.s) : '' };   // глубинная речь: письменности нет
   }
   // То же, что run, но с привязкой к исходному тексту: список кусков {a, b, n}. [a, b) — позиции исходных знаков (в единицах UTF-16),
-  // n — что из них получилось: {br}, {sp} ({sp, f} — пробел фиксированной ширины), {set, l} (картинка-глиф) или {t} (знак).
+  // n — что из них получилось: {br}, {sp} ({sp, f} — пробел фиксированной ширины), {set, l} (картинка-глиф) или {t} (знак); у заглавных ещё cap: 1.
   // По этим позициям конструктор документов переносит жирность, цвет и размер на перевод, даже когда перевод меняет длину (воровской жаргон, звучание).
   // read — для глубинной речи вместо слов взять их звучание (так выводится основной текст документа)
   function segs(mode, text, read) {
     const m = M[mode], out = [], put = (a, b, n) => out.push({ a, b, n });
-    const atoms = s => { const n = []; for (const c of s) n.push(c === '\n' ? { br: 1 } : (c === ' ' || c === '\t') ? { sp: 1 } : { t: c }); return n; };
+    const atoms = (s, cap) => { const n = []; for (const c of s) n.push(c === '\n' ? { br: 1 } : (c === ' ' || c === '\t') ? { sp: 1 } : cap ? { t: c, cap: 1 } : { t: c }); return n; };
     const plain = (a, b) => { let i = a; for (const c of text.slice(a, b)) { put(i, i + c.length, atoms(c)); i += c.length; } };
     if (mode === 'thief') {
       let last = 0;
       text.replace(TRX, (mt, off) => {
         plain(last, off);
-        const k = mt.toLowerCase(), t = TGL.get(mt) || TBY.get(k) || TBY.get(k.replace(/\s+\S+$/u, ''));
-        put(off, off + mt.length, atoms(t ? t.cant + ' ' + t.glyph : mt));
+        put(off, off + mt.length, atoms(thiefOf(mt)));
         last = off + mt.length; return mt;
       });
       plain(last, text.length); return out;
@@ -152,7 +158,7 @@
       if (!read) { plain(0, text.length); return out; }
       const re = /[^ \n]+/g; let w, prev = -1;
       while ((w = re.exec(text))) {                      // слова независимы: каждое сжимается так же, как в squash
-        const s = dedupe([...w[0].toLowerCase()].map(c => tab(S.deep, c) || '').join('')).slice(0, 6);
+        const s = sound(w[0], 'deep');
         if (!s) continue;
         if (prev >= 0) put(prev, w.index, [{ sp: 1 }]);
         put(w.index, w.index + w[0].length, atoms(s)); prev = w.index + w[0].length;
@@ -163,17 +169,17 @@
     if (m.img) {
       for (const c of text) {
         const l = c.toLowerCase();
-        put(i, i + c.length, [c === '\n' ? { br: 1 } : c === ' ' ? { sp: 1, f: 1 } : L.includes(l) ? { set: m.img, l } : { t: c }]);
+        put(i, i + c.length, [c === '\n' ? { br: 1 } : c === ' ' ? { sp: 1, f: 1 } : L.includes(l) ? (isCap(c) ? { set: m.img, l, cap: 1 } : { set: m.img, l }) : { t: c }]);
         i += c.length;
       }
       return out;
     }
     if (m.g) {
       for (const c of text) {
-        let o;
+        let o, cap = false;
         if (c === ' ' || c === '\n' || REV[m.g][c]) o = c;   // пробел и знаки алфавита (обратный перевод) остаются как есть
-        else { const l = c.toLowerCase(); o = tab(G[m.g], l) || l; }
-        put(i, i + c.length, atoms(o)); i += c.length;
+        else { const g = tab(G[m.g], c.toLowerCase()); o = g || c; cap = !!g && isCap(c); }
+        put(i, i + c.length, atoms(o, cap)); i += c.length;
       }
       return out;
     }
@@ -186,7 +192,12 @@
     el.out.replaceChildren();
     if (r.nodes) {
       if (!GL) loadGlyphs().then(() => { if (GL) { convert(); table(); } });
-      r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: 'sp' }, ' ') : n.set ? (glyphSvg(n.set, n.l, 1.65, 'em') || '') : n.t));
+      r.nodes.forEach(n => el.out.append(n.br ? h('br') : n.sp ? h('span', { class: 'sp' }, ' ') : n.set ? (glyphSvg(n.set, n.l, 1.65, 'em', n.cap ? CAPZ : 1) || '') : n.t));
+    }
+    else if (r.parts) {                                  // знаки: заглавные — крупнее (span.cap), остальное сплошным текстом
+      let buf = ''; const flush = () => { if (buf) { el.out.append(buf); buf = ''; } };
+      for (const q of r.parts) { if (q.cap) { flush(); el.out.append(h('span', { class: 'cap' }, q.t)); } else buf += q.t; }
+      flush();
     }
     else el.out.textContent = r.text;
     el.read.textContent = r.read;
@@ -323,6 +334,7 @@
     if (d && !doc) {
       try { docSpec = JSON.parse(ls.get(KEY + '.doc') || 'null'); } catch (e) { docSpec = null; }
       docSpec = docSpec && typeof docSpec === 'object' ? docSpec : root.TDoc.defaults();
+      if (docSpec.sheet !== 1) { root.TDoc.plain(docSpec); ls.set(KEY + '.doc', JSON.stringify(docSpec)); }          // документ, сохранённый до «простого белого листа»: убираем пергамент, рамку и печать
       if (!docSpec.text) { docSpec.mode = mode; root.TDoc.setPlain(docSpec, el.input.value); }
       doc = root.TDoc.designer(docSpec, { onChange: s => ls.set(KEY + '.doc', JSON.stringify(s)), actions: [['На экран мастера', toScreen]] });
       el.viewD.append(doc.el);
