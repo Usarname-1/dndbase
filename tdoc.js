@@ -19,6 +19,8 @@
     burnt: { n: 'Обожжённая', g: ['#e8cf98', '#d1b072'], tone: '110,70,20', blot: 1, burn: 1 },
     stained: { n: 'В пятнах', g: ['#efdcb0', '#dcc58f'], tone: '120,80,30', blot: 1, stains: 1 }
   };
+  const FRAMES = [['none', 'Без рамки'], ['line', 'Линия'], ['double', 'Двойная'], ['ornate', 'Узорная'], ['scroll', 'Свиток']];
+  const SEALS = [['', 'Нет'], ['red', 'Красная'], ['black', 'Чёрная'], ['blue', 'Синяя'], ['green', 'Зелёная']];
   const SEALC = { red: ['#c0392b', '#8e1b12', '#5a0d08'], black: ['#6a6a6a', '#2e2e2e', '#111'], blue: ['#3b6db3', '#1f406f', '#0e2040'], green: ['#4a9a58', '#28622f', '#103018'] };
   const KINDS = {
     note: { n: 'Лист', paper: 'white', font: 'serif', frame: 'none', seal: '', ink: 'black', size: 28, align: 'left', fmt: 'page', ts: 1.3 },     // простой белый лист; остальные типы остались только для старых записок на экране мастера
@@ -39,10 +41,9 @@
   const toast = t => root.DM && root.DM.toast ? root.DM.toast(t) : alert(t);
   const rngOf = seed => { let a = (seed || 1) >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
 
-  function defaults() { return applyKind({ v: 1, sheet: 1, mode: 'elf', text: '', title: '', sign: '', tr: true, kind: 'note', seed: 1 + Math.floor(Math.random() * 99999), q: 2 }, 'note'); }
+  function defaults() { return applyKind({ v: 1, mode: 'elf', text: '', title: '', sign: '', tr: true, kind: 'note', seed: 1 + Math.floor(Math.random() * 99999), q: 2 }, 'note'); }
   function applyKind(s, k) { const d = KINDS[k] || KINDS.note; s.kind = k; for (const f of ['paper', 'font', 'frame', 'seal', 'ink', 'size', 'align', 'fmt']) s[f] = d[f]; return s; }
   function normalize(s) { const d = defaults(); for (const k in d) if (s[k] === undefined) s[k] = d[k]; if (!PAPERS[s.paper]) s.paper = 'parchment'; if (!T().MODES[s.mode]) s.mode = 'elf'; s.size = clamp(+s.size || 28, 14, 48); if (s.delta && !Array.isArray(s.delta)) delete s.delta; s.ink = hexOf(s.ink) || (INKS.some(i => i[0] === s.ink) ? s.ink : 'black'); return s; }
-  const plain = s => { applyKind(s, 'note'); s.sheet = 1; return s; };       // привести документ к простому белому листу (старые документы с пергаментом, рамкой, печатью)
   const setPlain = (s, text) => { s.text = text; delete s.delta; return s; };       // подставить обычный текст вместо форматированного
 
   /* ---------- форматированный текст ----------
@@ -559,11 +560,15 @@
     const sync = () => syncs.forEach(f => f());
     const src = opts.source === false ? null : [fld('Язык', modeSel), text('title', 'Заголовок', 80), text('sign', 'Подпись', 60), h('label', { class: 'tddc tddtr' }, trBox, ' Переводить заголовок и подпись'), fld('Текст (по-русски)', richField(spec, changed, syncs), 'wide')];
     const ctl = h('div', { class: 'tddc2' }, src,
+      fld('Тип документа', chips('kind', Object.entries(KINDS).map(([k, d]) => [k, d.n]), k => applyKind(spec, k))),
+      fld('Бумага', chips('paper', Object.entries(PAPERS).map(([k, d]) => [k, d.n]))),
+      fld('Рамка', chips('frame', FRAMES)), fld('Печать', chips('seal', SEALS)),
       fld('Чернила (основной цвет)', inkBtn),
       fld('Формат листа', chips('fmt', [['note', 'По тексту'], ['page', 'Страница']])));
     const acts = h('div', { class: 'trbtns tddacts' },
       h('button', { type: 'button', class: 'trbtn main', onclick: () => download(spec) }, 'Скачать PNG'),
       h('button', { type: 'button', class: 'trbtn', onclick: () => copy(spec) }, 'Копировать PNG'),
+      h('button', { type: 'button', class: 'trbtn', onclick: () => { spec.seed = 1 + Math.floor(Math.random() * 99999); changed(); } }, 'Другой узор бумаги'),
       (opts.actions || []).map(([n, f]) => h('button', { type: 'button', class: 'trbtn', onclick: () => f(spec) }, n)), qSel);
     const el = h('div', { class: 'tdd' }, h('div', { class: 'tddtop' }, acts, ctl), h('div', { class: 'tddp' }, prev));
     sync(); draw();
@@ -602,5 +607,5 @@
   }
   registerPanel();
 
-  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, plain, setPlain, paragraphs, styleOf, inkOf, hexOf, KINDS, PAPERS };
+  root.TDoc = { render, download, copy, designer, edit, defaults, applyKind, normalize, setPlain, paragraphs, styleOf, inkOf, hexOf, KINDS, PAPERS };
 })(window);

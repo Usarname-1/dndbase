@@ -115,9 +115,10 @@ test('регистр не теряется: латиница и знаки бе�
   assert.equal(flat(TR.segs('dwarf', 'Hello 5', false)), 'Hello 5');
 });
 
-test('лист: по умолчанию простой белый, старый документ приводится к нему', () => {
+test('лист: по умолчанию простой белый без рамки и печати, а типы документов остаются доступными', () => {
   const d = TDoc.defaults();
-  assert.deepEqual(plain([d.paper, d.frame, d.seal, d.font, d.ink]), ['white', 'none', '', 'serif', 'black']);
-  const old = TDoc.plain({ kind: 'decree', paper: 'parchment', frame: 'ornate', seal: 'red', ink: 'red', font: 'uncial', align: 'center', text: 'т' });
-  assert.deepEqual(plain([old.paper, old.frame, old.seal, old.font, old.ink, old.align, old.sheet, old.text]), ['white', 'none', '', 'serif', 'black', 'left', 1, 'т']);
+  assert.deepEqual(plain([d.paper, d.frame, d.seal, d.font, d.ink, d.align]), ['white', 'none', '', 'serif', 'black', 'left']);
+  const dec = TDoc.applyKind(TDoc.defaults(), 'decree');
+  assert.deepEqual(plain([dec.paper, dec.frame, dec.seal]), ['parchment', 'ornate', 'red']);
+  assert.ok(Object.keys(TDoc.PAPERS).length >= 6);
 });

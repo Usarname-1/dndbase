@@ -334,7 +334,6 @@
     if (d && !doc) {
       try { docSpec = JSON.parse(ls.get(KEY + '.doc') || 'null'); } catch (e) { docSpec = null; }
       docSpec = docSpec && typeof docSpec === 'object' ? docSpec : root.TDoc.defaults();
-      if (docSpec.sheet !== 1) { root.TDoc.plain(docSpec); ls.set(KEY + '.doc', JSON.stringify(docSpec)); }          // документ, сохранённый до «простого белого листа»: убираем пергамент, рамку и печать
       if (!docSpec.text) { docSpec.mode = mode; root.TDoc.setPlain(docSpec, el.input.value); }
       doc = root.TDoc.designer(docSpec, { onChange: s => ls.set(KEY + '.doc', JSON.stringify(s)), actions: [['На экран мастера', toScreen]] });
       el.viewD.append(doc.el);
