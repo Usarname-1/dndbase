@@ -1850,6 +1850,7 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/amulet/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/bandore/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/drum/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/pale-tincture/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/block-and-tackle/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/warhammer/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/quarterstaff/</loc></url>
@@ -1880,6 +1881,8 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/dulcimer/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/perfume/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/blowgun/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/burnt-othur-fumes/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/lolths-sting/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/rod/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/iron-spikes/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/iron-pot/</loc></url>
@@ -1887,6 +1890,8 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/lock/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/mirror/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/winter-camouflage/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/malice/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/serpent-venom/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/needles/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/playing-cards/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/gaming-set/</loc></url>
@@ -1936,6 +1941,7 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/costume/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/pouch/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/crystal/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/assassins-blood/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/grappling-hook/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/jug/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/lamp/</loc></url>
@@ -1953,6 +1959,7 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/genie-robe/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/devil-mask/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/oil/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/oil-of-taggit/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/ball-bearings/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/javelin/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/sack/</loc></url>
@@ -1990,6 +1997,7 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/bright-fungal-cloak/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/spyglass/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/half-plate-armor/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/midnight-tears/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/portable-ram/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/staff/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/sling/</loc></url>
@@ -2010,14 +2018,17 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/net/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/signal-whistle/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/scimitar/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/carrion-crawler-mucus/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/sling-bullets/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/bedroll/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/three-dragon-ante/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/padded-armor/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/glass-bottle/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/arrows/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/torpor/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/chest/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/orb/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/truth-serum/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/warm-fungal-clothing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/yew-wand/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/trident/</loc></url>
@@ -2041,66 +2052,96 @@
   <url><loc>https://usarname-1.github.io/dndbase/equipment/hide-armor/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/shield/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/emblem/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/essence-of-ether/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/wyvern-poison/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/equipment/purple-worm-poison/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/equipment/yarting/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/intro/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/acrobatics/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/attack/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/spell-attack/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/weapon-attack/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/athletics/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/unarmed-strike/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/indifferent/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/unconscious/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/stat-block/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/high-altitude/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/bonus-action/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/razorvine/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/attack-roll/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/damage-roll/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/per-day/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/proficiency/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/influence/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/perception/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/enemy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hostile/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/temporary-hit-points/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/survival/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/performance/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/heroic-inspiration/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/sight-rot/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/deep-water/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/burning/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/fireball-fungus/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/carrying-capacity/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/action/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/long-rest/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/reach/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/friendly/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/yellow-mold/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/cantrip/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/spell/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/spellcasting-focus/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/occupied-space/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/intimidation/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/surprise/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hide/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/grappling/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/green-slime/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/vicious-vine/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/ability-score-and-modifier/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/wild-magic-zone/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/dead-magic-zone/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/quicksand-pit/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/study/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/illusions/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/immunity/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/improvising-an-action/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/improvised-weapons/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/improvised-damage/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/initiative/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/utilize/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/frightened/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/truesight/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/history/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/exhaustion/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/rockslide/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/campaign/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/rolling-stone/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/armor-class/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/cone/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/concentration/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/brown-mold/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/short-rest/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hit-point-dice/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/critical-hit/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/cube/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/climbing/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/frigid-water/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/healing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/line/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/character-sheet/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/sleight-of-hand/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/magical-effect/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/magic/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/medicine/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/alignment/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/monster/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/skill/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/don-or-doff-a-shield/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/attunement/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/invisible/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/incapacitated/</loc></url>
@@ -2110,8 +2151,12 @@
   <url><loc>https://usarname-1.github.io/dndbase/glossary/knockout/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/dehydration/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/area-of-effect/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/deception/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/collapsing-roof/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/object/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/deafened/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/fire-casting-statue/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/inferno/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/possession/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/simultaneous-effects/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/petrified/</loc></url>
@@ -2120,20 +2165,26 @@
   <url><loc>https://usarname-1.github.io/dndbase/glossary/prone/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/restrained/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/weapon/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/escape-a-grapple/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/blinded-condition/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/attitude/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/poisoned-needle/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/poisoned-darts/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/poisoned/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/disengage/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/charmed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/experience-points/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/stunned/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/falling-net/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/falling/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/paralyzed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hover/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/passive-perception/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/webs/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/shape-shifting/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/PC/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/swimming/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/planar-effects/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/ready/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/search/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/challenge-rating/</loc></url>
@@ -2143,23 +2194,36 @@
   <url><loc>https://usarname-1.github.io/dndbase/glossary/help/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/damage-threshold/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/advantage/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/end-concentration/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/adventure/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/nature/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/ability-check/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/opportunity-attacks/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/curses/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/insight/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/jumping/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/high-jump/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/long-jump/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/size/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/investigation/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/reaction/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/river-styx/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/religion/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/ritual/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/dash/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/extreme-heat/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/heavily-obscured/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/heavy-precipitation/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/strong-wind/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/extreme-cold/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/slippery-ice/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/speed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/burrow-speed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/climb-speed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/swim-speed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/fly-speed/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/hidden-pit/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/stealth/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/lightly-obscured/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/blindsight/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/difficulty-class/</loc></url>
@@ -2171,9 +2235,11 @@
   <url><loc>https://usarname-1.github.io/dndbase/glossary/death-saving-throw/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/stable/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/encounter/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/sewer-plague/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/creature/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/sphere/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/grappled/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/arcana/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/telepathy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/teleportation/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/darkvision/</loc></url>
@@ -2181,22 +2247,28 @@
   <url><loc>https://usarname-1.github.io/dndbase/glossary/d20-test/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/creature-type/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/damage-types/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/thin-ice/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/armor-training/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/difficult-terrain/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/dim-light/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/persuasion/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hazard/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/suffocation/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/dodge/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/cover/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/breaking-objects/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/damage/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/animal-handling/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/vulnerability/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/hit-points/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/cackle-fever/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/target/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/cylinder/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/tremorsense/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/expertise/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/emanation/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/poisonous-gas/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/glossary/spiked-pit/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/glossary/bright-light/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/dmscreen/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/sheet/</loc></url>
@@ -7491,24 +7563,38 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/equipment/yazyk-bezumiya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/equipment/yacha/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/automatic-success/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/adamantine-weapons/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/azartnye-igry/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/aktivaciya-predmeta/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/arbalet-lovushka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ataka/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/faceless-malice/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/emrakuls-madness/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/bessoznatelnyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/blagodatnoe-siyanie/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/philanthropic-enterprise/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ship-stat-blocks/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/bluzhdaniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/magazine/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ammunition/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ammunition-svojstva-oruzhiya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ship-to-ship-combat/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/bojcovskij-turnir/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/more-difficult-identification/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/morbid-memory/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/bolshaya-vysota/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/bonus-masterstva/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/britvennaya-loza/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/broski-ataki/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/initiative-variants/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/skill-variants/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rest-variants/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/shared-campaign-variant-rules/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/inhaled-poison/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vekovoj-son/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/loyalty/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/milestones/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vzaimodejstvie-s-predmetami/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vzbiranie-na-bolshee-sushchestvo/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vzyat-ili-snyat-shchit/</loc></url>
@@ -7519,25 +7605,36 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/volshebnye-griby/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vosstanovlenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vremya-nakladyvaniya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/healing-surge/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/encounters-at-sea/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/scrutineering/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/survivors/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/vysvobozhdenie/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/prophets-gambit/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/glaznaya-gnil/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/gortannye-piyavki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/gruppovye-proverki/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/the-gnawing-plague/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/grackle-lung/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/dalnij-predel/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/two-handed/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/demonicheskij-ihor/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/deyatelnost-vo-vremya-prostoya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/diagonals/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/range/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/distanciya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/dlitelnost/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/reach/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/drozhashchaya-bolezn/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/other-activity/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/eda/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/eda-i-voda/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zheltaya-plesen/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tying-knots/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zagovory/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zaklinaniya-v-kachestve-ekvivalentov-prirodnyh-opasnostej/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zasada/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/surprised/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zatraty-na-sushchestvovanie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zahvat/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zacharovannye-istochniki/</loc></url>
@@ -7547,33 +7644,42 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zrenie-i-svet/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/zybuchij-pesok/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/igra-na-setke/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/renown/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/izvestnye-i-podgotovlennye-zaklinaniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/izgotovlenie-predmeta/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/improvizaciya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/improvised-weapons/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/improvised-damage/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ispepelyayushchij-potok/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ispolnenie-svyashchennyh-ritualov/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ispolzovanie-predmeta/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ispolzovanie-raznyh-skorostej/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ispugannyj/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/test-of-the-empty-moon/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/issledovanie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/issledovanie-xge/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/explore-territory/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/istinnoe-zrenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/istoshchennyj/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/healing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/katyashchijsya-shar/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kishashchaya-nasekomymi-oblast/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/klassovoe-umenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/klassovye-umeniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kolonii-mimikov/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/team-building/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kommercheskaya-deyatelnost/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/komponenty/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/contact-poison/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/konus/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/koncentraciya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ships-in-combat/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/korichnevaya-plesen/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/korotkij-otdyh/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/proficiency-dice/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kosyashchee-lezvie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/krasno-korichnevaya-plesen/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/redface/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kub/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kuvyrok/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/kutezh/</loc></url>
@@ -7582,27 +7688,39 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/laviny-idrotf/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/lazanie-plavanie-i-polzanie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/light/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/frigid-woe/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/lezhanie-nichkom/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/letayushchie-sushchestva-i-padenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/liniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/lihoradka-sinego-tumana/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/death-fog-trap/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/lovchaya-yama/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/arcane-blight/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/magicheskie-proyavleniya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/marketeering/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/massive-damage/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/medvezhij-kapkan/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/thrown/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/meteli/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/metka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/misticheskie-buri/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/headquarters-modification/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/morale/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nablyudaya-za-rabotoj-zaklinatelya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/navyki/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/encumbrance/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nakladyvanie-zaklinanij-v-dospehe/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nakladyvanie-zaklinaniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nakladyvanie-zaklinaniya-s-uvelichennym-urovnem/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/scribing-a-spell-scroll/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nacelivanie-na-sebya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nebo/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nevidimyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nedeesposobnyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/nedopustimye-celi-zaklinaniya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/malfunctioning-phase-transference-emitter/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/scroll-mishaps/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/new-ability-scores-honor-and-sanity/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obezoruzhivanie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obilnye-osadki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obitel-neupokoennyh/</loc></url>
@@ -7611,12 +7729,16 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obrushivayushchijsya-potolok/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obuchenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obuchenie-xge/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/schmoozing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/obedinenie-magicheskih-effektov/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/oglohshij/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ognedyshashchaya-statuya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/simultaneous-effects/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/okamenevshij/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ocean-environs/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/opredelenie-zaklinaniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/oputannyj/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/facing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/injury-poison/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/oskvernennaya-zemlya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/osleplennyj/</loc></url>
@@ -7629,8 +7751,10 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/otravlennye-drotiki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/otravlennyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/othod/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/officers-and-crew/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ocharovannyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/burst-fire/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/hero-points/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ochki-zaklinanij/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/oshelomlennyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/padayushchaya-reshetka/</loc></url>
@@ -7638,30 +7762,43 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/padenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/padenie-v-vodu/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/padenie-na-sushchestvo/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/wands-that-dont-recharge/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/paralizovannyj/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/passivnye-proverki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/pautina/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/spider-eggs/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/pervozdannyj-plod/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/loading/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/peremeshchenie-i-drugie-sushchestva/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/peremeshchenie-mezhdu-atakami/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/peremeshchenie-poletom/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/player-characters-as-vampires/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/player-characters-as-lycanthropes/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/personalizaciya-zaklinanij/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/plavanie/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/planar-effects/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/danse-macabre/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/surface-of-the-sun/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/level-advancement-without-xp/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ingested-poison/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/equipment-sizes/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/podgotovka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/podgotovlennaya-ataka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/poisk/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/pokupka-magicheskih-predmetov/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/poluchenie-slavy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/pomoshch/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/hitting-cover/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/silvered-weapons/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/postrojka-kreposti/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/superior-ship-upgrades/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/preimushchestvo-i-pomeha/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/preryvanie-koncentracii/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/preryvanie-peremeshcheniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/prestupnaya-deyatelnost/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/haunted-traps/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/probeganie/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/waking-someone/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/provocirovannaya-ataka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/prodazha-magicheskih-predmetov/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/prodazha-magicheskogo-predmeta/</loc></url>
@@ -7670,66 +7807,92 @@
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/protiskivanie-v-menshee-prostranstvo/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/pryzhki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/psihicheskij-rezonans/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/travel-at-sea/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/put-klinkov/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rabota/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rabota-po-professii/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/balance-and-ruin/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/razgovor/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/razmer-sushchestva/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/raspletennaya-magiya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rasprostranenie-sluhov/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/cleaving-through-creatures/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rasstoyanie-slyshimosti/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/religioznoe-sluzhenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/remeslo/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ship-repairs/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/franchise-restructuring/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ritualy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rybalka-na-tupogolovuyu-forel/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ryvok/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/saprophytic-plague/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sbityj-s-nog-lezhashchij-nichkom/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sbor-edy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/svobodnyj-put-do-celi/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/set/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/silnyj-veter/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/icon-of-the-lower-aerial-kingdoms/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sinyaya-gnil/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/skolzkij-led/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/skorost/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/skorost-padeniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/slepoe-zrenie/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/random-ships/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sovmestnye-proverki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sozdanie-magicheskogo-predmeta/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/shady-business-practice/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/son/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/soperniki/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sostyazanie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/spasbroski/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/srazhenie-dvumya-oruzhiyami/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/stabilizaciya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/crashing/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/stochnaya-chuma/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/fear-and-stress/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/fear-and-horror/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/super-tetanus/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sfera/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sfera-annigilyacii/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/sfera-sokrushayushchej-uchasti/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/shvachennyj/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/plot-points/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/mysterious-islands/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tainstvennye-tropy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/temnoe-zrenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/temp-peremeshcheniya/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tolkanie-v-storonu/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tolchok/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tonkij-led/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/injuries/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/trenirovki-dlya-polucheniya-urovnej/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/trudnoprohodimaya-mestnost/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/trudnoprohodimaya-mestnost-peremeshchenie-vo-vremya-priklyucheniya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/rot-grub/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/heavy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/udushenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/uklonenie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ukrytie/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/versatile/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/running-a-franchise/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/ghoul-gut/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/uroven-zaklinaniya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/familiars/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/familiars-vgm/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/finesse/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/flanking/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/holodnaya-voda/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/hohochushchaya-lihoradka/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/celi/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/cilindr/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/chrezvychajnaya-zhara/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/chrezvychajnyj-holod/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/tremorsense/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/alien-technology/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/shkoly-magii/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/crew/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/yadovitaya-burya/</loc></url>
+  <url><loc>https://usarname-1.github.io/dndbase/14/glossary/human-languages/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/yamy/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/glossary/yachejki-zaklinanij/</loc></url>
   <url><loc>https://usarname-1.github.io/dndbase/14/articles/</loc></url>
