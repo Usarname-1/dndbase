@@ -1,7 +1,7 @@
 /* Логика страницы: список, фильтры, карточка, переходы между страницами без перезагрузки.
    Разметка карточек, списков и адресов — в core.js; готовые страницы для поисковиков собирает tools/build_pages.js. */
 const $=s=>document.querySelector(s);
-const HOMEN={"14":{"bestiary":3141,"spells":535,"class":16,"race":84,"backgrounds":87,"feats":105,"items":934,"equipment":377,"glossary":332,"articles":129},"24":{"bestiary":657,"spells":444,"class":14,"species":19,"backgrounds":70,"feats":195,"items":437,"equipment":211,"glossary":213}};/*home-counts*/
+const HOMEN={"14":{"bestiary":3141,"spells":535,"class":16,"race":84,"backgrounds":87,"feats":105,"items":934,"equipment":377,"glossary":332,"articles":129},"24":{"bestiary":657,"spells":444,"class":14,"species":19,"backgrounds":70,"feats":195,"items":437,"equipment":336,"glossary":279}};/*home-counts*/
 let curKey='',sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false;
 async function load(k,e=ed,quiet){const key=e+k;if(!cache[key]){if(!quiet)$('#count').textContent='Загрузка…';const dir=e==14?'data14':'data';try{cache[key]=sortEntries(await(await fetch(`${dir}/${k}.json`)).json())}catch(x){if(!quiet)$('#count').textContent=`Не удалось загрузить ${dir}/${k}.json (открывайте через сервер, не файлом)`;return[]}}return cache[key]}
 const ok=(k,skip)=>flt.every((o,i)=>i===skip||!o.s.size||(o.all?[...o.s].every(v=>V[k][i].includes(v)):[...o.s].some(v=>V[k][i].includes(v))));
