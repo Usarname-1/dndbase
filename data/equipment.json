@@ -7545,5 +7545,2974 @@
   ],
   "cost": "1200 ЗМ",
   "cost_gp": 1200
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "alexandrite",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Александрит",
+  "name_en": "Alexandrite",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Тёмно-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "amber",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Янтарь",
+  "name_en": "Amber",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет от водянисто-золотого до насыщенно-золотого цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "amethyst",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Аметист",
+  "name_en": "Amethyst",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Насыщенный фиолетовый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "aquamarine",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Аквамарин",
+  "name_en": "Aquamarine",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледный сине-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "azurite",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Азурит",
+  "name_en": "Azurite",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Пёстрый насыщенно-синий самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "banded-agate",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Полосатый агат",
+  "name_en": "Banded Agate",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Полосатый коричневый, синий, белый или красный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bejeweled-gold-bracelet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой браслет, украшенный самоцветами",
+  "name_en": "Bejeweled gold bracelet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bejeweled-ivory-drinking-horn-with-gold-filigree",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Рог для питья из слоновой кости, украшенный самоцветами, с золотой филигранью",
+  "name_en": "Bejeweled ivory drinking horn with gold filigree",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "black-opal",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Чёрный опал",
+  "name_en": "Black Opal",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Тёмно-зелёный самоцвет с чёрными пятнами и золотистыми крапинками."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "black-pearl",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Чёрная жемчужина",
+  "name_en": "Black Pearl",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Чисто-чёрный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "black-sapphire",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Чёрный сапфир",
+  "name_en": "Black Sapphire",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Блестящий чёрный самоцвет с мерцающими бликами."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5000 ЗМ"
+   }
+  ],
+  "cost": "5000 ЗМ",
+  "cost_gp": 5000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "black-velvet-mask-stitched-with-silver-thread",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Чёрная бархатная маска, прошитая серебряной нитью",
+  "name_en": "Black velvet mask stitched with silver thread",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bloodstone",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гелиотроп",
+  "name_en": "Bloodstone",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Тёмно-серый самоцвет с красными крапинками."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "blue-quartz",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Голубой кварц",
+  "name_en": "Blue Quartz",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледно-синий самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "blue-sapphire",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Синий сапфир",
+  "name_en": "Blue Sapphire",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Средне-синий самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "blue-spinel",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Синяя шпинель",
+  "name_en": "Blue Spinel",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Насыщенно-синий самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bottle-stopper-cork-embossed-with-gold-leaf-and-set-with-amethysts",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Пробка для бутылки с золотым тиснением, украшенная аметистами",
+  "name_en": "Bottle stopper cork embossed with gold leaf and set with amethysts",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "box-of-turquoise-animal-figurines",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Коробка с бирюзовыми фигурками животных",
+  "name_en": "Box of turquoise animal figurines",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "brass-mug-with-jade-inlay",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Латунная кружка с нефритовой инкрустацией",
+  "name_en": "Brass mug with jade inlay",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bronze-crown",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Бронзовая корона",
+  "name_en": "Bronze crown",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "bundle-of-sheet-music-representing-the-lost-dirges-of-a-famous-composer",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Связка нот с утраченными похоронными песнопениями знаменитого композитора",
+  "name_en": "Bundle of sheet music representing the lost dirges of a famous composer",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "canvas-1-sq-yd",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Холст (1 кв. ярд)",
+  "name_en": "Canvas (1 sq. yd.)",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1 СМ"
+   }
+  ],
+  "cost": "1 СМ",
+  "cost_gp": 0.1
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "carnelian",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Сердолик",
+  "name_en": "Carnelian",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет от оранжевого до красновато-коричневого цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "carved-bone-statuette",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Резная костяная статуэтка",
+  "name_en": "Carved bone statuette",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "carved-ivory-statuette",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Резная статуэтка из слоновой кости",
+  "name_en": "Carved ivory statuette",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "carved-wooden-harp-with-ivory-inlay-and-zircon-gems",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Резная деревянная арфа с инкрустацией из слоновой кости и цирконами",
+  "name_en": "Carved wooden harp with ivory inlay and zircon gems",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "ceremonial-gold-armor-with-black-pearls",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Парадные золотые доспехи с чёрным жемчугом",
+  "name_en": "Ceremonial gold armor with black pearls",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "chalcedony",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Халцедон",
+  "name_en": "Chalcedony",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Белый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "chicken",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Курица",
+  "name_en": "Chicken",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2 ММ"
+   }
+  ],
+  "cost": "2 ММ",
+  "cost_gp": 0.02
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "chrysoberyl",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Хризоберилл",
+  "name_en": "Chrysoberyl",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет от жёлто-зелёного до бледно-зелёного цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "chrysoprase",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Хризопраз",
+  "name_en": "Chrysoprase",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "cinnamon",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Корица",
+  "name_en": "Cinnamon",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "2 ЗМ",
+  "cost_gp": 2.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "citrine",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Цитрин",
+  "name_en": "Citrine",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледный жёлто-коричневый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "cloth-of-gold-vestments",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Облачения из золотой парчи",
+  "name_en": "Cloth-of-gold vestments",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "cloves",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гвоздика",
+  "name_en": "Cloves",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "3 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "3 ЗМ",
+  "cost_gp": 3.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "copper",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Медь",
+  "name_en": "Copper",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5 СМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "5 СМ",
+  "cost_gp": 0.5,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "copper-chalice-with-silver-filigree",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Медная чаша с серебряной филигранью",
+  "name_en": "Copper chalice with silver filigree",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "coral",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Коралл",
+  "name_en": "Coral",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Багровый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "cotton-cloth-1-sq-yd",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Хлопчатобумажная ткань (1 кв. ярд)",
+  "name_en": "Cotton Cloth (1 sq. yd.)",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5 СМ"
+   }
+  ],
+  "cost": "5 СМ",
+  "cost_gp": 0.5
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "cow",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Корова",
+  "name_en": "Cow",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "detailed-life-sized-dragonborn-skull-cast-in-electrum",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Детально проработанный череп драконорождённого в натуральную величину, отлитый из электрума",
+  "name_en": "Detailed, life-sized dragonborn skull cast in electrum",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "diamond",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Алмаз",
+  "name_en": "Diamond",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Голубовато-белый, канареечно-жёлтый, розовый, коричневый или синий самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5000 ЗМ"
+   }
+  ],
+  "cost": "5000 ЗМ",
+  "cost_gp": 5000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "embroidered-glove-set-with-jewel-chips",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Вышитая перчатка, украшенная осколками самоцветов",
+  "name_en": "Embroidered glove set with jewel chips",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "embroidered-silk-and-velvet-mantle-set-with-numerous-moonstones",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Вышитая шёлковая и бархатная мантия, украшенная множеством лунных камней",
+  "name_en": "Embroidered silk and velvet mantle set with numerous moonstones",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "embroidered-silk-handkerchief",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Вышитый шёлковый носовой платок",
+  "name_en": "Embroidered silk handkerchief",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "emerald",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Изумруд",
+  "name_en": "Emerald",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Насыщенный ярко-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "eye-agate",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Глазчатый агат",
+  "name_en": "Eye Agate",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет с кругами серого, белого, коричневого, синего или зелёного цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "eye-patch-decorated-with-tiny-blue-sapphires-and-moonstones",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Повязка на глаз, украшенная крошечными синими сапфирами и лунными камнями",
+  "name_en": "Eye patch decorated with tiny blue sapphires and moonstones",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "fine-gold-chain-set-with-a-fire-opal",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Тонкая золотая цепочка с огненным опалом",
+  "name_en": "Fine gold chain set with a fire opal",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "fire-opal",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Огненный опал",
+  "name_en": "Fire Opal",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Огненно-красный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "flour",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Мука",
+  "name_en": "Flour",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2 ММ"
+   },
+   {
+    "label": "Вес",
+    "value": "2 фнт."
+   }
+  ],
+  "cost": "2 ММ",
+  "cost_gp": 0.02,
+  "weight": "2 фнт.",
+  "weight_lb": 2.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "garnet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гранат",
+  "name_en": "Garnet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Красный, коричнево-зелёный или фиолетовый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gilded-royal-coach-or-funeral-barge",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Позолоченная королевская карета или погребальная баржа",
+  "name_en": "Gilded royal coach or funeral barge",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "ginger",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Имбирь",
+  "name_en": "Ginger",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "1 ЗМ",
+  "cost_gp": 1.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "goat",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Коза",
+  "name_en": "Goat",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1 ЗМ"
+   }
+  ],
+  "cost": "1 ЗМ",
+  "cost_gp": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золото",
+  "name_en": "Gold",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-birdcage-with-electrum-filigree",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая птичья клетка с филигранью из электрума",
+  "name_en": "Gold birdcage with electrum filigree",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-bracelet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой браслет",
+  "name_en": "Gold bracelet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-circlet-set-with-four-aquamarines",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая диадема с четырьмя аквамаринами",
+  "name_en": "Gold circlet set with four aquamarines",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-comb-shaped-like-a-dragon-with-red-garnets-as-eyes",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой гребень в форме дракона с красными гранатами вместо глаз",
+  "name_en": "Gold comb shaped like a dragon with red garnets as eyes",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-cup-set-with-emeralds",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой кубок с изумрудами",
+  "name_en": "Gold cup set with emeralds",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-idol",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой идол",
+  "name_en": "Gold idol",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-jewelry-box-with-platinum-filigree",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая шкатулка для украшений с платиновой филигранью",
+  "name_en": "Gold jewelry box with platinum filigree",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-locket-with-a-painted-portrait-inside",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотой медальон с нарисованным портретом внутри",
+  "name_en": "Gold locket with a painted portrait inside",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-music-box",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая музыкальная шкатулка",
+  "name_en": "Gold music box",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-ring-set-with-bloodstones",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотое кольцо с гелиотропами",
+  "name_en": "Gold ring set with bloodstones",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "gold-statuette-set-with-rubies",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая статуэтка с рубинами",
+  "name_en": "Gold statuette set with rubies",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "handheld-mirror-set-in-a-painted-wooden-frame",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Ручное зеркало в расписной деревянной раме",
+  "name_en": "Handheld mirror set in a painted wooden frame",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "hematite",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гематит",
+  "name_en": "Hematite",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Серо-чёрный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "iron",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Железо",
+  "name_en": "Iron",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1 СМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "1 СМ",
+  "cost_gp": 0.1,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jacinth",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гиацинт",
+  "name_en": "Jacinth",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Огненно-оранжевый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5000 ЗМ"
+   }
+  ],
+  "cost": "5000 ЗМ",
+  "cost_gp": 5000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jade",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Нефрит",
+  "name_en": "Jade",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Светло-зелёный, насыщенно-зелёный или белый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jade-game-board-with-gold-playing-pieces",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Нефритовая игровая доска с золотыми фигурами",
+  "name_en": "Jade game board with gold playing pieces",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jasper",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Яшма",
+  "name_en": "Jasper",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Синий, чёрный или коричневый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Гагат",
+  "name_en": "Jet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Насыщенно-чёрный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jeweled-anklet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Браслет на лодыжку, украшенный самоцветами",
+  "name_en": "Jeweled anklet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jeweled-gold-crown",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Золотая корона, украшенная самоцветами",
+  "name_en": "Jeweled gold crown",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "jeweled-platinum-ring",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Платиновое кольцо с самоцветами",
+  "name_en": "Jeweled platinum ring",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "lapis-lazuli",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Лазурит",
+  "name_en": "Lapis Lazuli",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Светло- и тёмно-синий самоцвет с жёлтыми крапинками."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "linen-1-sq-yd",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Льняная ткань (1 кв. ярд)",
+  "name_en": "Linen (1 sq. yd.)",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5 ЗМ"
+   }
+  ],
+  "cost": "5 ЗМ",
+  "cost_gp": 5.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "malachite",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Малахит",
+  "name_en": "Malachite",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет с прожилками светло- и тёмно-зелёного цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "moonstone",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Лунный камень",
+  "name_en": "Moonstone",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Белый самоцвет с бледно-голубым сиянием."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "moss-agate",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Моховой агат",
+  "name_en": "Moss Agate",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Розовый или жёлто-белый самоцвет с моховидными серыми или зелёными разводами."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "necklace-string-of-small-pink-pearls",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Ожерелье из нити мелких розовых жемчужин",
+  "name_en": "Necklace string of small pink pearls",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "obsidian",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Обсидиан",
+  "name_en": "Obsidian",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Чёрный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "obsidian-statuette-with-gold-fittings-and-inlay",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Обсидиановая статуэтка с золотой отделкой и инкрустацией",
+  "name_en": "Obsidian statuette with gold fittings and inlay",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "old-masterpiece-painting",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Старинная картина-шедевр",
+  "name_en": "Old masterpiece painting",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "onyx",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Оникс",
+  "name_en": "Onyx",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет с полосами чёрного и белого цвета либо чисто чёрный или чисто белый."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "opal",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Опал",
+  "name_en": "Opal",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледно-голубой самоцвет с зелёными и золотистыми пятнами."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "ox",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Вол",
+  "name_en": "Ox",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "15 ЗМ"
+   }
+  ],
+  "cost": "15 ЗМ",
+  "cost_gp": 15.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "painted-gold-war-mask",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Раскрашенная золотая боевая маска",
+  "name_en": "Painted gold war mask",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "pair-of-engraved-bone-dice",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Пара костяных игральных костей с гравировкой",
+  "name_en": "Pair of engraved bone dice",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "pearl",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Жемчужина",
+  "name_en": "Pearl",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Блестящий белый, жёлтый или розовый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "pepper",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Перец",
+  "name_en": "Pepper",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "2 ЗМ",
+  "cost_gp": 2.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "peridot",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Перидот",
+  "name_en": "Peridot",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Насыщенный оливково-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "pig",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Свинья",
+  "name_en": "Pig",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "3 ЗМ"
+   }
+  ],
+  "cost": "3 ЗМ",
+  "cost_gp": 3.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "platinum",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Платина",
+  "name_en": "Platinum",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "platinum-bracelet-set-with-an-emerald",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Платиновый браслет с изумрудом",
+  "name_en": "Platinum bracelet set with an emerald",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2500 ЗМ"
+   }
+  ],
+  "cost": "2500 ЗМ",
+  "cost_gp": 2500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "quartz",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Кварц",
+  "name_en": "Quartz",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Белый, дымчато-серый или жёлтый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "rhodochrosite",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Родохрозит",
+  "name_en": "Rhodochrosite",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Светло-розовый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "ruby",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Рубин",
+  "name_en": "Ruby",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет от прозрачно-красного до насыщенно-багрового цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5000 ЗМ"
+   }
+  ],
+  "cost": "5000 ЗМ",
+  "cost_gp": 5000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "saffron",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Шафран",
+  "name_en": "Saffron",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "15 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "15 ЗМ",
+  "cost_gp": 15.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "salt",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Соль",
+  "name_en": "Salt",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5 ММ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "5 ММ",
+  "cost_gp": 0.05,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "sardonyx",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Сардоникс",
+  "name_en": "Sardonyx",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Самоцвет с полосами красного и белого цвета."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "set-of-gold-nesting-dolls",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Набор золотых матрёшек",
+  "name_en": "Set of gold nesting dolls",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "7500 ЗМ"
+   }
+  ],
+  "cost": "7500 ЗМ",
+  "cost_gp": 7500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "sheep",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Овца",
+  "name_en": "Sheep",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "2 ЗМ"
+   }
+  ],
+  "cost": "2 ЗМ",
+  "cost_gp": 2.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silk",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Шёлк",
+  "name_en": "Silk",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silk-vestments-with-gold-embroidery",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Шёлковые облачения с золотой вышивкой",
+  "name_en": "Silk vestments with gold embroidery",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silver",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Серебро",
+  "name_en": "Silver",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "5 ЗМ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "5 ЗМ",
+  "cost_gp": 5.0,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silver-and-gold-brooch",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Брошь из серебра и золота",
+  "name_en": "Silver and gold brooch",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silver-chalice-set-with-moonstones",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Серебряная чаша с лунными камнями",
+  "name_en": "Silver chalice set with moonstones",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "750 ЗМ"
+   }
+  ],
+  "cost": "750 ЗМ",
+  "cost_gp": 750.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silver-ewer",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Серебряный кувшин",
+  "name_en": "Silver ewer",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "25 ЗМ"
+   }
+  ],
+  "cost": "25 ЗМ",
+  "cost_gp": 25.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "silver-necklace-with-a-gemstone-pendant",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Серебряное ожерелье с самоцветным кулоном",
+  "name_en": "Silver necklace with a gemstone pendant",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "spinel",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Шпинель",
+  "name_en": "Spinel",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Красный, красно-коричневый или насыщенно-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "star-rose-quartz",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Звёздчатый розовый кварц",
+  "name_en": "Star rose quartz",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Розоватый самоцвет с белым звездообразным центром."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "star-ruby",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Звёздчатый рубин",
+  "name_en": "Star Ruby",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Рубиновый самоцвет с белым звездообразным центром."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "star-sapphire",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Звёздчатый сапфир",
+  "name_en": "Star Sapphire",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Синий сапфировый самоцвет с белым звездообразным центром."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "tiger-eye",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Тигровый глаз",
+  "name_en": "Tiger Eye",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Коричневый самоцвет с золотистым центром."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "topaz",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Топаз",
+  "name_en": "Topaz",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Золотисто-жёлтый самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "500 ЗМ"
+   }
+  ],
+  "cost": "500 ЗМ",
+  "cost_gp": 500.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "tourmaline",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Турмалин",
+  "name_en": "Tourmaline",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледно-зелёный, синий, коричневый или красный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "100 ЗМ"
+   }
+  ],
+  "cost": "100 ЗМ",
+  "cost_gp": 100.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "turquoise",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Бирюза",
+  "name_en": "Turquoise",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Светлый сине-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "10 ЗМ"
+   }
+  ],
+  "cost": "10 ЗМ",
+  "cost_gp": 10.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "well-made-tapestry-that-is-10-feet-by-10-feet",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Хорошо сделанный гобелен размером 10 на 10 футов",
+  "name_en": "Well-made tapestry that is 10 feet by 10 feet",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Предмет искусства",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "250 ЗМ"
+   }
+  ],
+  "cost": "250 ЗМ",
+  "cost_gp": 250.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "wheat",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Пшеница",
+  "name_en": "Wheat",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [],
+  "line": "Товар",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1 ММ"
+   },
+   {
+    "label": "Вес",
+    "value": "1 фнт."
+   }
+  ],
+  "cost": "1 ММ",
+  "cost_gp": 0.01,
+  "weight": "1 фнт.",
+  "weight_lb": 1.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "yellow-sapphire",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Жёлтый сапфир",
+  "name_en": "Yellow Sapphire",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Огненно-жёлтый или жёлто-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "1000 ЗМ"
+   }
+  ],
+  "cost": "1000 ЗМ",
+  "cost_gp": 1000.0
+ },
+ {
+  "section": "equipment",
+  "id": null,
+  "slug": "zircon",
+  "url": "https://github.com/5etools-mirror-3/5etools-src",
+  "name_ru": "Циркон",
+  "name_en": "Zircon",
+  "sources": [
+   "Dungeon Master's Guide 2024"
+  ],
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Бледный сине-зелёный самоцвет."
+   }
+  ],
+  "line": "Самоцвет",
+  "props": [
+   {
+    "label": "Стоимость",
+    "value": "50 ЗМ"
+   }
+  ],
+  "cost": "50 ЗМ",
+  "cost_gp": 50.0
  }
 ]
