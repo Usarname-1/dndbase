@@ -96,13 +96,28 @@
     await render();
   }
   let renderSeq = 0;
+  // Что прокручивается: на компьютере — блок main, на телефоне (до 780px) — вся страница (см. charsheet.css).
+  // Запоминаем оба положения: иначе после перерисовки листа телефон возвращался в самый верх.
+  const scrollState = () => {
+    const main = document.querySelector('main'), se = document.scrollingElement || document.documentElement;
+    return { main, mainTop: main ? main.scrollTop : 0, pageTop: se.scrollTop, se };
+  };
   async function render(keepScroll) {
-    const seq = ++renderSeq, main = document.querySelector('main'), top = keepScroll ? main.scrollTop : 0;
+    const seq = ++renderSeq, st = keepScroll ? scrollState() : null;
     const bar = host.querySelector('.csbar'), body = host.querySelector('.csbody');
+    // пока лист пересобирается, страница на миг становится короче и браузер сам «подтягивает» прокрутку вверх:
+    // держим прежнюю высоту, пока новая вёрстка не готова
+    body.style.minHeight = st ? body.offsetHeight + 'px' : '';
+    const restore = () => {
+      if (!st) return;
+      body.style.minHeight = '';
+      if (st.main) st.main.scrollTop = st.mainTop;
+      st.se.scrollTop = st.pageTop;
+    };
     renderBar(bar);
     const c = cur();
     body.textContent = '';
-    if (!c) { body.append(welcome()); return; }
+    if (!c) { restore(); body.append(welcome()); return; }
     if (c.psv !== 2) { c.printSpells = true; c.psv = 2; }   // описания заклинаний на печатном листе — по умолчанию
     c.feats = c.feats || []; c.picks = c.picks || {}; ['mastery', 'metamagic', 'invocations'].forEach(k => { if (!Array.isArray(c.picks[k])) c.picks[k] = []; }); c.picks.style = c.picks.style || ''; c.kit = c.kit || {}; c.kitSel = c.kitSel || {}; c.kitCoins = c.kitCoins || {}; c.featTxt = c.featTxt || 'short'; c.bonus = c.bonus || {}; c.fxOff = c.fxOff || {};
     const D = await loadData(c), d = R.derive(c, D), t = todo(c, D, d);
@@ -121,7 +136,8 @@
     if (on) tb.scrollLeft = on.offsetLeft - (tb.clientWidth - on.offsetWidth) / 2;
     const fn = { base: tabBase, abil: tabAbil, skills: tabSkills, spells: tabSpells, gear: tabGear, forms: tabForms, story: tabStory, sheet: tabSheet }[tabId] || tabBase;
     await fn(pane, c, D, d);
-    if (keepScroll) main.scrollTop = top;
+    if (seq !== renderSeq) return;
+    restore();
   }
   const upd = (redraw) => { save(); if (redraw !== false) render(true); };
 
@@ -986,14 +1002,14 @@
         c.hpCur = null; c.hpTemp = 0; upd(); root.DM.toast('Долгий отдых: всё восстановлено');
       },
     };
-    const X = { ops: live ? ops : null, featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr };
+    const X = mkX(live ? ops : null);
     // цвет печати: палитра справочника (красная для 2024, бирюзовая для 2014) или чёрно-белый вариант (c.pMono)
     const colorCtl = h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Цвет печати'),
       h('div', { class: 'seg csmeth' }, btn('Цветная', () => { delete c.pMono; upd(); }, c.pMono ? '' : 'act'), btn('Чёрно-белая', () => { c.pMono = true; upd(); }, c.pMono ? 'act' : '')),
       h('p', { class: 'mhint' }, c.pMono ? 'Только чёрный и серый: для принтера без цвета или чтобы сэкономить картридж.'
         : 'Заголовки и линии цвета справочника (' + (c.ed === 24 ? 'кирпично-красные' : 'бирюзовые') + '), светлые плашки. Бумага остаётся белой.'));
     p.append(h('div', { class: 'noprint sheetbar' }, btn('Печать', () => printSheet(c, false), 'dmbtn pri', 'Открыть окно печати'),
-      btn('Сохранить в PDF', () => printSheet(c, true), 'dmbtn pri', 'Откроется окно печати: выберите «Сохранить как PDF» (имя файла уже подставлено)'),
+      btn('Сохранить в PDF', ev => savePdf(c, D, d, ev.currentTarget), 'dmbtn pri', 'Сохраняет PDF-файл на устройство (страницы — картинками). Выделяемый текст даёт кнопка «Печать» → «Сохранить как PDF»'),
       h('label', { class: 'sheetedit', title: 'Нажимайте на кружки и ромбики, вписывайте числа и текст прямо в лист. Правка не попадает в печать.' }, h('input', { type: 'checkbox', checked: live, onchange: e => { c.sheetEdit = e.target.checked; upd(); } }), ' Править на листе'),
       live ? btn('Долгий отдых', ops.rest, 'dmbtn', 'Сбросить ячейки, ресурсы, хиты и спасброски от смерти') : null,
       h('span', { class: 'mhint' }, 'Лист A4 в оформлении правил ' + (c.ed === 24 ? '2024' : '2014') + '. Если цвета не печатаются, в окне печати включите «Фоновая графика» (в Chrome это включается само).')),
@@ -1001,14 +1017,61 @@
         h('div', { class: 'csprint' }, h('div', { class: 'cslbl' }, 'Портрет'), portraitCtl(c), h('p', { class: 'mhint' }, 'Печатается на странице «Описание».')))));
     const sh = h('div', { class: 'csheet' + (c.pMono ? ' mono' : '') + (live ? ' live' : '') }); p.append(sh);
     CSP.build(sh, { c, D, d, X });
-    // облики зверей
-    if (d.ws && c.forms.length && c.printForms !== false) {
-      const beasts = await DB().load('bestiary', c.ed);
-      const p5 = CSP.shell('Дикий облик', c, 'flow pforms ' + (c.ed === 24 ? 'e24' : 'e14'));
-      c.forms.forEach(slug => { const m = beasts.find(x => x.slug === slug); if (!m) return; const w = h('div', { class: 'pform' }); w.innerHTML = DB().SXS[c.ed].bestiary.card(m); p5.append(w); });
-      sh.append(p5);
-    }
+    await formsPage(sh, c, d);
     CSP.fit(sh);
+  }
+  // то, что нужно листу от charsheet.js (без правки на листе ops = null)
+  const mkX = ops => ({ ops, featureList: (cc, DD, dd) => featureList(cc, DD, dd).filter(f => !(cc.featOff || {})[fkey(f)]), attackList, invG, langStr });
+  // облики зверей
+  async function formsPage(sh, c, d) {
+    if (!(d.ws && c.forms.length && c.printForms !== false)) return;
+    const beasts = await DB().load('bestiary', c.ed);
+    const p5 = root.CSP.shell('Дикий облик', c, 'flow pforms ' + (c.ed === 24 ? 'e24' : 'e14'));
+    c.forms.forEach(slug => { const m = beasts.find(x => x.slug === slug); if (!m) return; const w = h('div', { class: 'pform' }); w.innerHTML = DB().SXS[c.ed].bestiary.card(m); p5.append(w); });
+    sh.append(p5);
+  }
+
+  // PDF-файл прямо на устройство, без окна печати: лист строится заново вне экрана (без правки на листе),
+  // страницы снимаются в картинки и собираются в PDF (charpdf.js). Если не вышло — прежний путь через окно печати.
+  let pdfBusy = false;
+  async function savePdf(c, D, d, btnEl) {
+    if (pdfBusy) return;
+    pdfBusy = true;
+    const label = btnEl ? btnEl.textContent : '', say = t => { if (btnEl) btnEl.textContent = t; };
+    const prevLive = root.CSP.live(), title = (c.name || 'Персонаж') + ' — D&D ' + (c.ed === 24 ? '2024' : '2014');
+    let box = null;
+    if (btnEl) btnEl.disabled = true;
+    try {
+      say('Готовлю PDF…');
+      if (!root.CSPDF) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'charpdf.js'; s.onload = ok; s.onerror = () => no(new Error('charpdf.js')); document.head.append(s); });
+      box = h('div', { class: 'pdfhost' });
+      const sh = h('div', { class: 'csheet pdfcap' + (c.pMono ? ' mono' : '') }); box.append(sh); host.append(box);
+      root.CSP.build(sh, { c, D, d, X: mkX(null) });
+      await formsPage(sh, c, d);
+      const blob = await root.CSPDF.fromSheet(sh, { title, onProgress: (i, n) => say('PDF: страница ' + i + ' из ' + n) });
+      saveFile(blob, title.replace(/[\\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() + '.pdf');
+    } catch (e) {
+      console.error(e);
+      root.DM.toast('Не удалось собрать PDF — откроется окно печати: выберите «Сохранить как PDF»');
+      printSheet(c, false);
+    } finally {
+      if (box) box.remove();
+      root.CSP.setLive(prevLive);   // build() для PDF сбросил «правку на листе» — возвращаем её листу на экране
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = label; }
+      pdfBusy = false;
+    }
+  }
+  // скачивание: ссылка с download сохраняет файл в «Загрузки»; если браузер (встроенный в мессенджер, iOS) этого не сделал — кнопка в уведомлении
+  function saveFile(blob, name) {
+    const url = URL.createObjectURL(blob), a = h('a', { href: url, download: name });
+    document.body.append(a); a.click(); a.remove();
+    const file = typeof File === 'function' ? new File([blob], name, { type: 'application/pdf' }) : null;
+    const canShare = !!(file && navigator.canShare && navigator.canShare({ files: [file] }));
+    root.DM.toast('PDF сохранён: ' + name, canShare ? 'Поделиться' : 'Открыть', () => {
+      if (canShare) navigator.share({ files: [file], title: name }).catch(() => {});
+      else window.open(url, '_blank');
+    });
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
   }
 
   root.CS = { show, render, load, cur };
