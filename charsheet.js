@@ -35,7 +35,12 @@
       const gear = await g('equipment', ed), gear24 = ed === 24 ? gear : await g('equipment', 24);
       dataCache[key] = { classes: classes.filter(x => !/sidekick/.test(x.slug)), species, bgs: bgs.filter(b => !/^adaptaciia-predystorii/.test(b.slug)), feats, spells, gear, items, itemsBySlug: Object.fromEntries(items.map(x => [x.slug, x])), gearBySlug: Object.assign(Object.fromEntries(gear24.map(x => [x.slug, x])), Object.fromEntries(gear.map(x => [x.slug, x]))) };
     }
-    const D = dataCache[key];
+    const D = dataCache[key]; D.ed = ed;
+    // каталог другой редакции (2014 ↔ 2024) грузим, только когда он нужен: выбран в каталоге снаряжения или уже есть в инвентаре
+    if (!D.oth && ((UI.gearEd && UI.gearEd !== ed) || (c.inv || []).some(i => i.ed && i.ed !== ed))) {
+      const oe = ed === 24 ? 14 : 24, [gear, items] = await Promise.all([g('equipment', oe), g('items', oe)]);
+      D.oth = { ed: oe, gear, items, gearBySlug: Object.fromEntries(gear.map(x => [x.slug, x])), itemsBySlug: Object.fromEntries(items.map(x => [x.slug, x])) };
+    }
     const cls = D.classes.find(x => x.slug === c.cls) || null;
     return Object.assign({}, D, { cls, sub: cls ? (cls.subclasses || []).find(s => (s.name) === c.sub) || null : null, sp: D.species.find(x => x.slug === c.sp) || null, bg: D.bgs.find(x => x.slug === c.bg) || null });
   }
@@ -705,7 +710,7 @@
         info = 'атака ' + R.sgn(a.atk) + ', урон ' + wi.dice + (dm ? (dm > 0 ? '+' : '−') + Math.abs(dm) : '') + ' ' + wi.type;
       } else if (g && i.sec !== 'items' && /доспех|щит/i.test(g.line || '')) { const q = (g.props || []).find(x => /класс защиты/i.test(x.label)); info = q ? 'КД ' + String(q.value).replace(/^КД\s*/i, '') : (g.slug === 'shield' ? '+2 к КД' : ''); }
       t.append(h('tr', {}, h('td', {}, h('input', { type: 'checkbox', checked: !!i.eq, title: 'Надето / в руках', onchange: e => { i.eq = e.target.checked; upd(); } })),
-        h('td', {}, g ? link(c.ed, i.sec === 'items' ? 'items' : 'equipment', g, i.n) : i.n, i.sec === 'items' && g ? h('small', {}, ' ' + [g.rarity, g.attunement ? 'настройка' : ''].filter(Boolean).join(', ')) : null), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
+        h('td', {}, g ? link(i.ed || c.ed, i.sec === 'items' ? 'items' : 'equipment', g, i.n) : i.n, i.ed && i.ed !== c.ed ? h('small', { class: 'edtag', title: 'Предмет из справочника редакции ' + DB().EDK(i.ed) }, ' ' + DB().EDK(i.ed)) : null, i.sec === 'items' && g ? h('small', {}, ' ' + [g.rarity, g.attunement ? 'настройка' : ''].filter(Boolean).join(', ')) : null), h('td', {}, numIn(i.q, v => { i.q = Math.max(1, v); upd(); }, { min: 1, class: 'num' })), h('td', {}, w ? w + ' фнт.' : '—'), h('td', {}, info),
         h('td', {}, btn('×', () => { const back = i.spent || 0; if (back) giveCu(c, back); c.inv.splice(idx, 1); upd(); if (back) root.DM.toast('Возвращено: ' + fmtCu(back)); }, 'xx', i.spent ? 'Убрать предмет: потраченные деньги вернутся' : 'Убрать предмет'))));
     });
     if (!c.inv.length) t.append(h('tr', {}, h('td', { colspan: 6, class: 'none' }, 'Пусто. Добавьте предметы ниже.')));
@@ -719,14 +724,30 @@
     const RAR = [['', 'Любая редкость'], ['обычн', 'Обычные'], ['необычн', 'Необычные'], ['редк', 'Редкие'], ['очень', 'Очень редкие'], ['легенд', 'Легендарные'], ['артеф', 'Артефакты']];
     const rarOf = g => { const r = String(g.rarity || '').toLowerCase(); return r.startsWith('очень') ? 'очень' : r.startsWith('необыч') ? 'необычн' : r.startsWith('обыч') ? 'обычн' : r.startsWith('редк') ? 'редк' : r.startsWith('легенд') ? 'легенд' : r.startsWith('артеф') ? 'артеф' : ''; };
     const cat = UI.gearCat || '';
-    const catalog = (cat === '' ? [...D.gear, ...D.items] : cat === 'magic' ? D.items.filter(g => !UI.gearRar || rarOf(g) === UI.gearRar) : D.gear.filter(g => gearCatOf(g) === cat)).slice().sort((a, b) => (a.section === 'items') - (b.section === 'items') || a.name_ru.localeCompare(b.name_ru, 'ru'));
+    // каталог можно взять из любой редакции: «2024», «2014» или «обе» (UI.gearEd: пусто — редакция листа)
+    const oe = c.ed === 24 ? 14 : 24, ged = D.oth ? (UI.gearEd || c.ed) : c.ed;
+    const tag = (list, e) => list.map(g => Object.assign({}, g, { _ed: e }));
+    const lcl = x => R.lc(x || '');
+    const sigOf = g => g.section === 'items' ? lcl(g.line) : [costCu(g), R.unitWeight(g), lcl(g.line)].join('|');
+    let G = tag(D.gear, c.ed), M = tag(D.items, c.ed);
+    if (D.oth && ged !== c.ed) {
+      const og = tag(D.oth.gear, oe), om = tag(D.oth.items, oe);
+      if (ged === 'both') {
+        // одинаковый предмет в обеих редакциях (тот же slug, цена, вес, описание) показываем один раз — версией редакции листа
+        const own = new Map([...G, ...M].map(g => [g.section + ':' + g.slug, sigOf(g)]));
+        const fresh = g => own.get(g.section + ':' + g.slug) !== sigOf(g);
+        G = G.concat(og.filter(fresh)); M = M.concat(om.filter(fresh));
+      } else { G = og; M = om; }
+    }
+    const catalog = (cat === '' ? [...G, ...M] : cat === 'magic' ? M.filter(g => !UI.gearRar || rarOf(g) === UI.gearRar) : G.filter(g => gearCatOf(g) === cat)).sort((a, b) => (a.section === 'items') - (b.section === 'items') || a.name_ru.localeCompare(b.name_ru, 'ru') || a._ed - b._ed);
+    const edSeg = h('div', { class: 'seg csmeth' }, [[c.ed, 'Редакция ' + DB().EDK(c.ed)], [oe, 'Редакция ' + DB().EDK(oe)], ['both', 'Обе редакции']].map(([k, t]) => btn(t, () => { UI.gearEd = k === c.ed ? '' : k; upd(); }, (UI.gearEd || c.ed) == k ? 'act' : '')));
     const rarChips = cat === 'magic' ? h('div', { class: 'seg csmeth wrapseg' }, RAR.map(([k, t]) => btn(t, () => { UI.gearRar = k; upd(); }, (UI.gearRar || '') === k ? 'act' : ''))) : null;
     const chips = h('div', { class: 'seg csmeth wrapseg' }, GCAT.map(([k, t]) => btn(t, () => { UI.gearCat = k; upd(); }, (UI.gearCat || '') === k ? 'act' : '')));
-    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(c.ed, 'items', g) : link(c.ed, 'equipment', g)), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
+    p.append(h('h4', { class: 'csh2' }, 'Каталог снаряжения · у вас ' + fmtCu(wallet(c))), edSeg, h('p', { class: 'mhint' }, 'Собирайте снаряжение сами: «Купить» списывает деньги, «Взять» — бесплатно. Магические предметы (посохи, кольца, зелья…) — в категории «Магические предметы» или через поиск. Если убрать купленный предмет, деньги вернутся.'), chips, ...(rarChips ? [rarChips] : []), searchBox(catalog, g => { const mg = g.section === 'items', wi = !mg && weaponInfo(g), cu = costCu(g); return h('div', { class: 'csrow' }, h('b', {}, mg ? link(g._ed, 'items', g) : link(g._ed, 'equipment', g), ged === 'both' ? h('small', { class: 'edtag', title: 'Справочник редакции ' + DB().EDK(g._ed) }, ' ' + DB().EDK(g._ed)) : null), h('small', {}, (g.line || '') + (wi ? ' · ' + wi.dice + ' ' + wi.type : '') + ' · ' + (mg ? (g.price || '') : (g.cost || ''))),
       h('button', { type: 'button', class: 'dmbtn', disabled: cu > wallet(c), title: cu > wallet(c) ? 'Не хватает денег' : 'Купить: деньги спишутся', onclick: () => buy(c, g) }, cu ? 'Купить' : '+'),
-      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, key: 'gear:' + cat + (UI.gearRar || ''), q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
+      cu ? h('button', { type: 'button', class: 'dmbtn', title: 'Взять бесплатно, без списания денег', onclick: () => buy(c, g, true) }, 'Взять') : null); }, { ph: 'Поиск предмета: меч, верёвка, алмазный посох…', max: 120, key: 'gear:' + ged + cat + (UI.gearRar || ''), q: UI.gearQ, onq: v => { UI.gearQ = v; } }));
   }
-  const invG = (D, i) => i.sec === 'items' ? (D.itemsBySlug || {})[i.slug] : D.gearBySlug[i.slug];   // запись справочника: снаряжение или магический предмет
+  const invG = (D, i) => { const src = R.srcOf(D, i); return i.sec === 'items' ? (src.itemsBySlug || {})[i.slug] : (src.gearBySlug || {})[i.slug]; };   // запись справочника: снаряжение или магический предмет
   const GCAT = [['', 'Всё'], ['weapon', 'Оружие'], ['armor', 'Доспехи и щиты'], ['tool', 'Инструменты'], ['pack', 'Наборы'], ['gear', 'Прочее снаряжение'], ['magic', 'Магические предметы']];
   const gearCatOf = g => { if (g.section === 'items') return 'magic'; const l = g.line || ''; return /оружие|боеприпас/i.test(l) ? 'weapon' : /доспех|щит/i.test(l) ? 'armor' : /нструмент/i.test(l) ? 'tool' : /набор/i.test(l) ? 'pack' : 'gear'; };
   function parseKit(txt) {
@@ -749,9 +770,10 @@
   function buy(c, g, free) {
     const cu = free ? 0 : costCu(g);
     if (cu && !pay(c, cu)) { root.DM.toast('Не хватает денег: нужно ' + fmtCu(cu) + ', у вас ' + fmtCu(wallet(c))); return; }
-    const sec = g.section === 'items' ? 'items' : '', ex = c.inv.find(x => x.slug === g.slug && !x.kit && (x.sec || '') === sec);
+    const sec = g.section === 'items' ? 'items' : '', e = g._ed && g._ed !== c.ed ? g._ed : 0;   // e — редакция предмета, только если она не совпадает с листом
+    const ex = c.inv.find(x => x.slug === g.slug && !x.kit && (x.sec || '') === sec && (x.ed || 0) === e);
     const pk = sec ? 1 : R.packOf(g);   // боеприпасы: цена за пачку, в инвентарь — штуки
-    if (ex) { ex.q += pk; ex.spent = (ex.spent || 0) + cu; } else c.inv.push({ n: g.name_ru, slug: g.slug, sec, q: pk, eq: false, spent: cu });
+    if (ex) { ex.q += pk; ex.spent = (ex.spent || 0) + cu; } else c.inv.push(Object.assign({ n: g.name_ru, slug: g.slug, sec, q: pk, eq: false, spent: cu }, e ? { ed: e } : {}));
     upd(); if (cu) root.DM.toast('Куплено: ' + g.name_ru + ' (−' + fmtCu(cu) + ')');
   }
   function removeKit(c, src) {

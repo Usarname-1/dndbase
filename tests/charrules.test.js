@@ -785,3 +785,18 @@ test('особенности подвида помечаются (sub), общи
     assert.ok(tr.some(t => !t.sub), ed + ' ' + opt + ': нет общих особенностей вида');
   }
 });
+test('предмет из другой редакции: запись берётся из каталога той редакции (i.ed), доспех из него даёт КД', () => {
+  const [c, D] = mk(24, { cls: 'fighter', lvl: 3, ab: { dex: 14, con: 14 }, inv: [] });
+  const g14 = GEAR[14], oth = { ed: 14, gear: g14, gearBySlug: Object.fromEntries(g14.map(x => [x.slug, x])), items: [], itemsBySlug: {} };
+  D.ed = 24; D.oth = oth;
+  assert.equal(R.srcOf(D, { slug: 'x' }), D, 'без i.ed — каталог своей редакции');
+  assert.equal(R.srcOf(D, { slug: 'x', ed: 24 }), D, 'i.ed равен редакции листа — тоже свой каталог');
+  assert.equal(R.srcOf(D, { slug: 'x', ed: 14 }), oth, 'i.ed другой редакции — её каталог');
+  assert.deepEqual(R.srcOf({ ed: 24 }, { ed: 14 }), {}, 'другая редакция ещё не загружена — пустой каталог, без ошибки');
+  const base = R.derive(c, D).ac;
+  c.inv = [{ n: 'Кольчужный доспех', slug: 'chain-mail', sec: '', q: 1, eq: true, ed: 14 }];
+  assert.ok(R.wornGear(c, D).armor, 'доспех из каталога 2014 надет');
+  assert.equal(R.derive(c, D).ac, 16, 'кольчуга 2014 даёт КД 16 (базовый ' + base + ')');
+  c.inv[0].ed = 24;   // та же запись, но «из 2024» (= редакция листа) — берётся из своего каталога
+  assert.ok(R.wornGear(c, D).armor, 'тот же доспех из каталога 2024');
+});
