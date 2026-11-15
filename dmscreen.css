@@ -106,3 +106,16 @@ body.dm #dm.mob,.dmws.stack{overflow:visible}
  .dmb .eres{max-height:none!important}
  .dmws.printone .dmp:not(.pr1){display:none!important}
 }
+/* --- генератор лута --- */
+.loot .seg{margin-bottom:8px}.loot .seg button:first-child{border-radius:3px 0 0 3px}.loot .seg button:last-child{border-radius:0 3px 3px 0}.loot .seg button+button{margin-left:-1px}
+.ltg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:6px}
+.ltf{display:flex;flex-direction:column;gap:2px;min-width:0}.ltf span{font:700 11px 'PT Sans',sans-serif;text-transform:uppercase;color:var(--red)}.ltf select{width:100%}
+.ltc{display:flex;align-items:center;gap:5px;font:14px 'PT Sans',sans-serif;align-self:end;padding-bottom:5px}
+.lt-out{margin-top:4px}.ltb{margin-bottom:8px}.ltb h5{font:700 11px 'PT Sans',sans-serif;text-transform:uppercase;color:var(--red);margin:0 0 3px;padding-bottom:2px;border-bottom:1px solid var(--line)}
+.ltcoins{display:flex;flex-wrap:wrap;gap:5px}.ltcoin{font:14px 'PT Sans',sans-serif;padding:2px 8px;border-radius:12px;border:1px solid var(--line);background:rgba(146,38,16,.06)}
+.ltcoin b{font:700 15px 'PT Serif',serif}.ltcoin.cpm b{color:#4a5f7a}.ltcoin.czm b{color:#9a6b0a}.ltcoin.cem b{color:#6f7f2a}.ltcoin.csm b{color:#6b6b6b}.ltcoin.cmm b{color:#9a4b1d}
+.ltr{display:flex;align-items:baseline;gap:6px;padding:3px 2px;border-bottom:1px dotted var(--line);font:14px 'PT Sans',sans-serif}.ltr span{flex:1;min-width:0;overflow-wrap:anywhere}
+.ltr small{color:#6b5f4d;font-size:12px;text-align:right}.ltr .lted{display:inline;color:var(--red);font-weight:700;text-align:left}
+.ltr.it{display:grid;grid-template-columns:1fr auto auto;align-items:center;column-gap:2px;border-left:3px solid var(--line);padding-left:6px}.ltr.it small{grid-column:1 / -1;text-align:left;margin-top:-2px}.ltr.r-необычн{border-left-color:#4d8a3a}.ltr.r-редк{border-left-color:#2f6aa8}.ltr.r-очень{border-left-color:#7a45a8}.ltr.r-легенд{border-left-color:#c27a10}.ltr.r-артеф{border-left-color:#a02020}
+.lttot{font:14px 'PT Sans',sans-serif;margin:6px 2px 0}.lttot b{color:var(--red)}
+
