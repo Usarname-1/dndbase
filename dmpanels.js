@@ -497,6 +497,21 @@
     }
   });
 
+  /* ---------- Генератор лута ---------- */
+  // сам генератор — в dmloot.js: он подгружается при первом открытии панели, чтобы не утяжелять каждую страницу
+  DM.registerType('loot', {
+    name: 'Генератор лута', desc: 'Монеты, самоцветы и магические предметы по уровню отряда', w: 4, h: 13,
+    init: () => ({ mode: 'hoard', tier: 1, ed: (root.DB && root.DB.ed) || 24, kind: '', rar: '', cnt: 'auto', noAtt: false, res: null, resEd: 24 }),
+    render(ctx) {
+      const wait = h('p', { class: 'dmempty' }, 'Загрузка…'); ctx.body.append(wait);
+      const ok = () => { wait.remove(); root.DMLoot.render(ctx); };
+      if (root.DMLoot) return ok();
+      const sc = document.createElement('script'); sc.src = 'dmloot.js'; sc.onload = ok;
+      sc.onerror = () => { wait.textContent = 'Не удалось загрузить генератор. Проверьте соединение и откройте экран заново.'; };
+      document.head.append(sc);
+    }
+  });
+
   /* ---------- Переводчик единиц ---------- */
   DM.registerType('conv', {
     name: 'Единицы и монеты', desc: 'Футы↔метры, фунты↔кг, пересчёт монет', w: 3, h: 7,
