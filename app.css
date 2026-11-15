@@ -14,6 +14,7 @@ input,select{width:100%;font:15px 'PT Sans',sans-serif;padding:8px 10px;border:1
 .fh button,#ftoggle,#fdone{font:13px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:4px 9px;cursor:pointer;white-space:nowrap}.fh button:hover{border-color:var(--bar);color:var(--bar)}
 #ftoggle,#fdone{display:none}
 .cb{font:700 15px 'PT Sans',sans-serif;border:1px solid var(--line);background:transparent;color:inherit;border-radius:4px;padding:2px 9px;cursor:pointer}.cb:hover{border-color:var(--bar);color:var(--bar)}
+.qsec{display:none}
 .strip{display:none;flex:1;border:0;background:transparent;color:inherit;font:700 14px 'PT Sans',sans-serif;cursor:pointer;writing-mode:vertical-rl;padding:14px 0;text-align:left;white-space:nowrap}.strip:hover{color:var(--bar)}
 @media(min-width:781px){body.nof{--cf:38px}body.nol{--cl:38px}
 body.nof #fcol>:not(.strip),body.nol #lcol>:not(.strip){display:none}body.nof #fcol .strip,body.nol #lcol .strip{display:block}
@@ -56,6 +57,7 @@ main{grid-area:main;overflow:auto;padding:26px 18px 60px}.wrap{max-width:780px;m
 .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:780px){body{display:block;height:auto}nav{position:sticky;top:0;z-index:2}.col{height:calc(100vh - 42px);border:0}#fcol{display:none}body.fshow #fcol{display:flex}body.fshow #lcol{display:none}main{display:none;padding:10px 6px 40px}
 body.open .col{display:none}body.open main{display:block}#ftoggle,#fdone{display:inline-block}
+.qsec{display:flex;align-items:center;gap:8px;margin:8px 2px 0;font:14px 'PT Sans',sans-serif;color:var(--muted);cursor:pointer}.qsec input{width:20px;height:20px;padding:0;margin:0;flex:none;accent-color:var(--bar)}
 #fcol .strip,#lcol .strip,.cb{display:none!important}
 #back{display:inline-block;margin:0 0 10px;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:4px;font:14px 'PT Sans',sans-serif;cursor:pointer}}
 .ed{display:flex;align-items:center;margin:0 8px 0 0;padding:6px 0;flex:none}
