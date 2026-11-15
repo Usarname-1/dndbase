@@ -102,6 +102,19 @@ $('#card').addEventListener('click',e=>{const t=e.target.closest('#runes,#hs,[da
 ['nof','nol'].forEach(c=>ls.get(c)=='1'&&document.body.classList.add(c));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-col]');if(!b)return;const c='no'+b.dataset.col,on=document.body.classList.toggle(c);ls.set(c,on?'1':'0')});
 $('#q').addEventListener('input',render);
+// Телефон (до 780px): поле над списком — вход в глобальный поиск (по всей базе); галочка «Поиск по разделу» возвращает прежний поиск по списку раздела.
+// На компьютере поле ищет по разделу, как раньше, а глобальный поиск открывается кнопкой «Поиск» в верхней панели.
+{const q=$('#q'),mq=matchMedia('(max-width:780px)'),lab=document.createElement('label');
+ lab.className='qsec';lab.innerHTML='<input type="checkbox"> Поиск по разделу';$('#lcol .qr').after(lab);
+ const cb=lab.firstChild;cb.checked=ls.get('qsec')=='1';
+ const isGlobal=()=>mq.matches&&!cb.checked;
+ const sync=()=>{const g=isGlobal();
+  // в глобальном режиме поле только открывает окно поиска: readOnly не вызывает клавиатуру под окном и не оставляет в списке старый фильтр
+  q.readOnly=g;q.placeholder=g?'Поиск по всей базе (рус / eng)':mq.matches?'Поиск по разделу (рус / eng)':'Поиск (рус / eng)';
+  if(g&&q.value){q.value='';render()}};
+ q.addEventListener('click',()=>{if(isGlobal()&&window.GSearch)GSearch.open()});
+ cb.addEventListener('change',()=>{ls.set('qsec',cb.checked?'1':'0');sync();if(!cb.checked&&!q.readOnly)q.focus()});
+ (mq.addEventListener?mq.addEventListener('change',sync):mq.addListener(sync));sync()}
 $('#sort').addEventListener('change',e=>{sortI=+e.target.value;$('#list').scrollTop=0;render()});
 $('#dir').addEventListener('click',()=>{desc=!desc;$('#dir').textContent=desc?'↓':'↑';$('#list').scrollTop=0;render()});
 $('#fl').addEventListener('change',e=>{const t=e.target,d=t.dataset;if(d.all!==undefined)flt[d.all].all=t.checked;else if(d.j!==undefined){const i=+d.i,v=opts[i][+d.j];t.checked?flt[i].s.add(v):flt[i].s.delete(v)}else return;render()});
