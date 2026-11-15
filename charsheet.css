@@ -92,6 +92,7 @@ body.cs #cs{display:block;min-height:100%}
 #cs .xx{border:0;background:transparent;color:var(--cs-muted);width:30px;padding:0;font-size:18px}
 #cs .xx:hover:not(:disabled){background:var(--cs-bad-soft);color:var(--cs-bad)}
 
+#cs .edtag{font-weight:700;font-size:.8em;color:var(--bar);white-space:nowrap}
 /* --- переключатели (как .seg в экране мастера) и фильтры-«таблетки» --- */
 #cs .seg.csmeth{display:flex;margin:0 0 12px;max-width:560px}
 #cs .csmeth button{flex:1;height:auto;min-height:36px;padding:4px 8px;white-space:normal;line-height:1.15;border-radius:0;margin-left:-1px}

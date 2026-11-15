@@ -547,11 +547,13 @@
 
   // Что надето. Доспех — только со свойством «Класс защиты» (по нему считается КД); магические доспехи и щиты КД не меняют
   // (бонус вносится вручную), но отменяют «без доспехов».
+  // Откуда брать запись справочника для предмета инвентаря: предмет мог быть добавлен из другой редакции (i.ed — только если она не совпадает с редакцией листа)
+  const srcOf = (D, i) => (!i.ed || i.ed === D.ed) ? D : (D.oth || {});
   function wornGear(c, D) {
     const w = { armor: null, shield: false, anyArmor: false, anyShield: false, heavy: false, medium: false };
     (c.inv || []).forEach(i => {
       if (!i.eq) return;
-      const mg = i.sec === 'items', g = mg ? (D.itemsBySlug || {})[i.slug] : (D.gearBySlug || {})[i.slug]; if (!g) return;
+      const mg = i.sec === 'items', src = srcOf(D, i), g = mg ? (src.itemsBySlug || {})[i.slug] : (src.gearBySlug || {})[i.slug]; if (!g) return;
       const line = String(g.line || '');
       if (mg) {
         if (/^Доспех\s*\(\s*Щит/i.test(line)) w.anyShield = true;
@@ -1066,6 +1068,6 @@
     return { items, coins };
   }
 
-  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesSpells, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight, classPicks, officialSrc, bgFeatOf, styleOptions, styleFeat, masteryOf, masteryCount, masteryOptions, STYLES14 };
+  const API = { AB, ABK, ABN, SKILLS, skillName, STD_ARRAY, BUY_COST, mod, sgn, intOf, lc, trait, classInfo, levelRow, asiLevels, epicLevel, featAbility, expertiseSlots, maxSlotLevel, speciesTraits, speciesChoice, speciesSpeed, speciesSizes, wstems, weaponProps, weaponProf, bgSkillInfo, derive, wildShape, beastOk, crNum, crStr, newChar, skillsIn, abilitiesIn, SPELL_AB, skillGrantN, profGrants, wornGear, srcOf, resources, sourcesOf, collectFx, abilityFx, subCasting, subCastRow, outOfSchools, subSpells, subSpellTables, spellByName, speciesSpells, speciesAsi, speciesSections, parseAsi, kitLines14, kitBg14, kitGear, COIN_KEY, packOf, unitWeight, classPicks, officialSrc, bgFeatOf, styleOptions, styleFeat, masteryOf, masteryCount, masteryOptions, STYLES14 };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CSR = API;
 })(typeof window !== 'undefined' ? window : globalThis);
