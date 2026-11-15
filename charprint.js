@@ -389,5 +389,6 @@
     if (window.ResizeObserver) { const ro = new ResizeObserver(set); ro.observe(sh.parentElement || sh); sh._ro = ro; }
   }
 
-  root.CSP = { build, shell, fit };
+  // build() запоминает, правится ли лист на экране; при сборке второго листа (для PDF) это значение нужно вернуть на место
+  root.CSP = { build, shell, fit, live: () => LIVE, setLive: v => { LIVE = v; } };
 })(window);
