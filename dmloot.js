@@ -39,7 +39,7 @@
   // «ссылка» из таблицы → предмет. e — редакция правил (в каталоге другой редакции предмет может оказаться, если в своей его нет)
   function finish(rnd, D, ref, key) {
     const [ie, slug] = ref.i.split('/'), e = +ie, base = D.it[ref.i];
-    const it = { e, slug, n: ref.n || base[0], r: ref.r || base[1] || '', att: !!base[2], price: base[3] || '', q: 1, t: key };
+    const it = { e, slug, n: ref.n || base[0], r: ref.r || base[1] || '', att: !!base[2], price: base[3] || '', gp: base[4] != null && !ref.w && !ref.b ? base[4] : null, q: 1, t: key };   // у «+N» цена общего предмета не годится — её не считаем
     if (ref.w) {                                                         // «+N к оружию / доспеху / щиту / боеприпасам»: конкретный вид выбираем сами
       const list = (D.eq[e] || D.eq[24])[ref.w], x = pick(rnd, list);
       it.n = x[1] + ' +' + ref.b; it.eq = { e, slug: x[0] };
@@ -112,7 +112,9 @@
     addItem(r.items, it); return true;
   }
   const coinGp = c => COIN.reduce((s, k) => s + (c[k] || 0) * GP[k], 0);
-  const totalGp = r => Math.round(coinGp(r.coins) + [...r.gems, ...r.art].reduce((s, x) => s + x.v * x.q, 0));
+  const itemsGp = r => r.items.reduce((s, x) => s + (x.gp || 0) * x.q, 0);               // магические предметы — по ценам справочника
+  const noPrice = r => r.items.reduce((s, x) => s + (x.gp == null ? x.q : 0), 0);          // сколько предметов без цены (в итог не вошли)
+  const totalGp = r => Math.round(coinGp(r.coins) + [...r.gems, ...r.art].reduce((s, x) => s + x.v * x.q, 0) + itemsGp(r));
   const nf = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   const coinStr = c => COIN.filter(k => c[k]).map(k => nf(c[k]) + ' ' + COIN_N[k]).join(', ');
   const itemText = x => (x.q > 1 ? x.q + '× ' : '') + x.n + (x.sp ? ': ' + x.sp.n : '') + ' — ' + (RAR_N[x.r] || 'редкость не указана') + (x.att ? ', настройка' : '');
@@ -122,7 +124,7 @@
     r.gems.length && L.push('Самоцветы: ' + r.gems.map(val).join('; '));
     r.art.length && L.push('Предметы искусства: ' + r.art.map(val).join('; '));
     r.items.length && L.push('Магические предметы: ' + r.items.map(itemText).join('; '));
-    if (r.mode !== 'magic') L.push('Монеты и ценности вместе: ≈ ' + nf(totalGp(r)) + ' зм');
+    L.push('Всего ≈ ' + nf(totalGp(r)) + ' зм' + (r.items.length ? ' (магические предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')' : ''));
     return L.join('\n');
   }
   // подписи таблиц магических предметов для выбора
@@ -135,7 +137,7 @@
     return out;
   }
 
-  const API = { COIN, COIN_N, RAR_N, CRS, CR_N, LV, LV_N, dice, row, generate, reroll, rollItem, totalGp, coinGp, coinStr, textOf, nf, tables };
+  const API = { COIN, COIN_N, RAR_N, CRS, CR_N, LV, LV_N, dice, row, generate, reroll, rollItem, totalGp, itemsGp, noPrice, coinGp, coinStr, textOf, nf, tables };
   if (typeof module !== 'undefined' && module.exports) { module.exports = API; return; }
 
   /* ---------- панель ---------- */
@@ -172,7 +174,7 @@
       const modes = [['hoard', 'Сокровищница'], ['ind', 'С монстра'], ['magic', 'Магия']], hoard = s.mode === 'hoard', magic = s.mode === 'magic';
       const tabs = D ? tables(D, s.ed) : [];
       if (magic && D && !tabs.some(t => t[0] === s.tab)) s.tab = tabs[0][0];
-      top.append(
+      top.append(...[
         h('div', { class: 'seg' }, modes.map(([k, t]) => h('button', { type: 'button', class: s.mode === k ? 'act' : '', title: k === 'hoard' ? 'Клад: монеты, самоцветы, ценности и магические предметы' : k === 'ind' ? 'Монеты, которые несёт с собой один монстр или NPC' : 'Только магические предметы с выбранной таблицы',
           onclick: () => { s.mode = k; s.res = null; ctx.save(); drawTop(); } }, t))),
         h('div', { class: 'ltg' },
@@ -183,7 +185,7 @@
           magic ? fld('Предметов', sel([1, 2, 3, 4, 5, 6, 8, 10].map(n => [n, String(n)]), s.cnt, v => { s.cnt = +v; ctx.save(); })) : null,
           h('label', { class: 'ltc' }, h('input', { type: 'checkbox', checked: !!s.noAtt, onchange: e => { s.noAtt = e.target.checked; ctx.save(); } }), ' Без настройки')) : null,
         h('div', { class: 'row' }, h('button', { type: 'button', class: 'pri', onclick: go }, s.res ? 'Перебросить всё' : 'Сгенерировать'),
-          s.res ? h('button', { type: 'button', onclick: () => copy(textOf(s.res)), title: 'Скопировать результат текстом' }, 'Копировать') : null));
+          s.res ? h('button', { type: 'button', onclick: () => copy(textOf(s.res)), title: 'Скопировать результат текстом' }, 'Копировать') : null)].filter(Boolean));
     }
     function block(title, ...kids) { return h('div', { class: 'ltb' }, h('h5', {}, title), ...kids); }
     function drawRes() {
@@ -211,7 +213,8 @@
           : h('p', { class: 'dmempty' }, r.note || 'Магических предметов нет')));
         if (r.note && r.items.length) out.append(h('p', { class: 'dmempty' }, r.note));
       }
-      if (r.mode !== 'magic') out.append(h('p', { class: 'lttot' }, 'Монеты и ценности вместе: ', h('b', {}, '≈ ' + nf(totalGp(r)) + ' зм')));
+      out.append(h('p', { class: 'lttot' }, r.items.length ? 'Всего с магическими предметами: ' : 'Всего: ', h('b', {}, '≈ ' + nf(totalGp(r)) + ' зм'),
+        r.items.length ? h('small', {}, ' (предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')') : null));
     }
     ctx.body.append(h('div', { class: 'loot' }, top, out)); drawRes();
     getData().then(() => drawTop(), () => {});

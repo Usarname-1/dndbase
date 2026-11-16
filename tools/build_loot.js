@@ -80,9 +80,11 @@ const armorSlug = (e, name) => { const x = eqIdx[e].get(norm(name)); return x &&
 
 /* ---- словарь предметов, попадающих в результат ---- */
 const IT = {};                                                   // "ed/slug" → [название, редкость, настройка, цена]
+// цена в золотых для итога: точная, а у диапазона DMG 2014 («501–5 000 зм») — середина; нет цены — null
+const gpOf = it => it.price_gp != null ? it.price_gp : (it.price_min_gp != null && it.price_max_gp != null ? Math.round((it.price_min_gp + it.price_max_gp) / 2) : null);
 function use(e, it) {
   const k = e + '/' + it.slug;
-  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || ''];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
+  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || '', gpOf(it)];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
   return k;
 }
 const pickEd = (name, ed) => {

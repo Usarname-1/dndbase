@@ -170,11 +170,20 @@ test('замена предмета: новый берётся с той же т
   assert.ok(L.reroll(one, 0, D, seeded(3))); assert.equal(one.items.length, 1); assert.equal(one.items[0].t, 'arcana.rare');
 });
 
-test('текст для копирования и сумма: монеты, ценности и предметы перечислены, итог считается в золотых', () => {
+test('сумма: монеты, самоцветы, искусство и магические предметы по ценам справочника; без цены — не считается, но считается в «нет цены»', () => {
   const r = { mode: 'hoard', ed: 14, coins: { cp: 100, sp: 20, gp: 5, pp: 2 }, gems: [{ n: 'Азурит', slug: 'azurite', v: 10, q: 3 }], art: [{ n: 'Кубок', slug: '', v: 25, q: 1 }],
-    items: [{ e: 14, slug: 'potion-of-healing', n: 'Зелье лечения', r: 'c', att: false, q: 2, t: 'A' }] };
-  assert.equal(L.totalGp(r), Math.round(1 + 2 + 5 + 20 + 30 + 25));
+    items: [{ e: 14, slug: 'potion-of-healing', n: 'Зелье лечения', r: 'c', att: false, q: 2, t: 'A', gp: 50 }, { e: 14, slug: 'x', n: 'Меч +1', r: 'u', att: false, q: 1, t: 'A', gp: null }] };
+  assert.equal(L.itemsGp(r), 100); assert.equal(L.noPrice(r), 1);
+  assert.equal(L.totalGp(r), 1 + 2 + 5 + 20 + 30 + 25 + 100);
   const t = L.textOf(r);
-  assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/); assert.match(t, /≈ 83 зм/);
+  assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/);
+  assert.match(t, /Всего ≈ 183 зм \(магические предметы — по ценам справочника, у 1 шт\. цены нет\)/);
   assert.equal(L.nf(1234567), '1 234 567');
+  // магические предметы из таблиц несут цену из справочника (кроме «+N» к общему предмету)
+  const priced = Array.from({ length: 40 }, (_, i) => L.rollItem(seeded(i + 3), D, 24, 'arcana.rare')).filter(y => !y.sp);
+  assert.ok(priced.filter(y => y.gp > 0).length > priced.length * 0.6, 'у большинства предметов 2024 есть цена'); assert.ok(priced.every(y => y.gp == null || y.gp > 0));
+  let plus = 0; for (let i = 0; i < 400 && !plus; i++) { const y = L.rollItem(seeded(i), D, 14, 'G'); if (/ \+\d$/.test(y.n)) { plus++; assert.equal(y.gp, null); } }
+  assert.ok(plus);
+  // 2014: диапазон цены («501–5 000 зм») — середина диапазона
+  assert.equal(D.it['14/bag-of-holding'][4] > 0, true);
 });
