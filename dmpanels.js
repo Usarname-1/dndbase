@@ -500,8 +500,8 @@
   /* ---------- Генератор лута ---------- */
   // сам генератор — в dmloot.js: он подгружается при первом открытии панели, чтобы не утяжелять каждую страницу
   DM.registerType('loot', {
-    name: 'Генератор лута', desc: 'Монеты, самоцветы и магические предметы по уровню отряда', w: 4, h: 13,
-    init: () => ({ mode: 'hoard', tier: 1, ed: (root.DB && root.DB.ed) || 24, kind: '', rar: '', cnt: 'auto', noAtt: false, res: null, resEd: 24 }),
+    name: 'Генератор лута', desc: 'Сокровища по таблицам Руководства мастера 2014 и 2024: монеты, самоцветы и магические предметы', w: 4, h: 13,
+    init: () => ({ mode: 'hoard', ed: (root.DB && root.DB.ed) === 14 ? 14 : 24, cr: 0, lv: 'auto', tab: '', cnt: 1, noAtt: false, res: null }),
     render(ctx) {
       const wait = h('p', { class: 'dmempty' }, 'Загрузка…'); ctx.body.append(wait);
       const ok = () => { wait.remove(); root.DMLoot.render(ctx); };

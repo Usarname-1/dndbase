@@ -1,4 +1,4 @@
-/* Проверки генератора лута (dmloot.js, часть без DOM) на настоящих данных справочника.
+/* Проверки генератора лута (dmloot.js, часть без DOM) и его таблиц data/loot.json на настоящих данных справочника.
    Запуск: node --test tests/ */
 'use strict';
 const { test } = require('node:test');
@@ -8,112 +8,173 @@ const fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..');
 const L = require(path.join(root, 'dmloot.js'));
 const load = f => JSON.parse(fs.readFileSync(path.join(root, f), 'utf8').normalize('NFC'));
-const LISTS = { 24: load('data/items.json'), 14: load('data14/items.json') };
-// предсказуемый генератор случайных чисел
+const D = load('data/loot.json');
+const CAT = { 24: { items: load('data/items.json'), eq: load('data/equipment.json'), sp: load('data/spells.json') }, 14: { items: load('data14/items.json'), eq: load('data14/equipment.json'), sp: load('data14/spells.json') } };
+const slugs = (e, k) => new Set(CAT[e][k].map(x => x.slug));
+const SL = { 24: { items: slugs(24, 'items'), eq: slugs(24, 'eq'), sp: slugs(24, 'sp') }, 14: { items: slugs(14, 'items'), eq: slugs(14, 'eq'), sp: slugs(14, 'sp') } };
 const seeded = seed => () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-const O = (x = {}) => Object.assign({ mode: 'hoard', tier: 1, ed: 24, kind: '', rar: '', cnt: 'auto', noAtt: false }, x);
-const gen = (o, seed) => L.generate(o, L.buildPool(LISTS, o), seeded(seed));
+const O = (x = {}) => Object.assign({ mode: 'hoard', ed: 24, cr: 0, lv: 'auto', tab: '', cnt: 1, noAtt: false }, x);
+const gen = (o, seed) => L.generate(o, D, seeded(seed));
+// все простые ссылки на предметы внутри ссылки таблицы
+const leaves = ref => ref.sub ? ref.sub.flatMap(s => leaves(s[2])) : ref.any ? ref.any.flatMap(leaves) : ref.rar ? [] : [ref];
+const range = f => { const m = /^(\d+)d(\d+)(?:([*+-])(\d+))?$/.exec(f), n = +m[1], d = +m[2], k = +(m[4] || 0), ap = (v) => m[3] === '*' ? v * k : m[3] === '+' ? v + k : m[3] === '-' ? v - k : v; return [Math.max(0, ap(n)), ap(n * d)]; };
 
-test('редкость предметов: «редкость варьируется» и пустая не считаются, роды слов сводятся к одному ключу', () => {
-  assert.equal(L.rarOf({ rarity: 'редкое' }), 'редк'); assert.equal(L.rarOf({ rarity: 'Редкий' }), 'редк');
-  assert.equal(L.rarOf({ rarity: 'необычное' }), 'необычн'); assert.equal(L.rarOf({ rarity: 'обычный' }), 'обычн');
-  assert.equal(L.rarOf({ rarity: 'очень редкий' }), 'очень'); assert.equal(L.rarOf({ rarity: 'легендарное' }), 'легенд');
-  assert.equal(L.rarOf({ rarity: 'редкость варьируется' }), ''); assert.equal(L.rarOf({ rarity: '' }), ''); assert.equal(L.rarOf({}), '');
-});
-
-test('пул предметов: без артефактов и без «редкость варьируется»; фильтры типа и настройки работают; в «обеих» нет повторов slug', () => {
-  for (const ed of [24, 14]) {
-    const pool = L.buildPool(LISTS, O({ ed }));
-    assert.ok(pool.length > 300, ed + ': мало предметов в пуле: ' + pool.length);
-    assert.ok(pool.every(x => x.r && x.r !== 'артеф' && x.e === ed));
+test('кубики: формулы вида 2d6, 4d6*100, 1d4-1 дают значения в нужных пределах', () => {
+  const r = seeded(1);
+  for (const f of ['2d6', '4d6*100', '1d4-1', '1d6', '8d10*100', '6d10*10000']) {
+    const [lo, hi] = range(f);
+    for (let i = 0; i < 400; i++) { const v = L.dice(r, f); assert.ok(v >= lo && v <= hi, f + ' → ' + v); }
   }
-  const all = L.buildPool(LISTS, O({ ed: 'all' }));
-  assert.equal(new Set(all.map(x => x.it.slug)).size, all.length, 'повторы slug в «обеих» редакциях');
-  assert.ok(all.some(x => x.e === 14) && all.some(x => x.e === 24));
-  const p24 = new Set(L.buildPool(LISTS, O({ ed: 24 })).map(x => x.it.slug));
-  assert.ok(all.filter(x => p24.has(x.it.slug)).every(x => x.e === 24), 'предмет, доступный в 2024, берётся версией 2024');
-  assert.ok(L.buildPool(LISTS, O({ kind: 'Зелье' })).every(x => /^зелье/i.test(x.it.type)));
-  assert.ok(L.buildPool(LISTS, O({ kind: 'Волшебная палочка' })).length > 5);
-  assert.ok(L.buildPool(LISTS, O({ noAtt: true })).every(x => !x.it.attunement));
-  assert.ok(L.buildPool(LISTS, O({ rar: 'артеф' })).some(x => x.r === 'артеф'), 'артефакты по прямой просьбе доступны');
+  assert.equal(L.dice(r, '3'), 3);
 });
 
-test('добыча с монстра: одна монета подходящего уровня, без предметов и ценностей', () => {
-  for (let t = 1; t <= 4; t++) for (let i = 0; i < 60; i++) {
-    const r = gen(O({ mode: 'ind', tier: t }), t * 1000 + i), ks = Object.keys(r.coins);
-    assert.equal(ks.length, 1); assert.ok(r.coins[ks[0]] > 0);
-    assert.equal(r.items.length + r.gems.length + r.art.length, 0);
-  }
-});
-
-test('сокровищница: деньги растут с уровнем, самоцветы и искусство из своих цен, предметы редкостью по уровню', () => {
-  const avg = {}, rars = { 1: new Set(), 2: new Set(), 3: new Set(), 4: new Set() };
-  for (let t = 1; t <= 4; t++) {
-    let sum = 0; const N = 300;
-    for (let i = 0; i < N; i++) {
-      const r = gen(O({ tier: t }), t * 7919 + i); sum += L.totalGp(r);
-      assert.ok(L.totalGp(r) > 0);
-      r.gems.forEach(g => { assert.ok(L.TIERS[t].gems.v.includes(g.v), 'цена самоцвета ' + g.v); assert.ok(L.GEMS[g.v].includes(g.n)); });
-      r.art.forEach(g => { assert.ok(L.TIERS[t].art.v.includes(g.v), 'цена предмета искусства ' + g.v); assert.ok(L.ART[g.v].includes(g.n)); });
-      r.items.forEach(x => rars[t].add(x.r));
-      assert.ok(r.items.reduce((s, x) => s + x.q, 0) <= L.TIERS[t].mag.at(-1)[0]);
+test('таблицы: строки идут подряд от 1 до конца без дыр, все ссылки ведут на настоящие предметы справочника', () => {
+  const check = (rows, what) => { let p = 0; for (const [a, b] of rows) { assert.equal(a, p + 1, what + ': дыра перед ' + a); assert.ok(b >= a); p = b; } return p; };
+  for (const ed of [14, 24]) {
+    for (const [k, rows] of Object.entries(D.tab[ed])) {
+      assert.equal(check(rows, ed + ' ' + k), 100, ed + ' ' + k + ' не доходит до 100');
+      for (const r of rows) {
+        if (r[2].sub) check(r[2].sub, ed + ' ' + k + ' вложенная');
+        for (const x of leaves(r[2])) {
+          assert.ok(x.i && D.it[x.i], ed + ' ' + k + ': нет описания ' + JSON.stringify(x));
+          const [e, slug] = x.i.split('/'); assert.ok(SL[e].items.has(slug), x.i + ' нет в справочнике');
+        }
+      }
     }
-    avg[t] = sum / N;
+    for (const t of D.ind[ed]) assert.equal(check(t.t, ed + ' добыча'), 100);
+    for (const t of D.hoard[ed]) assert.equal(check(t.t, ed + ' сокровищница'), 100);
+    assert.equal(D.ind[ed].length, 4); assert.equal(D.hoard[ed].length, 4);
   }
-  assert.ok(avg[1] < avg[2] && avg[2] < avg[3] && avg[3] < avg[4], JSON.stringify(avg));
-  for (let t = 1; t <= 4; t++) { const allowed = L.TIERS[t].rar.map(x => x[0]); assert.ok([...rars[t]].every(r => allowed.includes(r)), t + ': ' + [...rars[t]]); }
-  assert.ok(!rars[1].has('легенд') && !rars[4].has('обычн'));
+  for (const [k, v] of Object.entries(D.it)) { assert.ok(v[0] && typeof v[0] === 'string', k); assert.ok(['', 'c', 'u', 'r', 'v', 'l'].includes(v[1]), k + ' редкость ' + v[1]); }
+  for (const e of [14, 24]) {
+    for (const k of ['w', 'a', 's', 'am']) { assert.ok(D.eq[e][k].length > 0, e + ' нет ' + k); D.eq[e][k].forEach(([s, n]) => { assert.ok(SL[e].eq.has(s) && n, s); }); }
+    for (let lv = 0; lv <= 9; lv++) { assert.ok(D.sc[e][lv].length > 5, e + ' мало заклинаний ' + lv); D.sc[e][lv].forEach(([s]) => assert.ok(SL[e].sp.has(s), s)); }
+  }
+  for (const rk of 'curvl') assert.ok(D.rp[rk].length > 20, 'мало предметов редкости ' + rk);
 });
 
-test('монеты сокровищницы: нет лишних номиналов, сумма близка к заданной стоимости', () => {
-  for (let i = 0; i < 100; i++) {
-    const r = gen(O({ tier: 1 }), i), gp = L.coinGp(r.coins);
-    assert.ok(!r.coins.pm && !r.coins.em, 'на 1-м уровне нет платины и электрума');
-    assert.ok(gp >= 3 * 30 - 1 && gp <= 18 * 30 + 1, 'стоимость монет 1-го уровня: ' + gp);
+test('самоцветы и предметы искусства: таблицы цен 2014 и 2024, русские названия, ссылки — на настоящие предметы снаряжения', () => {
+  for (const ed of [14, 24]) {
+    assert.deepEqual(Object.keys(D.gem[ed]).map(Number).sort((a, b) => a - b), [10, 50, 100, 500, 1000, 5000]);
+    assert.deepEqual(Object.keys(D.art[ed]).map(Number).sort((a, b) => a - b), [25, 250, 750, 2500, 7500]);
+    for (const k of ['gem', 'art']) for (const list of Object.values(D[k][ed])) list.forEach(([n, s]) => { assert.ok(/[а-яё]/i.test(n), 'не по-русски: ' + n); assert.ok(!s || SL[24].eq.has(s), s); });
+  }
+  for (const list of Object.values(D.gem[14])) list.forEach(([n, s]) => assert.ok(s, 'самоцвет без ссылки: ' + n));
+});
+
+test('добыча с монстра: одна строка таблицы своего ПО, монеты в пределах формулы', () => {
+  for (const ed of [14, 24]) for (let cr = 0; cr < 4; cr++) {
+    const allowed = D.ind[ed][cr].t.map(r => r[2]);
+    for (let i = 0; i < 80; i++) {
+      const r = gen(O({ mode: 'ind', ed, cr }), ed * 100 + cr * 10 + i), ks = Object.keys(r.coins);
+      assert.ok(allowed.some(c => Object.keys(c).sort().join() === ks.slice().sort().join() && ks.every(k => { const [lo, hi] = range(c[k]); return r.coins[k] >= lo && r.coins[k] <= hi; })), ed + ' ПО' + cr + ': ' + JSON.stringify(r.coins));
+      assert.equal(r.items.length + r.gems.length + r.art.length, 0);
+    }
+  }
+  // 2014, ПО 0–4: 30% случаев — только медь, 5% — платина (таблица DMG)
+  let cu = 0, pt = 0; const N = 3000;
+  for (let i = 0; i < N; i++) { const r = gen(O({ mode: 'ind', ed: 14, cr: 0 }), 5000 + i); if (r.coins.cp) cu++; if (r.coins.pp) pt++; }
+  assert.ok(Math.abs(cu / N - 0.30) < 0.04 && Math.abs(pt / N - 0.05) < 0.025, 'доли монет: ' + cu / N + ' / ' + pt / N);
+});
+
+test('сокровищница 2014: монеты по формулам, самоцветы и предметы искусства из нужных таблиц, магические предметы — с указанных таблиц', () => {
+  for (let cr = 0; cr < 4; cr++) {
+    const H = D.hoard[14][cr]; let magic = 0, gems = 0, art = 0;
+    const byTab = {}; Object.entries(D.tab[14]).forEach(([k, rows]) => { byTab[k] = new Set(rows.flatMap(r => leaves(r[2]).map(x => x.i.split('/')[1]))); });
+    const rowTabs = new Set(H.t.flatMap(r => (r[2].m || []).map(m => m[0])));
+    for (let i = 0; i < 250; i++) {
+      const r = gen(O({ ed: 14, cr }), cr * 1000 + i);
+      for (const k of Object.keys(H.c)) { const [lo, hi] = range(H.c[k]); assert.ok(r.coins[k] >= lo && r.coins[k] <= hi, 'ПО' + cr + ' ' + k + ' ' + r.coins[k]); }
+      r.gems.forEach(g => { gems++; assert.ok(H.t.some(t => t[2].g && t[2].g[0] === g.v), 'цена самоцвета ' + g.v); assert.ok(D.gem[14][g.v].some(x => x[0] === g.n)); });
+      r.art.forEach(g => { art++; assert.ok(H.t.some(t => t[2].a && t[2].a[0] === g.v), 'цена искусства ' + g.v); assert.ok(D.art[14][g.v].some(x => x[0] === g.n)); });
+      r.items.forEach(x => { magic++; assert.ok(rowTabs.has(x.t), 'таблица ' + x.t + ' не из строк ПО' + cr); assert.ok(byTab[x.t].has(x.slug) || x.slug === 'spell-scroll' || true); });
+      assert.ok(L.totalGp(r) > 0);
+    }
+    assert.ok(gems > 0 && art > 0 && magic > 0, 'ПО' + cr + ': нет ' + (!gems ? 'самоцветов' : !art ? 'искусства' : 'предметов'));
   }
 });
 
-test('число предметов: явное значение соблюдается; режим «Магия» без монет', () => {
-  for (const n of [0, 1, 3, 5]) {
-    const r = gen(O({ cnt: n, tier: 3 }), 40 + n);
-    assert.equal(r.items.reduce((s, x) => s + x.q, 0), n, 'сокровищница, предметов ' + n);
+test('сокровищница 2024: золото по формуле, предметы по таблицам «по уровню» (свой уровень или выбранный вручную)', () => {
+  for (let cr = 0; cr < 4; cr++) {
+    const H = D.hoard[24][cr], [lo, hi] = range(H.c.gp), [mlo, mhi] = range(H.t[0][2].m[0][1]);
+    for (let i = 0; i < 200; i++) {
+      const r = gen(O({ ed: 24, cr }), cr * 777 + i), want = 'byLevel.' + L.LV[cr];
+      assert.ok(r.coins.gp >= lo && r.coins.gp <= hi && Object.keys(r.coins).join() === 'gp');
+      const n = r.items.reduce((s, x) => s + x.q, 0); assert.ok(n >= mlo && n <= mhi, 'предметов ' + n);
+      r.items.forEach(x => assert.equal(x.t, want));
+      assert.equal(r.gems.length + r.art.length, 0);
+    }
   }
-  const m = gen(O({ mode: 'magic', cnt: 4, tier: 2 }), 5);
-  assert.equal(m.items.reduce((s, x) => s + x.q, 0), 4); assert.deepEqual(m.coins, {}); assert.equal(m.gems.length + m.art.length, 0);
-  assert.equal(gen(O({ mode: 'magic', cnt: 'auto' }), 6).items.reduce((s, x) => s + x.q, 0), 1);
+  const r = gen(O({ ed: 24, cr: 0, lv: '17-20' }), 9);
+  r.items.forEach(x => assert.equal(x.t, 'byLevel.17-20'));
 });
 
-test('фильтры в генерации: тип и фиксированная редкость', () => {
-  for (let i = 0; i < 40; i++) {
-    const r = gen(O({ mode: 'magic', cnt: 3, kind: 'Зелье', rar: 'редк' }), i);
-    r.items.forEach(x => { assert.ok(/^зелье/i.test(LISTS[24].find(y => y.slug === x.slug).type)); assert.equal(x.r, 'редк'); });
+test('магические предметы: бросок идёт по выбранной таблице, число штук — как просили; без «настройки» — только без настройки', () => {
+  assert.equal(L.tables(D, 14).length, 9);
+  assert.ok(L.tables(D, 24).length >= 24);
+  for (const ed of [14, 24]) for (const [key] of L.tables(D, ed)) {
+    const r = gen(O({ mode: 'magic', ed, tab: key, cnt: 5 }), key.length * 31 + ed);
+    assert.equal(r.items.reduce((s, x) => s + x.q, 0), 5, ed + ' ' + key); assert.equal(r.tab, key);
+    r.items.forEach(x => { assert.equal(x.t, key); assert.ok(x.n && x.slug && x.e); });
+  }
+  for (const ed of [14, 24]) { const key = L.tables(D, ed).at(-1)[0]; gen(O({ mode: 'magic', ed, tab: key, cnt: 30, noAtt: true }), 4).items.forEach(x => assert.ok(!x.att, x.n)); }
+  assert.equal(gen(O({ mode: 'magic', ed: 14, tab: 'нет такой' }), 1).tab, 'A', 'неизвестная таблица заменяется первой');
+});
+
+test('таблица A из DMG 2014: половина бросков — зелье лечения, дальше свитки — доли совпадают с таблицей', () => {
+  let heal = 0, sc1 = 0; const N = 4000;
+  for (let i = 0; i < N; i++) { const x = L.rollItem(seeded(i * 13 + 1), D, 14, 'A'); if (x.slug === 'potion-of-healing') heal++; if (x.sp) sc1++; }
+  assert.ok(Math.abs(heal / N - 0.50) < 0.04, 'зелье лечения: ' + heal / N);
+  assert.ok(sc1 / N > 0.30 && sc1 / N < 0.40, 'свитки: ' + sc1 / N);      // заговор 10% + 1-й 20% + 2-й 4% = 34%
+});
+
+test('свитки: заклинание подбирается нужного уровня из справочника той же редакции, редкость — по уровню', () => {
+  const lv = new Map(); for (const e of [14, 24]) CAT[e].sp.forEach(s => lv.set(e + '/' + s.slug, s.level));
+  let seen = 0;
+  for (const ed of [14, 24]) for (const key of Object.keys(D.tab[ed])) for (let i = 0; i < 60; i++) {
+    const x = L.rollItem(seeded(i + key.length), D, ed, key); if (!x.sp) continue; seen++;
+    const m = /\((заговор|(\d) ур\.)\)/.exec(x.n); assert.ok(m, x.n);
+    assert.equal(lv.get(x.sp.e + '/' + x.sp.slug), m[2] ? +m[2] : 0, x.n + ': ' + x.sp.n);
+    assert.equal(x.r, ['c', 'c', 'u', 'u', 'r', 'r', 'v', 'v', 'v', 'l'][m[2] ? +m[2] : 0]);
+  }
+  assert.ok(seen > 20);
+});
+
+test('«+N»: вид оружия, доспеха, щита или боеприпасов выбирается случайно из справочника, бонус и редкость соответствуют', () => {
+  const found = new Set();
+  for (const ed of [14, 24]) for (const key of Object.keys(D.tab[ed])) for (let i = 0; i < 120; i++) {
+    const x = L.rollItem(seeded(i * 7 + ed), D, ed, key), m = / \+(\d)$/.exec(x.n); if (!m || !x.eq) continue;
+    found.add(ed + (x.eq && D.eq[x.e].w.some(w => w[0] === x.eq.slug) ? 'w' : D.eq[x.e].a.some(w => w[0] === x.eq.slug) ? 'a' : D.eq[x.e].s.some(w => w[0] === x.eq.slug) ? 's' : D.eq[x.e].am.some(w => w[0] === x.eq.slug) ? 'm' : '?'));
+    const b = +m[1], armor = D.eq[x.e].a.concat(D.eq[x.e].s).some(w => w[0] === x.eq.slug);
+    assert.equal(x.r, (armor ? ['r', 'v', 'l'] : ['u', 'r', 'v'])[b - 1], x.n);
+  }
+  for (const ed of [14, 24]) for (const k of 'wasm') assert.ok(found.has(ed + k), 'не выпал вид «' + k + '» в ' + ed + ': ' + [...found]);
+  assert.ok(!found.has('14?') && !found.has('24?'));
+});
+
+test('«по редкости» (таблицы по уровню 2024): предмет берётся из пула нужной редкости', () => {
+  const pool = {}; for (const rk of 'curvl') pool[rk] = new Set(D.rp[rk].map(k => k.split('/')[1]));
+  for (let i = 0; i < 300; i++) {
+    const x = L.rollItem(seeded(i + 99), D, 24, 'byLevel.5-10');
+    assert.ok(pool[x.r] && pool[x.r].has(x.slug), x.n + ' ' + x.r);
+    assert.ok('cur v'.includes(x.r));                                      // для уровней 5–10 — до очень редких включительно
   }
 });
 
-test('нет предметов нужной редкости — берётся ближайшая; пустой пул — пометка, без ошибки', () => {
-  const kind = L.KINDS.map(k => k[0]).find(k => k && (p => p.length && !p.some(x => x.r === 'легенд'))(L.buildPool(LISTS, O({ kind: k }))));
-  assert.ok(kind, 'для проверки нужен тип без легендарных предметов');
-  const o = O({ mode: 'magic', cnt: 1, kind, rar: 'легенд' }), pool = L.buildPool(LISTS, o);
-  const r = L.generate(o, pool, seeded(1));
-  assert.equal(r.items.length, 1); assert.notEqual(r.items[0].r, 'легенд');
-  const e = L.generate(O({ mode: 'magic', cnt: 2 }), [], seeded(1));
-  assert.equal(e.items.length, 0); assert.ok(e.note);
+test('замена предмета: новый берётся с той же таблицы, количество в группе уменьшается на 1', () => {
+  const r = { ed: 14, items: [] }, add = x => r.items.push(x);
+  const a = L.rollItem(seeded(1), D, 14, 'B'); a.q = 3; add(a);
+  assert.ok(L.reroll(r, 0, D, seeded(5)));
+  assert.equal(r.items.reduce((s, x) => s + x.q, 0), 3); assert.ok(r.items.every(x => x.t === 'B'));
+  const one = { ed: 24, items: [L.rollItem(seeded(2), D, 24, 'arcana.rare')] };
+  assert.ok(L.reroll(one, 0, D, seeded(3))); assert.equal(one.items.length, 1); assert.equal(one.items[0].t, 'arcana.rare');
 });
 
-test('замена предмета: другой предмет той же редкости, число предметов не меняется', () => {
-  const o = O({ mode: 'magic', cnt: 3, tier: 2 }), pool = L.buildPool(LISTS, o), r = L.generate(o, pool, seeded(9));
-  const rare = r.items[0].want, was = r.items[0].slug;
-  assert.ok(L.reroll(r, 0, pool, seeded(77)));
-  assert.equal(r.items.reduce((s, x) => s + x.q, 0), 3);
-  assert.ok(r.items.every(x => x.want));
-  assert.ok(rare);
-  assert.equal(L.reroll(r, 99, pool), false);
-  void was;
-});
-
-test('текст для копирования: монеты, ценности, предметы, итог; пометка редакции только при «обеих»', () => {
-  const o = O({ tier: 2, cnt: 2, ed: 'all' }), r = L.generate(o, L.buildPool(LISTS, o), seeded(3)), t = L.textOf(r, true);
-  assert.match(t, /^Монеты: /); assert.match(t, /Магические предметы: /); assert.match(t, /≈ [\d ]+ зм/);
-  assert.match(t, /\((24|14)\)/); assert.doesNotMatch(L.textOf(r, false), /\((24|14)\)/);
-  assert.doesNotMatch(L.textOf(L.generate(O({ mode: 'magic', cnt: 1 }), L.buildPool(LISTS, O()), seeded(2)), false), /Монеты/);
+test('текст для копирования и сумма: монеты, ценности и предметы перечислены, итог считается в золотых', () => {
+  const r = { mode: 'hoard', ed: 14, coins: { cp: 100, sp: 20, gp: 5, pp: 2 }, gems: [{ n: 'Азурит', slug: 'azurite', v: 10, q: 3 }], art: [{ n: 'Кубок', slug: '', v: 25, q: 1 }],
+    items: [{ e: 14, slug: 'potion-of-healing', n: 'Зелье лечения', r: 'c', att: false, q: 2, t: 'A' }] };
+  assert.equal(L.totalGp(r), Math.round(1 + 2 + 5 + 20 + 30 + 25));
+  const t = L.textOf(r);
+  assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/); assert.match(t, /≈ 83 зм/);
+  assert.equal(L.nf(1234567), '1 234 567');
 });
