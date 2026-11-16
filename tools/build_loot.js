@@ -82,9 +82,13 @@ const armorSlug = (e, name) => { const x = eqIdx[e].get(norm(name)); return x &&
 const IT = {};                                                   // "ed/slug" → [название, редкость, настройка, цена]
 // цена в золотых для итога: точная, а у диапазона DMG 2014 («501–5 000 зм») — середина; нет цены — null
 const gpOf = it => it.price_gp != null ? it.price_gp : (it.price_min_gp != null && it.price_max_gp != null ? Math.round((it.price_min_gp + it.price_max_gp) / 2) : null);
+// тип (как в фильтре справочника: «Оружие», «Зелье» …) и источники — для фильтра предметов в панели
+const KINDS = ['Волшебная палочка', 'Доспех', 'Жезл', 'Зелье', 'Кольцо', 'Оружие', 'Посох', 'Свиток', 'Чудесный предмет'];
+const kindOf = it => { const t = lcs(it.type || it.line || ''); const i = KINDS.findIndex(k => t.startsWith(lcs(k))); return i < 0 ? 'Прочее' : KINDS[i]; };
+const SRC = [], srcIdx = n => { let i = SRC.indexOf(n); if (i < 0) i = SRC.push(n) - 1; return i; };
 function use(e, it) {
   const k = e + '/' + it.slug;
-  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || '', gpOf(it)];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
+  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || '', gpOf(it), kindOf(it), (it.sources || []).map(srcIdx)];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
   return k;
 }
 const pickEd = (name, ed) => {
@@ -215,7 +219,7 @@ function gaRef(raw) {
 const diceRe = /^(\d+)d(\d+)(?:([*+-])(\d+))?$/;
 const dd = s => { if (!diceRe.test(String(s)) && !/^\d+$/.test(String(s))) throw new Error('формула кубиков: ' + s); return String(s); };
 
-const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, dmg: DMG };
+const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, all: { 14: [], 24: [] }, src: SRC, dmg: DMG };
 const edOf = s => s === 'DMG' ? 14 : 24;
 const cr = o => [o.crMin, o.crMax];
 const coinsOf = c => { const r = {}; for (const k of Object.keys(c)) r[k] = dd(c[k]); return r; };
@@ -244,6 +248,8 @@ for (const rk of Object.keys(RAR_FULL)) {
     const k = JSON.stringify(r[2]); if (!seen.has(k)) { seen.add(k); out.rp[rk].push(r[2]); }
   }
 }
+// весь справочник предметов редакции с понятной редкостью (без артефактов и предметов с меняющейся редкостью): режим «любой предмет» и выбор вне таблицы при фильтре
+for (const e of [14, 24]) for (const x of CAT[e].items) { const r = rarKey(x); if (r && r !== 'a') out.all[e].push(use(e, x)); }
 // заклинания по уровням (для свитков)
 for (const e of [14, 24]) for (const s of CAT[e].sp) (out.sc[e][s.level] = out.sc[e][s.level] || []).push([s.slug, s.name_ru]);
 
