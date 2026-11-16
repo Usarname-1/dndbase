@@ -80,9 +80,15 @@ const armorSlug = (e, name) => { const x = eqIdx[e].get(norm(name)); return x &&
 
 /* ---- словарь предметов, попадающих в результат ---- */
 const IT = {};                                                   // "ed/slug" → [название, редкость, настройка, цена]
+// цена в золотых для итога: точная, а у диапазона DMG 2014 («501–5 000 зм») — середина; нет цены — null
+const gpOf = it => it.price_gp != null ? it.price_gp : (it.price_min_gp != null && it.price_max_gp != null ? Math.round((it.price_min_gp + it.price_max_gp) / 2) : null);
+// тип (как в фильтре справочника: «Оружие», «Зелье» …) и источники — для фильтра предметов в панели
+const KINDS = ['Волшебная палочка', 'Доспех', 'Жезл', 'Зелье', 'Кольцо', 'Оружие', 'Посох', 'Свиток', 'Чудесный предмет'];
+const kindOf = it => { const t = lcs(it.type || it.line || ''); const i = KINDS.findIndex(k => t.startsWith(lcs(k))); return i < 0 ? 'Прочее' : KINDS[i]; };
+const SRC = [], srcIdx = n => { let i = SRC.indexOf(n); if (i < 0) i = SRC.push(n) - 1; return i; };
 function use(e, it) {
   const k = e + '/' + it.slug;
-  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || ''];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
+  if (!IT[k]) IT[k] = [it.name_ru, rarKey(it), /требуется настройка/i.test(it.attunement || '') ? 1 : 0, it.price || '', gpOf(it), kindOf(it), (it.sources || []).map(srcIdx)];   // в поле attunement справочника бывает и редкость («+1 необычный, …»), поэтому ищем именно «требуется настройка»
   return k;
 }
 const pickEd = (name, ed) => {
@@ -213,7 +219,7 @@ function gaRef(raw) {
 const diceRe = /^(\d+)d(\d+)(?:([*+-])(\d+))?$/;
 const dd = s => { if (!diceRe.test(String(s)) && !/^\d+$/.test(String(s))) throw new Error('формула кубиков: ' + s); return String(s); };
 
-const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, dmg: DMG };
+const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, all: { 14: [], 24: [] }, src: SRC, dmg: DMG };
 const edOf = s => s === 'DMG' ? 14 : 24;
 const cr = o => [o.crMin, o.crMax];
 const coinsOf = c => { const r = {}; for (const k of Object.keys(c)) r[k] = dd(c[k]); return r; };
@@ -233,8 +239,17 @@ for (const o of L.hoard) {
 for (const t of L.magicItems) out.tab[edOf(t.source)][t.type] = buildTable(t, edOf(t.source), t.type);
 for (const [k, key] of [['gems', 'gem'], ['artObjects', 'art']])
   for (const t of L[k]) out[key][edOf(t.source)][t.type] = t.table.map(gaRef);
-// случайный выбор по редкости («Предмет по уровню»): все предметы справочника 2024 нужной редкости, кроме предметов с меняющейся редкостью и артефактов
-for (const rk of ['c', 'u', 'r', 'v', 'l']) out.rp[rk] = CAT[24].items.filter(x => rarKey(x) === rk).map(x => use(24, x));
+// «Случайный предмет такой-то редкости» (таблицы «по уровню» 2024): все строки таблиц «категория.редкость» 2024 — то есть все магические предметы
+// нужной редкости, включая свитки заклинаний по уровням, «+N» и варианты предметов
+const RAR_FULL = { c: 'common', u: 'uncommon', r: 'rare', v: 'very rare', l: 'legendary' };
+for (const rk of Object.keys(RAR_FULL)) {
+  const seen = new Set(); out.rp[rk] = [];
+  for (const cat of ['arcana', 'armaments', 'implements', 'relics']) for (const r of out.tab[24][cat + '.' + RAR_FULL[rk]]) {
+    const k = JSON.stringify(r[2]); if (!seen.has(k)) { seen.add(k); out.rp[rk].push(r[2]); }
+  }
+}
+// весь справочник предметов редакции с понятной редкостью (без артефактов и предметов с меняющейся редкостью): режим «любой предмет» и выбор вне таблицы при фильтре
+for (const e of [14, 24]) for (const x of CAT[e].items) { const r = rarKey(x); if (r && r !== 'a') out.all[e].push(use(e, x)); }
 // заклинания по уровням (для свитков)
 for (const e of [14, 24]) for (const s of CAT[e].sp) (out.sc[e][s.level] = out.sc[e][s.level] || []).push([s.slug, s.name_ru]);
 

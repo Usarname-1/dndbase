@@ -110,8 +110,8 @@ test('сокровищница 2024: золото по формуле, пред�
 });
 
 test('магические предметы: бросок идёт по выбранной таблице, число штук — как просили; без «настройки» — только без настройки', () => {
-  assert.equal(L.tables(D, 14).length, 9);
-  assert.ok(L.tables(D, 24).length >= 24);
+  assert.equal(L.tables(D, 14).length, 10);
+  assert.ok(L.tables(D, 24).length >= 25); assert.equal(L.tables(D, 14)[0][0], '*');
   for (const ed of [14, 24]) for (const [key] of L.tables(D, ed)) {
     const r = gen(O({ mode: 'magic', ed, tab: key, cnt: 5 }), key.length * 31 + ed);
     assert.equal(r.items.reduce((s, x) => s + x.q, 0), 5, ed + ' ' + key); assert.equal(r.tab, key);
@@ -152,13 +152,17 @@ test('«+N»: вид оружия, доспеха, щита или боепри�
   assert.ok(!found.has('14?') && !found.has('24?'));
 });
 
-test('«по редкости» (таблицы по уровню 2024): предмет берётся из пула нужной редкости', () => {
-  const pool = {}; for (const rk of 'curvl') pool[rk] = new Set(D.rp[rk].map(k => k.split('/')[1]));
-  for (let i = 0; i < 300; i++) {
+test('«по редкости» (таблицы по уровню 2024): предмет берётся из пула нужной редкости; среди них бывают свитки и «+N»', () => {
+  const pool = {}; for (const rk of 'curvl') pool[rk] = new Set(D.rp[rk].flatMap(leaves).map(x => x.i.split('/')[1]));
+  let scrolls = 0, plus = 0; const N = 1500;
+  for (let i = 0; i < N; i++) {
     const x = L.rollItem(seeded(i + 99), D, 24, 'byLevel.5-10');
     assert.ok(pool[x.r] && pool[x.r].has(x.slug), x.n + ' ' + x.r);
     assert.ok('cur v'.includes(x.r));                                      // для уровней 5–10 — до очень редких включительно
+    if (x.sp) scrolls++; if (/ \+\d$/.test(x.n)) plus++;
   }
+  assert.ok(scrolls > 0, 'в сокровищнице 2024 не выпадают свитки'); assert.ok(plus > 0);
+  for (const rk of 'curvl') assert.ok(D.rp[rk].length > 10, rk);
 });
 
 test('замена предмета: новый берётся с той же таблицы, количество в группе уменьшается на 1', () => {
@@ -170,11 +174,76 @@ test('замена предмета: новый берётся с той же т
   assert.ok(L.reroll(one, 0, D, seeded(3))); assert.equal(one.items.length, 1); assert.equal(one.items[0].t, 'arcana.rare');
 });
 
-test('текст для копирования и сумма: монеты, ценности и предметы перечислены, итог считается в золотых', () => {
+test('сумма: монеты, самоцветы, искусство и магические предметы по ценам справочника; без цены — не считается, но считается в «нет цены»', () => {
   const r = { mode: 'hoard', ed: 14, coins: { cp: 100, sp: 20, gp: 5, pp: 2 }, gems: [{ n: 'Азурит', slug: 'azurite', v: 10, q: 3 }], art: [{ n: 'Кубок', slug: '', v: 25, q: 1 }],
-    items: [{ e: 14, slug: 'potion-of-healing', n: 'Зелье лечения', r: 'c', att: false, q: 2, t: 'A' }] };
-  assert.equal(L.totalGp(r), Math.round(1 + 2 + 5 + 20 + 30 + 25));
+    items: [{ e: 14, slug: 'potion-of-healing', n: 'Зелье лечения', r: 'c', att: false, q: 2, t: 'A', gp: 50 }, { e: 14, slug: 'x', n: 'Меч +1', r: 'u', att: false, q: 1, t: 'A', gp: null }] };
+  assert.equal(L.itemsGp(r), 100); assert.equal(L.noPrice(r), 1);
+  assert.equal(L.totalGp(r), 1 + 2 + 5 + 20 + 30 + 25 + 100);
   const t = L.textOf(r);
-  assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/); assert.match(t, /≈ 83 зм/);
+  assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/);
+  assert.match(t, /Всего ≈ 183 зм \(магические предметы — по ценам справочника, у 1 шт\. цены нет\)/);
   assert.equal(L.nf(1234567), '1 234 567');
+  // магические предметы из таблиц несут цену из справочника (кроме «+N» к общему предмету)
+  const priced = Array.from({ length: 40 }, (_, i) => L.rollItem(seeded(i + 3), D, 24, 'arcana.rare')).filter(y => !y.sp);
+  assert.ok(priced.filter(y => y.gp > 0).length > priced.length * 0.6, 'у большинства предметов 2024 есть цена'); assert.ok(priced.every(y => y.gp == null || y.gp > 0));
+  let plus = 0; for (let i = 0; i < 400 && !plus; i++) { const y = L.rollItem(seeded(i), D, 14, 'G'); if (/ \+\d$/.test(y.n)) { plus++; assert.equal(y.gp, null); } }
+  assert.ok(plus);
+  // 2014: диапазон цены («501–5 000 зм») — середина диапазона
+  assert.equal(D.it['14/bag-of-holding'][4] > 0, true);
+});
+
+/* ---- фильтр предметов ---- */
+const view = x => L.viewOf(D, x);
+const fits = (f, x) => L.matcher(f)(view(x));
+
+test('фильтр: группы «или» внутри и «и» между ними, пустые группы ничего не ограничивают', () => {
+  assert.ok(!L.fActive(null) && !L.fActive({}) && !L.fActive({ r: [], k: [] }) && L.fActive({ r: ['c'] }));
+  const m = L.matcher({ r: ['c', 'u'], k: ['Зелье'], a: ['n'], p: ['a', 'b'], s: ['Х'] });
+  const v = { r: 'u', k: 'Зелье', a: 'n', p: 'b', s: ['Y', 'Х'] };
+  assert.ok(m(v));
+  for (const bad of [{ r: 'r' }, { k: 'Кольцо' }, { a: 'y' }, { p: 'd' }, { s: ['Y'] }]) assert.ok(!m(Object.assign({}, v, bad)), JSON.stringify(bad));
+  assert.ok(L.matcher({})(v) && L.matcher(null)(v));
+  assert.equal(L.priceB(100), 'a'); assert.equal(L.priceB(101), 'b'); assert.equal(L.priceB(1000), 'b'); assert.equal(L.priceB(1001), 'c'); assert.equal(L.priceB(10000), 'c'); assert.equal(L.priceB(10001), 'd'); assert.equal(L.priceB(null), '0');
+});
+
+test('фильтр: любой предмет справочника — выпадают только подходящие под все группы, у каждой редакции своя база', () => {
+  const F = { r: ['c', 'u'], k: ['Зелье', 'Кольцо'], a: ['n'], p: ['a', 'b'] };
+  for (const ed of [14, 24]) {
+    let n = 0; const kinds = new Set();
+    for (let i = 0; i < 300; i++) {
+      const x = L.rollItem(seeded(i + ed), D, ed, '*', F); assert.ok(x, ed + ' нет предмета'); n++;
+      assert.ok(fits(F, x), x.n + ' ' + JSON.stringify(view(x))); assert.equal(x.e, ed); kinds.add(view(x).k);
+    }
+    assert.ok(kinds.size === 2, 'оба типа должны встречаться: ' + [...kinds]);
+  }
+  // источник: только предметы этого источника
+  const src = 'Eberron: Rising from the Last War';
+  for (let i = 0; i < 80; i++) { const x = L.rollItem(seeded(i), D, 14, '*', { s: [src] }); assert.ok(view(x).s.includes(src), x.n); }
+  // «Требуется настройка»
+  for (let i = 0; i < 80; i++) assert.equal(L.rollItem(seeded(i), D, 24, '*', { a: ['y'] }).att, true);
+  // без фильтра — любой предмет из справочника редакции с понятной редкостью
+  const any = L.rollItem(seeded(1), D, 24, '*'); assert.ok(any && D.all[24].includes('24/' + any.slug));
+});
+
+test('фильтр на таблице: подходящие предметы берутся с самой таблицы; если их там нет — из всего справочника (пометка fb); если и там нет — ничего', () => {
+  // таблица A 2014 — ходовые зелья и свитки; «редкий» там не выпадает, но выпал бы из справочника
+  const rare = L.rollItem(seeded(5), D, 14, 'A', { r: ['r'] }); assert.ok(rare && rare.fb && rare.r === 'r');
+  // зелья с таблицы A: берутся с неё, пометки нет
+  for (let i = 0; i < 100; i++) { const x = L.rollItem(seeded(i), D, 14, 'A', { k: ['Зелье'] }); assert.ok(!x.fb && view(x).k === 'Зелье' && x.t === 'A'); }
+  assert.equal(L.rollItem(seeded(1), D, 14, 'A', { r: ['c'], k: ['Кольцо'], p: ['d'] }), null);
+  const g = gen(O({ mode: 'magic', ed: 14, tab: 'A', cnt: 3, f: { r: ['c'], k: ['Кольцо'], p: ['d'] } }), 1);
+  assert.equal(g.items.length, 0); assert.match(g.note, /нет предметов под выбранный фильтр/);
+  const h = gen(O({ mode: 'magic', ed: 14, tab: 'A', cnt: 4, f: { r: ['l'] } }), 2);
+  assert.ok(h.fb && h.items.every(x => x.r === 'l' && x.fb));
+});
+
+test('фильтр: работает в сокровищнице и при замене предмета; прежняя галочка noAtt совпадает с фильтром «Настройка: не требуется»', () => {
+  const F = { k: ['Зелье'] };
+  for (let i = 0; i < 60; i++) {
+    const r = gen(O({ ed: i % 2 ? 24 : 14, cr: 1, f: F }), 800 + i);
+    r.items.forEach(x => assert.equal(view(x).k, 'Зелье', x.n));
+    if (r.items.length && L.reroll(r, 0, D, seeded(i), F)) r.items.forEach(x => assert.equal(view(x).k, 'Зелье', 'после замены: ' + x.n));
+  }
+  for (const ed of [14, 24]) gen(O({ mode: 'magic', ed, tab: '*', cnt: 30, noAtt: true }), 4).items.forEach(x => assert.ok(!x.att, x.n));
+  for (let i = 0; i < 40; i++) L.rollItem(seeded(i), D, 24, 'arcana.rare', { a: ['n'] }) && assert.ok(!L.rollItem(seeded(i), D, 24, 'arcana.rare', { a: ['n'] }).att);
 });
