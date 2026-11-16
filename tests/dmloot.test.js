@@ -152,13 +152,17 @@ test('«+N»: вид оружия, доспеха, щита или боепри�
   assert.ok(!found.has('14?') && !found.has('24?'));
 });
 
-test('«по редкости» (таблицы по уровню 2024): предмет берётся из пула нужной редкости', () => {
-  const pool = {}; for (const rk of 'curvl') pool[rk] = new Set(D.rp[rk].map(k => k.split('/')[1]));
-  for (let i = 0; i < 300; i++) {
+test('«по редкости» (таблицы по уровню 2024): предмет берётся из пула нужной редкости; среди них бывают свитки и «+N»', () => {
+  const pool = {}; for (const rk of 'curvl') pool[rk] = new Set(D.rp[rk].flatMap(leaves).map(x => x.i.split('/')[1]));
+  let scrolls = 0, plus = 0; const N = 1500;
+  for (let i = 0; i < N; i++) {
     const x = L.rollItem(seeded(i + 99), D, 24, 'byLevel.5-10');
     assert.ok(pool[x.r] && pool[x.r].has(x.slug), x.n + ' ' + x.r);
     assert.ok('cur v'.includes(x.r));                                      // для уровней 5–10 — до очень редких включительно
+    if (x.sp) scrolls++; if (/ \+\d$/.test(x.n)) plus++;
   }
+  assert.ok(scrolls > 0, 'в сокровищнице 2024 не выпадают свитки'); assert.ok(plus > 0);
+  for (const rk of 'curvl') assert.ok(D.rp[rk].length > 10, rk);
 });
 
 test('замена предмета: новый берётся с той же таблицы, количество в группе уменьшается на 1', () => {

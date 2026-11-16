@@ -56,7 +56,7 @@
   function pickRef(rnd, D, ed, ref, key) {
     if (ref.sub) return pickRef(rnd, D, ed, row(rnd, ref.sub)[2], key);
     if (ref.any) return pickRef(rnd, D, ed, pick(rnd, ref.any), key);
-    if (ref.rar) return finish(rnd, D, { i: pick(rnd, D.rp[ref.rar]), r: ref.rar }, key);
+    if (ref.rar) return pickRef(rnd, D, ed, pick(rnd, D.rp[ref.rar]), key);
     return finish(rnd, D, ref, key);
   }
   // один предмет с таблицы key (опция noAtt: без предметов, требующих настройки — перебрасывается до 25 раз)

@@ -235,8 +235,15 @@ for (const o of L.hoard) {
 for (const t of L.magicItems) out.tab[edOf(t.source)][t.type] = buildTable(t, edOf(t.source), t.type);
 for (const [k, key] of [['gems', 'gem'], ['artObjects', 'art']])
   for (const t of L[k]) out[key][edOf(t.source)][t.type] = t.table.map(gaRef);
-// случайный выбор по редкости («Предмет по уровню»): все предметы справочника 2024 нужной редкости, кроме предметов с меняющейся редкостью и артефактов
-for (const rk of ['c', 'u', 'r', 'v', 'l']) out.rp[rk] = CAT[24].items.filter(x => rarKey(x) === rk).map(x => use(24, x));
+// «Случайный предмет такой-то редкости» (таблицы «по уровню» 2024): все строки таблиц «категория.редкость» 2024 — то есть все магические предметы
+// нужной редкости, включая свитки заклинаний по уровням, «+N» и варианты предметов
+const RAR_FULL = { c: 'common', u: 'uncommon', r: 'rare', v: 'very rare', l: 'legendary' };
+for (const rk of Object.keys(RAR_FULL)) {
+  const seen = new Set(); out.rp[rk] = [];
+  for (const cat of ['arcana', 'armaments', 'implements', 'relics']) for (const r of out.tab[24][cat + '.' + RAR_FULL[rk]]) {
+    const k = JSON.stringify(r[2]); if (!seen.has(k)) { seen.add(k); out.rp[rk].push(r[2]); }
+  }
+}
 // заклинания по уровням (для свитков)
 for (const e of [14, 24]) for (const s of CAT[e].sp) (out.sc[e][s.level] = out.sc[e][s.level] || []).push([s.slug, s.name_ru]);
 
