@@ -452,7 +452,7 @@
       const pe = a.closest('.dmp'), info = pe && els.get(pe.dataset.id);
       const ed = m.e, sec = m.k, slug = m.slug;
       if (info && info.ctx.p.t === 'entity' && !(e.ctrlKey || e.metaKey) && pe._nav) pe._nav(ed, sec, slug);
-      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && (info.ctx.p.t === 'init' || info.ctx.p.t === 'conds')));
+      else showEntity({ e: ed, sec, slug }, e.ctrlKey || e.metaKey || !!(info && (info.ctx.p.t === 'init' || info.ctx.p.t === 'conds' || info.ctx.p.t === 'loot')));
     });
     if (root.AutoLinks) AutoLinks.bindTips(host);
   }
