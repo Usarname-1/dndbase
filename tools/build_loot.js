@@ -219,7 +219,7 @@ function gaRef(raw) {
 const diceRe = /^(\d+)d(\d+)(?:([*+-])(\d+))?$/;
 const dd = s => { if (!diceRe.test(String(s)) && !/^\d+$/.test(String(s))) throw new Error('формула кубиков: ' + s); return String(s); };
 
-const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, all: { 14: [], 24: [] }, src: SRC, dmg: DMG };
+const out = { v: 1, ind: { 14: [], 24: [] }, hoard: { 14: [], 24: [] }, tab: { 14: {}, 24: {} }, gem: { 14: {}, 24: {} }, art: { 14: {}, 24: {} }, it: IT, sc: { 14: {}, 24: {} }, eq: EQ, rp: {}, all: { 14: [], 24: [] }, gear: { 14: [], 24: [] }, gcat: { 14: [], 24: [] }, src: SRC, dmg: DMG };
 const edOf = s => s === 'DMG' ? 14 : 24;
 const cr = o => [o.crMin, o.crMax];
 const coinsOf = c => { const r = {}; for (const k of Object.keys(c)) r[k] = dd(c[k]); return r; };
@@ -250,6 +250,15 @@ for (const rk of Object.keys(RAR_FULL)) {
 }
 // весь справочник предметов редакции с понятной редкостью (без артефактов и предметов с меняющейся редкостью): режим «любой предмет» и выбор вне таблицы при фильтре
 for (const e of [14, 24]) for (const x of CAT[e].items) { const r = rarKey(x); if (r && r !== 'a') out.all[e].push(use(e, x)); }
+// обычное снаряжение (оружие, доспехи, инструменты, наборы …) — для «выпадения снаряжения»; категории — как в фильтре справочника
+// 2024: категория по полю line (так же, как в core.js eqCat); 2014: category_ru. Не берём то, что не «выпадает»: самоцветы, предметы искусства и товары (они есть в сокровищнице), транспорт, скакунов, упряжь, улучшения кораблей и адских машин
+const eqCat24 = m => { const l = m.line || ''; return !l ? 'Прочее' : /^Яд/.test(l) ? 'Яды' : /^(Самоцвет|Предмет искусства|Товар)/.test(l) ? 'Сокровища' : /оружие/.test(l) ? 'Оружие' : /доспех|Щит/.test(l) ? 'Доспех и щиты' : /фокусировка/.test(l) ? 'Заклинательная фокусировка' : /Ремесленный/.test(l) ? 'Ремесленный инструмент' : /Инструмент/.test(l) ? 'Инструмент' : /Набор/.test(l) ? 'Набор снаряжения' : /Боеприпас/.test(l) ? 'Боеприпасы' : 'Предмет снаряжения'; };
+const NOT_GEAR = new Set(['Сокровища', 'Прочее', 'Транспорт', 'Скакуны', 'Упряжь и повозки', 'Улучшения кораблей', 'Улучшения адских машин']);
+for (const e of [14, 24]) for (const m of CAT[e].eq) {
+  const c = e === 14 ? m.category_ru : eqCat24(m); if (!c || NOT_GEAR.has(c) || !m.name_ru) continue;
+  let ci = out.gcat[e].indexOf(c); if (ci < 0) ci = out.gcat[e].push(c) - 1;
+  out.gear[e].push([m.slug, m.name_ru, ci, m.cost_gp != null ? m.cost_gp : null, m.cost || '']);
+}
 // заклинания по уровням (для свитков)
 for (const e of [14, 24]) for (const s of CAT[e].sp) (out.sc[e][s.level] = out.sc[e][s.level] || []).push([s.slug, s.name_ru]);
 
