@@ -87,6 +87,15 @@
     for (let i = 0; i < 300; i++) { const it = pickRef(rnd, D, ed, row(rnd, tab)[2], key); if (ok(viewOf(D, it))) return it; }
     const it = pickPool(rnd, D, ed, f, key); if (it) it.fb = 1; return it;
   }
+  // обычное снаряжение (D.gear: [slug, название, категория, цена в зм, цена текстом]); фильтр gf = { c: [категории], p: [цены 'a'…'0'] }
+  const gearOk = (D, ed, gf) => g => (!(gf && gf.c && gf.c.length) || gf.c.includes(D.gcat[ed][g[2]])) && (!(gf && gf.p && gf.p.length) || gf.p.includes(priceB(g[3])));
+  const gearItem = (ed, g, D) => ({ e: ed, slug: g[0], n: g[1], q: 1, gp: g[3], cost: g[4], c: D.gcat[ed][g[2]] });
+  const addGear = (list, x) => { const same = list.find(y => y.slug === x.slug); if (same) same.q++; else list.push(x); };
+  function rollGear(rnd, D, ed, count, gf) {
+    const pool = D.gear[ed].filter(gearOk(D, ed, gf)), out = [];
+    if (pool.length) for (let i = 0; i < count; i++) addGear(out, gearItem(ed, pick(rnd, pool), D));
+    return out;
+  }
   const addItem = (list, x) => {
     const same = list.find(y => y.e === x.e && y.slug === x.slug && y.n === x.n && (y.sp && y.sp.slug) === (x.sp && x.sp.slug) && (y.eq && y.eq.slug) === (x.eq && x.eq.slug));
     if (same) same.q++; else list.push(x);
@@ -102,7 +111,7 @@
   function generate(o, D, rnd) {
     rnd = rnd || Math.random;
     const ed = +o.ed === 14 ? 14 : 24, cr = Math.min(3, Math.max(0, +o.cr || 0));
-    const r = { mode: o.mode, ed, cr, coins: {}, gems: [], art: [], items: [], note: '' }, f = o.noAtt ? Object.assign({}, o.f, { a: ['n'] }) : o.f;
+    const r = { mode: o.mode, ed, cr, coins: {}, gems: [], art: [], items: [], gear: [], note: '' }, f = o.noAtt ? Object.assign({}, o.f, { a: ['n'] }) : o.f;
     const magic = (key, n) => {
       for (let i = 0; i < n; i++) {
         const it = rollItem(rnd, D, ed, key, f);
@@ -119,6 +128,11 @@
       if (x.g) r.gems = treasure(rnd, D, ed, 'gem', x.g[0], dice(rnd, x.g[1]));
       if (x.a) r.art = treasure(rnd, D, ed, 'art', x.a[0], dice(rnd, x.a[1]));
       (x.m || []).forEach(([key, amount]) => magic(key === 'randomByLevel' ? 'byLevel.' + lvKey(o, cr) : key, dice(rnd, amount)));
+      const gn = o.gear && o.gear !== '0' ? dice(rnd, o.gear) : 0;                  // снаряжение — дополнение к правилам: сколько штук добавить к кладу
+      if (gn) { r.gear = rollGear(rnd, D, ed, gn, o.gf); if (!r.gear.length) r.note = 'В справочнике нет снаряжения под выбранный фильтр.'; }
+    } else if (o.mode === 'gear') {
+      r.gear = rollGear(rnd, D, ed, +o.gcnt > 0 ? +o.gcnt : 3, o.gf);
+      if (!r.gear.length) r.note = 'В справочнике нет снаряжения под выбранный фильтр — смягчите его.';
     } else {
       const key = o.tab === '*' || (o.tab && tabOf(D, ed, o.tab)) ? o.tab : Object.keys(D.tab[ed])[0];
       r.tab = key; magic(key, +o.cnt > 0 ? +o.cnt : 1);
@@ -132,9 +146,17 @@
     if (old.q > 1) old.q--; else r.items.splice(i, 1);
     addItem(r.items, it); return true;
   }
+  // другое снаряжение вместо r.gear[i] (под тот же фильтр gf; одна штука из группы)
+  function rerollGear(r, i, D, rnd, gf) {
+    const old = r.gear[i]; if (!old) return false;
+    const pool = D.gear[r.ed].filter(gearOk(D, r.ed, gf)).filter(g => g[0] !== old.slug); if (!pool.length) return false;
+    if (old.q > 1) old.q--; else r.gear.splice(i, 1);
+    addGear(r.gear, gearItem(r.ed, pick(rnd || Math.random, pool), D)); return true;
+  }
   const coinGp = c => COIN.reduce((s, k) => s + (c[k] || 0) * GP[k], 0);
-  const itemsGp = r => r.items.reduce((s, x) => s + (x.gp || 0) * x.q, 0);               // магические предметы — по ценам справочника
-  const noPrice = r => r.items.reduce((s, x) => s + (x.gp == null ? x.q : 0), 0);          // сколько предметов без цены (в итог не вошли)
+  const gearGp = r => (r.gear || []).reduce((s, x) => s + (x.gp || 0) * x.q, 0);
+  const itemsGp = r => r.items.reduce((s, x) => s + (x.gp || 0) * x.q, 0) + gearGp(r);               // магические предметы — по ценам справочника
+  const noPrice = r => r.items.concat(r.gear || []).reduce((s, x) => s + (x.gp == null ? x.q : 0), 0);          // сколько предметов без цены (в итог не вошли)
   const totalGp = r => Math.round(coinGp(r.coins) + [...r.gems, ...r.art].reduce((s, x) => s + x.v * x.q, 0) + itemsGp(r));
   const nf = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   const coinStr = c => COIN.filter(k => c[k]).map(k => nf(c[k]) + ' ' + COIN_N[k]).join(', ');
@@ -144,8 +166,9 @@
     if (cs) L.push('Монеты: ' + cs);
     r.gems.length && L.push('Самоцветы: ' + r.gems.map(val).join('; '));
     r.art.length && L.push('Предметы искусства: ' + r.art.map(val).join('; '));
+    (r.gear || []).length && L.push('Снаряжение: ' + r.gear.map(x => (x.q > 1 ? x.q + '× ' : '') + x.n + (x.cost ? ' — ' + x.cost.toLowerCase() + (x.q > 1 ? ' каждый' : '') : '')).join('; '));
     r.items.length && L.push('Магические предметы: ' + r.items.map(itemText).join('; '));
-    L.push('Всего ≈ ' + nf(totalGp(r)) + ' зм' + (r.items.length ? ' (магические предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')' : ''));
+    L.push('Всего ≈ ' + nf(totalGp(r)) + ' зм' + (r.items.length || (r.gear || []).length ? ' (предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')' : ''));
     return L.join('\n');
   }
   // подписи таблиц магических предметов для выбора
@@ -158,7 +181,7 @@
     return out;
   }
 
-  const API = { KINDS, ATT_N, PRICE_N, priceB, fActive, matcher, viewOf, pickPool, COIN, COIN_N, RAR_N, CRS, CR_N, LV, LV_N, dice, row, generate, reroll, rollItem, totalGp, itemsGp, noPrice, coinGp, coinStr, textOf, nf, tables };
+  const API = { rollGear, rerollGear, gearGp, KINDS, ATT_N, PRICE_N, priceB, fActive, matcher, viewOf, pickPool, COIN, COIN_N, RAR_N, CRS, CR_N, LV, LV_N, dice, row, generate, reroll, rollItem, totalGp, itemsGp, noPrice, coinGp, coinStr, textOf, nf, tables };
   if (typeof module !== 'undefined' && module.exports) { module.exports = API; return; }
 
   /* ---------- панель ---------- */
@@ -186,47 +209,61 @@
     if (!s.tab || s.tab.length > 20) s.tab = '';
     if (s.res && !s.res.items.every(x => x.t != null)) s.res = null;
     if (!s.f) s.f = {};
+    if (!s.gf) s.gf = {};
+    if (!s.gear) s.gear = '0';
+    if (!(+s.gcnt > 0)) s.gcnt = 3;
     if (s.noAtt) { s.f.a = ['n']; delete s.noAtt; }                          // прежняя галочка «Без настройки» — теперь часть фильтра
     const fail = () => DM.toast('Не удалось загрузить таблицы лута. Проверьте соединение.');
-    const opts = () => ({ mode: s.mode, ed: s.ed, cr: s.cr, lv: s.lv, tab: s.tab, cnt: s.cnt, f: s.f });
+    const opts = () => ({ mode: s.mode, ed: s.ed, cr: s.cr, lv: s.lv, tab: s.tab, cnt: s.cnt, f: s.f, gear: s.gear, gcnt: s.gcnt, gf: s.gf });
     async function go() {
       let D; try { D = await getData(); } catch (e) { return fail(); }
       s.res = generate(opts(), D); ctx.save(); drawRes();
     }
-    // фильтр предметов: группы галочек (как в фильтре справочника), в скобках — сколько предметов справочника редакции подходит
+    // фильтр: группы галочек (как в фильтре справочника), справа — сколько предметов справочника редакции подходит
+    // st — объект с выбранным ({группа: [значения]}), key — ключ состояния для «раскрыто», groups — [[группа, заголовок, [[значение, подпись]…]]…], cnt — {группа: {значение: число}}
+    function mkBox(title, hint, st, key, groups, cnt, setSt) {
+      const n = groups.reduce((t, g) => t + (st[g[0]] || []).length, 0);
+      return h('details', { class: 'ltflt', open: !!s[key], ontoggle: e => { s[key] = e.target.open; ctx.save(); } },
+        h('summary', {}, title, n ? h('b', {}, ' · выбрано ' + n) : null),
+        h('p', { class: 'ltfh' }, hint),
+        groups.map(([g, gt, opts]) => h('div', { class: 'ltfg' + (g === 's' ? ' ltfs' : '') }, h('h6', {}, gt),
+          opts.map(([v, t]) => h('label', { class: 'ltfo' }, h('input', { type: 'checkbox', checked: (st[g] || []).includes(v), onchange: e => {
+            const a = new Set(st[g] || []); e.target.checked ? a.add(v) : a.delete(v); st[g] = [...a]; ctx.save(); drawTop(); } }), ' ' + t, h('small', {}, String(cnt[g][v] || 0)))))),
+        n ? h('button', { type: 'button', class: 'ltfx', onclick: () => { setSt({}); ctx.save(); drawTop(); } }, 'Сбросить фильтр') : null);
+    }
     function filterBox(D) {
-      const all = D.all[s.ed].map(k => D.it[k]);
       const cnt = { r: {}, k: {}, a: {}, p: {}, s: {} };
-      all.forEach(b => { const add = (g, v) => { cnt[g][v] = (cnt[g][v] || 0) + 1; }; add('r', b[1]); add('k', b[5]); add('a', b[2] ? 'y' : 'n'); add('p', priceB(b[4])); (b[6] || []).forEach(i => add('s', D.src[i])); });
+      D.all[s.ed].map(k => D.it[k]).forEach(b => { const add = (g, v) => { cnt[g][v] = (cnt[g][v] || 0) + 1; }; add('r', b[1]); add('k', b[5]); add('a', b[2] ? 'y' : 'n'); add('p', priceB(b[4])); (b[6] || []).forEach(i => add('s', D.src[i])); });
       const groups = [['r', 'Редкость', ['c', 'u', 'r', 'v', 'l'].map(k => [k, cap(RAR_N[k])])], ['k', 'Тип', KINDS.map(k => [k, k])], ['a', 'Настройка', ATT_N], ['p', 'Цена', PRICE_N],
         ['s', 'Источник', Object.keys(cnt.s).sort((x, y) => cnt.s[y] - cnt.s[x] || x.localeCompare(y)).map(k => [k, k])]];
-      const n = GROUPS.reduce((t, g) => t + (s.f[g] || []).length, 0);
-      const box = h('details', { class: 'ltflt', open: !!s.fOpen, ontoggle: e => { s.fOpen = e.target.open; ctx.save(); } },
-        h('summary', {}, 'Фильтр предметов', n ? h('b', {}, ' · выбрано ' + n) : null),
-        h('p', { class: 'ltfh' }, 'Внутри группы — «или», между группами — «и». Если в таблице нет подходящих предметов, берётся любой подходящий из справочника.'),
-        groups.map(([g, title, opts]) => h('div', { class: 'ltfg' + (g === 's' ? ' ltfs' : '') }, h('h6', {}, title),
-          opts.map(([v, t]) => h('label', { class: 'ltfo' }, h('input', { type: 'checkbox', checked: (s.f[g] || []).includes(v), onchange: e => {
-            const a = new Set(s.f[g] || []); e.target.checked ? a.add(v) : a.delete(v); s.f[g] = [...a]; ctx.save(); drawTop(); } }), ' ' + t, h('small', {}, String(cnt[g][v] || 0)))))),
-        n ? h('button', { type: 'button', class: 'ltfx', onclick: () => { s.f = {}; ctx.save(); drawTop(); } }, 'Сбросить фильтр') : null);
-      return box;
+      return mkBox('Фильтр предметов', 'Внутри группы — «или», между группами — «и». Если в таблице нет подходящих предметов, берётся любой подходящий из справочника.', s.f, 'fOpen', groups, cnt, v => { s.f = v; });
+    }
+    function gearBox(D) {
+      const cats = D.gcat[s.ed], cnt = { c: {}, p: {} };
+      D.gear[s.ed].forEach(g => { const c = cats[g[2]], p = priceB(g[3]); cnt.c[c] = (cnt.c[c] || 0) + 1; cnt.p[p] = (cnt.p[p] || 0) + 1; });
+      const groups = [['c', 'Категория', cats.map(c => [c, c])], ['p', 'Цена', PRICE_N]];
+      return mkBox('Фильтр снаряжения', 'Внутри группы — «или», между группами — «и». Выпадает случайное снаряжение из справочника выбранной редакции.', s.gf, 'gOpen', groups, cnt, v => { s.gf = v; });
     }
     function drawTop() {
       const D = DATA; top.textContent = '';
-      const modes = [['hoard', 'Сокровищница'], ['ind', 'С монстра'], ['magic', 'Магия']], hoard = s.mode === 'hoard', magic = s.mode === 'magic';
+      const modes = [['hoard', 'Сокровищница'], ['ind', 'С монстра'], ['magic', 'Магия'], ['gear', 'Снаряжение']], hoard = s.mode === 'hoard', magic = s.mode === 'magic', gear = s.mode === 'gear';
       const tabs = D ? tables(D, s.ed) : [];
       if (magic && D && !tabs.some(t => t[0] === s.tab)) s.tab = tabs[1][0];     // первая строка — «любой предмет», по умолчанию — первая настоящая таблица
       top.append(...[
-        h('div', { class: 'seg' }, modes.map(([k, t]) => h('button', { type: 'button', class: s.mode === k ? 'act' : '', title: k === 'hoard' ? 'Клад: монеты, самоцветы, ценности и магические предметы' : k === 'ind' ? 'Монеты, которые несёт с собой один монстр или NPC' : 'Только магические предметы с выбранной таблицы',
+        h('div', { class: 'seg' }, modes.map(([k, t]) => h('button', { type: 'button', class: s.mode === k ? 'act' : '', title: k === 'hoard' ? 'Клад: монеты, самоцветы, ценности и магические предметы' : k === 'ind' ? 'Монеты, которые несёт с собой один монстр или NPC' : k === 'gear' ? 'Обычное снаряжение: оружие, доспехи, инструменты, наборы…' : 'Только магические предметы с выбранной таблицы',
           onclick: () => { s.mode = k; s.res = null; ctx.save(); drawTop(); } }, t))),
         h('div', { class: 'ltg' },
-          fld('Правила', sel([[24, 'Редакция 2024'], [14, 'Редакция 2014']], s.ed, v => { s.ed = +v; s.tab = ''; s.res = null; ctx.save(); drawRes(); })),
-          magic ? fld('Таблица', sel(tabs, s.tab, v => { s.tab = v; ctx.save(); })) : fld('Опасность', sel(CR_N.map((t, i) => [i, t]), s.cr, v => { s.cr = +v; ctx.save(); }))),
+          fld('Правила', sel([[24, 'Редакция 2024'], [14, 'Редакция 2014']], s.ed, v => { s.ed = +v; s.tab = ''; s.res = null; delete s.f.s; delete s.gf.c; ctx.save(); drawRes();   // источники и категории снаряжения у редакций свои
+           })),
+          magic ? fld('Таблица', sel(tabs, s.tab, v => { s.tab = v; ctx.save(); })) : gear ? fld('Штук', sel([1, 2, 3, 4, 5, 6, 8, 10, 15, 20].map(n => [n, String(n)]), s.gcnt, v => { s.gcnt = +v; ctx.save(); })) : fld('Опасность', sel(CR_N.map((t, i) => [i, t]), s.cr, v => { s.cr = +v; ctx.save(); }))),
         (hoard && s.ed === 24) ? h('div', { class: 'ltg' }, fld('Магические предметы — по уровню', sel([['auto', 'Как у опасности']].concat(LV_N.map((t, i) => [LV[i], t])), s.lv, v => { s.lv = v; ctx.save(); }))) : null,
+        hoard ? h('div', { class: 'ltg' }, fld('Добавить снаряжение', sel([['0', 'Нет'], ['1d4', '1к4 шт.'], ['1d6', '1к6 шт.'], ['2d6', '2к6 шт.'], ['4d6', '4к6 шт.']], s.gear, v => { s.gear = v; ctx.save(); drawTop(); }))) : null,
         magic ? h('div', { class: 'ltg' },
           fld('Предметов', sel([1, 2, 3, 4, 5, 6, 8, 10].map(n => [n, String(n)]), s.cnt, v => { s.cnt = +v; ctx.save(); }))) : null,
         h('div', { class: 'row' }, h('button', { type: 'button', class: 'pri', onclick: go }, s.res ? 'Перебросить всё' : 'Сгенерировать'),
           s.res ? h('button', { type: 'button', onclick: () => copy(textOf(s.res)), title: 'Скопировать результат текстом' }, 'Копировать') : null),
-        (hoard || magic) && D ? filterBox(D) : null].filter(Boolean));
+        (hoard || magic) && D ? filterBox(D) : null,
+        ((hoard && s.gear !== '0') || gear) && D ? gearBox(D) : null].filter(Boolean));
     }
     function block(title, ...kids) { return h('div', { class: 'ltb' }, h('h5', {}, title), ...kids); }
     function drawRes() {
@@ -234,12 +271,18 @@
       const r = s.res;
       if (!r) { out.append(h('p', { class: 'dmempty' }, 'Выберите, что нужно, и нажмите «Сгенерировать». Каждый предмет можно заменить кнопкой ↻.')); return; }
       const cs = COIN.filter(k => r.coins[k]);
-      if (r.mode !== 'magic') out.append(block('Монеты', cs.length ? h('div', { class: 'ltcoins' }, cs.map(k => h('span', { class: 'ltcoin c' + k }, h('b', {}, nf(r.coins[k])), ' ' + COIN_N[k]))) : h('p', { class: 'dmempty' }, 'Нет')));
+      if (r.mode !== 'magic' && r.mode !== 'gear') out.append(block('Монеты', cs.length ? h('div', { class: 'ltcoins' }, cs.map(k => h('span', { class: 'ltcoin c' + k }, h('b', {}, nf(r.coins[k])), ' ' + COIN_N[k]))) : h('p', { class: 'dmempty' }, 'Нет')));
       const val = (title, a) => a.length ? out.append(block(title, a.map(x => h('div', { class: 'ltr' },
         h('span', {}, (x.q > 1 ? x.q + '× ' : ''), x.slug ? h('a', { href: DB().hh(24, 'equipment', x.slug) }, x.n) : x.n),
         h('small', {}, nf(x.v) + ' зм' + (x.q > 1 ? ' каждый' : ''))))))  : 0;
       val('Самоцветы', r.gems); val('Предметы искусства', r.art);
-      if (r.mode !== 'ind') {
+      if ((r.gear || []).length) out.append(block('Снаряжение', r.gear.map((x, i) => h('div', { class: 'ltr it r-x' },
+        h('span', {}, x.q > 1 ? x.q + '× ' : '', h('a', { href: DB().hh(x.e, 'equipment', x.slug) }, x.n)),
+        h('button', { type: 'button', class: 'xx', title: 'Заменить на другое снаряжение', onclick: async () => { let D; try { D = await getData(); } catch (e) { return fail(); } if (rerollGear(r, i, D, null, s.gf)) { ctx.save(); drawRes(); } else DM.toast('Нет другого подходящего снаряжения'); } }, '↻'),
+        h('button', { type: 'button', class: 'xx', title: 'Убрать', onclick: () => { r.gear.splice(i, 1); ctx.save(); drawRes(); } }, '×'),
+        h('small', {}, x.c + (x.cost ? ' · ' + x.cost.toLowerCase() + (x.q > 1 ? ' каждый' : '') : ''))))));
+      else if (r.mode === 'gear') out.append(h('p', { class: 'dmempty' }, r.note || 'Снаряжения нет'));
+      if (r.mode !== 'ind' && r.mode !== 'gear') {
         const swap = async i => {
           let D; try { D = await getData(); } catch (e) { return fail(); }
           if (reroll(r, i, D, null, s.f)) { ctx.save(); drawRes(); } else DM.toast('Нет другого подходящего предмета');
@@ -252,11 +295,11 @@
           h('button', { type: 'button', class: 'xx', title: 'Убрать', onclick: () => { r.items.splice(i, 1); ctx.save(); drawRes(); } }, '×'),
           h('small', {}, (RAR_N[x.r] || '') + (x.att ? ' · настройка' : '') + (x.price ? ' · ' + x.price : '') + (x.fb ? ' · не из таблицы' : ''))))
           : h('p', { class: 'dmempty' }, r.note || 'Магических предметов нет')));
-        if (r.note && r.items.length) out.append(h('p', { class: 'dmempty' }, r.note));
+        if (r.note && (r.items.length || (r.gear || []).length)) out.append(h('p', { class: 'dmempty' }, r.note));
         if (r.fb) out.append(h('p', { class: 'dmempty' }, 'Часть предметов взята не из таблицы — в ней не нашлось подходящих под фильтр.'));
       }
-      out.append(h('p', { class: 'lttot' }, r.items.length ? 'Всего с магическими предметами: ' : 'Всего: ', h('b', {}, '≈ ' + nf(totalGp(r)) + ' зм'),
-        r.items.length ? h('small', {}, ' (предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')') : null));
+      out.append(h('p', { class: 'lttot' }, r.items.length || (r.gear || []).length ? 'Всего с предметами: ' : 'Всего: ', h('b', {}, '≈ ' + nf(totalGp(r)) + ' зм'),
+        r.items.length || (r.gear || []).length ? h('small', {}, ' (предметы — по ценам справочника' + (noPrice(r) ? ', у ' + noPrice(r) + ' шт. цены нет' : '') + ')') : null));
     }
     ctx.body.append(h('div', { class: 'loot' }, top, out)); drawRes();
     getData().then(() => drawTop(), () => {});

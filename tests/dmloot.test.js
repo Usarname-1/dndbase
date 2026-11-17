@@ -181,7 +181,7 @@ test('сумма: монеты, самоцветы, искусство и маг
   assert.equal(L.totalGp(r), 1 + 2 + 5 + 20 + 30 + 25 + 100);
   const t = L.textOf(r);
   assert.match(t, /Монеты: 100 ММ, 20 СМ, 5 ЗМ, 2 ПМ/); assert.match(t, /3× Азурит — 10 зм каждый/); assert.match(t, /2× Зелье лечения — обычный/);
-  assert.match(t, /Всего ≈ 183 зм \(магические предметы — по ценам справочника, у 1 шт\. цены нет\)/);
+  assert.match(t, /Всего ≈ 183 зм \(предметы — по ценам справочника, у 1 шт\. цены нет\)/);
   assert.equal(L.nf(1234567), '1 234 567');
   // магические предметы из таблиц несут цену из справочника (кроме «+N» к общему предмету)
   const priced = Array.from({ length: 40 }, (_, i) => L.rollItem(seeded(i + 3), D, 24, 'arcana.rare')).filter(y => !y.sp);
@@ -246,4 +246,41 @@ test('фильтр: работает в сокровищнице и при за�
   }
   for (const ed of [14, 24]) gen(O({ mode: 'magic', ed, tab: '*', cnt: 30, noAtt: true }), 4).items.forEach(x => assert.ok(!x.att, x.n));
   for (let i = 0; i < 40; i++) L.rollItem(seeded(i), D, 24, 'arcana.rare', { a: ['n'] }) && assert.ok(!L.rollItem(seeded(i), D, 24, 'arcana.rare', { a: ['n'] }).att);
+});
+
+/* ---- снаряжение ---- */
+test('снаряжение: данные — настоящие предметы справочника своей редакции, без самоцветов, транспорта и т. п.', () => {
+  for (const ed of [14, 24]) {
+    assert.ok(D.gear[ed].length > 150);
+    for (const [slug, n, c, gp, cost] of D.gear[ed]) {
+      assert.ok(SL[ed].eq.has(slug), ed + ' нет в справочнике: ' + slug); assert.ok(n && D.gcat[ed][c], slug);
+      assert.ok(gp == null || gp >= 0, slug); assert.equal(typeof cost, 'string');
+    }
+    const cats = D.gcat[ed].join('|');
+    assert.ok(!/Сокровища|Транспорт|Скакуны|Улучшения|Упряжь/.test(cats), cats); assert.ok(/Оружие/.test(cats) && /(Доспех)/.test(cats) && /Инструмент/.test(cats));
+  }
+});
+
+test('снаряжение: режим «gear» и добавка к кладу — нужное число штук, фильтр по категории и цене соблюдается, замена и сумма работают', () => {
+  for (const ed of [14, 24]) {
+    const r = gen(O({ mode: 'gear', ed, gcnt: 12 }), 3 + ed);
+    assert.equal(r.gear.reduce((s, x) => s + x.q, 0), 12); assert.ok(r.gear.every(x => x.e === ed && x.n && x.c));
+    assert.equal(r.items.length + r.gems.length + r.art.length, 0);
+    const gf = { c: [D.gcat[ed][0]], p: ['a', 'b'] };
+    for (let i = 0; i < 30; i++) {
+      const g = gen(O({ mode: 'gear', ed, gcnt: 6, gf }), 100 + i);
+      g.gear.forEach(x => { assert.equal(x.c, D.gcat[ed][0]); assert.ok(x.gp != null && x.gp <= 1000); });
+    }
+  }
+  // добавка к кладу: «2к6» — от 2 до 12 штук, «0» — ничего
+  for (let i = 0; i < 60; i++) { const n = gen(O({ gear: '2d6' }), i).gear.reduce((s, x) => s + x.q, 0); assert.ok(n >= 2 && n <= 12, 'штук ' + n); }
+  assert.equal(gen(O({ gear: '0' }), 1).gear.length, 0); assert.equal(gen(O({}), 1).gear.length, 0);
+  // нет подходящего — пустой результат с пояснением; замена берёт другое снаряжение
+  const none = gen(O({ mode: 'gear', ed: 24, gf: { c: ['Яды'], p: ['d'] } }), 1); assert.equal(none.gear.length, 0); assert.match(none.note, /нет снаряжения/);
+  const r = gen(O({ mode: 'gear', ed: 24, gcnt: 5, gf: { c: ['Оружие'] } }), 9), before = r.gear[0].slug;
+  assert.ok(L.rerollGear(r, 0, D, seeded(2), { c: ['Оружие'] })); assert.equal(r.gear.reduce((s, x) => s + x.q, 0), 5); assert.ok(r.gear.every(x => x.c === 'Оружие'));
+  // итог и текст включают снаряжение по ценам справочника
+  const t = { mode: 'hoard', ed: 24, coins: { gp: 10 }, gems: [], art: [], items: [], gear: [{ e: 24, slug: 'rope', n: 'Верёвка', q: 2, gp: 1, cost: '1 ЗМ', c: 'Предмет снаряжения' }, { e: 24, slug: 'x', n: 'Что-то', q: 1, gp: null, cost: '', c: 'Яды' }] };
+  assert.equal(L.totalGp(t), 12); assert.equal(L.noPrice(t), 1);
+  assert.match(L.textOf(t), /Снаряжение: 2× Верёвка — 1 зм каждый; Что-то/);
 });
