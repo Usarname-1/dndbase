@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Заклинания","item":"https://usarname-1.github.io/dndbase/14/spells/"},{"@type":"ListItem","position":3,"name":"Обнаружение мыслей","item":"https://usarname-1.github.io/dndbase/14/spells/detect-thoughts/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Обнаружение мыслей</h1><p class="en">Detect Thoughts</p><p class="sub">2 уровень, Прорицание</p><div class="rule"></div><p class="pr"><b>Время сотворения</b> 1 действие</p><p class="pr"><b>Дистанция</b> На себя</p><p class="pr"><b>Компоненты</b> В, С, М (медная монетка)</p><p class="pr"><b>Длительность</b> Концентрация, вплоть до 1 минуты</p><p class="pr"><b>Классы</b> Бард, Волшебник, Чародей</p><p class="pr"><b>Подклассы</b> Великий Древний (колдун), аберрантный разум (чародей)</p><div class="rule"></div><p>Пока заклинание активно, вы можете читать мысли некоторых существ. При накладывании заклинания, а также действием в свой ход, пока заклинание активно, вы можете сосредоточиться на одном существе, которое видите в пределах 30 футов. Если у выбранного существа Интеллект равен 3 или ниже, или если оно не может говорить ни на одном языке, оно не попадает под действие заклинания.</p><p>Вначале вы знаете поверхностные мысли существа — то, что находится в его сознании на текущий момент. Вы можете действием либо перенести внимание на мысли другого существа, либо попытаться углубиться в мысли текущего существа. Если вы погружаетесь глубже, цель должна совершить спасбросок Мудрости. В случае провала вы получаете понимание её мыслей (если есть), её эмоционального состояния, и того, что её больше всего заботит (а также то, что она любит и ненавидит). Если существо преуспеет, заклинание оканчивается. В любом случае, цель знает, что вы прощупывали её сознание, и если вы не перевели внимание на мысли другого существа, предыдущее существо может в свой ход действием совершить проверку Интеллекта, противопоставленную вашей проверке Интеллекта; в случае успеха заклинание оканчивается.</p><p>Вопросы, задаваемые устно цели, влияют на ход её мыслей, поэтому это заклинание чрезвычайно эффективно во время допросов.</p><p>Вы можете также использовать это заклинание для обнаружения присутствия мыслящих существ, которых вы не видите. Когда вы накладываете это заклинание, или позже, пока оно активно, потратив действие, вы можете поискать мысли существ в пределах 30 футов. Заклинание проницает большую часть барьеров, но блокируется 2 футами камня, 2 дюймами обычного металла или тонким листом свинца. Вы не можете обнаружить существ с Интеллектом 3 и ниже, а также тех, кто не говорят ни на одном языке.</p><p>Обнаружив таким методом присутствие существа, вы можете до окончания действия заклинания читать его мысли, как описано выше, даже если вы его не видите, но оно должно находиться в пределах дистанции.</p></article><p class="meta">Источники: Player's Handbook 2014. <a href="https://dnd.su/spells/196-detect-thoughts/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

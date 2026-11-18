@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Верность","item":"https://usarname-1.github.io/dndbase/14/glossary/loyalty/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Верность</h1><p class="en">Loyalty</p><p class="sub">Опциональные правила</p><div class="rule"></div><p>Верность — опциональное правило, которое можно использовать, чтобы определить, как далеко зайдёт НИП — член отряда, чтобы защитить или поддержать остальных членов отряда (даже тех, кто ему не особенно нравится). НИП — член отряда, с которым плохо обращаются или которого игнорируют, скорее всего покинет отряд, тогда как НИП, обязанный персонажам жизнью или разделяющий их цели, может сражаться за них до смерти. Верность можно отыгрывать или представлять этим правилом.</p><p><b>Показатель верности.</b> Верность НИП измеряется числовой шкалой от 0 до 20. Максимальный показатель верности НИП равен наивысшему значению Харизмы среди всех искателей приключений в отряде, а начальный показатель — половине этого числа. Если наивысшее значение Харизмы меняется (например, персонаж погибает или покидает группу), соответственно скорректируйте показатель верности НИП.</p><p><b>Отслеживание верности.</b> Ведите учёт показателя верности НИП втайне, чтобы игроки не знали наверняка, предан ли НИП — член отряда или нет (даже если НИП сейчас находится под управлением игрока).</p><p>Показатель верности НИП повышается на 1к4, если другие члены отряда помогают НИП достичь цели, связанной с его привязанностью. Также показатель верности НИП повышается на 1к4, если с НИП обращаются особенно хорошо (например, дарят магическое оружие) или его спасает другой член отряда. Показатель верности НИП никогда не может быть поднят выше максимума.</p><p>Когда другие члены отряда действуют вразрез с мировоззрением или привязанностью НИП, уменьшите показатель верности на 1к4. Уменьшите показатель верности НИП на 2к4, если персонажа обижают, вводят в заблуждение или подвергают опасности другие члены отряда из чисто эгоистичных побуждений.</p><p>НИП, чей показатель верности падает до 0, больше не предан отряду и может расстаться с ним. Показатель верности никогда не может опуститься ниже 0.</p><p>НИП с показателем верности 10 или выше рискует жизнью и здоровьем, чтобы помочь товарищам по отряду. Если показатель верности НИП находится между 1 и 10, его верность непрочна. НИП, чья верность падает до 0, больше не действует в наилучших интересах отряда. Неверный НИП либо покидает отряд (нападая на персонажей, пытающихся вмешаться), либо втайне работает над тем, чтобы привести отряд к гибели.</p></article><p class="meta">Источники: Dungeon Master's Guide 2014. <a href="https://github.com/5etools-mirror-3/5etools-2014-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

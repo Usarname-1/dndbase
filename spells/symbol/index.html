@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Заклинания","item":"https://usarname-1.github.io/dndbase/spells/"},{"@type":"ListItem","position":3,"name":"Знак","item":"https://usarname-1.github.io/dndbase/spells/symbol/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Знак</h1><p class="en">Symbol</p><p class="sub">7 уровень, Ограждение</p><div class="rule"></div><p class="pr"><b>Время сотворения</b> 1 минута</p><p class="pr"><b>Дистанция</b> Касание</p><p class="pr"><b>Компоненты</b> В, С, М (порошок алмаза стоимостью не менее 1000 ЗМ, расходуемый заклинанием)</p><p class="pr"><b>Длительность</b> Пока не рассеяно или не сработает</p><p class="pr"><b>Классы</b> Бард, Волшебник, Друид, Жрец</p><div class="rule"></div><p>Вы начертаете вредоносный знак на поверхности (такой, как пол или стена) или внутри объекта, который можно закрыть (например, в книге или сундуке). Знак может покрыть область не больше 10 футов диаметром. Если вы выбрали объект, он должен оставаться на месте; если его перенести более чем на 10 футов от места сотворения заклинание, знак будет нарушен, и заклинание окончится, не сработав.</p><p>Знак практически необнаружим; требуется успешная проверка Интеллекта (Расследование) против вашей Сл спасброска заклинаний, чтобы заметить его.</p><p>При начертании знака вы определяете условие его срабатывания и какой эффект будет применён: Боль, Ошеломление, Раздор, Смерть, Сон или Страх. Эффекты описаны ниже.</p><p><b>Условие срабатывания.</b> При сотворении заклинания вы определяете, что вызовет срабатывание знака. Знаки, начертанные на поверхности, обычно срабатывают при касании, вставании на него, снимании стоящего на знаке объекта или приближении к нему на определённое расстояние. Знак, начертанный внутри объекта, зачастую срабатывает при открывании этого объекта или когда знак увидят.</p><p>Вы можете уточнить условия, чтобы знак могли активировать только определённые типы существа (например, знак срабатывает только на Аберраций). Вы можете также определить, какие существа не будут активировать руну — например, существа, сказавшие заданный пароль.</p><p>Сработав, знак вспыхивает, на 10 минут заполняя Сферу радиусом 60 футов Тусклым светом.По истечении этого времени заклинание оканчивается. Выбранный эффект применяется на каждое существо, находящееся в Сфере при активации знака, а также на каждое существо, впервые за ход входящее в Сферу или оканчивающее в ней свой ход. Эффект применяется на каждое существо только раз в ход.</p><p><b>Боль.</b> Каждая цель должна преуспеть в спасброске Телосложения, иначе получит состояние Недееспособный на 1 минуту.</p><p><b>Ошеломление.</b> Каждая цель должна преуспеть в спасброске Мудрости, иначе получит состояние Ошеломлённый на 1 минуту.</p><p><b>Раздор.</b> Каждая цель должна совершить спасбросок Мудрости; при провале цель спорит и ругается с другими существами в течение 1 минуты. В это время она не способна осмысленно общаться и совершает с Помехой броски атаки и проверки характеристик.</p><p><b>Смерть.</b> Каждая цель должна совершить спасбросок Телосложения, получая 10к10 Некротического урона при провале или половину этого урона при успехе.</p><p><b>Сон.</b> Каждая цель должна преуспеть в спасброске Мудрости, иначе получит состояние Бессознательный на 10 минут. Существо пробуждается, если получает урон или если кто-то действием потрясёт его.</p><p><b>Страх.</b> Каждая цель должна преуспеть в спасброске Мудрости, иначе получит состояние Испуганный на 1 минуту. Испуганная таким образом цель должна в каждом своём ходу перемещаться прочь от знака по меньшей мере на 30 футов, если это возможно.</p></article><p class="meta">Источники: Player's Handbook 2024, Player's Handbook 2014, Также находится в System Reference Document 5.2.1. <a href="https://next.dnd.su/spells/10667-symbol" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

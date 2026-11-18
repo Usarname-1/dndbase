@@ -74,7 +74,17 @@
   function readStore() {
     try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return null; }
   }
-  function ensure() { if (!S) S = readStore() || defaults(); return S; }
+  // Панели регистрируются скриптами dmpanels.js/tdoc.js, которые грузятся по требованию (DB.need('dm')).
+  // normalize() выбрасывает панели неизвестного типа, а persist() потом записал бы это в хранилище — поэтому до загрузки не читаем.
+  function ensure() {
+    if (!S) { if (!DM_READY()) throw new Error('панели экрана мастера ещё не загружены'); S = readStore() || defaults(); }
+    return S;
+  }
+  const DM_READY = () => !!(root.DM && root.DM.ready);
+  async function ready() {
+    try { await DB().need('dm'); return true; }
+    catch (x) { toast('Не удалось загрузить экран мастера. Проверьте соединение'); return false; }
+  }
   function persist() {
     clearTimeout(saveT);
     saveT = setTimeout(() => {
@@ -487,11 +497,12 @@
   function cardActions(m, e, sec) {
     const card = document.getElementById('card'); if (!card || card.querySelector('.acts')) return;
     const bar = h('div', { class: 'acts' },
-      h('button', { type: 'button', onclick: () => { ensure(); const pn = addPanel('entity', { s: { e, sec, slug: m.slug, hist: [] } }); toast('Добавлено на экран мастера', 'Открыть', () => { DB().go(DB().hh(DB().ed, 'dmscreen')); }); void pn; } }, 'На экран мастера'));
+      h('button', { type: 'button', onclick: async () => { if (!await ready()) return; ensure(); const pn = addPanel('entity', { s: { e, sec, slug: m.slug, hist: [] } }); toast('Добавлено на экран мастера', 'Открыть', () => { DB().go(DB().hh(DB().ed, 'dmscreen')); }); void pn; } }, 'На экран мастера'));
     if (sec === 'bestiary') bar.append(h('button', { type: 'button', onclick: () => addCombatants(e, m.slug, 1, true) }, 'В инициативу'));
     card.append(bar);
   }
   async function addCombatants(e, slug, qty, notify) {
+    if (!await ready()) return;
     const INIT = root.DM.INIT; if (!INIT) return;
     ensure();
     let pn = findPanel('init');

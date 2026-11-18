@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Заклинания","item":"https://usarname-1.github.io/dndbase/spells/"},{"@type":"ListItem","position":3,"name":"Власть над погодой","item":"https://usarname-1.github.io/dndbase/spells/control-weather/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Власть над погодой</h1><p class="en">Control Weather</p><p class="sub">8 уровень, Преобразование</p><div class="rule"></div><p class="pr"><b>Время сотворения</b> 10 минут</p><p class="pr"><b>Дистанция</b> На себя</p><p class="pr"><b>Компоненты</b> В, С, М (горящее благовоние)</p><p class="pr"><b>Длительность</b> Концентрация, вплоть до 8 часов</p><p class="pr"><b>Классы</b> Волшебник, Друид, Жрец</p><div class="rule"></div><p>Пока заклинание действует, вы получаете контроль над погодой в пределах 5 миль от вас. Для сотворения этого заклинания вы должны находиться под открытым небом, и оно заканчивается преждевременно, если вы уходите с открытого воздуха.</p><p>Когда вы накладываете это заклинание, вы изменяете текущие погодные условия (определяются Мастером). Вы можете изменить количество осадков, температуру и ветер. Требуется 1к4 × 10 минут, чтобы новые условия вступили в силу. Как только это произойдёт, вы сможете снова изменить условия. Когда заклинание заканчивается, погода постепенно возвращается к норме.</p><p>Когда вы изменяете погодные условия, найдите текущее состояние в следующих таблицах и выберите новое состояние, на строчку выше или ниже текущего. При смене ветра вы можете изменить и его направление.</p><h4>Осадки</h4><div class="sc"><table class="tb"><tr class="h"><td>Ступень</td><td>Состояние</td></tr><tr><td>1</td><td>Чистое небо</td></tr><tr><td>2</td><td>Небольшая облачность</td></tr><tr><td>3</td><td>Пасмурно или густой туман</td></tr><tr><td>4</td><td>Дождь, град или снег</td></tr><tr><td>5</td><td>Проливной дождь, сильный град или метель</td></tr></table></div><h4>Температура</h4><div class="sc"><table class="tb"><tr class="h"><td>Ступень</td><td>Состояние</td></tr><tr><td>1</td><td>Чрезвычайная жара</td></tr><tr><td>2</td><td>Жара</td></tr><tr><td>3</td><td>Тепло</td></tr><tr><td>4</td><td>Прохладно</td></tr><tr><td>5</td><td>Холодно</td></tr><tr><td>6</td><td>Мороз</td></tr></table></div><h4>Ветер</h4><div class="sc"><table class="tb"><tr class="h"><td>Ступень</td><td>Состояние</td></tr><tr><td>1</td><td>Штиль</td></tr><tr><td>2</td><td>Умеренный ветер</td></tr><tr><td>3</td><td>Сильный ветер</td></tr><tr><td>4</td><td>Буря</td></tr><tr><td>5</td><td>Шторм</td></tr></table></div></article><p class="meta">Источники: Player's Handbook 2024, Player's Handbook 2014, Также находится в System Reference Document 5.2.1. <a href="https://next.dnd.su/spells/10218-control-weather" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

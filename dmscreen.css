@@ -126,3 +126,24 @@ body.dm #dm.mob,.dmws.stack{overflow:visible}
 .ltfx{margin:0 8px 8px}.ltfs{max-height:190px;overflow:auto}.lt-top .row{margin-bottom:8px}
 .loot .seg{display:grid;grid-template-columns:1fr 1fr}.loot .seg button,.loot .seg button:first-child,.loot .seg button:last-child{border-radius:0;margin:0 -1px -1px 0;min-width:0}
 .loot .seg button:nth-child(1){border-top-left-radius:3px}.loot .seg button:nth-child(2){border-top-right-radius:3px}.loot .seg button:nth-child(3){border-bottom-left-radius:3px}.loot .seg button:nth-child(4){border-bottom-right-radius:3px}
+
+/* --- общие правила, раньше лежавшие в charsheet.css (они нужны экрану мастера и печати любых страниц;
+       charsheet.css теперь грузится только на странице листов) --- */
+.mhint{font-size:13px;color:#6b5f4d;margin:4px 0 8px}
+.none{color:#6b5f4d;font-style:italic;padding:6px 8px}
+.row{display:flex;gap:6px;margin:6px 0}
+details{margin:4px 0}summary{cursor:pointer;font-weight:700}
+.dmmodal button{background:#fdf1dc;color:#1d1a16}
+.dmdlg.wide{width:min(640px,100%)}
+.dmsp{flex:1}
+@media print{
+ @page{size:A4;margin:8mm}
+ /* лист персонажа: поля страницы нулевые (отступы заданы у самих страниц) — тогда браузер не печатает в полях своё имя страницы и адрес */
+ @page cspage{size:A4;margin:0}
+ body.cs #cs{page:cspage}
+ html,body{height:auto!important;display:block!important;background:#fff!important}
+ nav,aside,.col,#dm,.wrap,#tip,#rolls,.dmtoast,.csbar,.csside,.cshead,.cstabs,.cswel,.noprint{display:none!important}
+ main{overflow:visible!important;height:auto!important;padding:0!important}
+ body.cs #cs{display:block;background:#fff;min-height:0}
+ #cs .csbody{display:block;max-width:none;padding:0}.cspane{border:0;padding:0;background:#fff;box-shadow:none;border-radius:0}
+}

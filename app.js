@@ -58,21 +58,37 @@ function placePic(root,e,k,m,ok){const ms=(IMGM_V||{})[e]||{},art=ms[k]&&ms[k].h
 let IMGM_V;
 async function addPic(m,h){IMGM_V=await imgManifest();const e=ed,k=sec;if(location.pathname!==h||ed!==e||sec!==k)return;placePic($('#card'),e,k,m)}
 async function decorate(root,e,self){Dice.linkify(root);const ix=await linkIndex(e);if(!ix||!root.isConnected)return;const href=x=>hh(e,LK[x.k],x.slug);AutoLinks.hydrate(root,ix,href);AutoLinks.linkify(root,ix,self,href)}
-window.DB={get ed(){return ed},go:(h,r)=>go(h,r),parseHref,ROOT,SXS,ORDERS,load:(k,e)=>load(k,e,true),hh,esc,norm,B:typeof B!=='undefined'?B:null,EDK,decorate,LK,SELFK,ls,
+window.DB={get ed(){return ed},go:(h,r)=>go(h,r),parseHref,ROOT,SXS,ORDERS,load:(k,e)=>load(k,e,true),need,hh,esc,norm,B:typeof B!=='undefined'?B:null,EDK,decorate,LK,SELFK,ls,
  placePic:async(root,e,k,m)=>{IMGM_V=await imgManifest();placePic(root,e,k,m)}};
 // ссылки вводного текста ведут в разделы выбранной редакции; разделов, которых в ней нет (например, снаряжения в 2014), — без ссылки
 function homeLinks(){document.querySelectorAll('#card a[data-s]').forEach(a=>{let k=a.dataset.s;if(k!='dmscreen'&&k!='sheet'&&k!='translator'){if(!SX[k])k=SWAP[k];if(!SX[k]){a.replaceWith(...a.childNodes);return}}a.href=hh(ed,k)})}
 function notFound(){const b=document.body;b.classList.remove('land','dm','cs','tr');b.classList.add('open');curKey='';$('#nav').innerHTML=navHTML(ed);edLinks();
  $('#card').innerHTML='<p class="empty">Такой страницы нет. <a href="'+hh(ed)+'">На главную</a></p>';setMeta('Страница не найдена — D&D 5e на русском')}
 let dupsKey='',dupsSet;const dupsOf=()=>dupsKey===curKey?dupsSet:(dupsKey=curKey,dupsSet=dupNames(data));
+/* Инструменты грузятся по требованию: на обычной карточке они не нужны (это ~75% всего JS и CSS сайта).
+   dm — панели экрана мастера + переводчик + документы одной группой: tdoc.js регистрирует в экране мастера панель «Записка»,
+   а экран мастера выбрасывает сохранённые панели неизвестного типа — поэтому DM.show()/ensure() допустимы только после need('dm').
+   Порядок скриптов важен (async=false), порядок CSS — как в прежнем шаблоне. */
+const LAZY={dm:{js:['dmpanels.js','translator.js','tdoc.js']},tr:{need:'dm',css:['translator.css']},cs:{js:['charrules.js','charprint.js','charsheet.js'],css:['charsheet.css','charprint.css']}};
+const toolP={};
+function need(n){const T=LAZY[n];if(!T)return Promise.reject(new Error('нет модуля '+n));
+ return toolP[n]||(toolP[n]=(async()=>{if(T.need)await need(T.need);
+  const add=(tag,a)=>new Promise((ok,bad)=>{const e=document.createElement(tag);Object.assign(e,a);e.onload=ok;e.onerror=()=>bad(new Error('не загрузилось: '+(a.src||a.href)));(tag=='script'?document.body:document.head).append(e)});
+  await Promise.all([...(T.css||[]).map(href=>add('link',{rel:'stylesheet',href})),...(T.js||[]).map(src=>add('script',{src,async:false}))]);
+  if(n=='dm')DM.ready=true})().catch(e=>{delete toolP[n];throw e}))}
+async function useTool(n,run){const at=location.href;
+ try{await need(n)}catch(e){if(location.href===at)DM.toast('Не удалось загрузить раздел. Проверьте соединение и обновите страницу');return}
+ if(location.href===at)run()}
+{const PRE={dmscreen:'dm',sheet:'cs',translator:'tr'},pre=e=>{const a=e.target.closest&&e.target.closest('nav a[data-s]'),n=a&&PRE[a.dataset.s];if(n)need(n).catch(()=>{})};
+ document.addEventListener('pointerover',pre,{passive:true});document.addEventListener('focusin',pre)}   // подгрузка заранее: наведение на ссылку раздела
 let firstRoute=true;
 async function route(){dispatchEvent(new Event('routechange'));let P=parseLoc();if(!P){notFound();return}
  if(firstRoute){firstRoute=false;if(!P.k&&P.e==24&&ls.get('ed')=='14'){history.replaceState(null,'',ROOT+hh(14));P={e:14,k:'',slug:''}}}   // вернувшийся читатель 2014 попадает на главную 2014, как раньше
  const k=P.k,slug=P.slug;document.body.classList.remove('land');if($('#card .home')){$('#card').innerHTML='';document.body.classList.remove('open')}
  if(P.e!==ed){ed=P.e;SX=SXS[ed]}
- if(k=='translator'){document.body.classList.remove('dm','cs');document.body.classList.add('tr','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='translator'));edLinks();{const t=TOOLMETA[slug=='doc'?'translator/doc':'translator'];setMeta(t.t,t.d,hh(24,'translator',slug))}TR.show(slug);return}
- if(k=='dmscreen'){document.body.classList.remove('cs','tr');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();{const t=TOOLMETA.dmscreen;setMeta(t.t,t.d,hh(24,'dmscreen'))}DM.show();return}
- if(k=='sheet'){document.body.classList.add('cs','open');document.body.classList.remove('dm','tr');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='sheet'));edLinks();{const t=TOOLMETA.sheet;setMeta(t.t,t.d,hh(24,'sheet'))}CS.show();return}
+ if(k=='translator'){document.body.classList.remove('dm','cs');document.body.classList.add('tr','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='translator'));edLinks();{const t=TOOLMETA[slug=='doc'?'translator/doc':'translator'];setMeta(t.t,t.d,hh(24,'translator',slug))}useTool('tr',()=>TR.show(slug));return}
+ if(k=='dmscreen'){document.body.classList.remove('cs','tr');document.body.classList.add('dm','open');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='dmscreen'));edLinks();{const t=TOOLMETA.dmscreen;setMeta(t.t,t.d,hh(24,'dmscreen'))}useTool('dm',()=>DM.show());return}
+ if(k=='sheet'){document.body.classList.add('cs','open');document.body.classList.remove('dm','tr');document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';$('#nav').innerHTML=navHTML(ed);document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s==='sheet'));edLinks();{const t=TOOLMETA.sheet;setMeta(t.t,t.d,hh(24,'sheet'))}useTool('cs',()=>CS.show());return}
 
  document.body.classList.remove('dm','cs','tr');
  if(!k){land();return}

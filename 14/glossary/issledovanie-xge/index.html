@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Исследование (XGE)","item":"https://usarname-1.github.io/dndbase/14/glossary/issledovanie-xge/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Исследование (XGE)</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Предупреждён – значит вооружён. Исследование во время простоя позволяет персонажу получить знания о чудовище, местности, волшебном предмете или по какому-либо другому конкретному вопросу.</p><p><b>Ресурсы.</b> Обычно для проведения исследования персонажу требуется доступ к библиотеке или к мудрецу. Если такой доступ имеется, то проведение исследования требует одной рабочей недели и не менее 50 зм, которые будут потрачены на материалы, взятки, подарки и прочие расходы.</p><p><b>Определение результата.</b> Персонаж определяет, что является предметом исследования – конкретная личность, место или предмет. После одной рабочей недели персонаж совершает проверку интеллекта с бонусом +1 за каждые 50 зм, потраченные сверх изначальных 50 зм, до максимума в +6. Кроме того, персонаж, у которого есть доступ к библиотеке со специальными книгами по предмету исследований или к хорошо осведомлённым мудрецам, получает преимущество на эту проверку. Определите, насколько много сведений получил персонаж, используя таблицу «Результаты исследования».</p><h4>Результаты исследования</h4><div class="sc"><table class="tb"><tr class="h"><td>Результат проверки</td><td>Итог</td></tr><tr><td>1-5</td><td>Безрезультатно</td></tr><tr><td>6-10</td><td>Вы изучили один фрагмент сведений</td></tr><tr><td>11-20</td><td>Вы изучили два фрагмента сведений</td></tr><tr><td>21+</td><td>Вы изучили три фрагмента сведений</td></tr></table></div><p>Каждый фрагмент сведений равноценен одному правдивому утверждению о личности, местности или предмете. Это, например, могут быть знания о сопротивлениях существа, пароль для доступа на запертый уровень подземелья, заклинания, наиболее часто применяющиеся в ордене волшебников и т. д.</p><p>Вы, как Мастер, являетесь последним судьёй и определяете, что именно узнал персонаж. В случае монстра или персонажа Мастера вы можете раскрыть часть его параметров или характера. Для места вы можете раскрыть одно из его секретов, таких как скрытый вход, ответ на загадку или природу существа, охраняющего место.</p><p><b>Осложнения.</b> Наибольший риск при исследовании – получение ложной информации. Не все знания точны или правдивы, а соперник с наклонностями учёного, особенно если предмет исследования ему известен, может попытаться ввести персонажей в заблуждение. Соперник может подсунуть ложную информацию, подкупить мудрецов, чтобы те дали плохие советы, или просто украсть ключевые книги, необходимые для поиска достоверной информации.</p><p>Кроме того, персонаж может столкнуться с другими осложнениями во время исследования. На каждую рабочую неделю, потраченную на исследования, существует 10% шанс осложнения, примеры которых приведены в таблице «Осложнения во время исследований».</p><h4>Осложнения во время исследований</h4><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Вы случайно повредили редкую книгу.</td></tr><tr><td>2</td><td>Вы оскорбили мудреца, который требует теперь необыкновенный дар.*</td></tr><tr><td>3</td><td>Если бы вы знали, что книга была проклята, вы бы ни за что её не открыли.</td></tr><tr><td>4</td><td>Мудрец стал одержим идеей убедить вас в правдивости нескольких странных теорий о реальности.*</td></tr><tr><td>5</td><td>Ваши действия привели к тому, что вам запретили доступ в библиотеку, пока не возместите ущерб.*</td></tr><tr><td>6</td><td>Вы получили полезную информацию, но пообещали выполнить опасное задание в качестве оплаты.</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи)</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

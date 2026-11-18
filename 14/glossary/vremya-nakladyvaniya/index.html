@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Время накладывания","item":"https://usarname-1.github.io/dndbase/14/glossary/vremya-nakladyvaniya/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Время накладывания</h1><p class="sub">Колдовство</p><div class="rule"></div><p>Большинство заклинаний накладываются действием, но некоторые накладываются бонусным действием, реакцией, или же требуют долгого времени.</p><h4>Бонусное действие</h4><p>Заклинания, накладываемые бонусным действием, особенно быстры. Для накладывания такого заклинания вы должны в свой ход использовать бонусное действие, при условии, что в этом ходу ещё не совершали бонусных действий. В этом ходу вы не можете накладывать другие заклинания, за исключением заговоров со временем накладывания «1 действие».</p><h4>Реакция</h4><p>Некоторые заклинания накладываются реакцией. Эти заклинания активируются за считанные доли секунды, и накладываются в ответ на определённые события. Если заклинание может быть наложено в качестве реакции, в описании будет сказано, когда именно вы можете это сделать.</p><h4>Долгое накладывание</h4><p>Некоторые заклинания (в том числе заклинания, активированные в качестве ритуалов) требуют больше времени на накладывание: от нескольких минут до нескольких часов. Если вы используете заклинание со временем накладывания больше одного действия или реакции, вы должны каждый свой ход тратить действие на накладывание этого заклинания, и поддерживать при этом концентрацию (смотрите ниже «Концентрация»). Если концентрация нарушена, заклинание проваливается, но ячейка заклинания не тратится. Если захотите снова наложить это заклинание, придётся начать всё с начала.</p><h4>Действие подготовка</h4><p>Если вы подготовили заклинание, вы накладываете его как обычно, но удерживаете энергию, пока не сработает условие. Для того чтобы заклинание можно было подготовить, у него должно быть время накладывания «1 действие», а удерживание магии требует концентрации. Если концентрация прервана, заклинание тратится без всякого эффекта.</p><p>Например, если вы концентрируетесь на заклинании паутина [web] и подготавливаете заклинание волшебная стрела [magic missile], заклинание паутина [web] оканчивается, и если вы получите урон до накладывания заклинания волшебная стрела [magic missile] реакцией, ваша концентрация рискует прерваться.</p><h4>Заклинания, накладываемые бонусным действием</h4><p>Если вы хотите наложить заклинание с временем накладывания «1 бонусное действие», помните, что вы не можете накладывать никакие другие заклинания до или после него в этот ход, за исключением заговоров со временем накладывания «1 действие».</p></article><p class="meta">Источники: Player's Handbook 2014. <a href="https://dnd.su/articles/157-ispolzovanie_zaklinanij/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

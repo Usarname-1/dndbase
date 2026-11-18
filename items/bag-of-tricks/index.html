@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Предметы","item":"https://usarname-1.github.io/dndbase/items/"},{"@type":"ListItem","position":3,"name":"Сумка фокусов","item":"https://usarname-1.github.io/dndbase/items/bag-of-tricks/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Сумка фокусов</h1><p class="en">Bag of Tricks</p><p class="sub">Чудесный предмет, необычный</p><div class="rule"></div><p class="pr"><b>Рекомендованная стоимость</b> 400 зм</p><div class="rule"></div><p>Эта сумка из серой, рыжей или бежевой ткани выглядит пустой. Однако если вы залезете рукой внутрь, то ощутите небольшой пушистый предмет.</p><p>Вы можете действием Магия вытащить пушистый предмет из сумки и бросить его на расстояние вплоть до 20 футов. Когда предмет приземляется, он превращается в существо, которое вы определяете броском по соответствующей цвету сумки таблице. Существо исчезает на следующем рассвете или когда его Хиты опустятся до 0.</p><p>Существо Дружелюбно по отношению к вам и вашим союзникам и действует сразу после вас с тем же значением Инициативы. Вы можете Бонусным действием указать, как будет двигаться существо и какое действие будет совершать в свой следующий ход, например, атаковать врага. Если вы не даёте ему указаний, существо действует согласно его природе.</p><p>Как только три пушистых предмета будут вытащены из сумки, её нельзя будет использовать снова до следующего восхода солнца.</p><h4>Серая сумка фокусов</h4><div class="sc"><table class="tb"><tr class="h"><td>1d8</td><td>Существо</td></tr><tr><td>1</td><td>Куница</td></tr><tr><td>2</td><td>Гигантская крыса</td></tr><tr><td>3</td><td>Барсук</td></tr><tr><td>4</td><td>Кабан</td></tr><tr><td>5</td><td>Пантера</td></tr><tr><td>6</td><td>Гигантский барсук</td></tr><tr><td>7</td><td>Лютый волк</td></tr><tr><td>8</td><td>Гигантский лось</td></tr></table></div><h4>Рыжая сумка фокусов</h4><div class="sc"><table class="tb"><tr class="h"><td>1d8</td><td>Существо</td></tr><tr><td>1</td><td>Крыса</td></tr><tr><td>2</td><td>Сова</td></tr><tr><td>3</td><td>Мастиф</td></tr><tr><td>4</td><td>Козёл</td></tr><tr><td>5</td><td>Гигантский козёл</td></tr><tr><td>6</td><td>Гигантский кабан</td></tr><tr><td>7</td><td>Лев</td></tr><tr><td>8</td><td>Бурый медведь</td></tr></table></div><h4>Бежевая сумка фокусов</h4><div class="sc"><table class="tb"><tr class="h"><td>1d8</td><td>Существо</td></tr><tr><td>1</td><td>Шакал</td></tr><tr><td>2</td><td>Человекообразная обезьяна</td></tr><tr><td>3</td><td>Бабуин</td></tr><tr><td>4</td><td>Топороклюв</td></tr><tr><td>5</td><td>Чёрный медведь</td></tr><tr><td>6</td><td>Гигантская куница</td></tr><tr><td>7</td><td>Гигантская гиена</td></tr><tr><td>8</td><td>Тигр</td></tr></table></div></article><p class="meta">Источники: Dungeon Master's Guide 2024, Dungeon Master's Guide 2014. <a href="https://next.dnd.su/items/15849-bag-of-tricks" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

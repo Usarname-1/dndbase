@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Предметы","item":"https://usarname-1.github.io/dndbase/14/items/"},{"@type":"ListItem","position":3,"name":"Додекаэдр судьбы","item":"https://usarname-1.github.io/dndbase/14/items/dodecahedron-of-doom/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Додекаэдр судьбы</h1><p class="en">Dodecahedron of Doom</p><p class="sub">Чудесный предмет, редкий</p><div class="rule"></div><p class="pr"><b>Рекомендованная стоимость</b> 501-5 000 зм</p><div class="rule"></div><p>Этот двенадцатигранный металлический кубик шириной 12 дюймов в поперечнике с выгравированными цифрами от 1 до 12 на его пятиугольных гранях. Внутри додекаэдра находится магический заводной механизм, который гудит и щелкает при броске.</p><p>Действием додекаэдр можно метнуть на расстояние до 60 футов. После того как кубик останавливается прокатившись по поверхности не менее 10 футов, возникает случайный магический эффект. Если эффект требует наличия цели, но в пределах досягаемости нет ни одной подходящей цели — ничего не происходит. Накладываемые додекаэдром заклинания не требуют никаких компонентов. Бросьте к12 и сверьтесь с таблицей для определения эффекта.</p><div class="sc"><table class="tb"><tr class="h"><td>к12</td><td>Эффект</td></tr><tr><td>1-2</td><td>Додекаэдр взрывается и уничтожается. Все существа в пределах 20 футов от додекаэдра должны совершить спасбросок Ловкости Сл 13, получая 40 (9к8) урона силовым полем при провале или половину от этого урона при успехе.</td></tr><tr><td>3-4</td><td>Додекаэдр накладывает на себя заклинание свет [light]. Додекаэдр находится под эффектом заклинания до тех пор, пока кто-то не дотронется до него.</td></tr><tr><td>5-6</td><td>Додекаэдр накладывает заклинание луч холода [ray of frost] (+5 к попаданию) на случайное существо, не находящееся за полным укрытием в пределах 60 футов от себя.</td></tr><tr><td>7-8</td><td>Додекаэдр накладывает заклинание электрошок [shocking grasp] (+5 к попаданию) на первое дотронувшееся до него после броска существо.</td></tr><tr><td>9-10</td><td>Додекаэдр накладывает на себя заклинания тьма [darkness]. Продолжительность эффекта 10 минут.</td></tr><tr><td>11-12</td><td>Первое дотронувшееся до додекаэдра после броска существо на 1 час получает 1к10 временных хитов.</td></tr></table></div></article><p class="meta">Источники: Waterdeep: Dungeon of the Mad Mage. <a href="https://dnd.su/items/2456-dodecahedron-of-doom/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

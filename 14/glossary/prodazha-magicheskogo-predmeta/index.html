@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Продажа магического предмета","item":"https://usarname-1.github.io/dndbase/14/glossary/prodazha-magicheskogo-predmeta/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Продажа магического предмета</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Продажа магического предмета – непростая задача.</p><p>Искусные мошенники и воры всегда ищут лёгкий заработок, и нет никакой гарантии, что добросовестный покупатель, если он будет найден, сможет хорошо заплатить персонажу.</p><p><b>Ресурсы.</b> Персонаж может найти покупателя на один магический предмет за одну рабочую неделю, потратив 25 зм на распространение информации о продаже. Персонаж за раз может продать только один предмет.</p><p><b>Определение результата.</b> Персонаж, который хочет продать предмет, должен совершить проверку Харизмы (Убеждение), чтобы определить, сколько ему готовы заплатить. Персонаж может отказаться от продажи и потратить ещё одну рабочую неделю, чтобы повторить попытку. Используйте таблицы «Базовые цены магических предметов» и «Предложение на покупку магического предмета», чтобы определить цену продажи.</p><h4>Базовые цены магических предметов</h4><div class="sc"><table class="tb"><tr class="h"><td>Редкость</td><td>Базовая цена*</td></tr><tr><td>Обычный</td><td>100 зм</td></tr><tr><td>Необычный</td><td>400 зм</td></tr><tr><td>Редкий</td><td>4000 зм</td></tr><tr><td>Очень редкий</td><td>40000 зм</td></tr><tr><td>Легендарный</td><td>200000 зм</td></tr></table></div><p><i>*Для расходуемых предметов цена ниже в два раза</i></p><h4>Предложение на покупку магического предмета</h4><div class="sc"><table class="tb"><tr class="h"><td>Результат проверки</td><td>Предложение</td></tr><tr><td>1-10</td><td>50% базовой цены</td></tr><tr><td>11-20</td><td>100% базовой цены</td></tr><tr><td>21+</td><td>150% базовой цены</td></tr></table></div><p><b>Осложнения.</b> Основной риск при продаже магического предмета заключается в привлечении внимания воров и иных желающих получить предмет, но не желающих за него платить. Некоторые могут попытаться сорвать сделку, чтобы укрепить свой собственный бизнес, или попытаться дискредитировать персонажа как добросовестного продавца.</p><p>Каждую рабочую неделю, которую персонаж пытается продать магический предмет, существует 10% шанс возникновения осложнений, примеры которых приведены в таблице «Осложнения при продаже магических предметов».</p><h4>Осложнения при продаже магического предмета</h4><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Ваш противник тайно организует покупку предмета, чтобы использовать его против вас.*</td></tr><tr><td>2</td><td>Воровская гильдия, предупреждённая о сделке, пытается украсть ваш предмет.*</td></tr><tr><td>3</td><td>Недоброжелатель распускает слухи о том, что предмет – подделка.*</td></tr><tr><td>4</td><td>Чародей заявляет, что предмет принадлежит ему по праву рождения, и требует его отдать.</td></tr><tr><td>5</td><td>Предыдущий владелец предмета или его выжившие союзники клянутся вернуть предмет силой.</td></tr><tr><td>6</td><td>Перед сделкой покупатель был убит.*</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи).</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Предметы","item":"https://usarname-1.github.io/dndbase/items/"},{"@type":"ListItem","position":3,"name":"Свиток заклинания","item":"https://usarname-1.github.io/dndbase/items/spell-scroll/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Свиток заклинания</h1><p class="en">Spell Scroll</p><p class="sub">Свиток, редкость варьируется</p><div class="rule"></div><div class="rule"></div><p>На Свитке заклинания мистическим шифром записаны слова одного заклинания. Если это заклинание входит в ваш список заклинаний, вы можете прочесть свиток и сотворить соответствующее заклинание без Материальных компонентов; иначе свиток для вас нечитаем. Сотворение заклинания со свитка занимает обычное время сотворения этого заклинания. Как только заклинание сотворено, свиток рассыпается в пыль; если сотворение прервано, свиток остаётся невредим.</p><p>Если заклинание свитка входит в ваш список заклинаний, но его уровень выше, чем вы можете сотворять обычным образом, вы должны совершить проверку вашей заклинательной характеристики со Сл, равной 10 + уровень заклинания свитка; при провале заклинание исчезает со свитка, и больше ничего не происходит.</p><p>От уровня заклинания свитка зависят Сл спасброска заклинания, модификатор броска атаки заклинания и редкость самого свитка, как показано в следующей таблице.</p><div class="sc"><table class="tb"><tr class="h"><td>Уровень заклинания</td><td>Редкость</td><td>Сл спасброска</td><td>Модификатор броска атаки</td></tr><tr><td>Заговор</td><td>Обычный</td><td>13</td><td>+5</td></tr><tr><td>1-й</td><td>Обычный</td><td>13</td><td>+5</td></tr><tr><td>2-й</td><td>Необычный</td><td>13</td><td>+5</td></tr><tr><td>3-й</td><td>Необычный</td><td>15</td><td>+7</td></tr><tr><td>4-й</td><td>Редкий</td><td>15</td><td>+7</td></tr><tr><td>5-й</td><td>Редкий</td><td>17</td><td>+9</td></tr><tr><td>6-й</td><td>Очень редкий</td><td>17</td><td>+9</td></tr><tr><td>7-й</td><td>Очень редкий</td><td>18</td><td>+10</td></tr><tr><td>8-й</td><td>Очень редкий</td><td>18</td><td>+10</td></tr><tr><td>9-й</td><td>Легендарный</td><td>19</td><td>+11</td></tr></table></div><p><b>Копирование заклинания в книгу заклинаний.</b> Заклинание Волшебника можно скопировать со Свитка заклинания в книгу заклинаний. Для этого копирующий должен преуспеть в проверке Интеллекта (Тайная магия) со Сл, равной 10 + уровень заклинания свитка. При успехе проверки заклинание копируется в книгу; вне зависимости от того, завершилась проверка успехом или провалом, Свиток заклинания уничтожается.</p></article><p class="meta">Источники: Dungeon Master's Guide 2024, Dungeon Master's Guide 2014. <a href="https://next.dnd.su/items/16854-spell-scroll" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

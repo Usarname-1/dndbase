@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Бестиарий","item":"https://usarname-1.github.io/dndbase/14/bestiary/"},{"@type":"ListItem","position":3,"name":"Короусец","item":"https://usarname-1.github.io/dndbase/14/bestiary/barkburr/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Короусец</h1><p class="en">Barkburr</p><p class="sub">Маленькое Растение, без мировоззрения</p><div class="rule"></div><p class="pr"><b>Класс Доспеха</b> 16 (природный доспех)</p><p class="pr"><b>Хиты</b> 52 (8к6 + 24)</p><p class="pr"><b>Скорость</b> 10 футов, лазая 10 футов</p><div class="rule"></div><div class="abil"><table><tr><th></th><th></th><th>мод</th><th>спас</th></tr><tr><td>СИЛ</td><td>16</td><td>+3</td><td>+3</td></tr><tr><td>ЛОВ</td><td>6</td><td>−2</td><td>−2</td></tr><tr><td>ТЕЛ</td><td>16</td><td>+3</td><td>+3</td></tr></table><table><tr><th></th><th></th><th>мод</th><th>спас</th></tr><tr><td>ИНТ</td><td>1</td><td>−5</td><td>−5</td></tr><tr><td>МДР</td><td>15</td><td>+2</td><td>+2</td></tr><tr><td>ХАР</td><td>1</td><td>−5</td><td>−5</td></tr></table></div><div class="rule"></div><p class="pr"><b>Навыки</b> Атлетика +5</p><p class="pr"><b>Иммунитет к урону</b> психическая энергия</p><p class="pr"><b>Иммунитет к состояниям</b> глухота, испуг, ослепление, очарование</p><p class="pr"><b>Чувства</b> слепое зрение 60 футов (слеп за его пределами), пассивное Восприятие 12</p><p class="pr"><b>Опасность</b> 3 (700 опыта)</p><p class="pr"><b>Бонус мастерства</b> +2</p><h3>Особенности</h3><p class="it"><span class="nm">Обманчивая внешность.</span> Если короусец неподвижен к началу боя, то он совершает бросок Инициативы с преимуществом. Более того, если существо не видело перемещений или действий короусца, то это существо должно преуспеть в проверке Интеллекта (Расследование) Сл 18, чтобы понять, что короусец живой.</p><p class="it"><span class="nm">Пружинистый прыжок.</span> Короусец совершает прыжки в длину на расстояние до 30 футов и прыжки в высоту на расстояние до 15 футов, хоть с разбегом, хоть без него. Прыжки короусца могут превысить его скорость, если его оставшееся перемещение уже не равно 0.</p><h3>Действия</h3><p class="it"><span class="nm">Мультиатака.</span> Короусец совершает две атаки Ядовитым шипом, и по возможности использует Одеревенение.</p><p class="it"><span class="nm">Ядовитый шип.</span> <i>. Рукопашная атака оружием:</i> +5 к попаданию, досягаемость 5 фт., одно существо. <i>Попадание</i>: 5 (1к4 + 3) колющего урона плюс 7 (2к6) урона ядом, и короусец прикрепляется к цели. Пока короусец прикреплен, он не может совершать атаки Ядовитым шипом, а цель становится опутанной из-за того, что ее тело начинает обращаться в дерево.<br>Короусец может отцепиться, потратив 5 футов перемещения в на своем ходу. Любое существо, в чьей досягаемости находится короусец, в том числе и сама цель, может действием оторвать его, преуспев в проверке Силы (Атлетика) Сл 13.</p><p class="it"><span class="nm">Одеревенение.</span> Короусец выбирает целью существо, к которому прицепился, после чего оно должно совершить спасбросок Телосложения Сл 13. При провале цель становится окаменевшей до тех пор, пока не будет освобождена заклинанием высшее восстановление [greater restoration] или подобным эффектом. Вместо камня цель превращается в дерево. Все носимое и несомое снаряжение цели становится частью коры этого дерева.</p><div class="rule"></div><div class="lore"><h3>Описание</h3><p>Короусцы — одушевленные, ядовитые Растения, которые спонтанно вырастают из деревьев, когда искра природной магии оседает в них. Они выглядят как похожие на полипы узлы коры и древесины, неотличимые от обычных наростов. Короусцы часто действуют в интересах защиты рощи или леса.</p><p>Некоторые из них цепляются за деревья, из которых проросли, когда как другие медленно бродят, пока не встретят существ, угрожающих естественному порядку леса. Обнаружив такое существо, короусец прыгает на вторженца и впрыскивает в него ядовитый сок, который быстро и болезненно превращает его в дерево.</p></div></article><p class="meta">Источники: Quest from the Infinite Staircase. <a href="https://dnd.su/bestiary/17220-barkburr/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>
