@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Ориентация","item":"https://usarname-1.github.io/dndbase/14/glossary/facing/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Ориентация</h1><p class="en">Facing</p><p class="sub">Опциональные правила</p><div class="rule"></div><p>Если вам нужна точность в определении того, куда обращено существо, используйте это опциональное правило. Каждый раз, когда существо заканчивает перемещение, оно может изменить свою ориентацию. У каждого существа есть передний сектор (направление, в котором оно обращено), левый и правый боковые секторы и задний сектор. Существо также может изменить ориентацию реакцией, когда любое другое существо перемещается.</p><p>Обычно существо может выбирать целью только существ в своём переднем или боковых секторах. Оно не видит в свой задний сектор. Это значит, что атакующий, находящийся в заднем секторе существа, совершает против него броски атаки с преимуществом.</p><p>Щиты применяют свой бонус к КД только против атак из переднего сектора или из бокового сектора с той же стороны, что и щит. Например, воин со щитом на левой руке может использовать его только против атак из переднего и левого секторов.</p><p>Вы можете решить, что не у всех существ есть все виды секторов. Например, аморфный золотистый студень может считать все свои секторы передними, а у гидры может быть три передних сектора и один задний. На квадратной сетке вы выбираете одну сторону пространства существа как направление, в котором оно обращено. Проведите диагональную линию наружу от каждого угла этой стороны, чтобы определить клетки его переднего сектора. Противоположная сторона пространства таким же образом определяет его задний сектор. Остальные клетки по обе стороны от существа образуют его боковые секторы.</p><p>На шестиугольной сетке определение переднего, заднего и боковых секторов требует большей оценки Мастера. Выберите одну сторону пространства существа и создайте расширяющийся от неё клин для переднего сектора, а другой клин — на противоположной стороне существа для заднего сектора. Остальные клетки по обе стороны от существа — его боковые секторы.</p><p>Квадрат или гекс может оказаться более чем в одном секторе в зависимости от того, как вы проведёте линии от пространства существа. Если больше половины квадрата или гекса лежит в одном секторе, он относится к этому сектору. Если он разделён ровно пополам, используйте такое правило: если половина лежит в переднем секторе, он относится к нему. Если половина лежит в боковом секторе, а другая половина — в заднем, он относится к боковому.</p></article><p class="meta">Источники: Dungeon Master's Guide 2014. <a href="https://github.com/5etools-mirror-3/5etools-2014-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

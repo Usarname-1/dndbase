@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Создание магического предмета","item":"https://usarname-1.github.io/dndbase/14/glossary/sozdanie-magicheskogo-predmeta/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Создание магического предмета</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>За распределение магических предметов отвечает Мастер, поэтому именно вы решаете, как они попадают к группе. В качестве альтернативы, вы можете позволить персонажам игроков самим изготавливать магические предметы.</p><p>Создание магического предмета — долгий и затратный процесс. Для начала у персонажа должна быть формула, описывающая создание предмета. Этот же персонаж должен быть заклинателем с ячейками заклинаний, способным накладывать заклинания, производимые создаваемым предметом. Кроме того, редкость создаваемого предмета определяет минимальный уровень персонажа, который может его создавать. Например, персонаж 3 уровня может создать волшебную палочку снарядов [wand of magic missiles] (необычный предмет), если у него есть ячейки заклинаний, и он может накладывать заклинание волшебная стрела [magic missile]. Этот же персонаж может создать оружие +1 [weapon +1] (тоже необычный предмет), причём для этого не требуются никакие конкретные заклинания.</p><p>Вы можете решить, что для создания некоторых предметов нужны особые материалы или места. Например, для варки зелья могут требоваться алхимические ингредиенты, а в процессе ковки языка пламени может потребоваться находиться у лавы.</p><h4>Создание магических предметов</h4><div class="sc"><table class="tb"><tr class="h"><td>Редкость предмета</td><td>Стоимость создания</td><td>Минимальный уровень</td></tr><tr><td>Обычная</td><td>100 зм</td><td>3</td></tr><tr><td>Необычная</td><td>500 зм</td><td>3</td></tr><tr><td>Редкая</td><td>5000 зм</td><td>6</td></tr><tr><td>Очень редкая</td><td>50000 зм</td><td>11</td></tr><tr><td>Легендарная</td><td>500000 зм</td><td>17</td></tr></table></div><p>В таблице указана стоимость создания предметов (для таких расходуемых предметов, как зелья и свитки, разделите эту стоимость пополам). Персонаж, участвующий в создании предмета, вкладывает в день по 25 зм, пока предмет не будет готов. Считается, что персонаж занят работой по 8 часов в день. Таким образом, для создания необычного магического предмета требуется 20 дней и 500 зм. Вы можете корректировать эти стоимости так, как посчитаете нужным для вашей кампании.</p><p>Если создаваемый предмет будет воспроизводить заклинание, создатель должен в каждый день, когда он участвует в создании предмета, тратить одну ячейку заклинания с уровнем, равным уровню генерируемого заклинания. Материальные компоненты заклинания тоже должны быть под рукой в процессе создания предмета. Если в обычных условиях заклинание уничтожает эти компоненты, они уничтожаются в процессе создания. Если предмет сможет создать заклинание лишь один раз, как в случае свитка заклинания [spell scroll], компоненты уничтожаются в процессе создания только раз. В противном случае компоненты уничтожаются по одному разу за каждый день в процессе создания предмета.</p><p>Несколько персонажей могут объединять усилия при создании магического предмета, если все они подходят по уровню. Каждый персонаж может вкладывать свои заклинания, ячейки заклинаний и компоненты, если все они создают один и тот же предмет. Каждый персонаж может вкладывать в общий процесс по 25 зм за день.</p><p>Обычно персонаж, занимающийся такой деятельностью, создаёт один из предметов, описанных в 7 главе. Если хотите, можете позволить игрокам создавать свои собственные магические предметы, используя руководство из главы 9 "Мастерская Мастера".</p><p>В процессе создания магического предмета персонаж может поддерживать скромное существование, не платя 1 зм в день, или комфортное существование, платя лишь половину обычной стоимости.</p></article><p class="meta">Источники: Dungeon Master's Guide 2014. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

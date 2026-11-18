@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Преступная деятельность","item":"https://usarname-1.github.io/dndbase/14/glossary/prestupnaya-deyatelnost/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Преступная деятельность</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Иногда «быть плохим» означает получить прибыль. Этот вид деятельности даёт персонажу шанс получить денег, но с риском заключения.</p><p><b>Ресурсы.</b> Перед преступлением персонаж должен потратить одну рабочую неделю и не менее 25 зм на сбор информации о потенциальных целях.</p><p><b>Определение результата.</b> Персонаж должен совершить серию проверок, сложность которых выбирается персонажем, исходя из прибыли, которую он хочет получить.</p><p>Выбранной сложностью может быть 10, 15, 20 или 25. Успешное завершение преступления приносит количество золотых монет, указанное в таблице «Стоимость добычи».</p><p>Чтобы совершить преступление, персонаж должен пройти три проверки: Ловкость (Скрытность), проверка Ловкости при использовании воровских инструментов и одна из следующих на выбор игрока: Интеллект (Расследование), Мудрость (Восприятие) или Харизма (Обман).</p><p>Если все проверки провалены, персонаж пойман и отправляется в тюрьму. Персонаж должен оплатить стоимость возможной добычи, а также отсидеть в тюрьме одну рабочую неделю за каждые 25 золотых возможной добычи.</p><p>Если одна проверка была успешна, то преступление сорвалось, но персонажа не поймали.</p><p>Если две проверки были успешны, то преступление частично удалось, и персонаж получает половину добычи. Если же все три проверки были успешны, персонаж получает всю добычу.</p><h4>Стоимость добычи</h4><div class="sc"><table class="tb"><tr class="h"><td>Сл</td><td>Добыча</td></tr><tr><td>10</td><td>50 зм, ограбление бедного торговца</td></tr><tr><td>15</td><td>100 зм, ограбление богатого торговца</td></tr><tr><td>20</td><td>200 зм, ограбление аристократа</td></tr><tr><td>25</td><td>1000 зм, ограбление одного из богатейших людей города</td></tr></table></div><p><b>Осложнения.</b> Криминальная жизнь чревата осложнениями. Совершите бросок по таблице «Осложнения при преступлении» (или придумайте осложнение сами), если персонаж проходит только одну проверку. Если соперник персонажа входит в криминальные круги или служит закону, осложнение происходит, даже если персонаж прошёл две проверки.</p><h4>Осложнения при преступлении</h4><div class="sc"><table class="tb"><tr class="h"><td>к8</td><td>Осложнение</td></tr><tr><td>1</td><td>За информацию о вашем преступлении обещано вознаграждение в размере вашей добычи.*</td></tr><tr><td>2</td><td>Неизвестный связывается с вами, угрожая сообщить о вашем преступлении, если вы не окажете ему услугу.*</td></tr><tr><td>3</td><td>Из-за вашего преступления жертва разорена.</td></tr><tr><td>4</td><td>Кто-то, кто знает о вашем преступлении, арестован по другому делу.</td></tr><tr><td>5</td><td>Ваша добыча это один единственный, легко опознаваемый предмет, который не удастся сбыть в здешних краях.</td></tr><tr><td>6</td><td>Вы ограбили кого-то, кто был под защитой местного криминального авторитета, который теперь хочет отомстить.</td></tr><tr><td>7</td><td>Ваша жертва хорошо знакома со стражей, что удваивает усилия по вашей поимке.</td></tr><tr><td>8</td><td>Ваша жертва просит одного из ваших сотоварищей по приключениям помочь раскрыть преступление.</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи).</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

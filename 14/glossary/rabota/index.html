@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Работа","item":"https://usarname-1.github.io/dndbase/14/glossary/rabota/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Работа</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Когда ничего другого не остаётся, приключенец может заняться честным трудом, чтобы заработать на жизнь. Этот вид деятельности – попытка найти временную работу, характер и оплату которой трудно предсказать.</p><p><b>Ресурсы.</b> Работа занимает одну рабочую неделю.</p><p><b>Определение результата.</b> Чтобы определить, сколько денег получит персонаж, он совершает одну из проверок: Сила (Атлетика), Ловкость (Акробатика), Интеллект при использовании набора инструментов, Харизма (Выступление) или Харизма при игре на музыкальном инструменте. Обратитесь к таблице «Заработок», чтобы узнать, сколько денег получил персонаж в соответствии с результатом проверки.</p><h4>Заработок</h4><div class="sc"><table class="tb"><tr class="h"><td>Результат проверки</td><td>Заработок</td></tr><tr><td>9 или меньше</td><td>Бедное существование в течение недели</td></tr><tr><td>10-14</td><td>Скромное существование в течение недели</td></tr><tr><td>15-20</td><td>Комфортное существование в течение недели</td></tr><tr><td>21+</td><td>Комфортное существование в течение недели + 25 зм</td></tr></table></div><p><b>Осложнения.</b> Обычная работа редко приводит к значительным осложнениям. Однако таблица «Осложнения при работе» может добавить трудностей в жизнь рабочего. За каждую неделю, потраченную на работу, с вероятностью 10% персонаж может столкнуться с осложнением.</p><h4>Осложнения при работе</h4><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Из-за жалобы клиента или драки с коллегой ваш заработок уменьшился на одну категорию.*</td></tr><tr><td>2</td><td>У вашего нанимателя возникли финансовые трудности, поэтому он не может вам заплатить.*</td></tr><tr><td>3</td><td>Сотрудник, знакомый с одной из влиятельных семей города, вас невзлюбил.*</td></tr><tr><td>4</td><td>Ваш наниматель оказался связан с тёмным культом или преступностью.</td></tr><tr><td>5</td><td>Банда преступников выбрала ваше дело как цель рэкета.*</td></tr><tr><td>6</td><td>Вы получили репутацию лентяя (заслуженно или нет – по выбору Мастера), следующие 6 проверок для этого вида деятельности в течение шести рабочих недель совершаются с помехой.*</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи)</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

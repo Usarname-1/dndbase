@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Написание свитка заклинания","item":"https://usarname-1.github.io/dndbase/14/glossary/scribing-a-spell-scroll/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Написание свитка заклинания</h1><p class="en">Scribing a Spell Scroll</p><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Со временем и терпением заклинатель может перенести заклинание на свиток, создав свиток заклинания.</p><h4>Ресурсы</h4><p>Написание свитка заклинания занимает время и деньги, зависящие от уровня заклинания, которое персонаж хочет записать, как показано в таблице «Стоимость свитков заклинаний». Кроме того, персонаж должен владеть навыком Магия и предоставить все материальные компоненты, необходимые для накладывания заклинания. Более того, чтобы написать свиток с заклинанием, персонаж должен иметь это заклинание подготовленным или оно должно входить в число известных ему заклинаний.</p><p>Если записываемое заклинание — заговор, версия на свитке работает так, как если бы заклинатель был 1-го уровня.</p><p><b>Стоимость свитков заклинаний</b></p><div class="sc"><table class="tb"><tr class="h"><td>Уровень заклинания</td><td>Время</td><td>Стоимость</td></tr><tr><td>Заговор</td><td>1 день</td><td>15 зм</td></tr><tr><td>1-й</td><td>1 день</td><td>25 зм</td></tr><tr><td>2-й</td><td>3 дня</td><td>250 зм</td></tr><tr><td>3-й</td><td>1 рабочая неделя</td><td>500 зм</td></tr><tr><td>4-й</td><td>2 рабочие недели</td><td>2 500 зм</td></tr><tr><td>5-й</td><td>4 рабочие недели</td><td>5 000 зм</td></tr><tr><td>6-й</td><td>8 рабочих недель</td><td>15 000 зм</td></tr><tr><td>7-й</td><td>16 рабочих недель</td><td>25 000 зм</td></tr><tr><td>8-й</td><td>32 рабочие недели</td><td>50 000 зм</td></tr><tr><td>9-й</td><td>48 рабочих недель</td><td>250 000 зм</td></tr></table></div><h4>Осложнения</h4><p>Создание свитка заклинания — уединённое занятие, вряд ли привлекающее много внимания. Возникающие осложнения скорее связаны с подготовкой, необходимой для этой деятельности. Каждая рабочая неделя, потраченная на написание, несёт 10-процентный шанс осложнения; примеры осложнений приведены в таблице «Осложнения при написании свитка».</p><p><b>Осложнения при написании свитка</b></p><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Вы скупили последние запасы редких чернил для создания свитков, чем разозлили волшебника в городе.</td></tr><tr><td>2</td><td>Жрец храма доброго божества обвиняет вас в торговле тёмной магией.*</td></tr><tr><td>3</td><td>Волшебник, жаждущий занести одно из ваших заклинаний в книгу, давит на вас, требуя продать свиток.</td></tr><tr><td>4</td><td>Из-за странной ошибки при создании свитка на нём оказывается случайное заклинание того же уровня.</td></tr><tr><td>5</td><td>На редком пергаменте, который вы купили для свитка, едва заметна карта.</td></tr><tr><td>6</td><td>Вор пытается проникнуть в вашу мастерскую.*</td></tr></table></div></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://github.com/5etools-mirror-3/5etools-2014-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

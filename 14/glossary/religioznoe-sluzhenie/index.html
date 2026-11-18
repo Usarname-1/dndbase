@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Религиозное служение","item":"https://usarname-1.github.io/dndbase/14/glossary/religioznoe-sluzhenie/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Религиозное служение</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Религиозные персонажи могут посвятить время простоя служению храму, помогая в проведении обрядов или проповедуя в народе. Тот, кто занимается этой деятельностью, может получить благосклонность высших иерархов храма.</p><p><b>Ресурсы.</b> Выполнение религиозной службы требует доступа в храм и частых его посещений. Вера и мораль храма должны совпадать с верой и моралью персонажа. Если такое место доступно, деятельность занимает одну рабочую неделю, но не требует расходов в виде золота.</p><p><b>Определение результата.</b> В конце затраченного времени персонаж выбирает, какую проверку совершить – Интеллекта (Религия) или Харизмы (Убеждение). Результат проверки определяет полученные преимущества в соответствии с таблицей «Религиозное служение».</p><h4>Религиозное служение</h4><div class="sc"><table class="tb"><tr class="h"><td>Результат проверки</td><td>Последствия</td></tr><tr><td>1-10</td><td>Нет эффекта. Ваши усилия не производят стойкого впечатления.</td></tr><tr><td>11-20</td><td>Вы получаете одну благосклонность</td></tr><tr><td>21+</td><td>Вы получаете две благосклонности</td></tr></table></div><p>В общем смысле благосклонность – это обещание помощи от представителей храма. Его можно потратить на помощь храма в решении конкретной проблемы, на политическую или социальную поддержку со стороны храма или на снижение стоимости жреческого заклинания в 2 раза. Благосклонность может также принимать форму божественного вмешательства, такую как предзнаменование, видение или незначительное чудо, случившееся в ключевой момент. Таким образом благосклонность тратится по решению Мастера, он также определяя их характер.</p><p>Заработанную благосклонность не нужно тратить немедленно, но хранить можно только определённое их количество. Персонаж может иметь максимальное количество неиспользованных благосклонностей, равное 1 + модификатор Харизмы (минимум одну неиспользованную благосклонность).</p><p><b>Осложнения.</b> Храмы могут быть лабиринтами политических и социальных интриг. Даже действующее из самых добрых побуждений религиозное течение может впасть во внутренние склоки. Служащий храму персонаж рискует быть втянутым в эти дрязги. В каждую рабочую неделю, потраченную на религиозное служение, с вероятностью 10% может возникнуть осложнение, примеры которых приведены в таблице «Осложнения при религиозном служении».</p><h4>Осложнения при религиозном служении</h4><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Вы оскорбили священника словом или делом.*</td></tr><tr><td>2</td><td>Богохульство всегда богохульство, даже случайное.</td></tr><tr><td>3</td><td>Секретная секта, находящаяся в храме, предлагает вам членство.</td></tr><tr><td>4</td><td>Другой храм пытается завербовать вас в качестве шпиона.*</td></tr><tr><td>5</td><td>Старейшины храма умоляют вас взяться за выполнение священной миссии.</td></tr><tr><td>6</td><td>Вы случайно обнаружили что одна из ключевых фигур храма – дьяволопоклонник.</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи).</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

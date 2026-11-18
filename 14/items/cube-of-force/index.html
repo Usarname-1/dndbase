@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Предметы","item":"https://usarname-1.github.io/dndbase/14/items/"},{"@type":"ListItem","position":3,"name":"Куб силового поля","item":"https://usarname-1.github.io/dndbase/14/items/cube-of-force/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Куб силового поля</h1><p class="en">Cube of Force</p><p class="sub">Чудесный предмет, редкий (требуется настройка)</p><div class="rule"></div><p class="pr"><b>Рекомендованная стоимость</b> 501-5 000 зм</p><div class="rule"></div><p>Это кубик с длиной ребра около дюйма. На каждой грани есть характерная метка, на которую можно нажать. Вначале у куба 36 зарядов, и он ежедневно восстанавливает 1к20 зарядов на рассвете.</p><p>Вы можете действием нажать на одну из граней куба, тратя при этом указанное в таблице число зарядов. У каждой грани свой эффект. Если в кубе не осталось достаточного числа зарядов, ничего не произойдёт. В противном случае возникает барьер из невидимого силового поля, формирующий куб с длиной ребра 15 футов. Барьер создаётся с центром на вас, перемещается вместе с вами и существует 1 минуту, пока вы не нажмёте действием на шестую грань куба или пока в кубе не кончатся заряды. Вы можете изменить эффект барьера, нажав на другую грань куба и потратив нужное количество зарядов, сбрасывая при этом счётчик длительности.</p><p>Если из-за перемещения барьер вступает в контакт с твёрдым предметом, который не может пройти сквозь поле, вы не сможете приблизиться к этому предмету, пока поле существует.</p><div class="sc"><table class="tb"><tr class="h"><td>Грань</td><td>Заряды</td><td>Эффект</td></tr><tr><td>1</td><td>1</td><td>Через барьер не проходят газы, ветер и туман.</td></tr><tr><td>2</td><td>2</td><td>Через барьер не проходит неживая материя. Стены, пол и потолок могут проходить, если вы того пожелаете.</td></tr><tr><td>3</td><td>3</td><td>Через барьер не проходит живая материя.</td></tr><tr><td>4</td><td>4</td><td>Через барьер не проходят эффекты заклинаний.</td></tr><tr><td>5</td><td>5</td><td>Через барьер не проходит ничего. Стены, пол и потолок могут проходить, если вы того пожелаете.</td></tr><tr><td>6</td><td>0</td><td>Барьер исчезает.</td></tr></table></div><p>Куб теряет заряды, когда барьер становится целью определённых заклинаний или вступает во взаимодействие с эффектами определённых заклинаний или магических предметов, как показано ниже.</p><div class="sc"><table class="tb"><tr class="h"><td>Заклинание или предмет</td><td>Потеря зарядов</td></tr><tr><td>Огненная стена [wall of fire]</td><td>1к4</td></tr><tr><td>Радужные брызги [prismatic spray]</td><td>1к20</td></tr><tr><td>Распад [disintegrate]</td><td>1к12</td></tr><tr><td>Рог взрыва [horn of blasting]</td><td>1к10</td></tr><tr><td>Создание прохода [passwall]</td><td>1к6</td></tr></table></div></article><p class="meta">Источники: Dungeon Master's Guide 2014. <a href="https://dnd.su/items/120-cube-of-force/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

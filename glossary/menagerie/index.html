@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Зверинец","item":"https://usarname-1.github.io/dndbase/glossary/menagerie/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Зверинец</h1><p class="en">Menagerie</p><p class="sub">Постройки бастиона</p><div class="rule"></div><p><i>Особая постройка</i></p><p><b>Требование:</b> 13+ уровень</p><p><b>Пространство:</b> Обширное</p><p><b>Наёмники:</b> 2</p><p><b>Приказ:</b> Вербовка</p><p>В Зверинце есть вольеры, достаточно большие, чтобы содержать до четырёх Больших существ. Четыре Маленьких или Средних существа могут занимать то же пространство, что и одно Большое существо.</p><h4>Вербовка: Существо</h4><p>Когда вы отдаёте приказ «Вербовка» этой постройке, вы поручаете наёмникам постройки добавить в ваш Зверинец существо из таблицы «Существа Зверинца». Вербовка занимает 7 дней и стоит вам сумму, указанную в таблице. Наёмники присматривают за существом.</p><p>Существа в вашем Зверинце считаются Защитниками бастиона. Вычитайте потерянных существ из списка Защитников бастиона. Вы можете не считать одно или несколько из этих существ Защитниками бастиона; в этом случае их нельзя призвать на защиту Бастиона. Вместо этого они действуют в соответствии со своей природой и используют свои блоки характеристик из Бестиария.</p><p><b>Существа Зверинца</b></p><div class="sc"><table class="tb"><tr class="h"><td>Существо</td><td>Размер</td><td>Стоимость</td></tr><tr><td>Человекообразная обезьяна</td><td>Средний</td><td>500 ЗМ</td></tr><tr><td>Чёрный медведь</td><td>Средний</td><td>500 ЗМ</td></tr><tr><td>Бурый медведь</td><td>Большой</td><td>1 000 ЗМ</td></tr><tr><td>Удав</td><td>Большой</td><td>250 ЗМ</td></tr><tr><td>Крокодил</td><td>Большой</td><td>500 ЗМ</td></tr><tr><td>Лютый волк</td><td>Большой</td><td>1 000 ЗМ</td></tr><tr><td>Гигантский гриф</td><td>Большой</td><td>1 000 ЗМ</td></tr><tr><td>Гиена</td><td>Средний</td><td>50 ЗМ</td></tr><tr><td>Шакал</td><td>Маленький</td><td>50 ЗМ</td></tr><tr><td>Лев</td><td>Большой</td><td>1 000 ЗМ</td></tr><tr><td>Совомедведь</td><td>Большой</td><td>3 500 ЗМ</td></tr><tr><td>Пантера</td><td>Средний</td><td>250 ЗМ</td></tr><tr><td>Тигр</td><td>Большой</td><td>1 000 ЗМ</td></tr></table></div><p>С согласия Мастера вы можете добавить в свой Зверинец других существ, не указанных в таблице «Существа Зверинца». Стоимость существа зависит от его Показателя опасности, как показано в таблице «Стоимость существ по Показателю опасности». Как правило, в Зверинце можно содержать только Зверей и некоторых Чудовищ, хотя Мастер может разрешить и других существ.</p><p><b>Стоимость существ по Показателю опасности</b></p><div class="sc"><table class="tb"><tr class="h"><td>Показатель опасности</td><td>Стоимость</td></tr><tr><td>0 или 1/8</td><td>50 ЗМ</td></tr><tr><td>1/4</td><td>250 ЗМ</td></tr><tr><td>1/2</td><td>500 ЗМ</td></tr><tr><td>1</td><td>1 000 ЗМ</td></tr><tr><td>2</td><td>2 000 ЗМ</td></tr><tr><td>3</td><td>3 500 ЗМ</td></tr></table></div></article><p class="meta">Источники: Dungeon Master's Guide 2024. <a href="https://github.com/5etools-mirror-3/5etools-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Бестиарий","item":"https://usarname-1.github.io/dndbase/bestiary/"},{"@type":"ListItem","position":3,"name":"Зомби","item":"https://usarname-1.github.io/dndbase/bestiary/zombie/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Зомби</h1><p class="en">Zombie</p><p class="sub">Средняя Нежить, Нейтральная Злая</p><div class="rule"></div><p class="pr"><b>Класс Защиты</b> 8 &nbsp; <b>Инициатива</b> −2 (8)</p><p class="pr"><b>Хиты</b> 15 (2к8 + 6)</p><p class="pr"><b>Скорость</b> 20 футов</p><div class="rule"></div><div class="abil"><table><tr><th></th><th></th><th>мод</th><th>спас</th></tr><tr><td>СИЛ</td><td>13</td><td>+1</td><td>+1</td></tr><tr><td>ЛОВ</td><td>6</td><td>−2</td><td>−2</td></tr><tr><td>ТЕЛ</td><td>16</td><td>+3</td><td>+3</td></tr></table><table><tr><th></th><th></th><th>мод</th><th>спас</th></tr><tr><td>ИНТ</td><td>3</td><td>−4</td><td>−4</td></tr><tr><td>МДР</td><td>6</td><td>−2</td><td>+0</td></tr><tr><td>ХАР</td><td>5</td><td>−3</td><td>−3</td></tr></table></div><div class="rule"></div><p class="pr"><b>Иммунитеты</b> Яд; Истощение, Отравленный</p><p class="pr"><b>Чувства</b> Тёмное зрение 60 футов, пассивное Восприятие 8</p><p class="pr"><b>Языки</b> понимает Общий и ещё один язык, но не говорит</p><p class="pr"><b>Опасность</b> 1/4 (50 опыта; БВ +2)</p><h3>Особенности</h3><p class="it"><span class="nm">Стойкость нежити.</span> Если урон снижает Хиты зомби до 0, и это не урон Излучением или от Критического попадания, он должен совершить спасбросок Телосложения со Сл, равной 5 + полученный урон; при успехе Хиты зомби опускаются только до 1.</p><h3>Действия</h3><p class="it"><span class="nm">Размашистый удар.</span> <i>Бросок рукопашной атаки:</i> +3, досягаемость 5 фт. <i>Попадание:</i> 5 (1к8 + 1) Дробящего урона.</p><div class="rule"></div><p class="pr"><b>Бонус мастерства</b> +2</p><p class="pr"><b>Среда обитания</b> Город, Подземье, Царство теней</p><p class="pr"><b>Сокровища</b> Отсутствуют</p><div class="rule"></div><div class="lore"><h3>Зомби</h3><p class="sub">Неутомимые ожившие трупы</p><p>Зомби — это бездумные ожившие трупы, как правило, жутко изуродованные разложением и смертельными ранами. Они служат сверхъестественным силам, которые вдохнули в них жизнь, таким как злые некроманты или духи исчадий. Зомби неутомимы, безжалостны и живучи, а их мёртвая плоть может перенести даже самые тяжёлые ранения. Они способны выполнять простые приказы, но движет ими не разум, а первобытный инстинкт. Мертвецы готовы беспрекословно выполнять любой приказ, работать без устали и пробиваться с боем сквозь строй врагов, однако их легко останавливает препятствие или непредвиденное обстоятельство.</p><p>Обычно зомби создаются из трупов Гуманоидов, но останки других существ также могут стать живыми мертвецами. Такие чудовищные зомби наследуют силу, которая была у них при жизни, или часть своих сверхъестественных способностей, но используют их в лучшем случае беспорядочно.</p><p>Гуманоидные зомби обычно служат создавшим их злым магам в качестве защитников, слуг или солдат. В редких случаях нечестивая магия может поднять целую орду живых мертвецов, готовых сеять страх и убивать всё живое в округе.</p></div></article><p class="meta">Источники: Player's Handbook 2024, Monster Manual 2024, Player's Handbook 2014. <a href="https://next.dnd.su/bestiary/21654-zombie" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

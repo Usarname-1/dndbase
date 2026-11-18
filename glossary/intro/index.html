@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Глоссарий правил","item":"https://usarname-1.github.io/dndbase/glossary/intro/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Глоссарий правил</h1><div class="rule"></div><p>В глоссарии, равно как и в других статьях и карточках, относящихся к правилам D&amp;D 5e24, приняты следующие сокращения и обозначения:</p><p><b>"Вы".</b> Правила часто говорят о том, что происходит с вами в мире игры. "Вы" в данном контексте обозначает то существо или объект, к которому правило относится в данный момент. Например, "вы" в описании состояния Опутанный обозначает существо, на данный момент имеющий это состояние.</p><p><b>"См. также".</b> В некоторых статьях глоссария приведена секция <i>См. также</i>, содержащая ссылки на другие статьи глоссария или другие статьи.</p><h4>Сокращения</h4><div class="sc"><table class="tb"><tr><td>БВ</td><td>Бонус владения</td></tr><tr><td>В</td><td>Вербальный компонент</td></tr><tr><td>КЗ</td><td>Класс Защиты</td></tr><tr><td>К</td><td>Концентрация</td></tr><tr><td>ЗМ</td><td>Золотые монеты</td></tr><tr><td>Инт</td><td>Интеллект</td></tr><tr><td>Лов</td><td>Ловкость</td></tr><tr><td>М</td><td>Материальный компонент</td></tr><tr><td>ММ</td><td>Медные монеты</td></tr><tr><td>Муд</td><td>Мудрость</td></tr><tr><td>Н</td><td>Нейтральный</td></tr><tr><td>НД</td><td>Нейтральный-Добрый</td></tr><tr><td>НЗ</td><td>Нейтральный-Злой</td></tr><tr><td>НИП</td><td>Неигровой персонаж</td></tr><tr><td>Опасность</td><td>Показатель опасности</td></tr><tr><td>Опыт</td><td>Очки опыта</td></tr></table></div><div class="sc"><table class="tb"><tr><td>ПД</td><td>Принципиальный-Добрый</td></tr><tr><td>ПЗ</td><td>Принципиальный-Злой</td></tr><tr><td>ПН</td><td>Принципиальный-Нейтральный</td></tr><tr><td>ПМ</td><td>Платиновые монеты</td></tr><tr><td>Р</td><td>Ритуал</td></tr><tr><td>С</td><td>Соматический компонент</td></tr><tr><td>Сил</td><td>Сила</td></tr><tr><td>Сл</td><td>Сложность</td></tr><tr><td>СМ</td><td>Серебряные монеты</td></tr><tr><td>Тел</td><td>Телосложение</td></tr><tr><td>Хар</td><td>Харизма</td></tr><tr><td>ХД</td><td>Хаотичный-Добрый</td></tr><tr><td>ХЗ</td><td>Хаотичный-Злой</td></tr><tr><td>ХН</td><td>Хаотичный-Нейтральный</td></tr><tr><td>ЭМ</td><td>Электровые монеты</td></tr></table></div></article><p class="meta"><a href="https://next.dnd.su/glossary/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

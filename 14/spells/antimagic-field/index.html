@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Заклинания","item":"https://usarname-1.github.io/dndbase/14/spells/"},{"@type":"ListItem","position":3,"name":"Преграда магии","item":"https://usarname-1.github.io/dndbase/14/spells/antimagic-field/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Преграда магии</h1><p class="en">Antimagic Field</p><p class="sub">8 уровень, Ограждение</p><div class="rule"></div><p class="pr"><b>Время сотворения</b> 1 действие</p><p class="pr"><b>Дистанция</b> На себя (10-футовый радиус)</p><p class="pr"><b>Компоненты</b> В, С, М (щепотка толчёного железа или железная стружка)</p><p class="pr"><b>Длительность</b> Концентрация, вплоть до 1 часа</p><p class="pr"><b>Классы</b> Волшебник, Жрец</p><div class="rule"></div><p>Вас окружает невидимая сфера антимагии с радиусом 10 футов. Эта область отделена от магической энергии, пронизывающей мультивселенную. В пределах этой сферы нельзя накладывать заклинания, призванные существа исчезают, и даже магические предметы становятся обычными. Пока заклинание активно, сфера перемещается вместе с вами, оставаясь с центром на вас.</p><p>В этой сфере подавляются заклинания и прочие магические эффекты, кроме тех, что созданы артефактами и божествами, а также они не могут в неё проникать. Ячейка, потраченная на накладывание подавленного заклинания, всё равно тратится. Пока эффект подавлен, он не действует, но время в подавленном состоянии всё равно учитывается при определении его длительности.</p><p><b>Эффекты с целью</b>. Заклинания и прочие магические эффекты, такие как волшебная стрела [magic missile] и очарование личности [charm person], нацеленные на существо или предмет, находящиеся в сфере, не оказывают на цель никакого эффекта.</p><p><b>Области магии</b><i>.</i> Область магических эффектов и других заклинаний, таких как огненный шар [fireball], не может проникать в сферу. Если сфера оказывается в области магии, область, находящаяся в сфере, подавляется. Например, пламя, созданное огненной стеной [wall of fire], подавляется внутри сферы, создавая брешь в стене, если позволяют габариты.</p><p><b>Заклинания</b>. Все активные заклинания и прочие магические эффекты на существах и предметах подавляются, пока они находятся в сфере.</p><p><b>Магические предметы</b>. Свойства и особенности магических предметов в сфере подавляются. Например, длинный меч +1 в сфере будет обычным длинным мечом.</p><p>Свойства и особенности магического оружия подавляются, если используются против цели в сфере или используются атакующим, находящимся в сфере. Если магическое оружие или боеприпас полностью покидает сферу (например, если вы выстрелите магической стрелой или метнёте магическое копьё в цель, находящуюся вне сферы), магия предмета возвращается.</p><p><b>Магическое перемещение</b>. В сфере не работают телепортация и перемещение между планами, вне зависимости от того, в сферу или из сферы пытаются перенестись. Порталы в другие места, миры и планы существования, а также входы в межпространство, такие как созданные заклинанием трюк с верёвкой [rope trick], временно закрываются, пока они находятся в сфере.</p><p><b>Существа и предметы</b>. Существа и предметы, призванные или созданные магией, временно прекращают существовать, пока они находятся в сфере. Существа возвращаются обратно, когда сфера покидает место, занимаемое ими до исчезновения.</p><p><b>Рассеивание магии</b>. Заклинания и магические эффекты, такие как рассеивание магии [dispel magic], не оказывают на сферу никакого воздействия. Сферы, созданные разными заклинаниями <i>преграда магии</i>, не отменяют друг друга.</p></article><p class="meta">Источники: Player's Handbook 2014. <a href="https://dnd.su/spells/263-antimagic-field/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

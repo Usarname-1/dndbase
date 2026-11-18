@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Зал гильдии","item":"https://usarname-1.github.io/dndbase/glossary/guildhall/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Зал гильдии</h1><p class="en">Guildhall</p><p class="sub">Постройки бастиона</p><div class="rule"></div><p><i>Особая постройка</i></p><p><b>Требование:</b> 17+ уровень; Экспертность в навыке</p><p><b>Пространство:</b> Обширное</p><p><b>Наёмники:</b> 1</p><p><b>Приказ:</b> Вербовка</p><p>К Залу гильдии прилагается гильдия, главой которой являетесь вы. Выберите тип гильдии из вариантов в таблице «Примеры гильдий» или создайте новую гильдию вместе с вашим Мастером. Постройка представляет собой зал для собраний, где члены вашей гильдии могут обсуждать важные вопросы в вашем присутствии.</p><p>В вашей гильдии около пятидесяти членов — умелых людей, которые живут и работают за пределами вашего Бастиона, обычно в ближайших поселениях.</p><h4>Вербовка: Задание гильдии</h4><p>Каждый раз, когда вы отдаёте приказ «Вербовка» этой постройке, вы поручаете наёмнику постройки завербовать членов гильдии для выполнения особого задания. Для каждой гильдии в таблице «Примеры гильдий» указан характер этого задания. С разрешения и при помощи вашего Мастера вы можете создавать новые задания для выполнения членами гильдии.</p><p><b>Примеры гильдий</b></p><div class="sc"><table class="tb"><tr class="h"><td>Гильдия</td><td>Символ</td><td>Задание</td></tr><tr><td>Гильдия искателей приключений</td><td>Горящий факел</td><td>Вы отправляете искателей приключений выследить Зверя с показателем опасности 2 или ниже, который, как известно, обитает в пределах 50 миль от вашего Бастиона. Искатели приключений убивают или захватывают существо (по вашему выбору) за 1к6 + 1 дней. Если существо убито и в вашем Бастионе есть Зал трофеев, вы можете добавить в эту постройку трофей, взятый у существа. Если существо захвачено и в вашем Бастионе есть Зверинец, вы можете добавить существо в эту постройку, при условии что в ней есть место, чтобы его содержать.</td></tr><tr><td>Гильдия пекарей</td><td>Выпечка</td><td>Вы поручаете пекарям испечь изделия для престижного события, которое состоится в ближайшие 7 дней. Вы можете получить оплату монетами (500 ЗМ) или в виде услуги, которую вам должен хозяин события; подробности остаются на усмотрение вас и Мастера.</td></tr><tr><td>Гильдия пивоваров</td><td>Пенящаяся кружка</td><td>Вы поручаете пивоварам доставить в ваш Бастион через 7 дней пятьдесят 40-галлонных бочек эля (стоимостью 10 ЗМ каждая).</td></tr><tr><td>Гильдия каменщиков</td><td>Каменная маска</td><td>Вы поручаете каменщикам бесплатно добавить оборонительную стену к вашему Бастиону. Либо вы можете поручить каменщикам выполнить эту работу для Бастиона другого персонажа, при условии что его Бастион находится в пределах 1 мили от вашего. Каждый участок оборонительной стены размером 5 футов строится 1 день вместо 10 (см. «Карта Бастиона»).</td></tr><tr><td>Гильдия корабелов</td><td>Скрещённые вёсла</td><td>Вы поручаете корабелам построить одно из транспортных средств из таблицы «Воздушные и водные транспортные средства» Книги игрока. Вы оплачиваете полную стоимость транспортного средства, и работа занимает 1 день на каждые 1 000 ЗМ стоимости транспортного средства (Гребная лодка может быть построена за 1 день).</td></tr><tr><td>Гильдия воров</td><td>Белый ключ</td><td>Вы поручаете ворам проникнуть в место в пределах 50 миль от вашего Бастиона и украсть оттуда немагический предмет. Предмет не может быть больше 5 футов по любому измерению и доставляется в ваш Бастион за 1к6 + 1 дней. Мастер может решить, что это занятие подвергает вас риску возмездия со стороны правоохранителей или жертвы.</td></tr></table></div></article><p class="meta">Источники: Dungeon Master's Guide 2024. <a href="https://github.com/5etools-mirror-3/5etools-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

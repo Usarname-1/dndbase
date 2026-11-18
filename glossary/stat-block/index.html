@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Блок статистики","item":"https://usarname-1.github.io/dndbase/glossary/stat-block/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Блок статистики</h1><p class="en">Stat Block</p><div class="rule"></div><p>Блок статистики содержит игровые характеристики монстра. Каждый блок статистики включает следующую информацию, представленную после имени монстра.</p><p><b>Размер.</b> Размер монстра может быть Крошечным, Маленьким, Средним, Большим, Огромным или Громадным.</p><p><b>Тип существа.</b> Здесь указан тип существа, к которому принадлежит монстр, а также любые описательные метки.</p><p><b>Мировоззрение.</b> Для монстра предлагается определённое мировоззрение, но фактическое мировоззрение определяет Мастер.</p><p><b>КЗ, Инициатива и Хиты.</b> Эти записи показывают Класс Защиты, модификатор Инициативы и Хиты монстра. В скобках после Хитов указаны Кости хитов монстра и влияние его Телосложения на Хиты, если таковое есть. После модификатора Инициативы указано значение Инициативы. Для некоторых созданных магией существ информация о Костях Хитов и Инициативе не указывается.</p><p><b>Скорость.</b> Здесь указаны базовая Скорость монстра и особые скорости, если они есть.</p><p>См. также: Скорость копания, Скорость лазания, Скорость полёта, Скорость плавания.</p><p><b>Характеристики.</b> Таблица характеристик содержит значения характеристик монстра, их модификаторы и модификаторы спасбросков.</p><p><b>Навыки.</b> Этот раздел перечисляет навыки, которыми владеет монстр, если таковые имеются.</p><p><b>Сопротивления и Уязвимости.</b> Эти записи перечисляют Сопротивления и Уязвимости монстра, если они есть.</p><p><b>Иммунитеты.</b> В этом разделе перечислены Иммунитеты монстра к урону и состояниям, если они есть.</p><p><b>Снаряжение.</b> Если у монстра есть снаряжение, которое можно забрать или получить, оно указано в этой записи.</p><p><b>Чувства.</b> Этот раздел перечисляет особые чувства монстра, такие как Тёмное зрение, и его пассивное Восприятие.</p><p><b>Языки.</b> Здесь перечислены языки, которые знает монстр.</p><p><b>Опасность.</b> Показатель опасности суммирует уровень угрозы, которую представляет монстр, и подробно описан в Руководстве Мастера. После него следуют Очки опыта, которые получают персонажи за победу над монстром, и Бонус владения монстра. Некоторые существа, созданные магией, не имеют Опасности.</p><p><b>Особенности.</b> Особенности монстра, если они есть, действуют всегда или в определённых ситуациях.</p><p><b>Действия.</b> Монстр может совершать эти действия в дополнение к тем, что описаны в глоссарии.</p><p><b>Бонусные действия.</b> Если у монстра есть варианты Бонусных действий, они перечислены в этом разделе.</p><p><b>Реакции.</b> Если монстр может совершать особые Реакции, они перечислены в этом разделе.</p><p><b>Запись атаки.</b> Запись атаки монстра начинается с указания, является ли атака рукопашной или дальнобойной, затем приводится бонус к броску атаки, его досягаемость или дистанция, и что происходит при попадании. Атака направлена на одну цель, если в записи не указано иного.</p><p><b>Запись эффекта спасброска.</b> Если эффект требует спасброска, запись эффекта начинается с указания типа необходимого спасброска, затем приводится Сл спасброска, описание того, какие существа должны его совершить, и последствия провала и успеха.</p><p><b>Запись урона.</b> Блок статистики обычно предоставляет как статическое число, так и выражение с костями для каждого броска урона. Например, атака может наносить 4 (1к4 + 2) урона при попадании. Мастер определяет, использовать ли статическое число или записанное в скобках выражение с костями; одновременно может использоваться только один из этих вариантов.</p></article><p class="meta"><a href="https://next.dnd.su/glossary/stat-block" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

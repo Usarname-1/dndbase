@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Сад","item":"https://usarname-1.github.io/dndbase/glossary/garden/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Сад</h1><p class="en">Garden</p><p class="sub">Постройки бастиона</p><div class="rule"></div><p><i>Особая постройка</i></p><p><b>Требование:</b> 5+ уровень</p><p><b>Пространство:</b> Просторное, Обширное</p><p><b>Наёмники:</b> 1 (Просторное) / 2 (Обширное)</p><p><b>Приказ:</b> Сбор урожая</p><p>В Бастионе может быть более одного Сада. Каждый раз, когда вы добавляете Сад в свой Бастион, выберите его тип из вариантов в таблице «Типы садов».</p><p>Находясь в своём Бастионе, вы можете поручить наёмнику постройки изменить Сад с одного типа на другой. Эта работа занимает 21 день, в течение которых в этой постройке не может происходить никакой другой деятельности.</p><h4>Сбор урожая: Рост сада</h4><p>Когда вы отдаёте приказ «Сбор урожая» этой постройке, вы поручаете наёмнику постройки собрать предметы из Сада, как указано в таблице «Типы садов». Работа занимает 7 дней и не требует денег.</p><p><b>Типы садов</b></p><div class="sc"><table class="tb"><tr class="h"><td>Тип сада</td><td>Описание</td><td>Урожай</td></tr><tr><td>Декоративный</td><td>Эстетически приятный сад, полный цветов и фигурно подстриженных кустов.</td><td>Десять изысканных цветочных букетов (стоимостью 5 ЗМ каждый), десять флаконов Духов или десять Свечей</td></tr><tr><td>Пищевой</td><td>Сад аппетитных грибов или овощей</td><td>Рационы на 100 дней</td></tr><tr><td>Травяной</td><td>Сад редких трав, некоторые из которых имеют лекарственное применение</td><td>Травы, из которых делают либо десять Комплектов целителя, либо одно Зелье лечения</td></tr><tr><td>Ядовитый</td><td>Сад с растениями и грибами, из которых можно добыть яды и противоядие</td><td>Растения, из которых делают либо два флакона Противоядия, либо один флакон Простого яда</td></tr></table></div><p><b>Расширение постройки.</b> Вы можете расширить свой Сад до Обширной постройки, потратив 2 000 ЗМ. Обширный Сад равнозначен двум Просторным Садам и может включать два Сада одного типа или два разных типа. Когда вы отдаёте приказ «Сбор урожая» Обширному Саду, каждый составной сад даёт собственный урожай. Обширный Сад получает одного дополнительного наёмника.</p></article><p class="meta">Источники: Dungeon Master's Guide 2024. <a href="https://github.com/5etools-mirror-3/5etools-src" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

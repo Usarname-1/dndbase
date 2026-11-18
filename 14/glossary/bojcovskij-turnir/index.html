@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/14/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/14/glossary/"},{"@type":"ListItem","position":3,"name":"Бойцовский турнир","item":"https://usarname-1.github.io/dndbase/14/glossary/bojcovskij-turnir/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Бойцовский турнир</h1><p class="sub">Деятельность в простое</p><div class="rule"></div><p>Бойцовские турниры включают в себя кулачный бой, борьбу и другие несмертельные бои с турнирной сеткой, проходящие по определённым правилам. Если вы хотите ввести соревнования с боями насмерть, то к ним применяются стандартные боевые правила.</p><p><b>Ресурсы.</b> Эта деятельность занимает одну рабочую неделю.</p><p><b>Определение результата.</b> Персонаж должен совершить серию проверок, сложность которых определяется случайным образом и отражает особенности соперника, с которым сталкивается персонаж.</p><p>Основная сложность бойцовских турниров заключается в незнании персонажем особенностей своих противников.</p><p>Персонаж совершает три проверки: Сила (Атлетика), Ловкость (Акробатика) и особую проверку Телосложения с бонусом, равным результату броска наибольшей Кости Хитов персонажа (Кость при этом не тратится). По желанию персонаж может заменить одну из этих проверок навыков броском атаки, используя одно из своих оружий. Сл проверки равна 5+2к10, и для каждой из них она генерируется отдельно. Сверьтесь с таблицей «Результат бойцовского турнира», чтобы узнать, что персонаж добился.</p><h4>Результат бойцовского турнира</h4><div class="sc"><table class="tb"><tr class="h"><td>Результат</td><td>Исход</td></tr><tr><td>0 успехов</td><td>Проигрыш боёв, нулевой заработок</td></tr><tr><td>1 успех</td><td>50 зм</td></tr><tr><td>2 успеха</td><td>100 зм</td></tr><tr><td>3 успеха</td><td>200 зм</td></tr></table></div><p><b>Осложнение.</b> Персонажи, участвующие в боях, имеют дело со своими соперниками, людьми, которые делают ставки, и организаторами матчей. Персонаж, который участвовал в боях в течение рабочей недели, с вероятностью 10% может получить осложнение, примеры которых приведены в таблице «Осложнения во время бойцовского турнира».</p><h4>Осложнения во время бойцовского турнира</h4><div class="sc"><table class="tb"><tr class="h"><td>к6</td><td>Осложнение</td></tr><tr><td>1</td><td>Противник клянётся отомстить Вам.*</td></tr><tr><td>2</td><td>Криминальный авторитет предлагает вам специально проиграть несколько матчей.*</td></tr><tr><td>3</td><td>Вы победили популярного местного чемпиона, вызвав раздражение толпы.</td></tr><tr><td>4</td><td>Вы победили слугу аристократа, вызвав гнев аристократического семейства.</td></tr><tr><td>5</td><td>Вас обвинили в жульничестве. Вне зависимости от справедливости обвинений, ваша репутация пострадала.*</td></tr><tr><td>6</td><td>Вы случайно нанесли почти смертельный удар своему противнику.</td></tr></table></div><p><i>*Возможно участие соперника. (см. в конце статьи).</i></p></article><p class="meta">Источники: Xanathar's Guide to Everything. <a href="https://dnd.su/articles/159-downtime-activities/" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

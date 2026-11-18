@@ -25,10 +25,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://usarname-1.github.io/dndbase/"},{"@type":"ListItem","position":2,"name":"Глоссарий","item":"https://usarname-1.github.io/dndbase/glossary/"},{"@type":"ListItem","position":3,"name":"Уничтожение объектов","item":"https://usarname-1.github.io/dndbase/glossary/breaking-objects/"}]}</script>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="dice.css">
-<link rel="stylesheet" href="dmscreen.css">
-<link rel="stylesheet" href="charsheet.css">
-<link rel="stylesheet" href="charprint.css">
-<link rel="stylesheet" href="translator.css"><link rel="stylesheet" href="gsearch.css">
+<link rel="stylesheet" href="dmscreen.css"><link rel="stylesheet" href="gsearch.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -38,16 +35,11 @@
 <aside class="col" id="fcol"><div class="fh"><span>Фильтры <span class="gn" id="fn"></span></span><span><button id="reset" type="button">Сбросить</button> <button id="fdone" type="button">Готово</button> <button class="cb" data-col="f" type="button" title="Свернуть фильтры">«</button></span></div><button class="strip" data-col="f" type="button" title="Развернуть фильтры">» Фильтры</button><div id="fl"></div></aside>
 <section class="col" id="lcol"><header><p class="ttl">Справочник D&amp;D 5e на русском</p><div class="qr"><input id="q" type="search" placeholder="Поиск (рус / eng)" autocomplete="off"><button id="ftoggle" type="button">Фильтры</button><button class="cb" data-col="l" type="button" title="Свернуть список">«</button></div><div class="qr sr"><select id="sort" aria-label="Сортировка"></select><button id="dir" type="button" title="Направление сортировки">↑</button></div></header><div id="count"></div><ul id="list"></ul><button class="strip" data-col="l" type="button" title="Развернуть список">» Список</button></section>
 <main><div class="wrap"><button id="back" type="button">← К списку</button><div id="card"><article class="stat"><h1>Уничтожение объектов</h1><p class="en">Breaking Objects</p><div class="rule"></div><p>Объекты могут быть повреждены атаками и некоторыми заклинаниями, согласно приведённым ниже правилам. Если объект крайне хрупкий, Мастер может разрешить автоматически разрушить его действием Атака или Использование.</p><p><b>Класс Защиты.</b> Следующая таблица приводит рекомендуемые КЗ различных материалов.</p><div class="sc"><table class="tb"><tr class="h"><td>КЗ</td><td>Материал</td></tr><tr><td>11</td><td>Ткань, бумага, верёвка</td></tr><tr><td>13</td><td>Хрусталь, стекло, лёд</td></tr><tr><td>15</td><td>Дерево</td></tr><tr><td>17</td><td>Камень</td></tr><tr><td>19</td><td>Железо, сталь</td></tr><tr><td>21</td><td>Мифрил</td></tr><tr><td>23</td><td>Адамантин</td></tr></table></div><p><b>Хиты.</b> Объект уничтожается, когда его Хиты опускаются до 0. Следующая таблица предлагает, сколько Хитов могут иметь хрупкие и прочные объекты размером от Крошечного до Большого. Для отслеживания Хитов Огромных и Громадных объектов, разделите их на секции Большого размера или меньше и отслеживайте Хиты каждой секции отдельно. Мастер решает, приводит ли разрушение части объекта к его полному разрушению.</p><div class="sc"><table class="tb"><tr class="h"><td>Размер</td><td>Хрупкий</td><td>Прочный</td></tr><tr><td>Крошечный (флакон, замок)</td><td>2 (1к4)</td><td>5 (2к4)</td></tr><tr><td>Маленький (сундук, лютня)</td><td>3 (1к6)</td><td>10 (3к6)</td></tr><tr><td>Средний (бочка, люстра)</td><td>4 (1к8)</td><td>18 (4к8)</td></tr><tr><td>Большой (телега, обеденный стол)</td><td>5 (1к10)</td><td>27 (5к10)</td></tr></table></div><p><b>Типы урона и объекты.</b> Объекты обладают Иммунитетом Психическому урону и урону Ядом. Мастер может определить, что те или иные типы урона могут быть более или менее эффективны в уничтожении объекта— например, Дробящий урон хорошо подходит для раздавливания предметов, но плох для резки. Бумажные и тканевые предметы могут иметь Уязвимость урону Огнём.</p><p><b>Порог урона.</b> Крупные объекты (например, стены замка) часто обладают дополнительной устойчивостью, выраженной через порог урона.</p><p><b>Отсутствие характеристик.</b> У объекта нет значений характеристик, если правила не говорят иначе. Без характеристик предметы не могут совершать проверки характеристик и автоматически проваливают все спасброски.</p></article><p class="meta"><a href="https://next.dnd.su/glossary/breaking-objects" target="_blank" rel="noopener"></a><span id="xref"></span></p></div></div><div id="dm"></div><div id="cs"></div><div id="tr"></div></main>
-<script src="links.js"></script>
-<script src="dice.js"></script>
-<script src="dmscreen.js"></script>
-<script src="dmpanels.js"></script>
-<script src="charrules.js"></script>
-<script src="charprint.js"></script>
-<script src="charsheet.js"></script>
-<script src="translator.js"></script>
-<script src="tdoc.js"></script><script src="gsearch.js"></script>
-<script src="core.js"></script>
-<script src="home.js"></script>
-<script src="app.js"></script>
+<script src="links.js" defer></script>
+<script src="dice.js" defer></script>
+<script src="dmscreen.js" defer></script>
+<script src="gsearch.js" defer></script>
+<script src="core.js" defer></script>
+<script src="home.js" defer></script>
+<script src="app.js" defer></script>
 </body></html>

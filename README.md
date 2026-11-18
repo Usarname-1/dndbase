@@ -164,10 +164,11 @@ dndbase/
 ├── gsearch.js / .css   # глобальный поиск (Ctrl/⌘+K, «/»)
 ├── dice.js / .css      # кликабельные броски
 ├── links.js            # автоссылки-подсказки
-├── dmscreen.js / .css, dmpanels.js      # экран мастера
+├── dmscreen.js / .css                   # ядро экрана мастера (кнопки на карточках, тосты, хранилище; грузится всегда)
+├── dmpanels.js                          # панели экрана мастера — группа dm, подгружается по требованию
 ├── dmloot.js                            # генератор лута (панель экрана мастера, подгружается по требованию; таблицы — data/loot.json)
-├── charrules.js, charsheet.js / .css, charprint.js / .css   # листы персонажей
-├── translator.js / .css, translator.tpl.js, tdoc.js          # переводчик и конструктор документов
+├── charrules.js, charsheet.js / .css, charprint.js / .css   # листы персонажей — группа cs, подгружается по требованию
+├── translator.js / .css, translator.tpl.js, tdoc.js          # переводчик и конструктор документов — группы dm и tr
 ├── lib/quill/          # текстовый редактор Quill (js, css, лицензия) для конструктора документов
 ├── translator/         # векторные глифы: glyphs.json и svg/ по одному файлу на букву
 ├── fonts/              # шрифты алфавитов D&D (OTF, TTF, WOFF2) и лицензия Noto
@@ -175,6 +176,17 @@ dndbase/
 ├── tools/              # сборка страниц и SEO, индексов, глифов, шрифтов, картинок; templates/ — каркас и главная; serve.js — локальный сервер
 └── tests/              # node --test: правила листа, SEO, индекс поиска
 ```
+
+**Загрузка модулей.** На обычных страницах (карточки, списки, главная) грузится только ядро: `links.js`, `dice.js`, `dmscreen.js`, `gsearch.js`, `core.js`, `home.js`, `app.js` (все с `defer`) и CSS `app`, `dice`, `dmscreen`, `gsearch`. Остальное подгружает `need()` в `app.js`, когда читатель открывает раздел (или наводит на него курсор):
+
+| Группа | Файлы | Когда |
+|---|---|---|
+| `dm` | `dmpanels.js`, `translator.js`, `tdoc.js` | экран мастера, кнопки «На экран мастера» / «В инициативу» на карточках, переводчик |
+| `tr` | `translator.css` (+ `dm`) | страница переводчика |
+| `cs` | `charrules.js`, `charprint.js`, `charsheet.js`, `charsheet.css`, `charprint.css` | листы персонажей |
+
+Правило при добавлении кода: файл, вызывающий `DM.registerType(...)`, обязан входить в группу `dm` — иначе экран мастера при чтении сохранённых данных отбросит неизвестные ему панели (это проверяет `tests/lazy-tools.test.js`). Общие стили, нужные и вне инструментов (`.row`, `.none`, `.dmmodal`, `details`, блок `@media print`), лежат в `dmscreen.css`, а не в лениво грузимых файлах.
+
 
 ### Формат записей
 
