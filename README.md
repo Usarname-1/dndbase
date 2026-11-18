@@ -136,6 +136,25 @@ node tools/serve.js 8080
 
 Подойдёт любой статический хостинг: GitHub Pages, Cloudflare Pages, Netlify.
 
+### Сборка и проверка
+
+Часть файлов в репозитории — результат сборки. Правили данные, шаблон или `translator-data.json` — пересоберите и закоммитьте результат вместе с правкой:
+
+```bash
+node tools/build_home.js               # числа записей на главной (в app.js)
+python3 tools/build_links.py           # data*/links.json — ссылки-подсказки
+python3 tools/build_search.py          # data*/search.json и data*/text/ — глобальный поиск
+python3 tools/build_translator.py      # translator.js из translator.tpl.js и tools/translator-data.json
+node tools/build_pages.js              # все HTML-страницы и sitemap.xml
+node --test                            # тесты
+```
+
+Этим скриптам не нужны сторонние пакеты (Python — только стандартная библиотека). Картинки, шрифты и глифы (`build_images.py`, `build_fonts.py`, `vectorize_glyphs.py`: Pillow, OpenCV, fontTools) пересобираются вручную, когда меняются их исходники.
+
+**CI** (`.github/workflows/ci.yml`) на каждый push в `main` и каждый pull request запускает тесты, затем пересобирает всё перечисленное выше и падает, если результат отличается от закоммиченного, то есть если что-то забыли пересобрать.
+
+**Публикация через Actions** (`.github/workflows/pages.yml`, запуск вручную) готова, но не включена: пока в Settings → Pages выбран источник «Deploy from a branch», сайт публикуется как раньше. Чтобы перейти: переключить Source на «GitHub Actions», запустить workflow и убедиться, что сайт открылся; после этого сгенерированные страницы можно убрать из git и собирать только в CI.
+
 ---
 
 ## Структура репозитория

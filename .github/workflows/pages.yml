@@ -1,0 +1,55 @@
+# Публикация сайта через GitHub Actions — вручную (Actions → Deploy Pages → Run workflow).
+#
+# Пока в настройках репозитория (Settings → Pages → Build and deployment → Source) выбрано «Deploy from a branch»,
+# этот workflow ничего не меняет на сайте и завершится ошибкой на шаге configure-pages.
+# Он нужен как подготовленный и проверенный путь публикации: после переключения Source на «GitHub Actions»
+# сайт можно будет собирать в CI, не храня в git ~8 200 сгенерированных страниц.
+name: Deploy Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Тесты
+        run: node --test
+
+      - name: Собрать страницы
+        run: node tools/build_pages.js
+
+      # В сайт идёт всё, кроме служебного: сам сайт не обращается ни к tools/, ни к tests/.
+      - name: Подготовить каталог сайта
+        run: |
+          mkdir _site
+          tar --exclude='./.git' --exclude='./.github' --exclude='./tests' --exclude='./tools' --exclude='./_site' -cf - . | tar -xf - -C _site
+          du -sh _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
