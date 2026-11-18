@@ -1,0 +1,49 @@
+# Проверки на каждый push в main и на каждый pull request.
+# Они ловят то, что раньше замечали только вручную: правку данных или шаблона без пересборки страниц,
+# поиска, ссылок и переводчика (всё это лежит в репозитории готовыми файлами).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Тесты
+        run: node --test
+
+      - name: Страницы соответствуют данным и шаблону
+        run: node tools/build_pages.js --check
+
+      # Пересобираем всё, что собирается без сторонних пакетов (Python — только стандартная библиотека),
+      # и требуем, чтобы результат совпал с закоммиченным байт-в-байт.
+      # Картинки, шрифты и глифы (Pillow, OpenCV, fontTools) здесь не пересобираются: их результат редко меняется.
+      - name: Сгенерированные файлы актуальны
+        run: |
+          node tools/build_home.js
+          python3 -I tools/build_links.py
+          python3 -I tools/build_search.py
+          python3 -I tools/build_translator.py
+          node tools/build_pages.js
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short | head -30
+            echo "::error title=Сгенерированные файлы устарели::Запустите сборку (см. README, «Сборка и проверка») и закоммитьте результат"
+            exit 1
+          fi
