@@ -31,7 +31,7 @@ body:not(.dm) main{padding-left:calc(var(--cf) + var(--cl) + 18px)}
 #count{font:13px 'PT Sans',sans-serif;color:var(--muted);padding:0 12px 6px}
 #list{flex:1;overflow:auto;margin:0;padding:0;list-style:none}
 #list a{display:block;padding:7px 12px;color:inherit;text-decoration:none;border-top:1px solid var(--line);font-family:'PT Sans',sans-serif}
-#list a:hover{background:rgba(146,38,16,.1)}#list a[aria-current=true]{background:var(--bar);color:#fff}
+#list .lmore{height:1px;padding:0;border:0}#list a:hover{background:rgba(146,38,16,.1)}#list a[aria-current=true]{background:var(--bar);color:#fff}
 #list .t{display:flex;justify-content:space-between;gap:8px}#list small{opacity:.7;white-space:nowrap;font-size:12px;padding-top:3px}#list .s{display:block;font-size:12.5px;line-height:1.35;opacity:.75;margin-top:2px}
 main{grid-area:main;overflow:auto;padding:26px 18px 60px}.wrap{max-width:780px;margin:0 auto}
 .stat{background:var(--paper);padding:16px 20px 18px;border:1px solid #c9b48a;border-top:4px solid var(--bar);border-bottom:4px solid var(--bar);box-shadow:0 3px 14px rgba(40,25,5,.35);color:#1d1a16;font-size:15px;line-height:1.4}
