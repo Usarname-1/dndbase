@@ -2,25 +2,34 @@
    Разметка карточек, списков и адресов — в core.js; готовые страницы для поисковиков собирает tools/build_pages.js. */
 const $=s=>document.querySelector(s);
 const HOMEN={"14":{"bestiary":3141,"spells":535,"class":16,"race":84,"backgrounds":87,"feats":105,"items":934,"equipment":377,"glossary":332,"articles":129},"24":{"bestiary":657,"spells":444,"class":14,"species":19,"backgrounds":70,"feats":195,"items":437,"equipment":336,"glossary":279}};/*home-counts*/
-let curKey='',sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false;
+let curKey='',sec,data=[],view=[],flt=[],V=[],NM=[],opts=[],cells=[],sortI=0,desc=false,KC={},rT,shown=0,curSlug='';
 async function load(k,e=ed,quiet){const key=e+k;if(!cache[key]){if(!quiet)$('#count').textContent='Загрузка…';const dir=e==14?'data14':'data';try{cache[key]=sortEntries(await(await fetch(`${dir}/${k}.json`)).json())}catch(x){if(!quiet)$('#count').textContent=`Не удалось загрузить ${dir}/${k}.json (открывайте через сервер, не файлом)`;return[]}}return cache[key]}
 const ok=(k,skip)=>flt.every((o,i)=>i===skip||!o.s.size||(o.all?[...o.s].every(v=>V[k][i].includes(v)):[...o.s].some(v=>V[k][i].includes(v))));
 function filters(){const F=SX[sec].F;
- V=data.map(m=>F.map(([,f])=>{try{return f(m)||[]}catch(e){return[]}}));
+ V=data.map(m=>F.map(([,f])=>{try{const v=f(m)||[];return Array.isArray(v)&&v.length>1?[...new Set(v)]:v}catch(e){return[]}}));KC={};clearTimeout(rT);
  NM=data.map(m=>norm(m.name_ru+' '+(m.name_en||'')));
  opts=F.map(([,,so],i)=>[...new Set(V.flatMap(v=>v[i]))].filter(Boolean).sort(so||ru));
  flt=F.map(()=>({s:new Set(),all:false}));
  sortI=0;desc=false;$('#dir').textContent='↑';$('#sort').innerHTML=SX[sec].SORT.map((s,i)=>`<option value="${i}">${i?'Сортировка: ':''}${esc(s[0])}</option>`).join('');
  $('#fl').innerHTML=F.map(([n,,,mu],i)=>`<section class="g" data-g="${i}"><div class="gh"><span>${esc(n)}</span><span class="gn"></span></div><div class="go">${mu?`<label class="md"><input type="checkbox" data-all="${i}"> должны подходить все (И)</label>`:''}${opts[i].map((v,j)=>`<label class="o"><input type="checkbox" data-i="${i}" data-j="${j}"><span>${esc(v)}</span><em></em></label>`).join('')}</div></section>`).join('');
  cells=F.map((_,i)=>[...document.querySelectorAll(`.o input[data-i="${i}"]`)].map(x=>x.parentNode))}
+// Список рисуется порциями: полная перерисовка тысяч строк (бестиарий 2014 — 3141) стоила секунду на слабом телефоне.
+// Остальное дорисовывает IntersectionObserver по мере прокрутки; запись, открытая по адресу, догружается всегда (showRow).
+const CHUNK=typeof IntersectionObserver=='undefined'?1e9:400,more=document.createElement('li');more.className='lmore';more.setAttribute('aria-hidden','true');
+const io=CHUNK<1e9&&new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))paint(shown+CHUNK)},{root:$('#list'),rootMargin:'1500px 0px'});
+function paint(to){const L=$('#list');to=Math.min(view.length,to);
+ if(to>shown){more.remove();L.insertAdjacentHTML('beforeend',view.slice(shown,to).map(m=>listItem(ed,sec,m)).join(''));shown=to;
+  if(curSlug){const a=L.querySelector(`a[data-slug="${CSS.escape(curSlug)}"]`);a&&a.setAttribute('aria-current','true')}}
+ if(io){if(shown<view.length){L.append(more);io.unobserve(more);io.observe(more)}else{more.remove();io.unobserve(more)}}}
+const showRow=slug=>{const i=view.findIndex(m=>m.slug===slug);if(i>=shown)paint(i+CHUNK/2)};
 function render(){const c=SX[sec],q=norm($('#q').value.trim()),hit=k=>!q||NM[k].includes(q);
- const idx=[];data.forEach((m,k)=>{if(hit(k)&&ok(k))idx.push(k)});
- const kf=(c.SORT[sortI]||[])[1],K=data.map((m,k)=>kf?kf(m):k),pin=k=>data[k].slug=='intro';
+ const idx=[],hits=[];data.forEach((m,k)=>{if(hit(k)){hits.push(k);if(ok(k))idx.push(k)}});
+ const kf=(c.SORT[sortI]||[])[1],K=KC[sortI]||(KC[sortI]=data.map((m,k)=>kf?kf(m):k)),pin=k=>data[k].slug=='intro';
  idx.sort((a,b)=>{if(pin(a)!=pin(b))return pin(a)?-1:1;const x=K[a],y=K[b];if(x==null||y==null)return x==null&&y==null?a-b:x==null?1:-1;const r=(typeof x=='number'&&typeof y=='number'?x-y:String(x).localeCompare(String(y),'ru'))*(desc?-1:1);return r||a-b});
  view=idx.map(k=>data[k]);
  $('#count').textContent=`Найдено: ${view.length} из ${data.length}`;
- $('#list').innerHTML=view.map(m=>listItem(ed,sec,m)).join('');
- c.F.forEach((_,i)=>{const cnt={};data.forEach((m,k)=>{if(hit(k)&&ok(k,i))new Set(V[k][i]).forEach(v=>cnt[v]=(cnt[v]||0)+1)});
+ $('#list').innerHTML='';shown=0;paint(CHUNK);
+ c.F.forEach((_,i)=>{const cnt={};for(const k of hits)if(ok(k,i))V[k][i].forEach(v=>cnt[v]=(cnt[v]||0)+1);
   cells[i].forEach((lab,j)=>{const n=cnt[opts[i][j]]||0;lab.lastChild.textContent=n;lab.classList.toggle('z',!n)});
   const g=document.querySelector(`.g[data-g="${i}"]`),n=flt[i].s.size;if(g)g.querySelector('.gn').textContent=n||''});
  const n=flt.filter(o=>o.s.size).length;$('#fn').textContent=n||'';$('#ftoggle').textContent='Фильтры'+(n?` (${n})`:'')}
@@ -94,13 +103,13 @@ async function route(){dispatchEvent(new Event('routechange'));let P=parseLoc();
  if(!k){land();return}
  const s=k,key=ed+s;
  document.body.classList.toggle('e14',ed==14);ls.set('ed',ed);
- if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML(ed);$('#q').value='';$('#list').innerHTML='';$('#fl').innerHTML='';$('#fn').textContent='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
+ if(key!==curKey){curKey=key;sec=s;$('#nav').innerHTML=navHTML(ed);$('#q').value='';clearTimeout(rT);shown=0;$('#list').innerHTML='';$('#fl').innerHTML='';$('#fn').textContent='';const d=await load(s);if(curKey!==key)return;data=d;filters();render();document.querySelectorAll('nav a[data-s]').forEach(a=>a.setAttribute('aria-current',a.dataset.s===s))}
  edLinks();
  const m=slug&&data.find(x=>x.slug===slug);
- document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
+ curSlug=slug||'';document.querySelectorAll('#list a').forEach(a=>a.setAttribute('aria-current',a.dataset.slug===slug));
  if(!m){$('#card').innerHTML=sectionCard(ed,sec);setMeta(sectionTitle(ed,sec,data.length),sectionDesc(ed,sec,data.length),hh(ed,sec));document.body.classList.remove('open');return}
  $('#card').innerHTML=pageCard(ed,sec,m);Dice.linkify($('#card'));setMeta(entryTitle(ed,sec,m,dupsOf()),entryDesc(ed,sec,m),hh(ed,sec,m.slug));document.body.classList.add('open');$('main').scrollTop=0;
- const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'});xref(m,location.pathname);addPic(m,location.pathname);autolink(m,location.pathname);DM.cardActions&&DM.cardActions(m,ed,sec)}
+ showRow(slug);const a=$(`#list a[data-slug="${CSS.escape(slug)}"]`);a&&a.scrollIntoView({block:'nearest'});xref(m,location.pathname);addPic(m,location.pathname);autolink(m,location.pathname);DM.cardActions&&DM.cardActions(m,ed,sec)}
 
 const RUNES=['dwarvish','elvish','draconic','infernal'];let runeI=0;
 function land(){const b=document.body;b.classList.add('land','open');b.classList.toggle('e14',ed==14);ls.set('ed',ed);curKey='';
@@ -117,7 +126,9 @@ $('#card').addEventListener('click',e=>{const t=e.target.closest('#runes,#hs,[da
  else window.GSearch&&GSearch.open(t.dataset.q||'')});
 ['nof','nol'].forEach(c=>ls.get(c)=='1'&&document.body.classList.add(c));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-col]');if(!b)return;const c='no'+b.dataset.col,on=document.body.classList.toggle(c);ls.set(c,on?'1':'0')});
-$('#q').addEventListener('input',render);
+// поиск по разделу: перерисовка через 120 мс после последней буквы; Enter и крестик в поле — сразу
+$('#q').addEventListener('input',()=>{clearTimeout(rT);rT=setTimeout(render,120)});
+$('#q').addEventListener('search',()=>{clearTimeout(rT);render()});
 // Телефон (до 780px): поле над списком — вход в глобальный поиск (по всей базе); галочка «Поиск по разделу» возвращает прежний поиск по списку раздела.
 // На компьютере поле ищет по разделу, как раньше, а глобальный поиск открывается кнопкой «Поиск» в верхней панели.
 {const q=$('#q'),mq=matchMedia('(max-width:780px)'),lab=document.createElement('label');
